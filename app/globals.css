@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-bg:  #07070f;
+  --color-sf:  #0e0e1c;
+  --color-s2:  #151528;
+  --color-bd:  #1e1e34;
+  --color-dim: #36364e;
+  --color-gd:  #f0c040;
+  --color-or:  #e05a30;
+  --color-bl:  #4a9eff;
+  --color-gr:  #38c47a;
+  --color-pu:  #a060ff;
+  --color-tx:  #e5e5f2;
+  --color-mu:  #5a5a7a;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { -webkit-font-smoothing: antialiased; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #07070f;
+  color: #e5e5f2;
+  font-family: 'DM Sans', 'Inter', sans-serif;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(240,192,64,.05) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(160,96,255,.04) 0%, transparent 50%);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0e0e1c; }
+::-webkit-scrollbar-thumb { background: #36364e; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #5a5a7a; }
+
+.hover-card {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.group:hover .hover-card,
+.hover-card.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }

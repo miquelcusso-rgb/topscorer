@@ -1,0 +1,65 @@
+export type Season = '2526' | '2425' | '2324'
+export type Tab = 's' | 'a'
+export type SrcType = 'live' | 'srch' | 'est'
+export type Position = 'FW' | 'MF' | 'DF' | 'GK'
+export type PlayerStatus = 'injured' | 'loan' | 'questionable' | 'transfer' | null
+
+export interface PlayerData {
+  name: string
+  club: string
+  league: string
+  age: number
+  pj: number
+  goles: number
+  asist: number
+  season: Season
+  src: SrcType
+  tab: Tab
+  nationality?: string
+  flag?: string
+  position?: Position
+  marketValue?: string
+  releaseClause?: string | null
+  contractUntil?: string
+  status?: PlayerStatus
+  statusDetail?: string
+  prevClub?: string
+  elo?: number
+  fantasyPoints?: number
+  fantasyPrice?: number
+}
+
+export interface EnrichedPlayer extends PlayerData {
+  coef: number
+  ratio_g: number
+  ratio_a: number
+  val_sin: number
+  val_con: number
+  isFiller?: boolean
+  isPinned?: boolean
+}
+
+export type SortKey =
+  | 'val_sin'
+  | 'val_con'
+  | 'goles'
+  | 'asist'
+  | 'ratio_g'
+  | 'ratio_a'
+  | 'age'
+  | 'elo'
+  | 'fantasyPoints'
+
+export interface PanelState {
+  season: Season
+  age: number
+  showEur5: boolean
+  showPt: boolean
+  showTr: boolean
+  showGr: boolean
+  sort: SortKey
+  dir: 1 | -1
+  pinned: Record<string, boolean>
+  showElo: boolean
+  showFantasy: boolean
+}
