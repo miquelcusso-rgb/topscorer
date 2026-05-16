@@ -353,8 +353,8 @@ export default function PricingPage() {
         >
           <p className="text-[13px] mb-5" style={{ color: C.mu }}>
             ¿Tienes preguntas?{' '}
-            <a href="mailto:hola@top-scorers.com" style={{ color: C.tx }}>
-              hola@top-scorers.com
+            <a href="mailto:support@top-scorers.com" style={{ color: C.tx }}>
+              support@top-scorers.com
             </a>
           </p>
           <Link
