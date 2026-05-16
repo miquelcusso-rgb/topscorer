@@ -47,7 +47,7 @@ export function makeSortFn(key: SortKey, dir: 1 | -1) {
   }
 }
 
-export function buildTop25(pool: EnrichedPlayer[], state: PanelState): EnrichedPlayer[] {
+export function buildTopN(pool: EnrichedPlayer[], state: PanelState, limit = 25): EnrichedPlayer[] {
   const allowed = new Set<string>()
   if (state.showEur5) ['La Liga','Premier League','Bundesliga','Serie A','Ligue 1'].forEach(l => allowed.add(l))
   if (state.showPt) allowed.add('Primeira Liga')
@@ -60,25 +60,25 @@ export function buildTop25(pool: EnrichedPlayer[], state: PanelState): EnrichedP
   const primary = bySeason.filter(p => p.age <= state.age).sort(sf)
   const filler  = bySeason.filter(p => p.age >  state.age).sort(sf)
 
-  const top25: EnrichedPlayer[] = []
+  const result: EnrichedPlayer[] = []
   const seen: Record<string, boolean> = {}
   for (const p of [...primary, ...filler]) {
-    if (top25.length >= 25) break
+    if (result.length >= limit) break
     if (!seen[p.name]) {
-      top25.push(p.age > state.age ? { ...p, isFiller: true } : p)
+      result.push(p.age > state.age ? { ...p, isFiller: true } : p)
       seen[p.name] = true
     }
   }
 
   for (const pname of Object.keys(state.pinned)) {
-    const idx = top25.findIndex(p => p.name === pname)
-    if (idx !== -1) { top25[idx] = { ...top25[idx], isPinned: true }; continue }
+    const idx = result.findIndex(p => p.name === pname)
+    if (idx !== -1) { result[idx] = { ...result[idx], isPinned: true }; continue }
     const pr = bySeason.find(p => p.name === pname)
     if (!pr) continue
-    const lastFree = [...top25].map((p,i) => i).reverse().find(i => !top25[i].isPinned)
-    if (lastFree !== undefined) top25.splice(lastFree, 1)
-    top25.push({ ...pr, isPinned: true })
+    const lastFree = [...result].map((_p,i) => i).reverse().find(i => !result[i].isPinned)
+    if (lastFree !== undefined) result.splice(lastFree, 1)
+    result.push({ ...pr, isPinned: true })
   }
 
-  return top25.sort(sf)
+  return result.sort(sf)
 }

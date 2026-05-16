@@ -1,8 +1,9 @@
-export type Season = '2526' | '2425' | '2324'
+export type Season = '2526' | '2425' | '2324' | '2223' | '2122' | '2021'
 export type Tab = 's' | 'a'
 export type SrcType = 'live' | 'srch' | 'est'
 export type Position = 'FW' | 'MF' | 'DF' | 'GK'
 export type PlayerStatus = 'injured' | 'loan' | 'questionable' | 'transfer' | null
+export type Plan = 'free' | 'pro' | 'team'
 
 export interface PlayerData {
   name: string
@@ -62,4 +63,10 @@ export interface PanelState {
   pinned: Record<string, boolean>
   showElo: boolean
   showFantasy: boolean
+  // Pro-only
+  showTop50: boolean
+  showPj: boolean
+  showRatios: boolean
+  showValCoef: boolean
+  showValSin: boolean
 }

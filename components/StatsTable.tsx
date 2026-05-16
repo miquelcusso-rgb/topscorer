@@ -8,6 +8,10 @@ interface Props {
   dir: 1 | -1
   showElo: boolean
   showFantasy: boolean
+  showPj?: boolean
+  showRatios?: boolean
+  showValSin?: boolean
+  showValCoef?: boolean
   onSort: (key: SortKey) => void
   onUnpin: (name: string) => void
 }
@@ -41,41 +45,43 @@ function Th({ label, sortKey, currentSort, dir, onSort }: {
   )
 }
 
-export default function StatsTable({ players, isAssist, sort, dir, showElo, showFantasy, onSort, onUnpin }: Props) {
+export default function StatsTable({
+  players, isAssist, sort, dir,
+  showElo, showFantasy,
+  showPj = true, showRatios = true, showValSin = true, showValCoef = true,
+  onSort, onUnpin,
+}: Props) {
   const maxVal = Math.max(1, ...players.map(p => isAssist ? p.asist : p.goles))
-
-  const scorerCols = ['Val. sin', 'Val. con coef.'] as const
-  const assistCols = ['G+A'] as const
 
   return (
     <div
       className="overflow-x-auto"
-      style={{ background: '#0e0e1c', border: '1px solid #1e1e34', borderTop: 'none', borderRadius: '0 0 3px 3px' }}
+      style={{ background: '#0e0e1c', border: '1px solid #1e1e34', borderTop: 'none' }}
     >
-      <table className="w-full border-collapse" style={{ minWidth: 760 }}>
+      <table className="w-full border-collapse" style={{ minWidth: 680 }}>
         <thead>
           <tr style={{ background: '#151528', borderBottom: '2px solid #f0c040' }}>
-            <Th label="#"          currentSort={sort} dir={dir} onSort={onSort} />
-            <Th label="Jugador"    currentSort={sort} dir={dir} onSort={onSort} />
-            <Th label="Liga"       currentSort={sort} dir={dir} onSort={onSort} />
-            <Th label="Edad"       sortKey="age"       currentSort={sort} dir={dir} onSort={onSort} />
-            <Th label="PJ"         currentSort={sort} dir={dir} onSort={onSort} />
+            <Th label="#"       currentSort={sort} dir={dir} onSort={onSort} />
+            <Th label="Jugador" currentSort={sort} dir={dir} onSort={onSort} />
+            <Th label="Liga"    currentSort={sort} dir={dir} onSort={onSort} />
+            <Th label="Edad"    sortKey="age" currentSort={sort} dir={dir} onSort={onSort} />
+            {showPj && <Th label="PJ" currentSort={sort} dir={dir} onSort={onSort} />}
             {isAssist ? (
               <>
-                <Th label="Asist." sortKey="asist"    currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="Goles"  sortKey="goles"    currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="A/PJ"   sortKey="ratio_a"  currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="G/PJ"   sortKey="ratio_g"  currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="G+A"    sortKey="val_sin"  currentSort={sort} dir={dir} onSort={onSort} />
+                <Th label="Asist." sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
+                <Th label="Goles"  sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
+                {showRatios && <Th label="A/PJ" sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showRatios && <Th label="G/PJ" sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showValSin && <Th label="G+A" sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
               </>
             ) : (
               <>
-                <Th label="Goles"       sortKey="goles"    currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="Asist."      sortKey="asist"    currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="G/PJ"        sortKey="ratio_g"  currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="A/PJ"        sortKey="ratio_a"  currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="Val. sin"    sortKey="val_sin"  currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="Val. coef."  sortKey="val_con"  currentSort={sort} dir={dir} onSort={onSort} />
+                <Th label="Goles"  sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
+                <Th label="Asist." sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
+                {showRatios && <Th label="G/PJ"  sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showRatios && <Th label="A/PJ"  sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showValSin  && <Th label="Val. sin"   sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showValCoef && <Th label="Val. coef." sortKey="val_con" currentSort={sort} dir={dir} onSort={onSort} />}
               </>
             )}
             {showElo     && <Th label="ELO"     sortKey="elo"           currentSort={sort} dir={dir} onSort={onSort} />}
@@ -93,6 +99,10 @@ export default function StatsTable({ players, isAssist, sort, dir, showElo, show
               maxVal={maxVal}
               showElo={showElo}
               showFantasy={showFantasy}
+              showPj={showPj}
+              showRatios={showRatios}
+              showValSin={showValSin}
+              showValCoef={showValCoef}
               onUnpin={p.isPinned ? onUnpin : undefined}
             />
           ))}

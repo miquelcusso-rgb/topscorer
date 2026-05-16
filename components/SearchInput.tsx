@@ -42,7 +42,6 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
           value={query}
           placeholder="Buscar jugador…"
           onChange={e => { setQuery(e.target.value); setOpen(true) }}
-          onFocus={() => setOpen(true)}
           className="w-full pl-7 pr-3 py-1.5 text-[12px] rounded-sm outline-none transition-colors duration-150"
           style={{
             background: '#151528',

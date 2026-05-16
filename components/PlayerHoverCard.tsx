@@ -15,16 +15,17 @@ interface Props {
   player: EnrichedPlayer
   showElo: boolean
   showFantasy: boolean
+  open?: boolean
 }
 
-export default function PlayerHoverCard({ player, showElo, showFantasy }: Props) {
+export default function PlayerHoverCard({ player, showElo, showFantasy, open }: Props) {
   const status = player.status ? STATUS_LABEL[player.status] : null
   const posColor = player.position ? POS_COLOR[player.position] : '#5a5a7a'
   const isAssistTab = player.tab === 'a'
 
   return (
     <div
-      className="hover-card absolute left-full top-1/2 z-[200] ml-3 w-72"
+      className={`hover-card absolute left-full top-1/2 z-[200] ml-3 w-72${open ? ' open' : ''}`}
       style={{ transform: 'translateY(-50%)' }}
     >
       {/* Arrow */}

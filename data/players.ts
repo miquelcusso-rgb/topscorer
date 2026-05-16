@@ -42,15 +42,12 @@ const EXT: Record<string, Partial<PlayerData>> = {
   'Joao Pedro':            { nationality:'Brasileño',  flag:'🇧🇷', position:'FW', marketValue:'€40M',  releaseClause:null,    contractUntil:'2029', elo:1800, fantasyPoints:133, fantasyPrice:9.0 },
   'Ferran Torres':         { nationality:'Español',    flag:'🇪🇸', position:'FW', marketValue:'€30M',  releaseClause:null,    contractUntil:'2027', elo:1810, fantasyPoints:135, fantasyPrice:9.0 },
   'Marcus Thuram':         { nationality:'Francés',    flag:'🇫🇷', position:'FW', marketValue:'€55M',  releaseClause:null,    contractUntil:'2028', elo:1870, fantasyPoints:143, fantasyPrice:9.5 },
-  'Alexander Isak':        { nationality:'Sueco',      flag:'🇸🇪', position:'FW', marketValue:'€100M', releaseClause:null,    contractUntil:'2028', elo:2000, fantasyPoints:161, fantasyPrice:11.5 },
   'Ollie Watkins':         { nationality:'Inglés',     flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', position:'FW', marketValue:'€60M',  releaseClause:null,    contractUntil:'2029', elo:1890, fantasyPoints:145, fantasyPrice:10.0 },
   'Chris Wood':            { nationality:'Neozelandés',flag:'🇳🇿', position:'FW', marketValue:'€8M',   releaseClause:null,    contractUntil:'2026', elo:1730, fantasyPoints:119, fantasyPrice:8.0 },
   'Rasmus Hojlund':        { nationality:'Danés',      flag:'🇩🇰', position:'FW', marketValue:'€55M',  releaseClause:null,    contractUntil:'2028', status:'transfer', statusDetail:'Llegó en verano de Atalanta', elo:1780, fantasyPoints:90, fantasyPrice:9.0 },
-  'Florian Wirtz':         { nationality:'Alemán',     flag:'🇩🇪', position:'MF', marketValue:'€150M', releaseClause:null,    contractUntil:'2027', elo:2060, fantasyPoints:164, fantasyPrice:12.5 },
   'Artem Dovbyk':          { nationality:'Ucraniano',  flag:'🇺🇦', position:'FW', marketValue:'€30M',  releaseClause:null,    contractUntil:'2028', elo:1820, fantasyPoints:142, fantasyPrice:9.0 },
   'Ademola Lookman':       { nationality:'Nigeriano',  flag:'🇳🇬', position:'FW', marketValue:'€55M',  releaseClause:null,    contractUntil:'2028', elo:1870, fantasyPoints:137, fantasyPrice:10.0 },
   'Khvicha Kvaratskhelia': { nationality:'Georgiano',  flag:'🇬🇪', position:'FW', marketValue:'€80M',  releaseClause:null,    contractUntil:'2029', status:'transfer', statusDetail:'Llegó en verano de Napoli', elo:1910, fantasyPoints:148, fantasyPrice:11.0 },
-  'Vinicius Junior':       { nationality:'Brasileño',  flag:'🇧🇷', position:'FW', marketValue:'€150M', releaseClause:null,    contractUntil:'2027', elo:2080, fantasyPoints:176, fantasyPrice:13.0 },
   'Trent Alexander-Arnold':{ nationality:'Inglés',     flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', position:'DF', marketValue:'€60M',  releaseClause:null,    contractUntil:'2028', status:'transfer', statusDetail:'Llegó en verano de Liverpool', elo:1870, fantasyPoints:113, fantasyPrice:9.5 },
   'Alejandro Grimaldo':    { nationality:'Español',    flag:'🇪🇸', position:'DF', marketValue:'€40M',  releaseClause:null,    contractUntil:'2027', elo:1840, fantasyPoints:117, fantasyPrice:9.0 },
   'Ousmane Dembele':       { nationality:'Francés',    flag:'🇫🇷', position:'FW', marketValue:'€70M',  releaseClause:null,    contractUntil:'2028', elo:1930, fantasyPoints:139, fantasyPrice:11.0 },
@@ -72,7 +69,8 @@ const EXT: Record<string, Partial<PlayerData>> = {
   'Alvaro Morata':         { nationality:'Español',    flag:'🇪🇸', position:'FW', marketValue:'€12M',  releaseClause:null,    contractUntil:'2026', elo:1750, fantasyPoints:108, fantasyPrice:8.5 },
 }
 
-const RAW: Omit<PlayerData, keyof typeof EXT[string]>[] = [
+type RawPlayer = Pick<PlayerData, 'name'|'club'|'league'|'age'|'pj'|'goles'|'asist'|'season'|'src'|'tab'>
+const RAW: RawPlayer[] = [
   // ── 25/26 SCORERS ──
   { name:'Harry Kane',        club:'Bayern Munich',  league:'Bundesliga',      age:31, pj:29, goles:33, asist:10, season:'2526', src:'live', tab:'s' },
   { name:'Kylian Mbappe',     club:'Real Madrid',    league:'La Liga',          age:26, pj:28, goles:24, asist:8,  season:'2526', src:'live', tab:'s' },
@@ -249,7 +247,7 @@ const RAW: Omit<PlayerData, keyof typeof EXT[string]>[] = [
   { name:'Pedri',                  club:'Barcelona',      league:'La Liga',       age:21, pj:35, goles:8,  asist:9,  season:'2324', src:'srch', tab:'a' },
 ]
 
-export const PLAYERS: PlayerData[] = RAW.map(p => ({
+export const PLAYERS = RAW.map(p => ({
   ...p,
   ...(EXT[p.name] ?? {}),
-}))
+})) as PlayerData[]

@@ -12,6 +12,10 @@ interface Props {
   maxVal: number
   showElo: boolean
   showFantasy: boolean
+  showPj?: boolean
+  showRatios?: boolean
+  showValSin?: boolean
+  showValCoef?: boolean
   onUnpin?: (name: string) => void
 }
 
@@ -21,9 +25,14 @@ const SRC_STYLE = {
   est:  { label: 'Estimado', color: '#e05a30', bg: 'rgba(224,90,48,.10)',  border: 'rgba(224,90,48,.22)' },
 }
 
-export default function PlayerRow({ player, rank, isAssist, maxVal, showElo, showFantasy, onUnpin }: Props) {
+export default function PlayerRow({
+  player, rank, isAssist, maxVal,
+  showElo, showFantasy,
+  showPj = true, showRatios = true, showValSin = true, showValCoef = true,
+  onUnpin,
+}: Props) {
   const [cardOpen, setCardOpen] = useState(false)
-  const isTop3 = rank <= 3
+  const isTop3  = rank <= 3
   const mainVal = isAssist ? player.asist : player.goles
   const barPct  = Math.round((mainVal / maxVal) * 100)
   const ls      = LEAGUE_STYLE[player.league] ?? { bg: 'rgba(90,90,122,.12)', color: '#5a5a7a', border: 'rgba(90,90,122,.25)' }
@@ -56,10 +65,7 @@ export default function PlayerRow({ player, rank, isAssist, maxVal, showElo, sho
           <div className="min-w-0">
             <div
               className="font-semibold text-[13.5px] leading-tight truncate"
-              style={{
-                color: '#e5e5f2',
-                textShadow: isTop3 ? '0 0 12px rgba(240,192,64,.25)' : 'none',
-              }}
+              style={{ color: '#e5e5f2', textShadow: isTop3 ? '0 0 12px rgba(240,192,64,.25)' : 'none' }}
             >
               {player.flag && <span className="mr-1 text-sm">{player.flag}</span>}
               {player.name}
@@ -84,17 +90,12 @@ export default function PlayerRow({ player, rank, isAssist, maxVal, showElo, sho
             </button>
           )}
         </div>
-
-        {/* Hover card */}
-        <PlayerHoverCard player={player} showElo={showElo} showFantasy={showFantasy} />
+        <PlayerHoverCard player={player} showElo={showElo} showFantasy={showFantasy} open={cardOpen} />
       </td>
 
       {/* League */}
       <td className="py-2.5 pr-3">
-        <span
-          className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-sm whitespace-nowrap"
-          style={{ color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}
-        >
+        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-sm whitespace-nowrap" style={{ color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}>
           {player.league}
         </span>
       </td>
@@ -103,19 +104,18 @@ export default function PlayerRow({ player, rank, isAssist, maxVal, showElo, sho
       <td className="py-2.5 pr-3 text-[12px]" style={{ color: '#5a5a7a' }}>{player.age}</td>
 
       {/* PJ */}
-      <td className="py-2.5 pr-3" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#5a5a7a' }}>{player.pj}</td>
+      {showPj && (
+        <td className="py-2.5 pr-3" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#5a5a7a' }}>{player.pj}</td>
+      )}
 
-      {/* Main stat (goals or assists) with mini bar */}
+      {/* Main stat with mini bar */}
       <td className="py-2.5 pr-3">
         <div className="flex items-center gap-2">
           <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 20, color: isAssist ? '#4a9eff' : '#f0c040' }}>
             {mainVal}
           </span>
           <div className="h-[3px] rounded-sm flex-1 min-w-[40px] max-w-[80px]" style={{ background: '#1e1e34' }}>
-            <div
-              className="h-full rounded-sm"
-              style={{ width: `${barPct}%`, background: isAssist ? '#4a9eff' : '#f0c040' }}
-            />
+            <div className="h-full rounded-sm" style={{ width: `${barPct}%`, background: isAssist ? '#4a9eff' : '#f0c040' }} />
           </div>
         </div>
       </td>
@@ -126,30 +126,38 @@ export default function PlayerRow({ player, rank, isAssist, maxVal, showElo, sho
       </td>
 
       {/* Ratios */}
-      <td className="py-2.5 pr-3 text-[12px] font-semibold" style={{ color: isAssist ? 'rgba(74,158,255,.9)' : 'rgba(240,192,64,.9)' }}>
-        {isAssist ? player.ratio_a.toFixed(2) : player.ratio_g.toFixed(2)}
-      </td>
-      <td className="py-2.5 pr-3 text-[12px] font-semibold" style={{ color: isAssist ? 'rgba(240,192,64,.9)' : 'rgba(74,158,255,.9)' }}>
-        {isAssist ? player.ratio_g.toFixed(2) : player.ratio_a.toFixed(2)}
-      </td>
-
-      {/* Value / G+A */}
-      {isAssist ? (
-        <td className="py-2.5 pr-3" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#38c47a' }}>
-          {player.goles + player.asist}
-        </td>
-      ) : (
+      {showRatios && (
         <>
+          <td className="py-2.5 pr-3 text-[12px] font-semibold" style={{ color: isAssist ? 'rgba(74,158,255,.9)' : 'rgba(240,192,64,.9)' }}>
+            {isAssist ? player.ratio_a.toFixed(2) : player.ratio_g.toFixed(2)}
+          </td>
+          <td className="py-2.5 pr-3 text-[12px] font-semibold" style={{ color: isAssist ? 'rgba(240,192,64,.9)' : 'rgba(74,158,255,.9)' }}>
+            {isAssist ? player.ratio_g.toFixed(2) : player.ratio_a.toFixed(2)}
+          </td>
+        </>
+      )}
+
+      {/* Val sin / G+A */}
+      {showValSin && (
+        isAssist ? (
+          <td className="py-2.5 pr-3" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#38c47a' }}>
+            {player.goles + player.asist}
+          </td>
+        ) : (
           <td className="py-2.5 pr-3" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#e05a30' }}>
             {player.val_sin}
           </td>
-          <td className="py-2.5 pr-3">
-            <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#a060ff' }}>
-              {player.val_con}
-            </span>
-            <small className="ml-1 text-[9px]" style={{ color: '#5a5a7a' }}>×{player.coef}</small>
-          </td>
-        </>
+        )
+      )}
+
+      {/* Val con coef (scorer only) */}
+      {!isAssist && showValCoef && (
+        <td className="py-2.5 pr-3">
+          <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#a060ff' }}>
+            {player.val_con}
+          </span>
+          <small className="ml-1 text-[9px]" style={{ color: '#5a5a7a' }}>×{player.coef}</small>
+        </td>
       )}
 
       {/* ELO */}
@@ -177,10 +185,7 @@ export default function PlayerRow({ player, rank, isAssist, maxVal, showElo, sho
 
       {/* Source */}
       <td className="py-2.5 pr-3">
-        <span
-          className="text-[9px] font-bold tracking-wide px-1.5 py-0.5 rounded-sm"
-          style={{ color: src.color, background: src.bg, border: `1px solid ${src.border}` }}
-        >
+        <span className="text-[9px] font-bold tracking-wide px-1.5 py-0.5 rounded-sm" style={{ color: src.color, background: src.bg, border: `1px solid ${src.border}` }}>
           {src.label}
         </span>
       </td>
