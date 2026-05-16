@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import type { Tab, PanelState, SortKey, Season } from '@/types'
@@ -9,6 +9,7 @@ import { getPool, buildTopN, makeSortFn } from '@/lib/utils'
 import { isPro, FREE_ROW_LIMIT, FREE_SEASONS } from '@/lib/plans'
 import StatsTable from './StatsTable'
 import SearchInput from './SearchInput'
+import WatchlistPanel, { type WatchlistEntry } from './WatchlistPanel'
 
 const DEFAULT: PanelState = {
   season: '2526',
@@ -154,6 +155,55 @@ export default function StatsPanel({ tab }: Props) {
   const { user, isLoaded } = useUser()
   const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
 
+  const [watchlist, setWatchlist] = useState<WatchlistEntry[]>([])
+  const [watchlistOpen, setWatchlistOpen] = useState(false)
+
+  const loadWatchlist = useCallback(async () => {
+    if (!proUser) return
+    const res = await fetch('/api/watchlist')
+    if (res.ok) setWatchlist(await res.json())
+  }, [proUser])
+
+  useEffect(() => { loadWatchlist() }, [loadWatchlist])
+
+  async function handleWatchlistToggle(playerName: string) {
+    const key = `${playerName}|${st.season}|${tab}`
+    const existing = watchlist.find(e => e.player_name === playerName && e.season === st.season && e.tab === tab)
+    if (existing) {
+      setWatchlist(prev => prev.filter(e => e.id !== existing.id))
+      await fetch(`/api/watchlist?player_name=${encodeURIComponent(playerName)}&season=${st.season}&tab=${tab}`, { method: 'DELETE' })
+    } else {
+      const res = await fetch('/api/watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player_name: playerName, season: st.season, tab }),
+      })
+      if (res.ok) {
+        const entry = await res.json()
+        setWatchlist(prev => [entry, ...prev])
+      }
+    }
+  }
+
+  async function handleNoteChange(entry: WatchlistEntry, note: string) {
+    setWatchlist(prev => prev.map(e => e.id === entry.id ? { ...e, note } : e))
+    await fetch('/api/watchlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_name: entry.player_name, season: entry.season, tab: entry.tab, note }),
+    })
+  }
+
+  async function handleWatchlistRemove(entry: WatchlistEntry) {
+    setWatchlist(prev => prev.filter(e => e.id !== entry.id))
+    await fetch(`/api/watchlist?player_name=${encodeURIComponent(entry.player_name)}&season=${entry.season}&tab=${entry.tab}`, { method: 'DELETE' })
+  }
+
+  const watchlistKeys = useMemo(
+    () => new Set(watchlist.filter(e => e.season === st.season && e.tab === tab).map(e => e.player_name)),
+    [watchlist, st.season, tab],
+  )
+
   const pool = useMemo(() => getPool(PLAYERS, tab), [tab])
 
   function update(patch: Partial<PanelState>) {
@@ -249,10 +299,37 @@ export default function StatsPanel({ tab }: Props) {
             Columnas extra
           </div>
           <div className="flex gap-1.5 flex-wrap">
-            <Pill active={st.showElo}     color="gd" onClick={() => update({ showElo:     !st.showElo     })}>📊 ELO</Pill>
-            <Pill active={st.showFantasy} color="mu" onClick={() => update({ showFantasy: !st.showFantasy })}>🏆 Fantasy</Pill>
+            <Pill active={st.showElo}     color="gd" onClick={() => update({ showElo:     !st.showElo     })}>ELO</Pill>
+            <Pill active={st.showFantasy} color="mu" onClick={() => update({ showFantasy: !st.showFantasy })}>Fantasy</Pill>
           </div>
         </div>
+
+        {/* Watchlist button (pro only) */}
+        {proUser && (
+          <div className="flex flex-col gap-1.5 ml-auto">
+            <div className="text-[9px] font-bold tracking-[2px] uppercase" style={{ color: '#5a5a7a' }}>
+              &nbsp;
+            </div>
+            <button
+              onClick={() => setWatchlistOpen(true)}
+              className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full transition-all duration-150 cursor-pointer whitespace-nowrap"
+              style={watchlist.length > 0
+                ? { background: 'rgba(240,192,64,.12)', border: '1px solid rgba(240,192,64,.4)', color: '#f0c040' }
+                : { background: '#151528', border: '1px solid #1e1e34', color: '#5a5a7a' }
+              }
+            >
+              ★ Watchlist
+              {watchlist.length > 0 && (
+                <span
+                  className="text-[9px] font-bold px-1 py-0.5 rounded-full"
+                  style={{ background: 'rgba(240,192,64,.2)', color: '#f0c040' }}
+                >
+                  {watchlist.length}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Pro column toggles */}
         {proUser && (
@@ -386,6 +463,8 @@ export default function StatsPanel({ tab }: Props) {
         showRatios={proUser ? st.showRatios : true}
         showValSin={proUser ? st.showValSin : true}
         showValCoef={proUser ? st.showValCoef : true}
+        watchlistKeys={proUser ? watchlistKeys : undefined}
+        onWatchlistToggle={proUser ? handleWatchlistToggle : undefined}
         onSort={(key) => {
           if (st.sort === key) update({ dir: (st.dir * -1) as 1 | -1 })
           else update({ sort: key, dir: -1 })
@@ -397,6 +476,17 @@ export default function StatsPanel({ tab }: Props) {
 
       {/* Upgrade banner (free users only) */}
       {!proUser && <UpgradeBanner />}
+
+      {/* Watchlist panel */}
+      {proUser && (
+        <WatchlistPanel
+          entries={watchlist}
+          open={watchlistOpen}
+          onClose={() => setWatchlistOpen(false)}
+          onRemove={handleWatchlistRemove}
+          onNoteChange={handleNoteChange}
+        />
+      )}
 
       {/* Footnotes */}
       <div

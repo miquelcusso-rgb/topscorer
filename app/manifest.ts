@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'TopScorer',
-    short_name: 'TopScorer',
+    name: 'TopScorers',
+    short_name: 'TopScorers',
     description: 'Top goleadores y asistentes de las principales ligas europeas',
     start_url: '/',
     display: 'standalone',

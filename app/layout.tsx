@@ -4,13 +4,14 @@ import Navbar from '@/components/Navbar'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'TopScorer — Estadísticas Fútbol Europeo',
+  title: 'TopScorers — Estadísticas Fútbol Europeo',
   description: 'Top goleadores y asistentes de las principales ligas europeas. Temporadas 24/25 y 25/26.',
+  metadataBase: new URL('https://www.top-scorers.com'),
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'TopScorer',
+    title: 'TopScorers',
   },
   icons: {
     apple: '/icons/apple-touch-icon.png',

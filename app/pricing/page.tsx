@@ -13,18 +13,16 @@ const C = {
 }
 
 const COMPARISON = [
-  { label: 'Jugadores visibles',   free: 'Top 10',         pro: 'Top 25 + Top 50',  team: 'Top 25 + Top 50'  },
-  { label: 'Temporadas',           free: '2 (25/26, 24/25)', pro: '5+ (desde 20/21)', team: '5+ (desde 20/21)' },
-  { label: 'Filtros liga / edad',  free: true,              pro: true,               team: true               },
-  { label: 'ELO & Fantasy',        free: true,              pro: true,               team: true               },
-  { label: 'Hover card',           free: 'Básico',          pro: 'Completo',         team: 'Completo'         },
-  { label: 'Columnas custom',      free: false,             pro: true,               team: true               },
-  { label: 'Sin publicidad',       free: false,             pro: true,               team: true               },
-  { label: 'Watchlist privada',    free: false,             pro: 'soon',             team: 'soon'             },
-  { label: 'Comparador jugadores', free: false,             pro: 'soon',             team: 'soon'             },
-  { label: 'Export CSV',           free: false,             pro: 'soon',             team: 'soon'             },
-  { label: 'Usuarios',             free: '1',               pro: '1',                team: '5'                },
-  { label: 'Soporte prioritario',  free: false,             pro: false,              team: true               },
+  { label: 'Jugadores visibles',   free: 'Top 10',           pro: 'Top 25 + Top 50'   },
+  { label: 'Temporadas',           free: '2 (25/26, 24/25)', pro: '5+ (desde 20/21)'  },
+  { label: 'Filtros liga / edad',  free: true,               pro: true                },
+  { label: 'ELO & Fantasy',        free: true,               pro: true                },
+  { label: 'Hover card',           free: 'Básico',           pro: 'Completo'          },
+  { label: 'Columnas custom',      free: false,              pro: true                },
+  { label: 'Sin publicidad',       free: false,              pro: true                },
+  { label: 'Watchlist privada',    free: false,              pro: 'soon'              },
+  { label: 'Comparador jugadores', free: false,              pro: 'soon'              },
+  { label: 'Export CSV',           free: false,              pro: 'soon'              },
 ]
 
 const FAQ = [
@@ -39,10 +37,6 @@ const FAQ = [
   {
     q: '¿Qué métodos de pago aceptáis?',
     a: 'Tarjeta de crédito/débito (Visa, Mastercard, Amex) y SEPA Direct Debit para cuentas europeas, todo gestionado de forma segura a través de Stripe.',
-  },
-  {
-    q: '¿Y si somos más de 5 usuarios?',
-    a: 'Escríbenos a hola@topscorer.app para un plan personalizado adaptado al tamaño de tu equipo.',
   },
   {
     q: '¿Con qué frecuencia se actualizan los datos?',
@@ -239,7 +233,7 @@ export default function PricingPage() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-16 max-w-[760px] mx-auto">
           <PlanCard
             name="Free"
             price={0}
@@ -268,9 +262,9 @@ export default function PricingPage() {
 
           <PlanCard
             name="Pro"
-            price={billing === 'monthly' ? 4 : 39}
+            price={billing === 'monthly' ? 5 : 48}
             billing={billing}
-            perMonth={billing === 'yearly' ? 3.25 : undefined}
+            perMonth={billing === 'yearly' ? 4 : undefined}
             desc="Para el analista de fútbol serio."
             highlight={true}
             badge="Más popular"
@@ -289,27 +283,6 @@ export default function PricingPage() {
               'Export CSV — Próx.',
             ]}
           />
-
-          <PlanCard
-            name="Team"
-            price={billing === 'monthly' ? 10 : 96}
-            billing={billing}
-            perMonth={billing === 'yearly' ? 8 : undefined}
-            desc="Para equipos de scouting y análisis."
-            highlight={false}
-            accent={C.pu}
-            cta="Empezar Team"
-            ctaHref={`/api/stripe/checkout?plan=team&billing=${billing}`}
-            ctaVariant="purple"
-            disabled={plan === 'team'}
-            features={[
-              'Todo lo de Pro incluido',
-              'Hasta 5 usuarios',
-              'Notas compartidas — Próx.',
-              'Soporte prioritario',
-              'Large teams → consultar precio',
-            ]}
-          />
         </div>
 
         {/* Comparison table */}
@@ -324,10 +297,9 @@ export default function PricingPage() {
             <table className="w-full text-[13px] border-collapse">
               <thead>
                 <tr style={{ background: C.sf, borderBottom: `1px solid ${C.bd}` }}>
-                  <th className="py-3 px-5 text-left font-semibold" style={{ color: C.mu, width: '42%' }}>Feature</th>
+                  <th className="py-3 px-5 text-left font-semibold" style={{ color: C.mu, width: '55%' }}>Feature</th>
                   <th className="py-3 px-4 text-center font-semibold" style={{ color: C.mu }}>Free</th>
                   <th className="py-3 px-4 text-center font-bold" style={{ color: C.gd }}>Pro</th>
-                  <th className="py-3 px-4 text-center font-semibold" style={{ color: C.pu }}>Team</th>
                 </tr>
               </thead>
               <tbody>
@@ -342,7 +314,6 @@ export default function PricingPage() {
                     <td className="py-3 px-5 font-medium" style={{ color: C.tx }}>{row.label}</td>
                     <td className="py-3 px-4 text-center"><Cell v={row.free} /></td>
                     <td className="py-3 px-4 text-center"><Cell v={row.pro} /></td>
-                    <td className="py-3 px-4 text-center"><Cell v={row.team} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -382,8 +353,8 @@ export default function PricingPage() {
         >
           <p className="text-[13px] mb-5" style={{ color: C.mu }}>
             ¿Tienes preguntas?{' '}
-            <a href="mailto:hola@topscorer.app" style={{ color: C.tx }}>
-              hola@topscorer.app
+            <a href="mailto:hola@top-scorers.com" style={{ color: C.tx }}>
+              hola@top-scorers.com
             </a>
           </p>
           <Link

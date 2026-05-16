@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { EnrichedPlayer } from '@/types'
 import { LEAGUE_STYLE } from '@/lib/utils'
 import PlayerHoverCard from './PlayerHoverCard'
+import WatchlistButton from './WatchlistButton'
 
 interface Props {
   player: EnrichedPlayer
@@ -16,6 +17,8 @@ interface Props {
   showRatios?: boolean
   showValSin?: boolean
   showValCoef?: boolean
+  watchlisted?: boolean
+  onWatchlistToggle?: (name: string) => void
   onUnpin?: (name: string) => void
 }
 
@@ -29,6 +32,7 @@ export default function PlayerRow({
   player, rank, isAssist, maxVal,
   showElo, showFantasy,
   showPj = true, showRatios = true, showValSin = true, showValCoef = true,
+  watchlisted, onWatchlistToggle,
   onUnpin,
 }: Props) {
   const [cardOpen, setCardOpen] = useState(false)
@@ -88,6 +92,12 @@ export default function PlayerRow({
             >
               ✕
             </button>
+          )}
+          {onWatchlistToggle && (
+            <WatchlistButton
+              saved={!!watchlisted}
+              onClick={e => { e.stopPropagation(); onWatchlistToggle(player.name) }}
+            />
           )}
         </div>
         <PlayerHoverCard player={player} showElo={showElo} showFantasy={showFantasy} open={cardOpen} />

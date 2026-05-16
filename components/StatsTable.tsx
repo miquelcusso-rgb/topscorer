@@ -12,6 +12,8 @@ interface Props {
   showRatios?: boolean
   showValSin?: boolean
   showValCoef?: boolean
+  watchlistKeys?: Set<string>
+  onWatchlistToggle?: (name: string) => void
   onSort: (key: SortKey) => void
   onUnpin: (name: string) => void
 }
@@ -49,6 +51,7 @@ export default function StatsTable({
   players, isAssist, sort, dir,
   showElo, showFantasy,
   showPj = true, showRatios = true, showValSin = true, showValCoef = true,
+  watchlistKeys, onWatchlistToggle,
   onSort, onUnpin,
 }: Props) {
   const maxVal = Math.max(1, ...players.map(p => isAssist ? p.asist : p.goles))
@@ -103,6 +106,8 @@ export default function StatsTable({
               showRatios={showRatios}
               showValSin={showValSin}
               showValCoef={showValCoef}
+              watchlisted={watchlistKeys?.has(p.name)}
+              onWatchlistToggle={onWatchlistToggle}
               onUnpin={p.isPinned ? onUnpin : undefined}
             />
           ))}

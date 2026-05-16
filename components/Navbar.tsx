@@ -20,7 +20,7 @@ export default function Navbar() {
           href="/"
           style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 20, color: '#f0c040', letterSpacing: 2, lineHeight: 1 }}
         >
-          TopScorer
+          TopScorers
         </Link>
 
         <div className="flex items-center gap-4 ml-auto">
