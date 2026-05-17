@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 import { useState } from 'react'
+import LogoMark from './LogoMark'
 
 interface LeaguePill {
   code: string
@@ -52,13 +53,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <img
-              src="/logos/topscorer-v1.svg"
-              width={32}
-              height={32}
-              alt="TopScorers logo"
-              style={{ display: 'block' }}
-            />
+            <LogoMark size={32} />
             <span
               className="text-[17px] font-semibold tracking-wide"
               style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#d8d8ec', letterSpacing: 1 }}

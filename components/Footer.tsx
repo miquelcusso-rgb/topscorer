@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import LogoMark from './LogoMark'
 
 const LINKS = [
   {
@@ -45,13 +46,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2.5">
-              <img
-                src="/logos/topscorer-v1.svg"
-                width={24}
-                height={24}
-                alt="TopScorers logo"
-                style={{ display: 'block' }}
-              />
+              <LogoMark size={24} />
               <span
                 className="text-[16px] font-semibold"
                 style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#d8d8ec', letterSpacing: 1 }}
