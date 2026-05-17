@@ -42,9 +42,10 @@ export default function Navbar() {
         {/* Nav links */}
         <div className="flex items-center gap-0.5 text-[12px] font-medium">
           {[
-            { href: '/',        label: 'Estadísticas' },
-            { href: '/pricing', label: 'Precios' },
-            { href: '/about',   label: 'About' },
+            { href: '/',              label: 'Estadísticas' },
+            { href: '/resultados',    label: 'Resultados' },
+            { href: '/mundial-2026',  label: 'Mundial 2026' },
+            { href: '/pricing',       label: 'Precios' },
           ].map(({ href, label }) => (
             <Link
               key={href}

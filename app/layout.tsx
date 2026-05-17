@@ -6,9 +6,36 @@ import Footer from '@/components/Footer'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'TopScorers — Estadísticas Fútbol Europeo',
-  description: 'Top goleadores y asistentes de las principales ligas europeas. Temporadas 24/25 y 25/26.',
   metadataBase: new URL('https://www.top-scorers.com'),
+  title: {
+    default: 'TopScorers — Estadísticas Fútbol Europeo',
+    template: '%s | TopScorers',
+  },
+  description: 'Top goleadores, asistentes y centrocampistas de La Liga, Premier League, Bundesliga, Serie A y más. Estadísticas en tiempo real. Mundial 2026.',
+  keywords: ['goleadores', 'asistentes', 'estadísticas fútbol', 'La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1', 'mundial 2026', 'top scorers'],
+  authors: [{ name: 'TopScorers', url: 'https://www.top-scorers.com' }],
+  creator: 'TopScorers',
+  publisher: 'TopScorers',
+  openGraph: {
+    type: 'website',
+    locale: 'es_ES',
+    url: 'https://www.top-scorers.com',
+    siteName: 'TopScorers',
+    title: 'TopScorers — Estadísticas Fútbol Europeo',
+    description: 'Top goleadores y asistentes de las principales ligas europeas en tiempo real.',
+    images: [{ url: '/og-default.jpg', width: 1200, height: 630, alt: 'TopScorers' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TopScorers — Estadísticas Fútbol Europeo',
+    description: 'Top goleadores y asistentes de las principales ligas europeas en tiempo real.',
+    images: ['/og-default.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+  },
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,

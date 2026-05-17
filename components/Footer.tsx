@@ -6,9 +6,17 @@ const LINKS = [
   {
     group: 'Estadísticas',
     items: [
-      { href: '/',                  label: 'Goleadores' },
-      { href: '/?tab=a',           label: 'Asistentes' },
-      { href: '/',                  label: 'Centrocampistas' },
+      { href: '/',             label: 'Goleadores' },
+      { href: '/?tab=a',       label: 'Asistentes' },
+      { href: '/?tab=c',       label: 'Centrocampistas' },
+      { href: '/resultados',   label: 'Resultados' },
+    ],
+  },
+  {
+    group: 'Competiciones',
+    items: [
+      { href: '/mundial-2026', label: 'Mundial 2026' },
+      { href: '/resultados',   label: 'Clasificaciones' },
     ],
   },
   {
@@ -16,11 +24,6 @@ const LINKS = [
     items: [
       { href: '/pricing',  label: 'Precios' },
       { href: '/about',    label: 'Sobre TopScorers' },
-    ],
-  },
-  {
-    group: 'Legal',
-    items: [
       { href: '/privacidad', label: 'Privacidad' },
       { href: '/legal',      label: 'Aviso legal' },
     ],
