@@ -27,43 +27,33 @@ export default function MainApp() {
       >
         <div className="max-w-[1100px] mx-auto px-5">
 
-          {/* Title row */}
-          <div className="flex items-end justify-between pt-6 pb-0">
-            <div className="pb-5">
-              <div
-                className="font-bold tracking-[3px] uppercase mb-2"
-                style={{ fontSize: 10, color: '#52526e', fontFamily: "'Barlow Condensed', sans-serif" }}
-              >
-                Europa &nbsp;·&nbsp; Top 25 &nbsp;·&nbsp; Temporada 2025/26
-              </div>
-              <h1
-                style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontSize: 30,
-                  fontWeight: 700,
-                  color: '#e8e8f8',
-                  letterSpacing: 0.5,
-                  lineHeight: 1,
-                }}
-              >
-                Top{' '}
-                <span style={{ color: activeTab.color }}>{activeTab.label}</span>
-                <span style={{ color: '#52526e', fontWeight: 400 }}>{' — Europa'}</span>
-              </h1>
-            </div>
-
-            <div className="flex items-center gap-2 pb-5">
+          {/* Compact title strip */}
+          <div className="flex items-center justify-between py-2.5">
+            <span
+              className="font-bold uppercase tracking-[1.5px]"
+              style={{ fontSize: 14, color: '#b0b0cc', fontFamily: "'Barlow Condensed', sans-serif" }}
+            >
+              Top Goleadores Europa
+            </span>
+            <div className="flex items-center gap-2">
               <span
-                className="inline-block w-2 h-2 rounded-full"
-                style={{ background: '#38c47a', boxShadow: '0 0 7px #38c47a' }}
+                className="text-[10px] font-semibold px-2 py-0.5 rounded-sm"
+                style={{ color: '#52526e', background: '#0d0e1c', border: '1px solid #1a1b2e', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1 }}
+              >
+                2025/26
+              </span>
+              <span
+                className="inline-block w-1.5 h-1.5 rounded-full"
+                style={{ background: '#38c47a', boxShadow: '0 0 6px #38c47a' }}
               />
               <span
                 style={{
-                  fontSize: 10,
+                  fontSize: 9,
                   fontWeight: 700,
                   letterSpacing: 2,
                   textTransform: 'uppercase' as const,
                   color: '#38c47a',
+                  fontFamily: "'Barlow Condensed', sans-serif",
                 }}
               >
                 Live
@@ -79,7 +69,7 @@ export default function MainApp() {
                 <button
                   key={t.id}
                   onClick={() => setTab(t.id)}
-                  className="cursor-pointer transition-all duration-150"
+                  className="cursor-pointer transition-all duration-150 relative"
                   style={{
                     fontSize: 11,
                     fontFamily: "'Barlow Condensed', sans-serif",
@@ -87,10 +77,10 @@ export default function MainApp() {
                     fontWeight: 700,
                     textTransform: 'uppercase' as const,
                     color: active ? t.color : '#3a3b52',
-                    background: 'transparent',
+                    background: active ? `rgba(${t.rgb},.05)` : 'transparent',
                     border: 'none',
                     borderBottom: active ? `2px solid ${t.color}` : '2px solid transparent',
-                    padding: '9px 22px',
+                    padding: '8px 16px',
                     marginBottom: -1,
                   }}
                   onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#60608a' }}

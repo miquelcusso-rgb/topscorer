@@ -59,7 +59,7 @@ export default function PlayerRow({
     <tr
       className="group cursor-pointer"
       style={{
-        height: 40,
+        height: 38,
         borderBottom: '1px solid rgba(255,255,255,.025)',
         background: isTop1
           ? 'rgba(240,192,64,.04)'
@@ -73,11 +73,14 @@ export default function PlayerRow({
           : isTop1
           ? '3px solid rgba(240,192,64,.5)'
           : '3px solid transparent',
-        transition: 'background 150ms ease',
+        transition: 'background 150ms ease, border-left-color 150ms ease',
       }}
       onMouseEnter={e => {
         setCardOpen(true)
         e.currentTarget.style.background = 'rgba(255,255,255,.035)'
+        if (!player.isPinned && !isTop1) {
+          e.currentTarget.style.borderLeftColor = isAssist ? 'rgba(0,200,176,.5)' : 'rgba(240,192,64,.5)'
+        }
       }}
       onMouseLeave={e => {
         setCardOpen(false)
@@ -88,6 +91,9 @@ export default function PlayerRow({
           : rank % 2 === 0
           ? 'rgba(255,255,255,.018)'
           : 'transparent'
+        if (!player.isPinned && !isTop1) {
+          e.currentTarget.style.borderLeftColor = 'transparent'
+        }
       }}
       onClick={() => setCardOpen(v => !v)}
     >
@@ -109,7 +115,7 @@ export default function PlayerRow({
       </td>
 
       {/* Name + club */}
-      <td className="py-0 pr-3 relative" style={{ width: 210, maxWidth: 210, overflow: 'hidden' }}>
+      <td className="py-0 pr-2 relative" style={{ width: 210, maxWidth: 210, overflow: 'hidden' }}>
         <div className="flex items-center gap-1.5 min-w-0">
           <div className="min-w-0">
             <div
@@ -125,14 +131,28 @@ export default function PlayerRow({
               {player.isPinned && <span style={{ color: '#e05a30', fontSize: 9, marginLeft: 3 }}>★</span>}
             </div>
             <div className="flex items-center gap-1 leading-tight">
-              <span className="truncate" style={{ fontSize: 10, color: '#52526e' }}>
-                {player.club}
-                {player.isFiller && !player.isPinned && (
-                  <span className="ml-1" style={{ fontSize: 9, color: '#2a2b3e' }}>(relleno)</span>
-                )}
+              <span
+                className="truncate rounded-sm"
+                style={{
+                  fontSize: 8,
+                  fontWeight: 700,
+                  letterSpacing: 0.3,
+                  padding: '1px 4px',
+                  color: ls.color,
+                  background: ls.bg,
+                  border: `1px solid ${ls.border}`,
+                  flexShrink: 0,
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  textTransform: 'uppercase',
+                }}
+              >
+                {player.club.slice(0, 3)}
               </span>
+              {player.isFiller && !player.isPinned && (
+                <span style={{ fontSize: 8, color: '#2a2b3e' }}>(relleno)</span>
+              )}
               {pos && (
-                <span style={{ fontSize: 8, fontWeight: 700, padding: '1px 3px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
+                <span style={{ fontSize: 7, fontWeight: 700, padding: '1px 3px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
                   {player.position}
                 </span>
               )}

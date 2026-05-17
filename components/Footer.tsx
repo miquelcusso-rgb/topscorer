@@ -36,18 +36,22 @@ export default function Footer() {
       className="w-full"
       style={{ background: '#05060b', borderTop: '1px solid #151626' }}
     >
-      <div className="max-w-[1100px] mx-auto px-5 py-10">
+      {/* Gold gradient top bar */}
+      <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, #f0c040 30%, #f0c040 70%, transparent)' }} />
+
+      <div className="max-w-[1100px] mx-auto px-5 py-12">
         <div className="flex flex-wrap gap-10 justify-between mb-10">
 
           {/* Brand */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2.5">
-              <span
-                className="flex items-center justify-center w-[28px] h-[28px] text-[12px] font-bold rounded-sm"
-                style={{ background: '#f0c040', color: '#05060c', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5 }}
-              >
-                TS
-              </span>
+              <img
+                src="/logos/topscorer-v1.svg"
+                width={24}
+                height={24}
+                alt="TopScorers logo"
+                style={{ display: 'block' }}
+              />
               <span
                 className="text-[16px] font-semibold"
                 style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#d8d8ec', letterSpacing: 1 }}
@@ -57,6 +61,9 @@ export default function Footer() {
             </div>
             <p className="text-[12px] leading-relaxed max-w-[200px]" style={{ color: '#3a3b50' }}>
               Estadísticas de fútbol europeo. Goleadores y asistentes de las principales ligas.
+            </p>
+            <p className="text-[11px]" style={{ color: '#2a2b3e' }}>
+              Hecho con datos de API-Football
             </p>
           </div>
 

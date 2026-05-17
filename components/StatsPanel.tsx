@@ -91,12 +91,12 @@ function Pill({
   return (
     <button
       onClick={onClick}
-      className="text-[11px] font-medium px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer whitespace-nowrap flex items-center gap-1"
+      className="text-[11px] font-medium px-2.5 py-[3px] rounded-sm transition-all duration-150 cursor-pointer whitespace-nowrap flex items-center gap-1"
       style={active
         ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
         : locked
-          ? { background: 'transparent', border: '1px solid rgba(255,255,255,.03)', color: '#2a2b3e' }
-          : { background: 'transparent', border: '1px solid rgba(255,255,255,.06)', color: '#52526e' }
+          ? { background: '#0d0e1c', border: '1px solid #1a1b30', color: '#2a2b3e' }
+          : { background: '#0d0e1c', border: '1px solid #1a1b30', color: '#52526e' }
       }
     >
       {children}
@@ -104,18 +104,10 @@ function Pill({
   )
 }
 
-function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function FilterGroup({ label: _label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2.5 shrink-0">
-      <span
-        className="text-[9px] font-bold tracking-[1.8px] uppercase shrink-0"
-        style={{ color: '#52526e', fontFamily: "'Barlow Condensed', sans-serif" }}
-      >
-        {label}
-      </span>
-      <div className="flex items-center gap-1 flex-wrap">
-        {children}
-      </div>
+    <div className="flex items-center gap-1 shrink-0 flex-wrap">
+      {children}
     </div>
   )
 }
@@ -330,8 +322,10 @@ export default function StatsPanel({ tab }: Props) {
 
           {/* Right: count + watchlist + search */}
           <div className="ml-auto flex items-center gap-2 shrink-0">
-            <span className="text-[10.5px] hidden sm:block tabular" style={{ color: '#3a3b50' }}>
-              <strong style={{ color: '#52526e' }}>{topN.length}</strong> jugadores
+            <span className="text-[10px] hidden sm:flex items-center gap-1 tabular" style={{ color: '#3a3b50', fontFamily: "'Barlow Condensed', sans-serif" }}>
+              <span style={{ color: '#52526e', fontWeight: 700, letterSpacing: 0.5 }}>Resultados:</span>
+              <strong style={{ color: '#9090a8', fontWeight: 700 }}>{topN.length}</strong>
+              <span>jugadores</span>
             </span>
             {proUser && (
               <button

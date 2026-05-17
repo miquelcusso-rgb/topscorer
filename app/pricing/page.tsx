@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useClerk } from '@clerk/nextjs'
 import { getUserPlan } from '@/lib/plans'
 
 type Billing = 'monthly' | 'yearly'
@@ -76,9 +76,10 @@ interface CardProps {
   features: string[]
   locked?: string[]
   disabled?: boolean
+  onCtaClick?: () => void
 }
 
-function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlight, cta, ctaHref, ctaVariant, features, locked, disabled }: CardProps) {
+function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlight, cta, ctaHref, ctaVariant, features, locked, disabled, onCtaClick }: CardProps) {
   const a = accent ?? (highlight ? C.gd : C.bd)
   return (
     <div
@@ -160,9 +161,9 @@ function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlig
             ✓ Plan activo
           </div>
         ) : (
-          <a
-            href={ctaHref}
-            className="block text-center text-[13px] font-bold py-2.5 rounded-sm transition-all duration-150 cursor-pointer"
+          <button
+            onClick={onCtaClick ?? (() => { window.location.href = ctaHref })}
+            className="w-full text-center text-[13px] font-bold py-3.5 rounded-sm transition-all duration-150 cursor-pointer flex items-center justify-center gap-2"
             style={
               ctaVariant === 'gold'   ? { background: C.gd, color: '#07070f', border: `1px solid ${C.gd}` } :
               ctaVariant === 'purple' ? { background: 'rgba(160,96,255,.15)', color: C.pu, border: '1px solid rgba(160,96,255,.35)' } :
@@ -170,7 +171,8 @@ function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlig
             }
           >
             {cta}
-          </a>
+            <span style={{ opacity: 0.7 }}>→</span>
+          </button>
         )}
       </div>
     </div>
@@ -180,7 +182,16 @@ function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlig
 export default function PricingPage() {
   const [billing, setBilling] = useState<Billing>('monthly')
   const { user } = useUser()
+  const clerk = useClerk()
   const plan = getUserPlan(user?.publicMetadata as Record<string, unknown>)
+
+  function handleProCta(ctaHref: string) {
+    if (!user) {
+      clerk.openSignIn({ forceRedirectUrl: ctaHref })
+    } else {
+      window.location.href = ctaHref
+    }
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#07070f' }}>
@@ -272,6 +283,7 @@ export default function PricingPage() {
             ctaHref={`/api/stripe/checkout?plan=pro&billing=${billing}`}
             ctaVariant="gold"
             disabled={plan === 'pro'}
+            onCtaClick={() => handleProCta(`/api/stripe/checkout?plan=pro&billing=${billing}`)}
             features={[
               'Top 25 + toggle Top 50',
               '5+ temporadas (hasta 20/21)',
