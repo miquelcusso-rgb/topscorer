@@ -72,9 +72,9 @@ export default function Navbar() {
                 key={href}
                 href={href}
                 className="px-3 py-1.5 rounded-sm transition-colors duration-150 cursor-pointer"
-                style={{ fontSize: 14, color: path === href ? '#eeeef5' : '#5a5b7a' }}
-                onMouseEnter={e => { if (path !== href) e.currentTarget.style.color = '#9090b0' }}
-                onMouseLeave={e => { if (path !== href) e.currentTarget.style.color = '#5a5b7a' }}
+                style={{ fontSize: 14, color: path === href ? '#eeeef5' : '#8080a8' }}
+                onMouseEnter={e => { if (path !== href) e.currentTarget.style.color = '#b0b0cc' }}
+                onMouseLeave={e => { if (path !== href) e.currentTarget.style.color = '#8080a8' }}
               >
                 {label}
               </Link>
@@ -88,9 +88,9 @@ export default function Navbar() {
                 <SignInButton mode="modal">
                   <button
                     className="font-medium px-3.5 py-1.5 rounded-sm cursor-pointer transition-colors duration-150"
-                    style={{ fontSize: 12, color: '#5a5b7a', background: 'transparent', border: '1px solid transparent' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#eeeef5'; e.currentTarget.style.borderColor = '#1e2033' }}
-                    onMouseLeave={e => { e.currentTarget.style.color = '#5a5b7a'; e.currentTarget.style.borderColor = 'transparent' }}
+                    style={{ fontSize: 12, color: '#8080a8', background: 'transparent', border: '1px solid transparent' }}
+                    onMouseEnter={e => { e.currentTarget.style.color = '#eeeef5'; e.currentTarget.style.borderColor = '#26224a' }}
+                    onMouseLeave={e => { e.currentTarget.style.color = '#8080a8'; e.currentTarget.style.borderColor = 'transparent' }}
                   >
                     Entrar
                   </button>
@@ -133,7 +133,7 @@ export default function Navbar() {
                 <span
                   key={i}
                   className="block w-[18px] h-[1.5px] rounded-full transition-all duration-150"
-                  style={{ background: '#52526e' }}
+                  style={{ background: '#606088' }}
                 />
               ))}
             </button>
@@ -220,7 +220,7 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
               className="block px-5 py-3 text-[14px] font-medium border-b transition-colors duration-150"
               style={{
-                color: path === href ? '#d8d8ec' : '#52526e',
+                color: path === href ? '#d8d8ec' : '#8080a8',
                 borderColor: '#0e0f1e',
               }}
             >

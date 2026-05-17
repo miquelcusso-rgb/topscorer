@@ -44,7 +44,7 @@ export default function MainApp() {
             </div>
             <span
               className="text-[11px] font-semibold px-2.5 py-1 rounded-sm"
-              style={{ color: '#52526e', background: '#0d0e1c', border: '1px solid #1e2033', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1 }}
+              style={{ color: '#8080a8', background: 'rgba(13,11,22,.8)', border: '1px solid #26224a', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1 }}
             >
               2025/26
             </span>

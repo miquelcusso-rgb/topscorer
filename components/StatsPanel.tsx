@@ -95,8 +95,8 @@ function Pill({
       style={active
         ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
         : locked
-          ? { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#2a2b3e' }
-          : { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#6b7090' }
+          ? { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#3a3b5a' }
+          : { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#7878a0' }
       }
     >
       {children}
@@ -109,7 +109,7 @@ function FilterGroup({ label, children }: { label: string; children: React.React
     <div className="flex flex-col gap-1.5 shrink-0">
       <span style={{
         fontSize: 10, fontWeight: 700, letterSpacing: '2px',
-        textTransform: 'uppercase' as const, color: '#3a3d5c',
+        textTransform: 'uppercase' as const, color: '#5a5c88',
         fontFamily: "'Barlow Condensed', sans-serif",
       }}>
         {label}
@@ -311,7 +311,7 @@ export default function StatsPanel({ tab }: Props) {
                 className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 cursor-pointer"
                 style={st.showTop50 === o.v
                   ? { background: 'rgba(160,96,255,.12)', border: '1px solid rgba(160,96,255,.35)', color: '#a060ff' }
-                  : { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#6b7090' }
+                  : { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#7878a0' }
                 }
               >{o.label}</button>
             ))}
@@ -320,8 +320,8 @@ export default function StatsPanel({ tab }: Props) {
 
         {/* Fila 2: count + actions */}
         <div className="flex items-center gap-3 px-4 py-2.5" style={{ background: 'rgba(10,8,18,.75)' }}>
-          <span style={{ fontSize: 13, color: '#5a5b7a' }}>
-            <strong style={{ color: '#7879a0' }}>{topN.length}</strong> jugadores
+          <span style={{ fontSize: 13, color: '#7879a0' }}>
+            <strong style={{ color: '#9898c0' }}>{topN.length}</strong> jugadores
           </span>
           <div className="ml-auto flex items-center gap-2">
             {proUser && (
@@ -388,7 +388,7 @@ export default function StatsPanel({ tab }: Props) {
         className="px-4 py-2"
         style={{ borderLeft: '1px solid #201c3a', borderRight: '1px solid #201c3a', borderBottom: '1px solid #201c3a', borderRadius: '0 0 6px 6px', background: 'rgba(10,8,18,.65)' }}
       >
-        <span style={{ fontSize: 10, color: '#2a2b3e' }}>
+        <span style={{ fontSize: 10, color: '#525278' }}>
           Datos 25/26: europeangoldenshoe.com + FotMob &nbsp;·&nbsp; Val: G×2+A &nbsp;·&nbsp; Val+: G×coef×2+A
         </span>
       </div>

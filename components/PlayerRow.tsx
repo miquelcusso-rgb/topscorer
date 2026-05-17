@@ -108,7 +108,7 @@ export default function PlayerRow({
             {rank}
           </span>
         ) : (
-          <span style={{ fontSize: 14, color: '#3a3d5c' }}>{rank}</span>
+          <span style={{ fontSize: 14, color: '#585880' }}>{rank}</span>
         )}
       </td>
 
@@ -148,7 +148,7 @@ export default function PlayerRow({
                 {player.club.slice(0, 3)}
               </span>
               {player.isFiller && !player.isPinned && (
-                <span style={{ fontSize: 8, color: '#3a3d5c' }}>(relleno)</span>
+                <span style={{ fontSize: 8, color: '#585880' }}>(relleno)</span>
               )}
               {pos && (
                 <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
@@ -189,15 +189,16 @@ export default function PlayerRow({
       </td>
 
       {/* Age */}
-      <td className="pr-3 text-right tabular" style={{ fontSize: 12, color: '#5a5b7a' }}>
+      <td className="pr-3 text-right tabular" style={{ fontSize: 12, color: '#7878a0' }}>
         {player.age}
       </td>
 
       {/* PJ */}
       {showPj && (
-        <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#3a3d5c' }}>
+        <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#585880' }}>
           {player.pj}
         </td>
+
       )}
 
       {/* Main stat + mini bar */}
@@ -220,10 +221,10 @@ export default function PlayerRow({
       {/* Ratios */}
       {showRatios && (
         <>
-          <td className="pr-3 text-right tabular" style={{ fontSize: 13, fontWeight: 600, color: '#5a5b7a' }}>
+          <td className="pr-3 text-right tabular" style={{ fontSize: 13, fontWeight: 600, color: '#7878a0' }}>
             {isAssist ? player.ratio_a.toFixed(2) : player.ratio_g.toFixed(2)}
           </td>
-          <td className="pr-3 text-right tabular" style={{ fontSize: 13, fontWeight: 600, color: '#5a5b7a' }}>
+          <td className="pr-3 text-right tabular" style={{ fontSize: 13, fontWeight: 600, color: '#7878a0' }}>
             {isAssist ? player.ratio_g.toFixed(2) : player.ratio_a.toFixed(2)}
           </td>
         </>
@@ -248,7 +249,7 @@ export default function PlayerRow({
           <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#a060ff', lineHeight: 1 }}>
             {player.val_con}
           </span>
-          <small className="ml-1" style={{ fontSize: 8, color: '#3a3d5c' }}>×{player.coef}</small>
+          <small className="ml-1" style={{ fontSize: 8, color: '#585880' }}>×{player.coef}</small>
         </td>
       )}
 
@@ -269,7 +270,7 @@ export default function PlayerRow({
               {player.fantasyPoints ?? '—'}
             </span>
             {player.fantasyPrice != null && (
-              <div style={{ fontSize: 9, color: '#5a5b7a' }}>€{player.fantasyPrice}M</div>
+              <div style={{ fontSize: 9, color: '#7878a0' }}>€{player.fantasyPrice}M</div>
             )}
           </div>
         </td>

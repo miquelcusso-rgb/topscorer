@@ -54,10 +54,10 @@ export default function Footer() {
                 TopScorers
               </span>
             </div>
-            <p className="text-[12px] leading-relaxed max-w-[200px]" style={{ color: '#3a3b50' }}>
+            <p className="text-[12px] leading-relaxed max-w-[200px]" style={{ color: '#7070a0' }}>
               Estadísticas de fútbol europeo. Goleadores y asistentes de las principales ligas.
             </p>
-            <p className="text-[11px]" style={{ color: '#2a2b3e' }}>
+            <p className="text-[11px]" style={{ color: '#525278' }}>
               Hecho con datos de API-Football
             </p>
           </div>
@@ -68,7 +68,7 @@ export default function Footer() {
               <div key={group.group} className="flex flex-col gap-2">
                 <div
                   className="text-[9px] font-bold tracking-[2px] uppercase mb-1"
-                  style={{ color: '#3a3d5c', fontFamily: "'Barlow Condensed', sans-serif" }}
+                  style={{ color: '#5a5c88', fontFamily: "'Barlow Condensed', sans-serif" }}
                 >
                   {group.group}
                 </div>
@@ -77,9 +77,9 @@ export default function Footer() {
                     key={item.label}
                     href={item.href}
                     className="transition-colors duration-150"
-                    style={{ fontSize: 13, color: '#4a4b68' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#9090b0')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#4a4b68')}
+                    style={{ fontSize: 13, color: '#7070a0' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#b0b0cc')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#7070a0')}
                   >
                     {item.label}
                   </Link>
@@ -92,13 +92,13 @@ export default function Footer() {
         {/* Bottom bar */}
         <div
           className="flex flex-wrap items-center justify-between gap-3 pt-6"
-          style={{ borderTop: '1px solid #0d0e1c' }}
+          style={{ borderTop: '1px solid #1e1a38' }}
         >
-          <span style={{ fontSize: 12, color: '#2a2b3e' }}>
+          <span style={{ fontSize: 12, color: '#525278' }}>
             © {new Date().getFullYear()} TopScorers. Datos con fines informativos.
           </span>
-          <span style={{ fontSize: 12, color: '#2a2b3e' }}>
-            <a href="mailto:support@top-scorers.com" style={{ color: '#2a2b3e' }}>
+          <span style={{ fontSize: 12, color: '#525278' }}>
+            <a href="mailto:support@top-scorers.com" style={{ color: '#525278' }}>
               support@top-scorers.com
             </a>
           </span>
