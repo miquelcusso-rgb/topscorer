@@ -21,20 +21,26 @@ export default function MainApp() {
       <div
         className="w-full"
         style={{
-          background: 'linear-gradient(180deg,#07081a,#050610)',
-          borderBottom: '1px solid #151626',
+          background: 'linear-gradient(180deg,#0c0d18,#090a14)',
+          borderBottom: '1px solid #1e2033',
         }}
       >
         <div className="max-w-[1100px] mx-auto px-5">
 
           {/* Compact title strip */}
           <div className="flex items-center justify-between py-2.5">
-            <span
-              className="font-bold uppercase tracking-[1.5px]"
-              style={{ fontSize: 14, color: '#b0b0cc', fontFamily: "'Barlow Condensed', sans-serif" }}
-            >
-              Top Goleadores Europa
-            </span>
+            <div className="flex flex-col">
+              <span
+                className="font-bold uppercase tracking-[1.5px]"
+                style={{ fontSize: 14, color: '#9090a8', fontFamily: "'Barlow Condensed', sans-serif" }}
+              >
+                Top Goleadores Europa
+              </span>
+              <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: '#eeeef5', letterSpacing: 0.5, lineHeight: 1, marginTop: 4 }}>
+                Top <span style={{ color: activeTab.color }}>{activeTab.label}</span>
+                <span style={{ color: '#3a3d5c', fontWeight: 400 }}> — Europa</span>
+              </h1>
+            </div>
             <div className="flex items-center gap-2">
               <span
                 className="text-[10px] font-semibold px-2 py-0.5 rounded-sm"
@@ -77,10 +83,10 @@ export default function MainApp() {
                     fontWeight: 700,
                     textTransform: 'uppercase' as const,
                     color: active ? t.color : '#3a3b52',
-                    background: active ? `rgba(${t.rgb},.05)` : 'transparent',
+                    background: active ? `rgba(${t.rgb},.06)` : 'transparent',
                     border: 'none',
                     borderBottom: active ? `2px solid ${t.color}` : '2px solid transparent',
-                    padding: '8px 16px',
+                    padding: '8px 18px',
                     marginBottom: -1,
                   }}
                   onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#60608a' }}
@@ -95,7 +101,7 @@ export default function MainApp() {
       </div>
 
       {/* ── CONTENT ZONE — full-width bg, centered content ── */}
-      <div className="w-full" style={{ background: '#0b0c1a' }}>
+      <div className="w-full" style={{ background: '#080910' }}>
         <div className="max-w-[1100px] mx-auto px-5 py-5 pb-20">
           <div style={{ display: tab === 's' ? 'block' : 'none' }}>
             <StatsPanel tab="s" />

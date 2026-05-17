@@ -37,12 +37,12 @@ export default function PlayerRow({
   onUnpin,
 }: Props) {
   const [cardOpen, setCardOpen] = useState(false)
+  const [hovered, setHovered] = useState(false)
 
   const rankColor =
     rank === 1 ? '#f0c040' :
-    rank === 2 ? '#b0b8c8' :
-    rank === 3 ? '#cd8c5a' :
-    '#2a2b3e'
+    rank <= 3   ? '#9090a8' :
+    '#3a3d5c'
 
   const isTop1 = rank === 1
   const isTop3 = rank <= 3
@@ -55,45 +55,43 @@ export default function PlayerRow({
     ? player.elo >= 2100 ? '#f0c040' : player.elo >= 1900 ? '#38c47a' : '#00c8b0'
     : '#52526e'
 
+  // Row background: odd = slight tint, even = transparent (top3 get special bg)
+  const rowBgDefault = isTop1
+    ? 'rgba(240,192,64,.04)'
+    : isTop3
+    ? 'rgba(240,192,64,.02)'
+    : rank % 2 !== 0
+    ? 'rgba(255,255,255,.012)'
+    : 'transparent'
+
+  const rowBgHover = 'rgba(255,255,255,.028)'
+
+  // Left border: pinned = orange, hover = accent/teal, else transparent
+  const rowBorderLeft = player.isPinned
+    ? '2px solid #e05a30'
+    : isTop1
+    ? '2px solid rgba(240,192,64,.5)'
+    : hovered
+    ? `2px solid rgba(240,192,64,.4)`
+    : '2px solid transparent'
+
   return (
     <tr
       className="group cursor-pointer"
       style={{
-        height: 38,
-        borderBottom: '1px solid rgba(255,255,255,.025)',
-        background: isTop1
-          ? 'rgba(240,192,64,.04)'
-          : isTop3
-          ? 'rgba(240,192,64,.02)'
-          : rank % 2 === 0
-          ? 'rgba(255,255,255,.018)'
-          : 'transparent',
-        borderLeft: player.isPinned
-          ? '3px solid #e05a30'
-          : isTop1
-          ? '3px solid rgba(240,192,64,.5)'
-          : '3px solid transparent',
+        height: 42,
+        borderBottom: '1px solid #12131e',
+        background: hovered ? rowBgHover : rowBgDefault,
+        borderLeft: rowBorderLeft,
         transition: 'background 150ms ease, border-left-color 150ms ease',
       }}
-      onMouseEnter={e => {
+      onMouseEnter={() => {
         setCardOpen(true)
-        e.currentTarget.style.background = 'rgba(255,255,255,.035)'
-        if (!player.isPinned && !isTop1) {
-          e.currentTarget.style.borderLeftColor = isAssist ? 'rgba(0,200,176,.5)' : 'rgba(240,192,64,.5)'
-        }
+        setHovered(true)
       }}
-      onMouseLeave={e => {
+      onMouseLeave={() => {
         setCardOpen(false)
-        e.currentTarget.style.background = isTop1
-          ? 'rgba(240,192,64,.04)'
-          : isTop3
-          ? 'rgba(240,192,64,.02)'
-          : rank % 2 === 0
-          ? 'rgba(255,255,255,.018)'
-          : 'transparent'
-        if (!player.isPinned && !isTop1) {
-          e.currentTarget.style.borderLeftColor = 'transparent'
-        }
+        setHovered(false)
       }}
       onClick={() => setCardOpen(v => !v)}
     >
@@ -102,15 +100,15 @@ export default function PlayerRow({
         {isTop3 ? (
           <span style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: 22, height: 22, borderRadius: '50%', fontSize: 12,
+            width: 22, height: 22, borderRadius: '50%', fontSize: 13,
             color: rankColor,
-            background: rank === 1 ? 'rgba(240,192,64,.14)' : rank === 2 ? 'rgba(176,184,200,.08)' : 'rgba(205,140,90,.08)',
-            border: `1px solid ${rank === 1 ? 'rgba(240,192,64,.3)' : rank === 2 ? 'rgba(176,184,200,.2)' : 'rgba(205,140,90,.2)'}`,
+            background: rank === 1 ? 'rgba(240,192,64,.14)' : rank === 2 ? 'rgba(144,144,168,.08)' : 'rgba(144,144,168,.06)',
+            border: `1px solid ${rank === 1 ? 'rgba(240,192,64,.3)' : 'rgba(144,144,168,.2)'}`,
           }}>
             {rank}
           </span>
         ) : (
-          <span style={{ fontSize: 13, color: '#3a3b50' }}>{rank}</span>
+          <span style={{ fontSize: 13, color: '#3a3d5c' }}>{rank}</span>
         )}
       </td>
 
@@ -119,10 +117,11 @@ export default function PlayerRow({
         <div className="flex items-center gap-1.5 min-w-0">
           <div className="min-w-0">
             <div
-              className="font-semibold leading-tight truncate"
+              className="leading-tight truncate"
               style={{
                 fontSize: 13,
-                color: '#d8d8ec',
+                fontWeight: 500,
+                color: '#d4d4ee',
                 textShadow: isTop1 ? '0 0 12px rgba(240,192,64,.18)' : 'none',
               }}
             >
@@ -134,25 +133,25 @@ export default function PlayerRow({
               <span
                 className="truncate rounded-sm"
                 style={{
-                  fontSize: 8,
+                  fontSize: 11,
                   fontWeight: 700,
                   letterSpacing: 0.3,
-                  padding: '1px 4px',
+                  padding: '2px 6px',
                   color: ls.color,
                   background: ls.bg,
                   border: `1px solid ${ls.border}`,
                   flexShrink: 0,
                   fontFamily: "'Barlow Condensed', sans-serif",
-                  textTransform: 'uppercase',
+                  textTransform: 'uppercase' as const,
                 }}
               >
                 {player.club.slice(0, 3)}
               </span>
               {player.isFiller && !player.isPinned && (
-                <span style={{ fontSize: 8, color: '#2a2b3e' }}>(relleno)</span>
+                <span style={{ fontSize: 8, color: '#3a3d5c' }}>(relleno)</span>
               )}
               {pos && (
-                <span style={{ fontSize: 7, fontWeight: 700, padding: '1px 3px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
                   {player.position}
                 </span>
               )}
@@ -183,20 +182,20 @@ export default function PlayerRow({
       <td className="pr-3">
         <span
           className="font-semibold whitespace-nowrap rounded-sm"
-          style={{ fontSize: 9, letterSpacing: 0.5, padding: '2px 5px', color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}
+          style={{ fontSize: 11, letterSpacing: 0.5, padding: '2px 6px', color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}
         >
           {player.league}
         </span>
       </td>
 
       {/* Age */}
-      <td className="pr-3 text-right tabular" style={{ fontSize: 11, color: '#52526e' }}>
+      <td className="pr-3 text-right tabular" style={{ fontSize: 11, color: '#5a5b7a' }}>
         {player.age}
       </td>
 
       {/* PJ */}
       {showPj && (
-        <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#2a2b3e' }}>
+        <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#3a3d5c' }}>
           {player.pj}
         </td>
       )}
@@ -204,27 +203,27 @@ export default function PlayerRow({
       {/* Main stat + mini bar */}
       <td className="pr-3">
         <div className="flex items-center justify-end gap-2">
-          <div className="h-[2px] rounded-full w-[52px] shrink-0" style={{ background: 'rgba(255,255,255,.06)' }}>
-            <div className="h-full rounded-full" style={{ width: `${barPct}%`, background: isAssist ? '#00c8b0' : '#f0c040', opacity: 0.65 }} />
+          <div className="h-[2px] rounded-full w-[52px] shrink-0" style={{ background: '#1e2033' }}>
+            <div className="h-full rounded-full" style={{ width: `${barPct}%`, background: isAssist ? 'rgba(0,200,176,.35)' : 'rgba(240,192,64,.45)' }} />
           </div>
-          <span className="tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 20, color: isAssist ? '#00c8b0' : '#f0c040', lineHeight: 1, minWidth: 20, textAlign: 'right' }}>
+          <span className="tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 20, color: '#eeeef5', lineHeight: 1, minWidth: 20, textAlign: 'right' }}>
             {mainVal}
           </span>
         </div>
       </td>
 
       {/* Secondary stat */}
-      <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: isAssist ? 'rgba(240,192,64,.6)' : 'rgba(0,200,176,.6)', lineHeight: 1 }}>
+      <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: isAssist ? 'rgba(240,192,64,.6)' : '#00c8b0', lineHeight: 1 }}>
         {isAssist ? player.goles : player.asist}
       </td>
 
       {/* Ratios */}
       {showRatios && (
         <>
-          <td className="pr-3 text-right tabular" style={{ fontSize: 11, fontWeight: 600, color: isAssist ? 'rgba(0,200,176,.85)' : 'rgba(240,192,64,.85)' }}>
+          <td className="pr-3 text-right tabular" style={{ fontSize: 12, fontWeight: 600, color: '#5a5b7a' }}>
             {isAssist ? player.ratio_a.toFixed(2) : player.ratio_g.toFixed(2)}
           </td>
-          <td className="pr-3 text-right tabular" style={{ fontSize: 11, fontWeight: 600, color: isAssist ? 'rgba(240,192,64,.85)' : 'rgba(0,200,176,.85)' }}>
+          <td className="pr-3 text-right tabular" style={{ fontSize: 12, fontWeight: 600, color: '#5a5b7a' }}>
             {isAssist ? player.ratio_g.toFixed(2) : player.ratio_a.toFixed(2)}
           </td>
         </>
@@ -233,11 +232,11 @@ export default function PlayerRow({
       {/* Val sin / G+A */}
       {showValSin && (
         isAssist ? (
-          <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#38c47a', lineHeight: 1 }}>
+          <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#f0c040', lineHeight: 1 }}>
             {player.goles + player.asist}
           </td>
         ) : (
-          <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#e05a30', lineHeight: 1 }}>
+          <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#f0c040', lineHeight: 1 }}>
             {player.val_sin}
           </td>
         )
@@ -249,7 +248,7 @@ export default function PlayerRow({
           <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#a060ff', lineHeight: 1 }}>
             {player.val_con}
           </span>
-          <small className="ml-1" style={{ fontSize: 8, color: '#2a2b3e' }}>×{player.coef}</small>
+          <small className="ml-1" style={{ fontSize: 8, color: '#3a3d5c' }}>×{player.coef}</small>
         </td>
       )}
 
@@ -270,7 +269,7 @@ export default function PlayerRow({
               {player.fantasyPoints ?? '—'}
             </span>
             {player.fantasyPrice != null && (
-              <div style={{ fontSize: 9, color: '#52526e' }}>€{player.fantasyPrice}M</div>
+              <div style={{ fontSize: 9, color: '#5a5b7a' }}>€{player.fantasyPrice}M</div>
             )}
           </div>
         </td>

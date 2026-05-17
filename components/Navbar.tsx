@@ -1,10 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 import { useState } from 'react'
-import LogoMark from './LogoMark'
 
 interface LeaguePill {
   code: string
@@ -40,23 +40,23 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="sticky top-0 z-50" style={{ background: 'rgba(4,5,10,.98)', backdropFilter: 'blur(16px)' }}>
+    <nav className="sticky top-0 z-50" style={{ background: 'rgba(8,9,16,.98)', backdropFilter: 'blur(16px)' }}>
 
       {/* Row 1 — h-[52px] */}
       <div
         style={{
           height: 52,
-          borderBottom: '1px solid #141526',
+          borderBottom: '1px solid #1e2033',
         }}
       >
         <div className="max-w-[1100px] mx-auto px-5 h-full flex items-center gap-5">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <LogoMark size={32} />
+            <Image src="/logo.png" alt="TopScorers" width={28} height={28} unoptimized style={{ borderRadius: 4 }} />
             <span
-              className="text-[17px] font-semibold tracking-wide"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#d8d8ec', letterSpacing: 1 }}
+              className="text-[16px] font-semibold tracking-wide"
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#eeeef5', letterSpacing: 1 }}
             >
               TopScorers
             </span>
@@ -66,15 +66,15 @@ export default function Navbar() {
           <div className="w-px h-4 shrink-0 hidden md:block" style={{ background: '#1a1b2e' }} />
 
           {/* Nav links — desktop */}
-          <div className="hidden md:flex items-center gap-0.5 text-[12px] font-medium">
+          <div className="hidden md:flex items-center gap-0.5 font-medium">
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
                 className="px-3 py-1.5 rounded-sm transition-colors duration-150 cursor-pointer"
-                style={{ color: path === href ? '#d8d8ec' : '#52526e' }}
-                onMouseEnter={e => { if (path !== href) e.currentTarget.style.color = '#9090a8' }}
-                onMouseLeave={e => { if (path !== href) e.currentTarget.style.color = '#52526e' }}
+                style={{ fontSize: 13, color: path === href ? '#eeeef5' : '#5a5b7a' }}
+                onMouseEnter={e => { if (path !== href) e.currentTarget.style.color = '#9090b0' }}
+                onMouseLeave={e => { if (path !== href) e.currentTarget.style.color = '#5a5b7a' }}
               >
                 {label}
               </Link>
@@ -87,18 +87,18 @@ export default function Navbar() {
               <>
                 <SignInButton mode="modal">
                   <button
-                    className="text-[12px] font-medium px-3.5 py-1.5 rounded-sm cursor-pointer transition-colors duration-150"
-                    style={{ color: '#52526e', background: 'transparent', border: '1px solid transparent' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#d8d8ec'; e.currentTarget.style.borderColor = '#1a1b2e' }}
-                    onMouseLeave={e => { e.currentTarget.style.color = '#52526e'; e.currentTarget.style.borderColor = 'transparent' }}
+                    className="font-medium px-3.5 py-1.5 rounded-sm cursor-pointer transition-colors duration-150"
+                    style={{ fontSize: 12, color: '#5a5b7a', background: 'transparent', border: '1px solid transparent' }}
+                    onMouseEnter={e => { e.currentTarget.style.color = '#eeeef5'; e.currentTarget.style.borderColor = '#1e2033' }}
+                    onMouseLeave={e => { e.currentTarget.style.color = '#5a5b7a'; e.currentTarget.style.borderColor = 'transparent' }}
                   >
                     Entrar
                   </button>
                 </SignInButton>
                 <SignUpButton mode="modal">
                   <button
-                    className="text-[12px] font-bold px-3.5 py-1.5 rounded-sm cursor-pointer transition-all duration-150"
-                    style={{ color: '#05060c', background: '#f0c040' }}
+                    className="font-bold px-3.5 py-1.5 rounded-sm cursor-pointer transition-all duration-150"
+                    style={{ fontSize: 12, color: '#080910', background: '#f0c040' }}
                     onMouseEnter={e => (e.currentTarget.style.background = '#f8d060')}
                     onMouseLeave={e => (e.currentTarget.style.background = '#f0c040')}
                   >
@@ -147,8 +147,8 @@ export default function Navbar() {
         className="hidden md:block"
         style={{
           height: 36,
-          background: 'rgba(3,4,9,.96)',
-          borderBottom: '1px solid #0e0f1e',
+          background: 'rgba(5,6,10,.97)',
+          borderBottom: '1px solid #141524',
         }}
       >
         <div className="max-w-[1100px] mx-auto px-5 h-full flex items-center gap-2">
@@ -160,7 +160,7 @@ export default function Navbar() {
               href={`/?league=${pill.code}`}
               className="inline-flex items-center rounded-sm cursor-pointer transition-all duration-150"
               style={{
-                fontSize: 8,
+                fontSize: 9,
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 700,
                 letterSpacing: 1,

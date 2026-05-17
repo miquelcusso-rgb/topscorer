@@ -43,7 +43,8 @@ export const metadata: Metadata = {
     title: 'TopScorers',
   },
   icons: {
-    apple: '/icons/apple-touch-icon.png',
+    icon: [{ url: '/logo.png', type: 'image/png' }],
+    apple: '/logo.png',
   },
 }
 

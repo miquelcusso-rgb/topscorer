@@ -30,14 +30,14 @@ function Th({ label, sortKey, currentSort, dir, onSort, align = 'left', width }:
   const active = sortKey === currentSort
   return (
     <th
-      className="py-2 px-3 whitespace-nowrap select-none transition-colors duration-150"
+      className="py-2.5 px-3 whitespace-nowrap select-none transition-colors duration-150"
       style={{
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 700,
         letterSpacing: '1.5px',
         textTransform: 'uppercase',
         textAlign: align,
-        color: active ? '#f0c040' : '#3d3e58',
+        color: active ? '#f0c040' : '#4a4b6a',
         cursor: sortKey ? 'pointer' : 'default',
         fontFamily: "'Barlow Condensed', sans-serif",
         ...(width ? { width } : {}),
@@ -63,14 +63,14 @@ export default function StatsTable({
 
   return (
     <div
-      style={{ overflowX: 'auto', overflowY: 'clip', background: '#06070e', border: '1px solid #151626', borderTop: 'none' }}
+      style={{ overflowX: 'auto', overflowY: 'clip', background: '#0f1018', border: '1px solid #1e2033', borderTop: 'none' }}
     >
       <table className="w-full border-collapse" style={{ minWidth: 680 }}>
-        <thead className="sticky top-[52px] z-[30]">
+        <thead className="sticky top-[88px] z-[30]">
           <tr
             style={{
-              background: '#050610',
-              borderBottom: '2px solid #1e1f35',
+              background: '#0c0d18',
+              borderBottom: '2px solid #1e2033',
             }}
           >
             <Th label="#"       align="right" width={44}  currentSort={sort} dir={dir} onSort={onSort} />

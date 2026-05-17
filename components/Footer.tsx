@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import LogoMark from './LogoMark'
+import Image from 'next/image'
 
 const LINKS = [
   {
@@ -35,7 +35,7 @@ export default function Footer() {
   return (
     <footer
       className="w-full"
-      style={{ background: '#05060b', borderTop: '1px solid #151626' }}
+      style={{ background: '#080910', borderTop: '1px solid #1e2033' }}
     >
       {/* Gold gradient top bar */}
       <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, #f0c040 30%, #f0c040 70%, transparent)' }} />
@@ -46,10 +46,10 @@ export default function Footer() {
           {/* Brand */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2.5">
-              <LogoMark size={24} />
+              <Image src="/logo.png" alt="TopScorers" width={22} height={22} unoptimized style={{ borderRadius: 3 }} />
               <span
                 className="text-[16px] font-semibold"
-                style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#d8d8ec', letterSpacing: 1 }}
+                style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#eeeef5', letterSpacing: 1 }}
               >
                 TopScorers
               </span>
@@ -68,7 +68,7 @@ export default function Footer() {
               <div key={group.group} className="flex flex-col gap-2">
                 <div
                   className="text-[9px] font-bold tracking-[2px] uppercase mb-1"
-                  style={{ color: '#52526e', fontFamily: "'Barlow Condensed', sans-serif" }}
+                  style={{ color: '#3a3d5c', fontFamily: "'Barlow Condensed', sans-serif" }}
                 >
                   {group.group}
                 </div>
@@ -76,10 +76,10 @@ export default function Footer() {
                   <Link
                     key={item.label}
                     href={item.href}
-                    className="text-[12px] transition-colors duration-150"
-                    style={{ color: '#3a3b50' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#d8d8ec')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#3a3b50')}
+                    className="transition-colors duration-150"
+                    style={{ fontSize: 13, color: '#4a4b68' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#9090b0')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#4a4b68')}
                   >
                     {item.label}
                   </Link>
@@ -94,10 +94,10 @@ export default function Footer() {
           className="flex flex-wrap items-center justify-between gap-3 pt-6"
           style={{ borderTop: '1px solid #0d0e1c' }}
         >
-          <span className="text-[11px]" style={{ color: '#2a2b3e' }}>
+          <span style={{ fontSize: 12, color: '#2a2b3e' }}>
             © {new Date().getFullYear()} TopScorers. Datos con fines informativos.
           </span>
-          <span className="text-[11px]" style={{ color: '#2a2b3e' }}>
+          <span style={{ fontSize: 12, color: '#2a2b3e' }}>
             <a href="mailto:support@top-scorers.com" style={{ color: '#2a2b3e' }}>
               support@top-scorers.com
             </a>

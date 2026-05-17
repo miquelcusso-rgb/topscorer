@@ -91,12 +91,12 @@ function Pill({
   return (
     <button
       onClick={onClick}
-      className="text-[11px] font-medium px-2.5 py-[3px] rounded-sm transition-all duration-150 cursor-pointer whitespace-nowrap flex items-center gap-1"
+      className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 cursor-pointer whitespace-nowrap flex items-center gap-1"
       style={active
         ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
         : locked
-          ? { background: '#0d0e1c', border: '1px solid #1a1b30', color: '#2a2b3e' }
-          : { background: '#0d0e1c', border: '1px solid #1a1b30', color: '#52526e' }
+          ? { background: '#0f1018', border: '1px solid #1e2033', color: '#2a2b3e' }
+          : { background: '#0f1018', border: '1px solid #1e2033', color: '#6b7090' }
       }
     >
       {children}
@@ -104,10 +104,19 @@ function Pill({
   )
 }
 
-function FilterGroup({ label: _label, children }: { label: string; children: React.ReactNode }) {
+function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-1 shrink-0 flex-wrap">
-      {children}
+    <div className="flex flex-col gap-1.5 shrink-0">
+      <span style={{
+        fontSize: 9, fontWeight: 700, letterSpacing: '2px',
+        textTransform: 'uppercase' as const, color: '#3a3d5c',
+        fontFamily: "'Barlow Condensed', sans-serif",
+      }}>
+        {label}
+      </span>
+      <div className="flex items-center gap-1 flex-wrap">
+        {children}
+      </div>
     </div>
   )
 }
@@ -184,9 +193,7 @@ function UpgradeBanner() {
 
 /* Vertical divider for the toolbar */
 function ToolbarDivider() {
-  return (
-    <div className="w-px self-stretch shrink-0" style={{ background: '#1e1f35', margin: '0 3px' }} />
-  )
+  return <div className="self-stretch w-px mx-2 mt-5" style={{ background: '#1e2033' }} />
 }
 
 export default function StatsPanel({ tab }: Props) {
@@ -264,11 +271,11 @@ export default function StatsPanel({ tab }: Props) {
 
       {/* ── FILTER TOOLBAR ── */}
       <div
-        style={{ background: '#06070e', border: '1px solid #151626', borderRadius: '6px 6px 0 0' }}
+        style={{ background: '#0f1018', border: '1px solid #1e2033', borderRadius: '8px 8px 0 0' }}
       >
-        {/* Main filter row */}
-        <div className="flex flex-wrap items-center gap-x-0 gap-y-0 px-3 py-2" style={{ borderBottom: '1px solid #101120' }}>
-          <FilterGroup label="Temp.">
+        {/* Fila 1: filtros */}
+        <div className="flex flex-wrap items-start gap-y-3 gap-x-0 px-4 pt-4 pb-4" style={{ borderBottom: '1px solid #161726' }}>
+          <FilterGroup label="Temporada">
             {SEASONS.map(s => {
               const locked = s.proOnly && !proUser
               return (
@@ -306,27 +313,27 @@ export default function StatsPanel({ tab }: Props) {
 
           <ToolbarDivider />
 
-          <FilterGroup label="Cols">
+          <FilterGroup label="Columnas">
             <Pill active={st.showElo}     color="gd" onClick={() => update({ showElo: !st.showElo })}>ELO</Pill>
             <Pill active={st.showFantasy} color="mu" onClick={() => update({ showFantasy: !st.showFantasy })}>Fantasy</Pill>
             {proUser && [{ v: false, label: 'Top 25' }, { v: true, label: 'Top 50' }].map(o => (
               <button key={String(o.v)} onClick={() => update({ showTop50: o.v })}
-                className="text-[11px] font-medium px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer"
+                className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 cursor-pointer"
                 style={st.showTop50 === o.v
                   ? { background: 'rgba(160,96,255,.12)', border: '1px solid rgba(160,96,255,.35)', color: '#a060ff' }
-                  : { background: 'transparent', border: '1px solid rgba(255,255,255,.06)', color: '#52526e' }
+                  : { background: '#0f1018', border: '1px solid #1e2033', color: '#6b7090' }
                 }
               >{o.label}</button>
             ))}
           </FilterGroup>
+        </div>
 
-          {/* Right: count + watchlist + search */}
-          <div className="ml-auto flex items-center gap-2 shrink-0">
-            <span className="text-[10px] hidden sm:flex items-center gap-1 tabular" style={{ color: '#3a3b50', fontFamily: "'Barlow Condensed', sans-serif" }}>
-              <span style={{ color: '#52526e', fontWeight: 700, letterSpacing: 0.5 }}>Resultados:</span>
-              <strong style={{ color: '#9090a8', fontWeight: 700 }}>{topN.length}</strong>
-              <span>jugadores</span>
-            </span>
+        {/* Fila 2: count + actions */}
+        <div className="flex items-center gap-3 px-4 py-2.5" style={{ background: '#0a0b12' }}>
+          <span style={{ fontSize: 12, color: '#5a5b7a' }}>
+            <strong style={{ color: '#7879a0' }}>{topN.length}</strong> jugadores
+          </span>
+          <div className="ml-auto flex items-center gap-2">
             {proUser && (
               <button
                 onClick={() => setWatchlistOpen(true)}

@@ -29,8 +29,8 @@ body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
 html { -webkit-font-smoothing: antialiased; }
 
 body {
-  background-color: #0b0c1a;
-  color: #d8d8ec;
+  background-color: #080910;
+  color: #eeeef5;
   font-family: 'DM Sans', 'Inter', sans-serif;
 }
 
@@ -48,10 +48,10 @@ body::before {
 /* Tabular numbers for stat columns */
 .tabular { font-variant-numeric: tabular-nums; }
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #05060c; }
-::-webkit-scrollbar-thumb { background: #2a2b3e; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #52526e; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1e2033; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2a2b3e; }
 
 .hover-card {
   opacity: 0;
