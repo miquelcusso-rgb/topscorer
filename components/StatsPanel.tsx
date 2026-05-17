@@ -53,17 +53,17 @@ const AGES = [
 ]
 
 const SCORER_SORTS: { key: SortKey; label: string }[] = [
-  { key: 'val_sin', label: 'Val. sin coef.' },
-  { key: 'val_con', label: 'Val. con coef.' },
+  { key: 'val_sin', label: 'Val.' },
+  { key: 'val_con', label: 'Val+' },
   { key: 'goles',   label: 'Goles' },
-  { key: 'asist',   label: 'Asistencias' },
+  { key: 'asist',   label: 'Asist' },
   { key: 'ratio_g', label: 'G/PJ' },
   { key: 'ratio_a', label: 'A/PJ' },
   { key: 'age',     label: 'Edad' },
 ]
 
 const ASSIST_SORTS: { key: SortKey; label: string }[] = [
-  { key: 'asist',   label: 'Asistencias' },
+  { key: 'asist',   label: 'Asist' },
   { key: 'ratio_a', label: 'A/PJ' },
   { key: 'goles',   label: 'Goles' },
   { key: 'val_sin', label: 'G+A' },
@@ -81,71 +81,119 @@ function Pill({
   onClick: () => void
 }) {
   const map = {
-    gd: { bg: 'rgba(240,192,64,.12)', border: '#f0c040', text: '#f0c040' },
-    bl: { bg: 'rgba(74,158,255,.12)', border: '#4a9eff', text: '#4a9eff' },
-    gr: { bg: 'rgba(56,196,122,.12)', border: '#38c47a', text: '#38c47a' },
-    mu: { bg: 'rgba(90,90,122,.12)',  border: '#5a5a7a', text: '#5a5a7a' },
-    pu: { bg: 'rgba(160,96,255,.12)', border: '#a060ff', text: '#a060ff' },
+    gd: { bg: 'rgba(240,192,64,.12)', border: 'rgba(240,192,64,.45)', text: '#f0c040' },
+    bl: { bg: 'rgba(0,200,176,.1)',   border: 'rgba(0,200,176,.4)',   text: '#00c8b0' },
+    gr: { bg: 'rgba(56,196,122,.1)',  border: 'rgba(56,196,122,.4)',  text: '#38c47a' },
+    mu: { bg: 'rgba(255,255,255,.06)',border: 'rgba(255,255,255,.16)',text: '#9090a8' },
+    pu: { bg: 'rgba(160,96,255,.1)',  border: 'rgba(160,96,255,.4)',  text: '#a060ff' },
   }
   const c = map[color]
   return (
     <button
       onClick={onClick}
-      className="text-[11px] font-semibold px-3 py-1 rounded-full transition-all duration-150 cursor-pointer whitespace-nowrap flex items-center gap-1"
+      className="text-[11px] font-medium px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer whitespace-nowrap flex items-center gap-1"
       style={active
         ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
         : locked
-          ? { background: '#0e0e1c', border: '1px solid #1e1e34', color: '#2a2a48' }
-          : { background: '#151528', border: '1px solid #1e1e34', color: '#5a5a7a' }
+          ? { background: 'transparent', border: '1px solid rgba(255,255,255,.03)', color: '#2a2b3e' }
+          : { background: 'transparent', border: '1px solid rgba(255,255,255,.06)', color: '#52526e' }
       }
     >
-      {locked && <span style={{ fontSize: 9 }}>🔒</span>}
       {children}
     </button>
+  )
+}
+
+function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2.5 shrink-0">
+      <span
+        className="text-[9px] font-bold tracking-[1.8px] uppercase shrink-0"
+        style={{ color: '#52526e', fontFamily: "'Barlow Condensed', sans-serif" }}
+      >
+        {label}
+      </span>
+      <div className="flex items-center gap-1 flex-wrap">
+        {children}
+      </div>
+    </div>
   )
 }
 
 function UpgradeBanner() {
   return (
     <div
-      className="relative overflow-hidden rounded-sm"
-      style={{ border: '1px solid rgba(240,192,64,.2)', background: 'rgba(240,192,64,.03)' }}
+      className="relative overflow-hidden"
+      style={{
+        border: '1px solid rgba(240,192,64,.22)',
+        borderTop: 'none',
+        background: 'linear-gradient(180deg, rgba(240,192,64,.03) 0%, rgba(240,192,64,.06) 100%)',
+      }}
     >
-      {/* Blurred ghost rows */}
-      <div style={{ filter: 'blur(4px)', opacity: 0.2, pointerEvents: 'none', userSelect: 'none' }}>
-        {[11, 12, 13, 14, 15].map(n => (
+      {/* Ghost rows — sharper blur */}
+      <div style={{ filter: 'blur(2.5px)', opacity: 0.28, pointerEvents: 'none', userSelect: 'none' }}>
+        {[11, 12, 13, 14, 15].map((n, i) => (
           <div
             key={n}
-            className="flex items-center gap-4 px-4 py-2.5"
-            style={{ borderBottom: '1px solid #1e1e34', height: 42 }}
+            className="flex items-center gap-4 px-4"
+            style={{
+              borderBottom: '1px solid #151626',
+              height: 40,
+              background: i % 2 === 0 ? 'rgba(255,255,255,.018)' : 'transparent',
+            }}
           >
-            <span className="text-[12px] font-bold w-6" style={{ color: '#2a2a48' }}>{n}</span>
-            <div className="h-2.5 rounded-full flex-1 max-w-[140px]" style={{ background: '#1e1e34' }} />
-            <div className="h-2 rounded-full w-20" style={{ background: '#1e1e34' }} />
-            <div className="h-2 rounded-full w-8" style={{ background: '#1e1e34' }} />
-            <div className="h-2 rounded-full w-12" style={{ background: '#1e1e34' }} />
+            <span
+              className="w-5 text-right shrink-0"
+              style={{ fontSize: 13, color: '#3a3b50', fontFamily: "'Bebas Neue', cursive" }}
+            >
+              {n}
+            </span>
+            <div className="h-[6px] rounded-full" style={{ background: '#1e1f35', width: `${110 - i * 12}px` }} />
+            <div className="h-[6px] rounded-full w-12 shrink-0" style={{ background: '#1e1f35' }} />
+            <div className="ml-auto h-[6px] rounded-full w-6 shrink-0" style={{ background: '#1e1f35' }} />
+            <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: '#1e1f35' }} />
+            <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: '#1e1f35' }} />
           </div>
         ))}
       </div>
+
+      {/* Gradient fade at top of ghost rows */}
+      <div
+        className="absolute inset-x-0 top-0"
+        style={{ height: 40, background: 'linear-gradient(180deg, rgba(6,7,14,.0) 0%, transparent 100%)', pointerEvents: 'none' }}
+      />
+
       {/* CTA overlay */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 py-4">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
         <div className="text-center">
-          <div className="text-[13px] font-bold mb-1" style={{ color: '#e5e5f2' }}>
+          <div
+            className="font-bold mb-1"
+            style={{ fontSize: 14, color: '#d8d8ec', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.3 }}
+          >
             Posiciones 11–25 bloqueadas
           </div>
-          <div className="text-[11.5px]" style={{ color: '#5a5a7a' }}>
-            Desbloquea el Top 25 completo con Pro
+          <div style={{ fontSize: 11, color: '#52526e' }}>
+            Desbloquea el Top 25 completo + historial con Pro
           </div>
         </div>
         <Link
           href="/pricing"
-          className="text-[12px] font-bold px-4 py-2 rounded-sm transition-all duration-150"
-          style={{ background: '#f0c040', color: '#07070f' }}
+          className="inline-flex items-center gap-1.5 font-bold rounded-sm transition-all duration-150 cursor-pointer"
+          style={{ fontSize: 12, padding: '7px 18px', background: '#f0c040', color: '#05060c', boxShadow: '0 2px 16px rgba(240,192,64,.25)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(240,192,64,.4)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(240,192,64,.25)' }}
         >
-          Pro desde €4/mes →
+          Pro desde €5/mes →
         </Link>
       </div>
     </div>
+  )
+}
+
+/* Vertical divider for the toolbar */
+function ToolbarDivider() {
+  return (
+    <div className="w-px self-stretch shrink-0" style={{ background: '#1e1f35', margin: '0 3px' }} />
   )
 }
 
@@ -167,7 +215,6 @@ export default function StatsPanel({ tab }: Props) {
   useEffect(() => { loadWatchlist() }, [loadWatchlist])
 
   async function handleWatchlistToggle(playerName: string) {
-    const key = `${playerName}|${st.season}|${tab}`
     const existing = watchlist.find(e => e.player_name === playerName && e.season === st.season && e.tab === tab)
     if (existing) {
       setWatchlist(prev => prev.filter(e => e.id !== existing.id))
@@ -220,234 +267,91 @@ export default function StatsPanel({ tab }: Props) {
   const eloSortOpt:  { key: SortKey; label: string } = { key: 'elo',          label: 'ELO'     }
   const fantSortOpt: { key: SortKey; label: string } = { key: 'fantasyPoints', label: 'Fantasy' }
 
-  const PRO_COLS = [
-    { key: 'showPj',      label: 'PJ'       },
-    { key: 'showRatios',  label: 'G/PJ·A/PJ'},
-    { key: 'showValSin',  label: 'Val. sin' },
-    { key: 'showValCoef', label: 'Val. coef'},
-  ]
-
   return (
     <div className="flex flex-col gap-0">
 
-      {/* Filter strip */}
+      {/* ── FILTER TOOLBAR ── */}
       <div
-        className="flex flex-wrap gap-x-6 gap-y-3 px-4 py-3"
-        style={{ background: '#0e0e1c', border: '1px solid #1e1e34', borderTop: 'none' }}
+        style={{ background: '#06070e', border: '1px solid #151626', borderRadius: '6px 6px 0 0' }}
       >
-        {/* Season */}
-        <div className="flex flex-col gap-1.5">
-          <div className="text-[9px] font-bold tracking-[2px] uppercase" style={{ color: '#5a5a7a' }}>Temporada</div>
-          <div className="flex gap-1.5 flex-wrap">
+        {/* Main filter row */}
+        <div className="flex flex-wrap items-center gap-x-0 gap-y-0 px-3 py-2" style={{ borderBottom: '1px solid #101120' }}>
+          <FilterGroup label="Temp.">
             {SEASONS.map(s => {
               const locked = s.proOnly && !proUser
               return (
-                <Pill
-                  key={s.id}
-                  active={st.season === s.id}
-                  color="gd"
-                  locked={locked}
+                <Pill key={s.id} active={st.season === s.id} color="gd" locked={locked}
                   onClick={() => {
                     if (locked) { window.location.href = '/pricing'; return }
                     update({ season: s.id, pinned: {} })
                   }}
                 >
-                  {s.live && (
-                    <span className="inline-block w-1.5 h-1.5 rounded-full mr-1" style={{ background: '#38c47a', boxShadow: '0 0 4px #38c47a' }} />
-                  )}
-                  {s.label}{s.live && ' en curso'}
+                  {s.live && <span className="inline-block w-1 h-1 rounded-full" style={{ background: '#38c47a', boxShadow: '0 0 3px #38c47a' }} />}
+                  {s.label}
                 </Pill>
               )
             })}
-          </div>
-        </div>
+          </FilterGroup>
 
-        {/* Age */}
-        <div className="flex flex-col gap-1.5">
-          <div className="text-[9px] font-bold tracking-[2px] uppercase" style={{ color: '#5a5a7a' }}>Edad máx.</div>
-          <div className="flex gap-1.5 flex-wrap">
+          <ToolbarDivider />
+
+          <FilterGroup label="Liga">
+            <Pill active={st.showEur5} color="gr" onClick={() => { if (st.showEur5 && !st.showPt && !st.showTr && !st.showGr) return; update({ showEur5: !st.showEur5 }) }}>Top 5</Pill>
+            <Pill active={st.showPt}   color="mu" onClick={() => { if (!st.showPt && !st.showEur5 && !st.showTr && !st.showGr) return; update({ showPt: !st.showPt }) }}>PT</Pill>
+            <Pill active={st.showTr}   color="mu" onClick={() => { if (!st.showTr && !st.showEur5 && !st.showPt && !st.showGr) return; update({ showTr: !st.showTr }) }}>TR</Pill>
+            <Pill active={st.showGr}   color="mu" onClick={() => { if (!st.showGr && !st.showEur5 && !st.showPt && !st.showTr) return; update({ showGr: !st.showGr }) }}>GR</Pill>
+          </FilterGroup>
+
+          <ToolbarDivider />
+
+          <FilterGroup label="Edad">
             {AGES.map(a => (
               <Pill key={a.v} active={st.age === a.v} color="bl" onClick={() => update({ age: a.v })}>
                 {a.label}
               </Pill>
             ))}
-          </div>
-        </div>
+          </FilterGroup>
 
-        {/* Leagues */}
-        <div className="flex flex-col gap-1.5">
-          <div className="text-[9px] font-bold tracking-[2px] uppercase" style={{ color: '#5a5a7a' }}>Ligas</div>
-          <div className="flex gap-1.5 flex-wrap">
-            <Pill active={st.showEur5} color="gr" onClick={() => { if (st.showEur5 && !st.showPt && !st.showTr && !st.showGr) return; update({ showEur5: !st.showEur5 }) }}>
-              🌍 Top 5 Europa
-            </Pill>
-            <Pill active={st.showPt} color="mu" onClick={() => { if (!st.showPt && !st.showEur5 && !st.showTr && !st.showGr) return; update({ showPt: !st.showPt }) }}>
-              🇵🇹 Portugal
-            </Pill>
-            <Pill active={st.showTr} color="mu" onClick={() => { if (!st.showTr && !st.showEur5 && !st.showPt && !st.showGr) return; update({ showTr: !st.showTr }) }}>
-              🇹🇷 Turquía
-            </Pill>
-            <Pill active={st.showGr} color="mu" onClick={() => { if (!st.showGr && !st.showEur5 && !st.showPt && !st.showTr) return; update({ showGr: !st.showGr }) }}>
-              🇬🇷 Grecia
-            </Pill>
-          </div>
-        </div>
+          <ToolbarDivider />
 
-        {/* Extra columns */}
-        <div className="flex flex-col gap-1.5">
-          <div className="text-[9px] font-bold tracking-[2px] uppercase" style={{ color: '#5a5a7a' }}>
-            Columnas extra
-          </div>
-          <div className="flex gap-1.5 flex-wrap">
-            <Pill active={st.showElo}     color="gd" onClick={() => update({ showElo:     !st.showElo     })}>ELO</Pill>
+          <FilterGroup label="Cols">
+            <Pill active={st.showElo}     color="gd" onClick={() => update({ showElo: !st.showElo })}>ELO</Pill>
             <Pill active={st.showFantasy} color="mu" onClick={() => update({ showFantasy: !st.showFantasy })}>Fantasy</Pill>
-          </div>
-        </div>
-
-        {/* Watchlist button (pro only) */}
-        {proUser && (
-          <div className="flex flex-col gap-1.5 ml-auto">
-            <div className="text-[9px] font-bold tracking-[2px] uppercase" style={{ color: '#5a5a7a' }}>
-              &nbsp;
-            </div>
-            <button
-              onClick={() => setWatchlistOpen(true)}
-              className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full transition-all duration-150 cursor-pointer whitespace-nowrap"
-              style={watchlist.length > 0
-                ? { background: 'rgba(240,192,64,.12)', border: '1px solid rgba(240,192,64,.4)', color: '#f0c040' }
-                : { background: '#151528', border: '1px solid #1e1e34', color: '#5a5a7a' }
-              }
-            >
-              ★ Watchlist
-              {watchlist.length > 0 && (
-                <span
-                  className="text-[9px] font-bold px-1 py-0.5 rounded-full"
-                  style={{ background: 'rgba(240,192,64,.2)', color: '#f0c040' }}
-                >
-                  {watchlist.length}
-                </span>
-              )}
-            </button>
-          </div>
-        )}
-
-        {/* Pro column toggles */}
-        {proUser && (
-          <div className="flex flex-col gap-1.5">
-            <div className="text-[9px] font-bold tracking-[2px] uppercase" style={{ color: '#a060ff' }}>
-              Columnas pro
-            </div>
-            <div className="flex gap-1.5 flex-wrap">
-              {PRO_COLS.map(c => (
-                <Pill
-                  key={c.key}
-                  active={st[c.key as keyof PanelState] as boolean}
-                  color="pu"
-                  onClick={() => update({ [c.key]: !st[c.key as keyof PanelState] })}
-                >
-                  {c.label}
-                </Pill>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Search */}
-        <SearchInput
-          pool={pool.filter(p => p.season === st.season)}
-          pinned={st.pinned}
-          onAdd={name => update({ pinned: { ...st.pinned, [name]: true } })}
-        />
-      </div>
-
-      {/* Pro top-50 toggle + sort bar */}
-      <div
-        className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2"
-        style={{ background: '#0e0e1c', borderLeft: '1px solid #1e1e34', borderRight: '1px solid #1e1e34' }}
-      >
-        {proUser && (
-          <div className="flex gap-1 items-center mr-2">
-            {[
-              { v: false, label: 'Top 25' },
-              { v: true,  label: 'Top 50' },
-            ].map(o => (
-              <button
-                key={String(o.v)}
-                onClick={() => update({ showTop50: o.v })}
-                className="text-[11px] font-bold px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer"
+            {proUser && [{ v: false, label: 'Top 25' }, { v: true, label: 'Top 50' }].map(o => (
+              <button key={String(o.v)} onClick={() => update({ showTop50: o.v })}
+                className="text-[11px] font-medium px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer"
                 style={st.showTop50 === o.v
-                  ? { background: 'rgba(160,96,255,.15)', border: '1px solid rgba(160,96,255,.4)', color: '#a060ff' }
-                  : { background: '#151528', border: '1px solid #1e1e34', color: '#5a5a7a' }
+                  ? { background: 'rgba(160,96,255,.12)', border: '1px solid rgba(160,96,255,.35)', color: '#a060ff' }
+                  : { background: 'transparent', border: '1px solid rgba(255,255,255,.06)', color: '#52526e' }
                 }
-              >
-                {o.label}
-              </button>
+              >{o.label}</button>
             ))}
+          </FilterGroup>
+
+          {/* Right: count + watchlist + search */}
+          <div className="ml-auto flex items-center gap-2 shrink-0">
+            <span className="text-[10.5px] hidden sm:block tabular" style={{ color: '#3a3b50' }}>
+              <strong style={{ color: '#52526e' }}>{topN.length}</strong> jugadores
+            </span>
+            {proUser && (
+              <button
+                onClick={() => setWatchlistOpen(true)}
+                className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer"
+                style={watchlist.length > 0
+                  ? { background: 'rgba(240,192,64,.1)', border: '1px solid rgba(240,192,64,.3)', color: '#f0c040' }
+                  : { background: 'transparent', border: '1px solid rgba(255,255,255,.05)', color: '#3a3b50' }
+                }
+                aria-label="Watchlist"
+              >
+                ★{watchlist.length > 0 && <span className="text-[9px]">{watchlist.length}</span>}
+              </button>
+            )}
+            <SearchInput
+              pool={pool.filter(p => p.season === st.season)}
+              pinned={st.pinned}
+              onAdd={name => update({ pinned: { ...st.pinned, [name]: true } })}
+            />
           </div>
-        )}
-
-        <span className="text-[9px] font-bold tracking-[2px] uppercase mr-1" style={{ color: '#5a5a7a' }}>
-          Ordenar →
-        </span>
-        {[...sorts, ...(st.showElo ? [eloSortOpt] : []), ...(st.showFantasy ? [fantSortOpt] : [])].map(s => {
-          const active = st.sort === s.key
-          return (
-            <button
-              key={s.key}
-              onClick={() => {
-                if (st.sort === s.key) update({ dir: (st.dir * -1) as 1 | -1 })
-                else update({ sort: s.key, dir: -1 })
-              }}
-              className="text-[11px] font-semibold px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer"
-              style={active
-                ? { background: '#f0c040', border: '1px solid #f0c040', color: '#000', fontWeight: 700 }
-                : { background: '#151528', border: '1px solid #1e1e34', color: '#5a5a7a' }
-              }
-            >
-              {s.label}
-              {active && <span className="ml-1 text-[8px]">{st.dir === -1 ? '▼' : '▲'}</span>}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Info bar */}
-      <div
-        className="flex flex-wrap items-center justify-between gap-3 px-4 py-2"
-        style={{ borderLeft: '1px solid #1e1e34', borderRight: '1px solid #1e1e34' }}
-      >
-        <div className="text-[11px]" style={{ color: '#5a5a7a' }}>
-          {st.age < 99 && fillerCount > 0 ? (
-            <>
-              Mostrando <strong style={{ color: '#e5e5f2' }}>{rowLimit}</strong> ·{' '}
-              <strong style={{ color: '#e5e5f2' }}>{metAge}</strong> cumplen U{st.age} ·{' '}
-              <strong style={{ color: '#36364e' }}>{fillerCount}</strong> completados
-            </>
-          ) : (
-            <>
-              Mostrando <strong style={{ color: '#e5e5f2' }}>{topN.length}</strong> jugadores
-              {!proUser && (
-                <span style={{ color: '#2a2a48' }}>
-                  {' '}·{' '}
-                  <Link href="/pricing" style={{ color: '#5a5a6a', textDecoration: 'underline', textDecorationColor: '#2a2a48' }}>
-                    Top 25 con Pro
-                  </Link>
-                </span>
-              )}
-            </>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-3">
-          {[
-            { color: '#f0c040', label: 'Goles' },
-            { color: '#4a9eff', label: 'Asistencias' },
-            { color: '#e05a30', shape: 'square' as const, label: '★ Añadido' },
-          ].map(l => (
-            <div key={l.label} className="flex items-center gap-1.5 text-[10.5px]" style={{ color: '#5a5a7a' }}>
-              <div className="w-2 h-2 shrink-0" style={{ background: l.color, borderRadius: l.shape === 'square' ? 0 : '50%' }} />
-              {l.label}
-            </div>
-          ))}
         </div>
       </div>
 
@@ -488,22 +392,14 @@ export default function StatsPanel({ tab }: Props) {
         />
       )}
 
-      {/* Footnotes */}
+      {/* Footnote */}
       <div
-        className="flex flex-wrap gap-6 px-4 py-3"
-        style={{ borderLeft: '1px solid #1e1e34', borderRight: '1px solid #1e1e34', borderBottom: '1px solid #1e1e34', borderRadius: '0 0 3px 3px' }}
+        className="px-4 py-2"
+        style={{ borderLeft: '1px solid #151626', borderRight: '1px solid #151626', borderBottom: '1px solid #151626', borderRadius: '0 0 6px 6px', background: '#05060b' }}
       >
-        <p className="text-[11px] leading-relaxed" style={{ color: '#5a5a7a', flex: '1 1 200px' }}>
-          <strong style={{ color: 'rgba(229,229,242,.65)' }}>Lista fija:</strong> si el filtro de edad tiene menos candidatos, se rellena con los siguientes sin límite de edad.
-        </p>
-        <p className="text-[11px] leading-relaxed" style={{ color: '#5a5a7a', flex: '1 1 200px' }}>
-          <strong style={{ color: 'rgba(229,229,242,.65)' }}>Val. sin coef.:</strong> G×2+A ·{' '}
-          <strong style={{ color: 'rgba(229,229,242,.65)' }}>Val. con coef.:</strong> G×coef×2+A · Coef Top 5 ×2 / PT+TR+GR ×1.5
-        </p>
-        <p className="text-[11px] leading-relaxed" style={{ color: '#5a5a7a', flex: '1 1 200px' }}>
-          <strong style={{ color: 'rgba(229,229,242,.65)' }}>ELO:</strong> calculado sobre G, A y coef. de liga ·{' '}
-          <strong style={{ color: 'rgba(229,229,242,.65)' }}>Fantasy:</strong> G×6 + A×3 + PJ.
-        </p>
+        <span style={{ fontSize: 10, color: '#2a2b3e' }}>
+          Datos 25/26: europeangoldenshoe.com + FotMob &nbsp;·&nbsp; Val: G×2+A &nbsp;·&nbsp; Val+: G×coef×2+A
+        </span>
       </div>
     </div>
   )

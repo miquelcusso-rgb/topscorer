@@ -1,27 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg:  #07070f;
-  --color-sf:  #0e0e1c;
-  --color-s2:  #151528;
-  --color-bd:  #1e1e34;
-  --color-dim: #36364e;
+  --color-bg:  #05060c;
+  --color-s1:  #0c0d18;
+  --color-s2:  #10111e;
+  --color-bd:  #1a1b2e;
+  --color-dim: #2a2b3e;
+  --color-mu:  #52526e;
+  --color-tx:  #d8d8ec;
   --color-gd:  #f0c040;
-  --color-or:  #e05a30;
-  --color-bl:  #4a9eff;
+  --color-tl:  #00c8b0;
   --color-gr:  #38c47a;
+  --color-or:  #e05a30;
   --color-pu:  #a060ff;
-  --color-tx:  #e5e5f2;
-  --color-mu:  #5a5a7a;
+  /* legacy aliases kept for compatibility */
+  --color-sf:  #0c0d18;
+  --color-bl:  #00c8b0;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Explicit resets only where needed, without overriding utility classes */
+body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
+  margin: 0;
+  padding: 0;
+}
 
 html { -webkit-font-smoothing: antialiased; }
 
 body {
-  background-color: #07070f;
-  color: #e5e5f2;
+  background-color: #0b0c1a;
+  color: #d8d8ec;
   font-family: 'DM Sans', 'Inter', sans-serif;
 }
 
@@ -32,14 +41,17 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(240,192,64,.05) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(160,96,255,.04) 0%, transparent 50%);
+    radial-gradient(ellipse 70% 40% at 10% 0%, rgba(240,192,64,.025) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 35% at 90% 100%, rgba(0,200,176,.02) 0%, transparent 55%);
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0e0e1c; }
-::-webkit-scrollbar-thumb { background: #36364e; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #5a5a7a; }
+/* Tabular numbers for stat columns */
+.tabular { font-variant-numeric: tabular-nums; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #05060c; }
+::-webkit-scrollbar-thumb { background: #2a2b3e; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #52526e; }
 
 .hover-card {
   opacity: 0;

@@ -22,10 +22,11 @@ interface Props {
   onUnpin?: (name: string) => void
 }
 
-const SRC_STYLE = {
-  live: { label: 'Live',      color: '#38c47a', bg: 'rgba(56,196,122,.14)',  border: 'rgba(56,196,122,.28)' },
-  srch: { label: 'Búsqueda', color: '#4a9eff', bg: 'rgba(74,158,255,.12)', border: 'rgba(74,158,255,.22)' },
-  est:  { label: 'Estimado', color: '#e05a30', bg: 'rgba(224,90,48,.10)',  border: 'rgba(224,90,48,.22)' },
+const POS_STYLE: Record<string, { color: string; bg: string }> = {
+  FW: { color: '#e05a30', bg: 'rgba(224,90,48,.12)' },
+  MF: { color: '#00c8b0', bg: 'rgba(0,200,176,.1)'  },
+  DF: { color: '#6080d0', bg: 'rgba(96,128,208,.1)'  },
+  GK: { color: '#f0c040', bg: 'rgba(240,192,64,.1)'  },
 }
 
 export default function PlayerRow({
@@ -36,58 +37,113 @@ export default function PlayerRow({
   onUnpin,
 }: Props) {
   const [cardOpen, setCardOpen] = useState(false)
-  const isTop3  = rank <= 3
+
+  const rankColor =
+    rank === 1 ? '#f0c040' :
+    rank === 2 ? '#b0b8c8' :
+    rank === 3 ? '#cd8c5a' :
+    '#2a2b3e'
+
+  const isTop1 = rank === 1
+  const isTop3 = rank <= 3
   const mainVal = isAssist ? player.asist : player.goles
   const barPct  = Math.round((mainVal / maxVal) * 100)
-  const ls      = LEAGUE_STYLE[player.league] ?? { bg: 'rgba(90,90,122,.12)', color: '#5a5a7a', border: 'rgba(90,90,122,.25)' }
-  const src     = SRC_STYLE[player.src]
+  const ls      = LEAGUE_STYLE[player.league] ?? { bg: 'rgba(90,90,122,.1)', color: '#52526e', border: 'rgba(90,90,122,.22)' }
+  const pos     = player.position ? POS_STYLE[player.position] : null
 
   const eloColor = player.elo != null
-    ? player.elo >= 2100 ? '#f0c040' : player.elo >= 1900 ? '#38c47a' : '#4a9eff'
-    : '#5a5a7a'
+    ? player.elo >= 2100 ? '#f0c040' : player.elo >= 1900 ? '#38c47a' : '#00c8b0'
+    : '#52526e'
 
   return (
     <tr
-      className="group relative border-b transition-colors duration-150"
+      className="group cursor-pointer"
       style={{
-        borderColor: 'rgba(255,255,255,.035)',
-        background: isTop3 ? 'rgba(240,192,64,.025)' : 'transparent',
-        borderLeft: player.isPinned ? '2px solid #e05a30' : '2px solid transparent',
+        height: 40,
+        borderBottom: '1px solid rgba(255,255,255,.025)',
+        background: isTop1
+          ? 'rgba(240,192,64,.04)'
+          : isTop3
+          ? 'rgba(240,192,64,.02)'
+          : rank % 2 === 0
+          ? 'rgba(255,255,255,.018)'
+          : 'transparent',
+        borderLeft: player.isPinned
+          ? '3px solid #e05a30'
+          : isTop1
+          ? '3px solid rgba(240,192,64,.5)'
+          : '3px solid transparent',
+        transition: 'background 150ms ease',
       }}
-      onMouseEnter={() => setCardOpen(true)}
-      onMouseLeave={() => setCardOpen(false)}
+      onMouseEnter={e => {
+        setCardOpen(true)
+        e.currentTarget.style.background = 'rgba(255,255,255,.035)'
+      }}
+      onMouseLeave={e => {
+        setCardOpen(false)
+        e.currentTarget.style.background = isTop1
+          ? 'rgba(240,192,64,.04)'
+          : isTop3
+          ? 'rgba(240,192,64,.02)'
+          : rank % 2 === 0
+          ? 'rgba(255,255,255,.018)'
+          : 'transparent'
+      }}
       onClick={() => setCardOpen(v => !v)}
     >
       {/* Rank */}
-      <td className="pl-3 pr-1 py-2.5 w-9 text-right" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 17, color: isTop3 ? '#f0c040' : '#36364e' }}>
-        {rank}
+      <td className="pl-3 pr-2 text-right" style={{ width: 44, fontFamily: "'Bebas Neue', cursive", lineHeight: 1 }}>
+        {isTop3 ? (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 22, height: 22, borderRadius: '50%', fontSize: 12,
+            color: rankColor,
+            background: rank === 1 ? 'rgba(240,192,64,.14)' : rank === 2 ? 'rgba(176,184,200,.08)' : 'rgba(205,140,90,.08)',
+            border: `1px solid ${rank === 1 ? 'rgba(240,192,64,.3)' : rank === 2 ? 'rgba(176,184,200,.2)' : 'rgba(205,140,90,.2)'}`,
+          }}>
+            {rank}
+          </span>
+        ) : (
+          <span style={{ fontSize: 13, color: '#3a3b50' }}>{rank}</span>
+        )}
       </td>
 
-      {/* Name + hover card anchor */}
-      <td className="py-2.5 pr-3 relative">
+      {/* Name + club */}
+      <td className="py-0 pr-3 relative" style={{ width: 210, maxWidth: 210, overflow: 'hidden' }}>
         <div className="flex items-center gap-1.5 min-w-0">
           <div className="min-w-0">
             <div
-              className="font-semibold text-[13.5px] leading-tight truncate"
-              style={{ color: '#e5e5f2', textShadow: isTop3 ? '0 0 12px rgba(240,192,64,.25)' : 'none' }}
+              className="font-semibold leading-tight truncate"
+              style={{
+                fontSize: 13,
+                color: '#d8d8ec',
+                textShadow: isTop1 ? '0 0 12px rgba(240,192,64,.18)' : 'none',
+              }}
             >
-              {player.flag && <span className="mr-1 text-sm">{player.flag}</span>}
+              {player.flag && <span className="mr-0.5 text-xs">{player.flag}</span>}
               {player.name}
-              {player.isPinned && <span style={{ color: '#e05a30', fontSize: 10, marginLeft: 4 }}>★</span>}
+              {player.isPinned && <span style={{ color: '#e05a30', fontSize: 9, marginLeft: 3 }}>★</span>}
             </div>
-            <div className="text-[10.5px] leading-tight truncate" style={{ color: '#5a5a7a' }}>
-              {player.club}
-              {player.isFiller && !player.isPinned && (
-                <span className="ml-1 text-[9px]" style={{ color: '#36364e' }}>(relleno)</span>
+            <div className="flex items-center gap-1 leading-tight">
+              <span className="truncate" style={{ fontSize: 10, color: '#52526e' }}>
+                {player.club}
+                {player.isFiller && !player.isPinned && (
+                  <span className="ml-1" style={{ fontSize: 9, color: '#2a2b3e' }}>(relleno)</span>
+                )}
+              </span>
+              {pos && (
+                <span style={{ fontSize: 8, fontWeight: 700, padding: '1px 3px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
+                  {player.position}
+                </span>
               )}
             </div>
           </div>
           {player.isPinned && onUnpin && (
             <button
-              className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-sm transition-colors duration-150 cursor-pointer"
-              style={{ color: 'rgba(224,90,48,.6)', border: '1px solid rgba(224,90,48,.25)', background: 'none' }}
+              className="shrink-0 px-1 py-px rounded-sm transition-colors duration-150 cursor-pointer"
+              style={{ fontSize: 9, fontWeight: 700, color: 'rgba(224,90,48,.55)', border: '1px solid rgba(224,90,48,.22)', background: 'none' }}
               onMouseEnter={e => { e.currentTarget.style.color = '#e05a30'; e.currentTarget.style.borderColor = '#e05a30' }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(224,90,48,.6)'; e.currentTarget.style.borderColor = 'rgba(224,90,48,.25)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(224,90,48,.55)'; e.currentTarget.style.borderColor = 'rgba(224,90,48,.22)' }}
               onClick={e => { e.stopPropagation(); onUnpin(player.name) }}
             >
               ✕
@@ -103,45 +159,52 @@ export default function PlayerRow({
         <PlayerHoverCard player={player} showElo={showElo} showFantasy={showFantasy} open={cardOpen} />
       </td>
 
-      {/* League */}
-      <td className="py-2.5 pr-3">
-        <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-sm whitespace-nowrap" style={{ color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}>
+      {/* League badge */}
+      <td className="pr-3">
+        <span
+          className="font-semibold whitespace-nowrap rounded-sm"
+          style={{ fontSize: 9, letterSpacing: 0.5, padding: '2px 5px', color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}
+        >
           {player.league}
         </span>
       </td>
 
       {/* Age */}
-      <td className="py-2.5 pr-3 text-[12px]" style={{ color: '#5a5a7a' }}>{player.age}</td>
+      <td className="pr-3 text-right tabular" style={{ fontSize: 11, color: '#52526e' }}>
+        {player.age}
+      </td>
 
       {/* PJ */}
       {showPj && (
-        <td className="py-2.5 pr-3" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#5a5a7a' }}>{player.pj}</td>
+        <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#2a2b3e' }}>
+          {player.pj}
+        </td>
       )}
 
-      {/* Main stat with mini bar */}
-      <td className="py-2.5 pr-3">
-        <div className="flex items-center gap-2">
-          <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 20, color: isAssist ? '#4a9eff' : '#f0c040' }}>
+      {/* Main stat + mini bar */}
+      <td className="pr-3">
+        <div className="flex items-center justify-end gap-2">
+          <div className="h-[2px] rounded-full w-[52px] shrink-0" style={{ background: 'rgba(255,255,255,.06)' }}>
+            <div className="h-full rounded-full" style={{ width: `${barPct}%`, background: isAssist ? '#00c8b0' : '#f0c040', opacity: 0.65 }} />
+          </div>
+          <span className="tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 20, color: isAssist ? '#00c8b0' : '#f0c040', lineHeight: 1, minWidth: 20, textAlign: 'right' }}>
             {mainVal}
           </span>
-          <div className="h-[3px] rounded-sm flex-1 min-w-[40px] max-w-[80px]" style={{ background: '#1e1e34' }}>
-            <div className="h-full rounded-sm" style={{ width: `${barPct}%`, background: isAssist ? '#4a9eff' : '#f0c040' }} />
-          </div>
         </div>
       </td>
 
       {/* Secondary stat */}
-      <td className="py-2.5 pr-3" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: isAssist ? '#f0c040' : '#4a9eff' }}>
+      <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: isAssist ? 'rgba(240,192,64,.6)' : 'rgba(0,200,176,.6)', lineHeight: 1 }}>
         {isAssist ? player.goles : player.asist}
       </td>
 
       {/* Ratios */}
       {showRatios && (
         <>
-          <td className="py-2.5 pr-3 text-[12px] font-semibold" style={{ color: isAssist ? 'rgba(74,158,255,.9)' : 'rgba(240,192,64,.9)' }}>
+          <td className="pr-3 text-right tabular" style={{ fontSize: 11, fontWeight: 600, color: isAssist ? 'rgba(0,200,176,.85)' : 'rgba(240,192,64,.85)' }}>
             {isAssist ? player.ratio_a.toFixed(2) : player.ratio_g.toFixed(2)}
           </td>
-          <td className="py-2.5 pr-3 text-[12px] font-semibold" style={{ color: isAssist ? 'rgba(240,192,64,.9)' : 'rgba(74,158,255,.9)' }}>
+          <td className="pr-3 text-right tabular" style={{ fontSize: 11, fontWeight: 600, color: isAssist ? 'rgba(240,192,64,.85)' : 'rgba(0,200,176,.85)' }}>
             {isAssist ? player.ratio_g.toFixed(2) : player.ratio_a.toFixed(2)}
           </td>
         </>
@@ -150,11 +213,11 @@ export default function PlayerRow({
       {/* Val sin / G+A */}
       {showValSin && (
         isAssist ? (
-          <td className="py-2.5 pr-3" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#38c47a' }}>
+          <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#38c47a', lineHeight: 1 }}>
             {player.goles + player.asist}
           </td>
         ) : (
-          <td className="py-2.5 pr-3" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#e05a30' }}>
+          <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#e05a30', lineHeight: 1 }}>
             {player.val_sin}
           </td>
         )
@@ -162,18 +225,18 @@ export default function PlayerRow({
 
       {/* Val con coef (scorer only) */}
       {!isAssist && showValCoef && (
-        <td className="py-2.5 pr-3">
-          <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 18, color: '#a060ff' }}>
+        <td className="pr-3 text-right tabular">
+          <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#a060ff', lineHeight: 1 }}>
             {player.val_con}
           </span>
-          <small className="ml-1 text-[9px]" style={{ color: '#5a5a7a' }}>×{player.coef}</small>
+          <small className="ml-1" style={{ fontSize: 8, color: '#2a2b3e' }}>×{player.coef}</small>
         </td>
       )}
 
       {/* ELO */}
       {showElo && (
-        <td className="py-2.5 pr-3">
-          <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: eloColor }}>
+        <td className="pr-3 text-right tabular">
+          <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 15, color: eloColor, lineHeight: 1 }}>
             {player.elo ?? '—'}
           </span>
         </td>
@@ -181,24 +244,18 @@ export default function PlayerRow({
 
       {/* Fantasy */}
       {showFantasy && (
-        <td className="py-2.5 pr-3">
-          <div>
-            <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#a060ff' }}>
+        <td className="pr-3 text-right tabular">
+          <div className="flex flex-col items-end">
+            <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 15, color: '#a060ff', lineHeight: 1 }}>
               {player.fantasyPoints ?? '—'}
             </span>
             {player.fantasyPrice != null && (
-              <div className="text-[9.5px]" style={{ color: '#5a5a7a' }}>€{player.fantasyPrice}M</div>
+              <div style={{ fontSize: 9, color: '#52526e' }}>€{player.fantasyPrice}M</div>
             )}
           </div>
         </td>
       )}
 
-      {/* Source */}
-      <td className="py-2.5 pr-3">
-        <span className="text-[9px] font-bold tracking-wide px-1.5 py-0.5 rounded-sm" style={{ color: src.color, background: src.bg, border: `1px solid ${src.border}` }}>
-          {src.label}
-        </span>
-      </td>
     </tr>
   )
 }

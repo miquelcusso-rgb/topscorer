@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link
-            href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"
             rel="stylesheet"
           />
           <script
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className="min-h-full">
           <Navbar />
           {children}
+          <Footer />
           <SpeedInsights />
         </body>
       </html>

@@ -2,87 +2,123 @@
 
 import { useState } from 'react'
 import StatsPanel from './StatsPanel'
+import MidfielderPanel from './MidfielderPanel'
+
+const TABS = [
+  { id: 's' as const, label: 'Goleadores',      color: '#f0c040', rgb: '240,192,64' },
+  { id: 'a' as const, label: 'Asistentes',       color: '#00c8b0', rgb: '0,200,176'  },
+  { id: 'c' as const, label: 'Centrocampistas',  color: '#a060ff', rgb: '160,96,255' },
+]
 
 export default function MainApp() {
-  const [tab, setTab] = useState<'s' | 'a'>('s')
+  const [tab, setTab] = useState<'s' | 'a' | 'c'>('s')
+  const activeTab = TABS.find(t => t.id === tab)!
 
   return (
-    <main className="relative z-10 max-w-[1480px] mx-auto px-3 py-5 pb-16">
+    <main className="relative z-10 min-h-screen">
 
-      {/* Header */}
-      <div className="pl-4 mb-4" style={{ borderLeft: '4px solid #f0c040' }}>
-        <div className="text-[9.5px] font-bold tracking-[3px] uppercase" style={{ color: '#f0c040' }}>
-          Temporada 2024-25 &amp; 2025-26 · Liga doméstica
-        </div>
-        <h1
-          className="leading-none mt-0.5"
-          style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(24px, 4.5vw, 50px)', letterSpacing: 2 }}
-        >
-          TOP 25 <span style={{ color: '#f0c040' }}>GOLEADORES</span> &amp; ASISTENTES
-        </h1>
-        <div className="text-[11.5px] mt-1" style={{ color: '#5a5a7a' }}>
-          Siempre 25 posiciones · Filtra por edad y liga · Añade jugadores manualmente · Hover para más info
-        </div>
-      </div>
-
-      {/* Notice */}
+      {/* ── PAGE HEADER — full-width bg, centered content ── */}
       <div
-        className="px-4 py-2 mb-3 text-[11.5px] leading-relaxed rounded-sm"
+        className="w-full"
         style={{
-          background: 'rgba(224,90,48,.07)',
-          border: '1px solid rgba(224,90,48,.22)',
-          borderLeft: '3px solid #e05a30',
-          color: 'rgba(229,229,242,.6)',
+          background: 'linear-gradient(180deg,#07081a,#050610)',
+          borderBottom: '1px solid #151626',
         }}
       >
-        <strong style={{ color: '#e05a30' }}>⚠ Datos:</strong> 25-26 de{' '}
-        <strong style={{ color: 'rgba(229,229,242,.65)' }}>europeangoldenshoe.com</strong> + FotMob (mayo 2026).
-        24-25 de artículos fin de temporada. 23-24 compilado.{' '}
-        <span className="inline-flex items-center gap-1 ml-2">
-          <span className="px-1.5 py-px text-[9px] font-bold rounded-sm" style={{ color: '#38c47a', background: 'rgba(56,196,122,.14)', border: '1px solid rgba(56,196,122,.28)' }}>Live</span>{' '}
-          fuente directa
-        </span>
-        <span className="inline-flex items-center gap-1 ml-2">
-          <span className="px-1.5 py-px text-[9px] font-bold rounded-sm" style={{ color: '#4a9eff', background: 'rgba(74,158,255,.12)', border: '1px solid rgba(74,158,255,.22)' }}>Búsqueda</span>{' '}
-          artículos
-        </span>
-        <span className="inline-flex items-center gap-1 ml-2">
-          <span className="px-1.5 py-px text-[9px] font-bold rounded-sm" style={{ color: '#e05a30', background: 'rgba(224,90,48,.10)', border: '1px solid rgba(224,90,48,.22)' }}>Estimado</span>{' '}
-          datos parciales
-        </span>
+        <div className="max-w-[1100px] mx-auto px-5">
+
+          {/* Title row */}
+          <div className="flex items-end justify-between pt-6 pb-0">
+            <div className="pb-5">
+              <div
+                className="font-bold tracking-[3px] uppercase mb-2"
+                style={{ fontSize: 10, color: '#52526e', fontFamily: "'Barlow Condensed', sans-serif" }}
+              >
+                Europa &nbsp;·&nbsp; Top 25 &nbsp;·&nbsp; Temporada 2025/26
+              </div>
+              <h1
+                style={{
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontSize: 30,
+                  fontWeight: 700,
+                  color: '#e8e8f8',
+                  letterSpacing: 0.5,
+                  lineHeight: 1,
+                }}
+              >
+                Top{' '}
+                <span style={{ color: activeTab.color }}>{activeTab.label}</span>
+                <span style={{ color: '#52526e', fontWeight: 400 }}>{' — Europa'}</span>
+              </h1>
+            </div>
+
+            <div className="flex items-center gap-2 pb-5">
+              <span
+                className="inline-block w-2 h-2 rounded-full"
+                style={{ background: '#38c47a', boxShadow: '0 0 7px #38c47a' }}
+              />
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 2,
+                  textTransform: 'uppercase' as const,
+                  color: '#38c47a',
+                }}
+              >
+                Live
+              </span>
+            </div>
+          </div>
+
+          {/* Tab bar — flush with bottom border */}
+          <div className="flex items-end">
+            {TABS.map(t => {
+              const active = tab === t.id
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className="cursor-pointer transition-all duration-150"
+                  style={{
+                    fontSize: 11,
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    letterSpacing: 2,
+                    fontWeight: 700,
+                    textTransform: 'uppercase' as const,
+                    color: active ? t.color : '#3a3b52',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: active ? `2px solid ${t.color}` : '2px solid transparent',
+                    padding: '9px 22px',
+                    marginBottom: -1,
+                  }}
+                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#60608a' }}
+                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#3a3b52' }}
+                >
+                  {t.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex" style={{ borderBottom: '2px solid #1e1e34' }}>
-        {[
-          { id: 's' as const, label: '⚽ Goleadores' },
-          { id: 'a' as const, label: '🎯 Asistentes' },
-        ].map(t => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className="px-5 py-2.5 text-[11.5px] font-bold tracking-[1.5px] uppercase transition-all duration-200 cursor-pointer"
-            style={{
-              background: 'none',
-              border: 'none',
-              borderBottom: tab === t.id ? '2px solid #f0c040' : '2px solid transparent',
-              marginBottom: -2,
-              color: tab === t.id ? '#f0c040' : '#5a5a7a',
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
+      {/* ── CONTENT ZONE — full-width bg, centered content ── */}
+      <div className="w-full" style={{ background: '#0b0c1a' }}>
+        <div className="max-w-[1100px] mx-auto px-5 py-5 pb-20">
+          <div style={{ display: tab === 's' ? 'block' : 'none' }}>
+            <StatsPanel tab="s" />
+          </div>
+          <div style={{ display: tab === 'a' ? 'block' : 'none' }}>
+            <StatsPanel tab="a" />
+          </div>
+          <div style={{ display: tab === 'c' ? 'block' : 'none' }}>
+            <MidfielderPanel />
+          </div>
+        </div>
       </div>
 
-      {/* Panels — keep both mounted so state persists */}
-      <div style={{ display: tab === 's' ? 'block' : 'none' }}>
-        <StatsPanel tab="s" />
-      </div>
-      <div style={{ display: tab === 'a' ? 'block' : 'none' }}>
-        <StatsPanel tab="a" />
-      </div>
     </main>
   )
 }

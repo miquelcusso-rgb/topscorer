@@ -18,24 +18,29 @@ interface Props {
   onUnpin: (name: string) => void
 }
 
-function Th({ label, sortKey, currentSort, dir, onSort }: {
+function Th({ label, sortKey, currentSort, dir, onSort, align = 'left', width }: {
   label: string
   sortKey?: SortKey
   currentSort: SortKey
   dir: 1 | -1
   onSort: (k: SortKey) => void
+  align?: 'left' | 'right'
+  width?: number | string
 }) {
   const active = sortKey === currentSort
   return (
     <th
-      className="py-2.5 px-3 text-left whitespace-nowrap select-none"
+      className="py-2 px-3 whitespace-nowrap select-none transition-colors duration-150"
       style={{
-        fontSize: 9.5,
+        fontSize: 10,
         fontWeight: 700,
         letterSpacing: '1.5px',
         textTransform: 'uppercase',
-        color: active ? '#f0c040' : '#5a5a7a',
+        textAlign: align,
+        color: active ? '#f0c040' : '#3d3e58',
         cursor: sortKey ? 'pointer' : 'default',
+        fontFamily: "'Barlow Condensed', sans-serif",
+        ...(width ? { width } : {}),
       }}
       onClick={() => sortKey && onSort(sortKey)}
     >
@@ -58,38 +63,41 @@ export default function StatsTable({
 
   return (
     <div
-      className="overflow-x-auto"
-      style={{ background: '#0e0e1c', border: '1px solid #1e1e34', borderTop: 'none' }}
+      style={{ overflowX: 'auto', overflowY: 'clip', background: '#06070e', border: '1px solid #151626', borderTop: 'none' }}
     >
       <table className="w-full border-collapse" style={{ minWidth: 680 }}>
-        <thead>
-          <tr style={{ background: '#151528', borderBottom: '2px solid #f0c040' }}>
-            <Th label="#"       currentSort={sort} dir={dir} onSort={onSort} />
-            <Th label="Jugador" currentSort={sort} dir={dir} onSort={onSort} />
+        <thead className="sticky top-[52px] z-[30]">
+          <tr
+            style={{
+              background: '#050610',
+              borderBottom: '2px solid #1e1f35',
+            }}
+          >
+            <Th label="#"       align="right" width={44}  currentSort={sort} dir={dir} onSort={onSort} />
+            <Th label="Jugador" width={210}               currentSort={sort} dir={dir} onSort={onSort} />
             <Th label="Liga"    currentSort={sort} dir={dir} onSort={onSort} />
-            <Th label="Edad"    sortKey="age" currentSort={sort} dir={dir} onSort={onSort} />
-            {showPj && <Th label="PJ" currentSort={sort} dir={dir} onSort={onSort} />}
+            <Th label="Edad"    sortKey="age" currentSort={sort} dir={dir} onSort={onSort} align="right" />
+            {showPj && <Th label="PJ" align="right" currentSort={sort} dir={dir} onSort={onSort} />}
             {isAssist ? (
               <>
-                <Th label="Asist." sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="Goles"  sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
-                {showRatios && <Th label="A/PJ" sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showRatios && <Th label="G/PJ" sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showValSin && <Th label="G+A" sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
+                <Th label="Asist." align="right" sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
+                <Th label="Goles"  align="right" sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
+                {showRatios && <Th label="A/PJ" align="right" sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showRatios && <Th label="G/PJ" align="right" sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showValSin && <Th label="G+A"  align="right" sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
               </>
             ) : (
               <>
-                <Th label="Goles"  sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="Asist." sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
-                {showRatios && <Th label="G/PJ"  sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showRatios && <Th label="A/PJ"  sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showValSin  && <Th label="Val. sin"   sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showValCoef && <Th label="Val. coef." sortKey="val_con" currentSort={sort} dir={dir} onSort={onSort} />}
+                <Th label="Goles"  align="right" sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
+                <Th label="Asist." align="right" sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
+                {showRatios && <Th label="G/PJ"      align="right" sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showRatios && <Th label="A/PJ"      align="right" sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showValSin  && <Th label="Val."      align="right" sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showValCoef && <Th label="Val.+"     align="right" sortKey="val_con" currentSort={sort} dir={dir} onSort={onSort} />}
               </>
             )}
-            {showElo     && <Th label="ELO"     sortKey="elo"           currentSort={sort} dir={dir} onSort={onSort} />}
-            {showFantasy && <Th label="Fantasy"  sortKey="fantasyPoints" currentSort={sort} dir={dir} onSort={onSort} />}
-            <Th label="Fuente" currentSort={sort} dir={dir} onSort={onSort} />
+            {showElo     && <Th label="ELO"    align="right" sortKey="elo"           currentSort={sort} dir={dir} onSort={onSort} />}
+            {showFantasy && <Th label="Fant."  align="right" sortKey="fantasyPoints" currentSort={sort} dir={dir} onSort={onSort} />}
           </tr>
         </thead>
         <tbody>

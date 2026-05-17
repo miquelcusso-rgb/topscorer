@@ -28,6 +28,14 @@ export interface PlayerData {
   elo?: number
   fantasyPoints?: number
   fantasyPrice?: number
+  // Midfielder-specific stats
+  passes?: number
+  passAccuracy?: number
+  minutes?: number
+  recoveries?: number
+  ballsLost?: number
+  keyPasses?: number
+  progressivePasses?: number
 }
 
 export interface EnrichedPlayer extends PlayerData {
