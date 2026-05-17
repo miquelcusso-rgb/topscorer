@@ -95,8 +95,8 @@ function Pill({
       style={active
         ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
         : locked
-          ? { background: '#0f1018', border: '1px solid #1e2033', color: '#2a2b3e' }
-          : { background: '#0f1018', border: '1px solid #1e2033', color: '#6b7090' }
+          ? { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#2a2b3e' }
+          : { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#6b7090' }
       }
     >
       {children}
@@ -191,10 +191,6 @@ function UpgradeBanner() {
   )
 }
 
-/* Vertical divider for the toolbar */
-function ToolbarDivider() {
-  return <div className="self-stretch w-px mx-2 mt-5" style={{ background: '#1e2033' }} />
-}
 
 export default function StatsPanel({ tab }: Props) {
   const isAssist = tab === 'a'
@@ -271,10 +267,10 @@ export default function StatsPanel({ tab }: Props) {
 
       {/* ── FILTER TOOLBAR ── */}
       <div
-        style={{ background: '#0f1018', border: '1px solid #1e2033', borderRadius: '8px 8px 0 0' }}
+        style={{ background: 'rgba(14,16,28,.92)', border: '1px solid #252740', borderRadius: '8px 8px 0 0', backdropFilter: 'blur(4px)' }}
       >
-        {/* Fila 1: filtros */}
-        <div className="flex flex-wrap items-start gap-y-3 gap-x-0 px-4 pt-4 pb-4" style={{ borderBottom: '1px solid #161726' }}>
+        {/* Fila 1: filtros — Main groups row */}
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-4 px-4 pt-4 pb-4" style={{ borderBottom: '1px solid #1e2038' }}>
           <FilterGroup label="Temporada">
             {SEASONS.map(s => {
               const locked = s.proOnly && !proUser
@@ -292,16 +288,12 @@ export default function StatsPanel({ tab }: Props) {
             })}
           </FilterGroup>
 
-          <ToolbarDivider />
-
           <FilterGroup label="Liga">
             <Pill active={st.showEur5} color="gr" onClick={() => { if (st.showEur5 && !st.showPt && !st.showTr && !st.showGr) return; update({ showEur5: !st.showEur5 }) }}>Top 5</Pill>
             <Pill active={st.showPt}   color="mu" onClick={() => { if (!st.showPt && !st.showEur5 && !st.showTr && !st.showGr) return; update({ showPt: !st.showPt }) }}>PT</Pill>
             <Pill active={st.showTr}   color="mu" onClick={() => { if (!st.showTr && !st.showEur5 && !st.showPt && !st.showGr) return; update({ showTr: !st.showTr }) }}>TR</Pill>
             <Pill active={st.showGr}   color="mu" onClick={() => { if (!st.showGr && !st.showEur5 && !st.showPt && !st.showTr) return; update({ showGr: !st.showGr }) }}>GR</Pill>
           </FilterGroup>
-
-          <ToolbarDivider />
 
           <FilterGroup label="Edad">
             {AGES.map(a => (
@@ -311,8 +303,6 @@ export default function StatsPanel({ tab }: Props) {
             ))}
           </FilterGroup>
 
-          <ToolbarDivider />
-
           <FilterGroup label="Columnas">
             <Pill active={st.showElo}     color="gd" onClick={() => update({ showElo: !st.showElo })}>ELO</Pill>
             <Pill active={st.showFantasy} color="mu" onClick={() => update({ showFantasy: !st.showFantasy })}>Fantasy</Pill>
@@ -321,7 +311,7 @@ export default function StatsPanel({ tab }: Props) {
                 className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 cursor-pointer"
                 style={st.showTop50 === o.v
                   ? { background: 'rgba(160,96,255,.12)', border: '1px solid rgba(160,96,255,.35)', color: '#a060ff' }
-                  : { background: '#0f1018', border: '1px solid #1e2033', color: '#6b7090' }
+                  : { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#6b7090' }
                 }
               >{o.label}</button>
             ))}
@@ -329,7 +319,7 @@ export default function StatsPanel({ tab }: Props) {
         </div>
 
         {/* Fila 2: count + actions */}
-        <div className="flex items-center gap-3 px-4 py-2.5" style={{ background: '#0a0b12' }}>
+        <div className="flex items-center gap-3 px-4 py-2.5" style={{ background: 'rgba(8,9,18,.7)' }}>
           <span style={{ fontSize: 13, color: '#5a5b7a' }}>
             <strong style={{ color: '#7879a0' }}>{topN.length}</strong> jugadores
           </span>
@@ -396,7 +386,7 @@ export default function StatsPanel({ tab }: Props) {
       {/* Footnote */}
       <div
         className="px-4 py-2"
-        style={{ borderLeft: '1px solid #151626', borderRight: '1px solid #151626', borderBottom: '1px solid #151626', borderRadius: '0 0 6px 6px', background: '#05060b' }}
+        style={{ borderLeft: '1px solid #1e2038', borderRight: '1px solid #1e2038', borderBottom: '1px solid #1e2038', borderRadius: '0 0 6px 6px', background: 'rgba(8,9,18,.6)' }}
       >
         <span style={{ fontSize: 10, color: '#2a2b3e' }}>
           Datos 25/26: europeangoldenshoe.com + FotMob &nbsp;·&nbsp; Val: G×2+A &nbsp;·&nbsp; Val+: G×coef×2+A

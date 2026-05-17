@@ -63,14 +63,14 @@ export default function StatsTable({
 
   return (
     <div
-      style={{ overflowX: 'auto', overflowY: 'clip', background: '#0f1018', border: '1px solid #1e2033', borderTop: 'none' }}
+      style={{ overflowX: 'auto', overflowY: 'clip', background: 'rgba(12,13,24,.92)', border: '1px solid #252740', borderTop: 'none' }}
     >
       <table className="w-full border-collapse" style={{ minWidth: 680 }}>
         <thead className="sticky top-[88px] z-[30]">
           <tr
             style={{
-              background: '#0c0d18',
-              borderBottom: '2px solid #1e2033',
+              background: 'rgba(16,18,34,.96)',
+              borderBottom: '2px solid #252740',
             }}
           >
             <Th label="#"       align="right" width={44}  currentSort={sort} dir={dir} onSort={onSort} />

@@ -31,9 +31,7 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
   }, [])
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="text-[9px] font-bold tracking-[2px] uppercase" style={{ color: '#5a5a7a' }}>Añadir jugador</div>
-      <div className="relative" ref={ref} style={{ minWidth: 220, maxWidth: 300 }}>
+    <div className="relative" ref={ref} style={{ minWidth: 220, maxWidth: 300 }}>
         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] pointer-events-none" style={{ color: '#5a5a7a' }}>
           ⌕
         </span>
@@ -44,19 +42,19 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
           onChange={e => { setQuery(e.target.value); setOpen(true) }}
           className="w-full pl-7 pr-3 py-1.5 text-[12px] rounded-sm outline-none transition-colors duration-150"
           style={{
-            background: '#151528',
-            border: '1px solid #1e1e34',
+            background: '#10111e',
+            border: '1px solid #1a1b2e',
             color: '#e5e5f2',
             fontFamily: "'DM Sans', sans-serif",
           }}
           onFocus={e => { e.currentTarget.style.borderColor = '#f0c040'; setOpen(true) }}
-          onBlur={e => { e.currentTarget.style.borderColor = '#1e1e34' }}
+          onBlur={e => { e.currentTarget.style.borderColor = '#1a1b2e' }}
         />
 
         {open && matches.length > 0 && (
           <div
             className="absolute top-full left-0 right-0 mt-1 z-50 overflow-y-auto rounded-sm"
-            style={{ background: '#0e0e1c', border: '1px solid #1e1e34', maxHeight: 220 }}
+            style={{ background: '#0e0f1c', border: '1px solid #252740', maxHeight: 220, boxShadow: '0 8px 24px rgba(0,0,0,.5)' }}
           >
             {matches.map(p => {
               const added = !!pinned[p.name]
@@ -90,7 +88,6 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
             })}
           </div>
         )}
-      </div>
     </div>
   )
 }

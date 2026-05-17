@@ -29,7 +29,7 @@ body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
 html { -webkit-font-smoothing: antialiased; }
 
 body {
-  background-color: #080910;
+  background-color: #0b0d1a;
   color: #eeeef5;
   font-family: 'DM Sans', 'Inter', sans-serif;
 }
@@ -41,8 +41,9 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 70% 40% at 10% 0%, rgba(240,192,64,.025) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 35% at 90% 100%, rgba(0,200,176,.02) 0%, transparent 55%);
+    radial-gradient(ellipse 80% 50% at 50% -5%, rgba(30,36,90,.55) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 10% 0%, rgba(240,192,64,.03) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 35% at 90% 100%, rgba(0,200,176,.025) 0%, transparent 55%);
 }
 
 /* Tabular numbers for stat columns */

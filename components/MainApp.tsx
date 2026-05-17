@@ -21,8 +21,9 @@ export default function MainApp() {
       <div
         className="w-full"
         style={{
-          background: 'linear-gradient(180deg,#0c0d18,#090a14)',
-          borderBottom: '1px solid #1e2033',
+          background: 'linear-gradient(180deg, rgba(14,16,30,.9) 0%, rgba(10,11,22,.85) 100%)',
+          borderBottom: '1px solid #252740',
+          backdropFilter: 'blur(8px)',
         }}
       >
         <div className="max-w-[1100px] mx-auto px-5">
@@ -41,30 +42,12 @@ export default function MainApp() {
                 <span style={{ color: '#3a3d5c', fontWeight: 400 }}> — Europa</span>
               </h1>
             </div>
-            <div className="flex items-center gap-2">
-              <span
-                className="text-[10px] font-semibold px-2 py-0.5 rounded-sm"
-                style={{ color: '#52526e', background: '#0d0e1c', border: '1px solid #1a1b2e', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1 }}
-              >
-                2025/26
-              </span>
-              <span
-                className="inline-block w-1.5 h-1.5 rounded-full"
-                style={{ background: '#38c47a', boxShadow: '0 0 6px #38c47a' }}
-              />
-              <span
-                style={{
-                  fontSize: 9,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                  textTransform: 'uppercase' as const,
-                  color: '#38c47a',
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                }}
-              >
-                Live
-              </span>
-            </div>
+            <span
+              className="text-[11px] font-semibold px-2.5 py-1 rounded-sm"
+              style={{ color: '#52526e', background: '#0d0e1c', border: '1px solid #1e2033', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1 }}
+            >
+              2025/26
+            </span>
           </div>
 
           {/* Tab bar — flush with bottom border */}
@@ -101,7 +84,7 @@ export default function MainApp() {
       </div>
 
       {/* ── CONTENT ZONE — full-width bg, centered content ── */}
-      <div className="w-full" style={{ background: '#080910' }}>
+      <div className="w-full" style={{ background: 'transparent' }}>
         <div className="max-w-[1100px] mx-auto px-5 py-5 pb-20">
           <div style={{ display: tab === 's' ? 'block' : 'none' }}>
             <StatsPanel tab="s" />
