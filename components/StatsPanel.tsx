@@ -267,10 +267,10 @@ export default function StatsPanel({ tab }: Props) {
 
       {/* ── FILTER TOOLBAR ── */}
       <div
-        style={{ background: 'rgba(14,16,28,.92)', border: '1px solid #252740', borderRadius: '8px 8px 0 0', backdropFilter: 'blur(4px)' }}
+        style={{ background: 'rgba(13,11,22,.92)', border: '1px solid #26224a', borderRadius: '8px 8px 0 0', backdropFilter: 'blur(6px)' }}
       >
         {/* Fila 1: filtros — Main groups row */}
-        <div className="flex flex-wrap items-start gap-x-6 gap-y-4 px-4 pt-4 pb-4" style={{ borderBottom: '1px solid #1e2038' }}>
+        <div className="flex flex-wrap items-start gap-x-6 gap-y-4 px-4 pt-4 pb-4" style={{ borderBottom: '1px solid #201c3a' }}>
           <FilterGroup label="Temporada">
             {SEASONS.map(s => {
               const locked = s.proOnly && !proUser
@@ -319,7 +319,7 @@ export default function StatsPanel({ tab }: Props) {
         </div>
 
         {/* Fila 2: count + actions */}
-        <div className="flex items-center gap-3 px-4 py-2.5" style={{ background: 'rgba(8,9,18,.7)' }}>
+        <div className="flex items-center gap-3 px-4 py-2.5" style={{ background: 'rgba(10,8,18,.75)' }}>
           <span style={{ fontSize: 13, color: '#5a5b7a' }}>
             <strong style={{ color: '#7879a0' }}>{topN.length}</strong> jugadores
           </span>
@@ -386,7 +386,7 @@ export default function StatsPanel({ tab }: Props) {
       {/* Footnote */}
       <div
         className="px-4 py-2"
-        style={{ borderLeft: '1px solid #1e2038', borderRight: '1px solid #1e2038', borderBottom: '1px solid #1e2038', borderRadius: '0 0 6px 6px', background: 'rgba(8,9,18,.6)' }}
+        style={{ borderLeft: '1px solid #201c3a', borderRight: '1px solid #201c3a', borderBottom: '1px solid #201c3a', borderRadius: '0 0 6px 6px', background: 'rgba(10,8,18,.65)' }}
       >
         <span style={{ fontSize: 10, color: '#2a2b3e' }}>
           Datos 25/26: europeangoldenshoe.com + FotMob &nbsp;·&nbsp; Val: G×2+A &nbsp;·&nbsp; Val+: G×coef×2+A

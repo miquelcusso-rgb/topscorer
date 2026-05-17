@@ -40,7 +40,7 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="sticky top-0 z-50" style={{ background: 'rgba(8,9,16,.98)', backdropFilter: 'blur(16px)' }}>
+    <nav className="sticky top-0 z-50" style={{ background: 'rgba(9,8,15,.98)', backdropFilter: 'blur(20px)' }}>
 
       {/* Row 1 — h-[52px] */}
       <div
@@ -147,7 +147,7 @@ export default function Navbar() {
         className="hidden md:block"
         style={{
           height: 36,
-          background: 'rgba(5,6,10,.97)',
+          background: 'rgba(8,6,14,.97)',
           borderBottom: '1px solid #141524',
         }}
       >
@@ -211,7 +211,7 @@ export default function Navbar() {
       {menuOpen && (
         <div
           className="md:hidden"
-          style={{ background: 'rgba(4,5,10,.98)', borderBottom: '1px solid #141526' }}
+          style={{ background: 'rgba(9,7,16,.98)', borderBottom: '1px solid #1a1630' }}
         >
           {navLinks.map(({ href, label }) => (
             <Link

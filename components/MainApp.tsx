@@ -21,8 +21,8 @@ export default function MainApp() {
       <div
         className="w-full"
         style={{
-          background: 'linear-gradient(180deg, rgba(14,16,30,.9) 0%, rgba(10,11,22,.85) 100%)',
-          borderBottom: '1px solid #252740',
+          background: 'linear-gradient(180deg, rgba(14,11,26,.92) 0%, rgba(10,8,20,.88) 100%)',
+          borderBottom: '1px solid #26224a',
           backdropFilter: 'blur(8px)',
         }}
       >

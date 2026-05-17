@@ -80,7 +80,7 @@ export default function PlayerRow({
       className="group cursor-pointer"
       style={{
         height: 42,
-        borderBottom: '1px solid #181a2e',
+        borderBottom: '1px solid #17142a',
         background: hovered ? rowBgHover : rowBgDefault,
         borderLeft: rowBorderLeft,
         transition: 'background 150ms ease, border-left-color 150ms ease',
