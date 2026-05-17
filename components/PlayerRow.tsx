@@ -108,7 +108,7 @@ export default function PlayerRow({
             {rank}
           </span>
         ) : (
-          <span style={{ fontSize: 13, color: '#3a3d5c' }}>{rank}</span>
+          <span style={{ fontSize: 14, color: '#3a3d5c' }}>{rank}</span>
         )}
       </td>
 
@@ -119,7 +119,7 @@ export default function PlayerRow({
             <div
               className="leading-tight truncate"
               style={{
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: 500,
                 color: '#d4d4ee',
                 textShadow: isTop1 ? '0 0 12px rgba(240,192,64,.18)' : 'none',
@@ -189,7 +189,7 @@ export default function PlayerRow({
       </td>
 
       {/* Age */}
-      <td className="pr-3 text-right tabular" style={{ fontSize: 11, color: '#5a5b7a' }}>
+      <td className="pr-3 text-right tabular" style={{ fontSize: 12, color: '#5a5b7a' }}>
         {player.age}
       </td>
 
@@ -220,10 +220,10 @@ export default function PlayerRow({
       {/* Ratios */}
       {showRatios && (
         <>
-          <td className="pr-3 text-right tabular" style={{ fontSize: 12, fontWeight: 600, color: '#5a5b7a' }}>
+          <td className="pr-3 text-right tabular" style={{ fontSize: 13, fontWeight: 600, color: '#5a5b7a' }}>
             {isAssist ? player.ratio_a.toFixed(2) : player.ratio_g.toFixed(2)}
           </td>
-          <td className="pr-3 text-right tabular" style={{ fontSize: 12, fontWeight: 600, color: '#5a5b7a' }}>
+          <td className="pr-3 text-right tabular" style={{ fontSize: 13, fontWeight: 600, color: '#5a5b7a' }}>
             {isAssist ? player.ratio_g.toFixed(2) : player.ratio_a.toFixed(2)}
           </td>
         </>

@@ -72,7 +72,7 @@ export default function Navbar() {
                 key={href}
                 href={href}
                 className="px-3 py-1.5 rounded-sm transition-colors duration-150 cursor-pointer"
-                style={{ fontSize: 13, color: path === href ? '#eeeef5' : '#5a5b7a' }}
+                style={{ fontSize: 14, color: path === href ? '#eeeef5' : '#5a5b7a' }}
                 onMouseEnter={e => { if (path !== href) e.currentTarget.style.color = '#9090b0' }}
                 onMouseLeave={e => { if (path !== href) e.currentTarget.style.color = '#5a5b7a' }}
               >
@@ -218,7 +218,7 @@ export default function Navbar() {
               key={href}
               href={href}
               onClick={() => setMenuOpen(false)}
-              className="block px-5 py-3 text-[13px] font-medium border-b transition-colors duration-150"
+              className="block px-5 py-3 text-[14px] font-medium border-b transition-colors duration-150"
               style={{
                 color: path === href ? '#d8d8ec' : '#52526e',
                 borderColor: '#0e0f1e',

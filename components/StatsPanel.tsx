@@ -108,7 +108,7 @@ function FilterGroup({ label, children }: { label: string; children: React.React
   return (
     <div className="flex flex-col gap-1.5 shrink-0">
       <span style={{
-        fontSize: 9, fontWeight: 700, letterSpacing: '2px',
+        fontSize: 10, fontWeight: 700, letterSpacing: '2px',
         textTransform: 'uppercase' as const, color: '#3a3d5c',
         fontFamily: "'Barlow Condensed', sans-serif",
       }}>
@@ -330,7 +330,7 @@ export default function StatsPanel({ tab }: Props) {
 
         {/* Fila 2: count + actions */}
         <div className="flex items-center gap-3 px-4 py-2.5" style={{ background: '#0a0b12' }}>
-          <span style={{ fontSize: 12, color: '#5a5b7a' }}>
+          <span style={{ fontSize: 13, color: '#5a5b7a' }}>
             <strong style={{ color: '#7879a0' }}>{topN.length}</strong> jugadores
           </span>
           <div className="ml-auto flex items-center gap-2">

@@ -32,11 +32,11 @@ export default function MainApp() {
             <div className="flex flex-col">
               <span
                 className="font-bold uppercase tracking-[1.5px]"
-                style={{ fontSize: 14, color: '#9090a8', fontFamily: "'Barlow Condensed', sans-serif" }}
+                style={{ fontSize: 12, color: '#9090a8', fontFamily: "'Barlow Condensed', sans-serif" }}
               >
                 Top Goleadores Europa
               </span>
-              <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: '#eeeef5', letterSpacing: 0.5, lineHeight: 1, marginTop: 4 }}>
+              <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 34, fontWeight: 700, color: '#eeeef5', letterSpacing: 0.5, lineHeight: 1, marginTop: 4 }}>
                 Top <span style={{ color: activeTab.color }}>{activeTab.label}</span>
                 <span style={{ color: '#3a3d5c', fontWeight: 400 }}> — Europa</span>
               </h1>
@@ -77,7 +77,7 @@ export default function MainApp() {
                   onClick={() => setTab(t.id)}
                   className="cursor-pointer transition-all duration-150 relative"
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     fontFamily: "'Barlow Condensed', sans-serif",
                     letterSpacing: 2,
                     fontWeight: 700,

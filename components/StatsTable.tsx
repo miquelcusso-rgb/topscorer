@@ -32,7 +32,7 @@ function Th({ label, sortKey, currentSort, dir, onSort, align = 'left', width }:
     <th
       className="py-2.5 px-3 whitespace-nowrap select-none transition-colors duration-150"
       style={{
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 700,
         letterSpacing: '1.5px',
         textTransform: 'uppercase',
