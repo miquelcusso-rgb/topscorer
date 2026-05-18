@@ -4,8 +4,15 @@
     {
       "name": "topscorer",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "runtimeArgs": ["run", "dev", "--", "-p", "3001"],
+      "port": 3001
+    },
+    {
+      "name": "designs",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7700"],
+      "port": 7700,
+      "cwd": "/tmp"
     }
   ]
 }

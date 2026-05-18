@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TopScorer Logo v5 — Preview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #07070f;
+      color: #e0e0f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px;
+      gap: 40px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #f0c040, #00c8a8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      color: #6070a0;
+      font-size: 0.95rem;
+      margin-top: -28px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      max-width: 680px;
+      width: 100%;
+    }
+    .card {
+      background: #0e0f1e;
+      border: 1.5px solid #1c2040;
+      border-radius: 20px;
+      padding: 28px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative;
+    }
+    .card:hover {
+      border-color: #2a3060;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px #00050a80;
+    }
+    .card.selected {
+      border-color: #f0c040;
+      box-shadow: 0 0 0 2px #f0c04040, 0 8px 40px #f0c01020;
+    }
+    .card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 14px; right: 14px;
+      width: 24px; height: 24px;
+      background: #f0c040;
+      color: #07070f;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .logo-wrap {
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 4px 20px #00000080, 0 0 0 1.5px #ffffff08;
+    }
+    .logo-wrap img {
+      width: 100%; height: 100%;
+      display: block;
+    }
+    .card-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #d0d8f8;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+    .card-desc {
+      font-size: 0.82rem;
+      color: #5060a0;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .card-id {
+      font-size: 0.72rem;
+      color: #3040708;
+      font-family: monospace;
+      color: #304070;
+    }
+    .btn {
+      margin-top: 4px;
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: 1.5px solid #2030508;
+      border-color: #203050;
+      background: transparent;
+      color: #6080c0;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.01em;
+    }
+    .btn:hover { background: #1a2040; color: #a0b8e8; border-color: #3050a0; }
+    .card.selected .btn { background: #f0c040; color: #07070f; border-color: #f0c040; font-weight: 700; }
+    .selection-info {
+      padding: 16px 28px;
+      background: #0e0f1e;
+      border: 1.5px solid #1c2040;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      color: #7080b0;
+      min-width: 280px;
+      text-align: center;
+    }
+    .selection-info span {
+      color: #f0c040;
+      font-weight: 700;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>TopScorer — Logo v5</h1>
+  <p class="subtitle">Fútbol × Datos — 4 variantes de color</p>
+
+  <div class="grid">
+    <div class="card" id="card-v1" onclick="selectVariant('v1')">
+      <div class="logo-wrap">
+        <img src="topscorer-v1.png" alt="Midnight Gold + Teal" loading="lazy">
+      </div>
+      <div class="card-name">Midnight Gold + Teal</div>
+      <div class="card-desc">Clásico teal profundo con dorado suave</div>
+      <div class="card-id">v1</div>
+      <button class="btn" onclick="event.stopPropagation();selectVariant('v1')">Seleccionar →</button>
+    </div>
+    <div class="card" id="card-v2" onclick="selectVariant('v2')">
+      <div class="logo-wrap">
+        <img src="topscorer-v2.png" alt="Gold + Electric Cyan" loading="lazy">
+      </div>
+      <div class="card-name">Gold + Electric Cyan</div>
+      <div class="card-desc">Cyan eléctrico vibrante y azul intenso</div>
+      <div class="card-id">v2</div>
+      <button class="btn" onclick="event.stopPropagation();selectVariant('v2')">Seleccionar →</button>
+    </div>
+    <div class="card" id="card-v3" onclick="selectVariant('v3')">
+      <div class="logo-wrap">
+        <img src="topscorer-v3.png" alt="Gold + Ocean" loading="lazy">
+      </div>
+      <div class="card-name">Gold + Ocean</div>
+      <div class="card-desc">Azul océano profundo y marino oscuro</div>
+      <div class="card-id">v3</div>
+      <button class="btn" onclick="event.stopPropagation();selectVariant('v3')">Seleccionar →</button>
+    </div>
+    <div class="card" id="card-v4" onclick="selectVariant('v4')">
+      <div class="logo-wrap">
+        <img src="topscorer-v4.png" alt="Gold + Aurora" loading="lazy">
+      </div>
+      <div class="card-name">Gold + Aurora</div>
+      <div class="card-desc">Verde aurora boreal y azul violeta</div>
+      <div class="card-id">v4</div>
+      <button class="btn" onclick="event.stopPropagation();selectVariant('v4')">Seleccionar →</button>
+    </div>
+  </div>
+
+  <div class="selection-info" id="selInfo">Haz click en una variante para seleccionarla</div>
+
+  <script>
+    let selected = null;
+    function selectVariant(id) {
+      if (selected) document.getElementById('card-' + selected)?.classList.remove('selected');
+      selected = id;
+      document.getElementById('card-' + id)?.classList.add('selected');
+      document.getElementById('selInfo').innerHTML = 'Variante seleccionada: <span>' + id + '</span>';
+    }
+  </script>
+</body>
+</html>

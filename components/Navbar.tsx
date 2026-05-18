@@ -164,6 +164,45 @@ export default function Navbar() {
               {label}
             </Link>
           ))}
+          {/* Auth buttons in mobile menu */}
+          {isLoaded && (
+            <div className="px-5 py-4 flex items-center gap-3" style={{ borderTop: '1px solid #1a1630' }}>
+              {!isSignedIn ? (
+                <>
+                  <SignInButton mode="modal">
+                    <button
+                      className="flex-1 py-2 rounded text-[13px] font-medium cursor-pointer"
+                      style={{ color: '#aab8cc', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)' }}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Entrar
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button
+                      className="flex-1 py-2 rounded text-[13px] font-bold cursor-pointer"
+                      style={{ color: '#060d18', background: '#f0c040' }}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Pro →
+                    </button>
+                  </SignUpButton>
+                </>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <UserButton />
+                  <Link
+                    href="/pricing"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-sm"
+                    style={{ color: '#f0c040', background: 'rgba(240,192,64,.08)', border: '1px solid rgba(240,192,64,.2)' }}
+                  >
+                    Upgrade
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

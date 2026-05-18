@@ -101,8 +101,8 @@ function LiveDataPanel() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/football/fixtures?league=1&season=2025&last=8').then(r => r.json()),
-      fetch('/api/football/topscorers?league=1&season=2025').then(r => r.json()),
+      fetch('/api/football/fixtures?league=1&season=2024&last=8').then(r => r.json()),
+      fetch('/api/football/topscorers?league=1&season=2024').then(r => r.json()),
     ]).then(([fix, sc]) => {
       if (fix.ok) setFixtures(fix.data)
       if (sc.ok) setScorers(sc.data)

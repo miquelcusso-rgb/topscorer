@@ -2,13 +2,13 @@ import type { EnrichedPlayer } from '@/types'
 
 const STATUS_LABEL: Record<string, { label: string; color: string; bg: string; border: string }> = {
   injured:     { label: 'Lesionado',         color: '#e05a30', bg: 'rgba(224,90,48,.12)',  border: 'rgba(224,90,48,.25)' },
-  loan:        { label: 'Cedido',             color: '#4a9eff', bg: 'rgba(74,158,255,.1)',  border: 'rgba(74,158,255,.22)' },
+  loan:        { label: 'Cedido',             color: '#00c8b0', bg: 'rgba(0,200,176,.1)',  border: 'rgba(0,200,176,.22)' },
   questionable:{ label: 'Dudoso',             color: '#f0c040', bg: 'rgba(240,192,64,.1)',  border: 'rgba(240,192,64,.22)' },
   transfer:    { label: 'Fichaje verano',     color: '#38c47a', bg: 'rgba(56,196,122,.1)',  border: 'rgba(56,196,122,.22)' },
 }
 
 const POS_COLOR: Record<string, string> = {
-  FW: '#f0c040', MF: '#4a9eff', DF: '#38c47a', GK: '#a060ff',
+  FW: '#f0c040', MF: '#00c8b0', DF: '#38c47a', GK: '#a060ff',
 }
 
 interface Props {
@@ -34,16 +34,16 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
         style={{
           borderTop: '5px solid transparent',
           borderBottom: '5px solid transparent',
-          borderRight: '5px solid #1e1e34',
+          borderRight: '5px solid #1a1b2e',
         }}
       />
 
       <div
         className="rounded-sm shadow-2xl overflow-hidden"
-        style={{ background: '#0e0e1c', border: '1px solid #1e1e34' }}
+        style={{ background: '#0a0b14', border: '1px solid #1a1b2e' }}
       >
         {/* Header */}
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid #1e1e34', background: '#151528' }}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid #1a1b2e', background: '#10111e' }}>
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
@@ -82,7 +82,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
 
         {/* Status badge */}
         {status && (
-          <div className="px-4 py-2" style={{ borderBottom: '1px solid #1e1e34', background: `${status.bg}` }}>
+          <div className="px-4 py-2" style={{ borderBottom: '1px solid #1a1b2e', background: `${status.bg}` }}>
             <div className="flex items-center gap-2">
               <span
                 className="text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-sm"
@@ -100,7 +100,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
         )}
 
         {/* Contract / Value */}
-        <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #1e1e34' }}>
+        <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #1a1b2e' }}>
           <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
             {player.marketValue && (
               <div>
@@ -126,7 +126,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
         </div>
 
         {/* Season stats mini */}
-        <div className="px-4 py-2.5" style={{ borderBottom: (showElo || showFantasy) ? '1px solid #1e1e34' : 'none' }}>
+        <div className="px-4 py-2.5" style={{ borderBottom: (showElo || showFantasy) ? '1px solid #1a1b2e' : 'none' }}>
           <div className="text-[9px] font-bold tracking-widest uppercase mb-2" style={{ color: '#5a5a7a' }}>
             Temporada · {player.pj} PJ
           </div>
@@ -138,7 +138,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
               <div className="text-[9px]" style={{ color: '#5a5a7a' }}>Goles</div>
             </div>
             <div className="text-center">
-              <div className="font-bebas text-2xl leading-none" style={{ color: '#4a9eff', fontFamily: "'Bebas Neue', cursive" }}>
+              <div className="font-bebas text-2xl leading-none" style={{ color: '#00c8b0', fontFamily: "'Bebas Neue', cursive" }}>
                 {player.asist}
               </div>
               <div className="text-[9px]" style={{ color: '#5a5a7a' }}>Asist.</div>
@@ -150,7 +150,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
               <div className="text-[9px]" style={{ color: '#5a5a7a' }}>G/PJ</div>
             </div>
             <div className="text-center">
-              <div className="text-[13px] font-semibold" style={{ color: '#4a9eff' }}>
+              <div className="text-[13px] font-semibold" style={{ color: '#00c8b0' }}>
                 {player.ratio_a.toFixed(2)}
               </div>
               <div className="text-[9px]" style={{ color: '#5a5a7a' }}>A/PJ</div>
@@ -178,7 +178,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
                     style={{
                       fontFamily: "'Bebas Neue', cursive",
                       letterSpacing: '1px',
-                      color: player.elo >= 2100 ? '#f0c040' : player.elo >= 1900 ? '#38c47a' : '#4a9eff',
+                      color: player.elo >= 2100 ? '#f0c040' : player.elo >= 1900 ? '#38c47a' : '#00c8b0',
                     }}
                   >
                     {player.elo}

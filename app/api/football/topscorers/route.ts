@@ -6,7 +6,7 @@ export const revalidate = 3600
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const league = Number(searchParams.get('league') ?? '140')
-  const season = Number(searchParams.get('season') ?? '2025')
+  const season = Number(searchParams.get('season') ?? '2024')
   const type = searchParams.get('type') ?? 'scorers' // 'scorers' | 'assists'
 
   try {
