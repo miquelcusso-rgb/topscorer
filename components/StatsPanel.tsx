@@ -95,8 +95,8 @@ function Pill({
       style={active
         ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
         : locked
-          ? { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#3a3b5a' }
-          : { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#7878a0' }
+          ? { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#2a3a54' }
+          : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#6878a0' }
       }
     >
       {children}
@@ -111,6 +111,7 @@ function FilterGroup({ label, children }: { label: string; children: React.React
         fontSize: 10, fontWeight: 700, letterSpacing: '2px',
         textTransform: 'uppercase' as const, color: '#5a5c88',
         fontFamily: "'Barlow Condensed', sans-serif",
+        color: '#3a5270',
       }}>
         {label}
       </span>
@@ -267,10 +268,10 @@ export default function StatsPanel({ tab }: Props) {
 
       {/* ── FILTER TOOLBAR ── */}
       <div
-        style={{ background: 'rgba(13,11,22,.92)', border: '1px solid #26224a', borderRadius: '8px 8px 0 0', backdropFilter: 'blur(6px)' }}
+        style={{ background: 'rgba(8,16,30,.92)', border: '1px solid rgba(255,255,255,.07)', borderRadius: '8px 8px 0 0', backdropFilter: 'blur(8px)' }}
       >
         {/* Fila 1: filtros — Main groups row */}
-        <div className="flex flex-wrap items-start gap-x-6 gap-y-4 px-4 pt-4 pb-4" style={{ borderBottom: '1px solid #201c3a' }}>
+        <div className="flex flex-wrap items-start gap-x-5 gap-y-3 px-4 pt-3.5 pb-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,.05)' }}>
           <FilterGroup label="Temporada">
             {SEASONS.map(s => {
               const locked = s.proOnly && !proUser
@@ -319,9 +320,9 @@ export default function StatsPanel({ tab }: Props) {
         </div>
 
         {/* Fila 2: count + actions */}
-        <div className="flex items-center gap-3 px-4 py-2.5" style={{ background: 'rgba(10,8,18,.75)' }}>
-          <span style={{ fontSize: 13, color: '#7879a0' }}>
-            <strong style={{ color: '#9898c0' }}>{topN.length}</strong> jugadores
+        <div className="flex items-center gap-3 px-4 py-2" style={{ background: 'rgba(5,10,20,.70)' }}>
+          <span style={{ fontSize: 12, color: '#6878a0' }}>
+            <strong style={{ color: '#8898bc' }}>{topN.length}</strong> jugadores
           </span>
           <div className="ml-auto flex items-center gap-2">
             {proUser && (
@@ -337,11 +338,16 @@ export default function StatsPanel({ tab }: Props) {
                 ★{watchlist.length > 0 && <span className="text-[9px]">{watchlist.length}</span>}
               </button>
             )}
-            <SearchInput
-              pool={pool.filter(p => p.season === st.season)}
-              pinned={st.pinned}
-              onAdd={name => update({ pinned: { ...st.pinned, [name]: true } })}
-            />
+            <div className="flex flex-col gap-1">
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#3a5270', fontFamily: "'Barlow Condensed', sans-serif" }}>
+                Añadir jugador
+              </span>
+              <SearchInput
+                pool={pool.filter(p => p.season === st.season)}
+                pinned={st.pinned}
+                onAdd={name => update({ pinned: { ...st.pinned, [name]: true } })}
+              />
+            </div>
           </div>
         </div>
       </div>

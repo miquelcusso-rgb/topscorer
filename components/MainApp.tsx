@@ -17,37 +17,70 @@ export default function MainApp() {
   return (
     <main className="relative z-10 min-h-screen">
 
-      {/* ── PAGE HEADER — full-width bg, centered content ── */}
+      {/* ── PAGE HEADER — hero section ── */}
       <div
         className="w-full"
         style={{
-          background: 'linear-gradient(180deg, rgba(14,11,26,.92) 0%, rgba(10,8,20,.88) 100%)',
-          borderBottom: '1px solid #26224a',
-          backdropFilter: 'blur(8px)',
+          background: 'linear-gradient(180deg, rgba(8,16,32,.95) 0%, rgba(6,13,24,.88) 100%)',
+          borderBottom: '1px solid rgba(255,255,255,.06)',
+          backdropFilter: 'blur(10px)',
         }}
       >
         <div className="max-w-[1100px] mx-auto px-5">
 
-          {/* Compact title strip */}
-          <div className="flex items-center justify-between py-2.5">
-            <div className="flex flex-col">
-              <span
-                className="font-bold uppercase tracking-[1.5px]"
-                style={{ fontSize: 12, color: '#9090a8', fontFamily: "'Barlow Condensed', sans-serif" }}
-              >
-                Top Goleadores Europa
-              </span>
-              <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 34, fontWeight: 700, color: '#eeeef5', letterSpacing: 0.5, lineHeight: 1, marginTop: 4 }}>
-                Top <span style={{ color: activeTab.color }}>{activeTab.label}</span>
-                <span style={{ color: '#3a3d5c', fontWeight: 400 }}> — Europa</span>
+          {/* Hero: título + meta */}
+          <div className="flex items-start justify-between gap-8 pt-7 pb-4">
+            <div className="flex flex-col gap-3">
+              <h1 style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: 'clamp(44px, 5vw, 68px)',
+                fontWeight: 800,
+                color: '#eef4ff',
+                letterSpacing: 1,
+                lineHeight: 0.93,
+                textTransform: 'uppercase',
+              }}>
+                Top <span style={{ color: activeTab.color }}>{activeTab.label}</span><br />
+                <span style={{ color: '#eef4ff' }}>de </span>
+                <span style={{ color: '#00c8b0' }}>Europa</span>
               </h1>
+              {/* Meta pills */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span style={{
+                  fontSize: 10.5, fontWeight: 700, letterSpacing: '1.5px',
+                  textTransform: 'uppercase', color: '#f0c040',
+                  padding: '4px 10px', borderRadius: 20,
+                  border: '1px solid rgba(240,192,64,.22)',
+                  background: 'rgba(240,192,64,.06)',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                }}>Temporada 2025/26</span>
+                <span style={{
+                  fontSize: 10.5, fontWeight: 700, letterSpacing: '1.5px',
+                  textTransform: 'uppercase', color: '#00c8b0',
+                  padding: '4px 10px', borderRadius: 20,
+                  border: '1px solid rgba(0,200,176,.2)',
+                  background: 'rgba(0,200,176,.05)',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                }}>Tiempo real</span>
+                <span style={{
+                  fontSize: 10.5, fontWeight: 700, letterSpacing: '1.5px',
+                  textTransform: 'uppercase', color: '#7888aa',
+                  padding: '4px 10px', borderRadius: 20,
+                  border: '1px solid rgba(255,255,255,.08)',
+                  background: 'rgba(255,255,255,.03)',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                }}>8 ligas activas</span>
+              </div>
             </div>
-            <span
-              className="text-[11px] font-semibold px-2.5 py-1 rounded-sm"
-              style={{ color: '#8080a8', background: 'rgba(13,11,22,.8)', border: '1px solid #26224a', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1 }}
-            >
-              2025/26
-            </span>
+
+            {/* Descripción derecha */}
+            <p className="hidden md:block shrink-0" style={{
+              fontSize: 12.5, color: '#6888aa', lineHeight: 1.6,
+              borderLeft: '2px solid rgba(58,82,112,.6)', paddingLeft: 14,
+              maxWidth: 240, marginTop: 4,
+            }}>
+              Las 5 grandes ligas + Portugal,<br />Turquía y Grecia. Estadísticas<br />actualizadas en tiempo real.
+            </p>
           </div>
 
           {/* Tab bar — flush with bottom border */}
@@ -60,20 +93,20 @@ export default function MainApp() {
                   onClick={() => setTab(t.id)}
                   className="cursor-pointer transition-all duration-150 relative"
                   style={{
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontFamily: "'Barlow Condensed', sans-serif",
-                    letterSpacing: 2,
+                    letterSpacing: '2px',
                     fontWeight: 700,
                     textTransform: 'uppercase' as const,
-                    color: active ? t.color : '#3a3b52',
-                    background: active ? `rgba(${t.rgb},.06)` : 'transparent',
+                    color: active ? t.color : '#4a5878',
+                    background: 'transparent',
                     border: 'none',
                     borderBottom: active ? `2px solid ${t.color}` : '2px solid transparent',
-                    padding: '8px 18px',
+                    padding: '9px 18px',
                     marginBottom: -1,
                   }}
-                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#60608a' }}
-                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#3a3b52' }}
+                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#8898b8' }}
+                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#4a5878' }}
                 >
                   {t.label}
                 </button>

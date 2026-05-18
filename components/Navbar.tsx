@@ -40,30 +40,34 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="sticky top-0 z-50" style={{ background: 'rgba(9,8,15,.98)', backdropFilter: 'blur(20px)' }}>
+    <nav className="sticky top-0 z-50" style={{ background: 'rgba(6,13,24,.96)', backdropFilter: 'blur(24px)' }}>
 
-      {/* Row 1 — h-[52px] */}
+      {/* Row 1 — h-[58px] */}
       <div
         style={{
-          height: 52,
-          borderBottom: '1px solid #1e2033',
+          height: 58,
+          borderBottom: '1px solid rgba(255,255,255,.06)',
         }}
       >
         <div className="max-w-[1100px] mx-auto px-5 h-full flex items-center gap-5">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <Image src="/logo.png" alt="TopScorers" width={28} height={28} unoptimized style={{ borderRadius: 4 }} />
+            <div style={{
+              width: 34, height: 34, borderRadius: '50%', overflow: 'hidden',
+              border: '1.5px solid rgba(240,192,64,.32)',
+              boxShadow: '0 0 14px rgba(240,192,64,.18)',
+              flexShrink: 0,
+            }}>
+              <Image src="/logo-ball.png" alt="TopScorers" width={34} height={34} unoptimized style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
             <span
-              className="text-[16px] font-semibold tracking-wide"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#eeeef5', letterSpacing: 1 }}
+              className="font-bold tracking-wide"
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 19, color: '#eef4ff', letterSpacing: '2.5px', textTransform: 'uppercase' }}
             >
-              TopScorers
+              Top<span style={{ color: '#f0c040' }}>Scorers</span>
             </span>
           </Link>
-
-          {/* divider */}
-          <div className="w-px h-4 shrink-0 hidden md:block" style={{ background: '#1a1b2e' }} />
 
           {/* Nav links — desktop */}
           <div className="hidden md:flex items-center gap-0.5 font-medium">
@@ -71,10 +75,15 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className="px-3 py-1.5 rounded-sm transition-colors duration-150 cursor-pointer"
-                style={{ fontSize: 14, color: path === href ? '#eeeef5' : '#8080a8' }}
-                onMouseEnter={e => { if (path !== href) e.currentTarget.style.color = '#b0b0cc' }}
-                onMouseLeave={e => { if (path !== href) e.currentTarget.style.color = '#8080a8' }}
+                className="px-3 py-1.5 rounded transition-all duration-150 cursor-pointer"
+                style={{
+                  fontSize: 13.5,
+                  color: path === href ? '#eef4ff' : '#7888aa',
+                  background: path === href ? 'rgba(255,255,255,.06)' : 'transparent',
+                  fontWeight: path === href ? 600 : 500,
+                }}
+                onMouseEnter={e => { if (path !== href) { e.currentTarget.style.color = '#b8c8e0'; e.currentTarget.style.background = 'rgba(255,255,255,.04)' } }}
+                onMouseLeave={e => { if (path !== href) { e.currentTarget.style.color = '#7888aa'; e.currentTarget.style.background = 'transparent' } }}
               >
                 {label}
               </Link>
@@ -87,22 +96,22 @@ export default function Navbar() {
               <>
                 <SignInButton mode="modal">
                   <button
-                    className="font-medium px-3.5 py-1.5 rounded-sm cursor-pointer transition-colors duration-150"
-                    style={{ fontSize: 12, color: '#8080a8', background: 'transparent', border: '1px solid transparent' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#eeeef5'; e.currentTarget.style.borderColor = '#26224a' }}
-                    onMouseLeave={e => { e.currentTarget.style.color = '#8080a8'; e.currentTarget.style.borderColor = 'transparent' }}
+                    className="font-medium px-3.5 py-1.5 rounded cursor-pointer transition-all duration-150"
+                    style={{ fontSize: 12.5, color: '#7888aa', background: 'transparent', border: '1px solid rgba(255,255,255,.1)' }}
+                    onMouseEnter={e => { e.currentTarget.style.color = '#eef4ff'; e.currentTarget.style.borderColor = 'rgba(240,192,64,.3)' }}
+                    onMouseLeave={e => { e.currentTarget.style.color = '#7888aa'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.1)' }}
                   >
                     Entrar
                   </button>
                 </SignInButton>
                 <SignUpButton mode="modal">
                   <button
-                    className="font-bold px-3.5 py-1.5 rounded-sm cursor-pointer transition-all duration-150"
-                    style={{ fontSize: 12, color: '#080910', background: '#f0c040' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#f8d060')}
-                    onMouseLeave={e => (e.currentTarget.style.background = '#f0c040')}
+                    className="font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150"
+                    style={{ fontSize: 12.5, color: '#060d18', background: '#f0c040', boxShadow: '0 2px 12px rgba(240,192,64,.28)' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
                   >
-                    Pro
+                    Pro →
                   </button>
                 </SignUpButton>
               </>
@@ -147,8 +156,8 @@ export default function Navbar() {
         className="hidden md:block"
         style={{
           height: 36,
-          background: 'rgba(8,6,14,.97)',
-          borderBottom: '1px solid #141524',
+          background: 'rgba(5,10,20,.90)',
+          borderBottom: '1px solid rgba(255,255,255,.05)',
         }}
       >
         <div className="max-w-[1100px] mx-auto px-5 h-full flex items-center gap-2">
