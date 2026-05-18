@@ -113,9 +113,9 @@ function FilterGroup({ label, children }: { label: string; children: React.React
     <div className="flex flex-col gap-1.5 shrink-0">
       <span style={{
         fontSize: 10, fontWeight: 700, letterSpacing: '2px',
-        textTransform: 'uppercase' as const, color: '#5a5c88',
+        textTransform: 'uppercase' as const,
         fontFamily: "'Barlow Condensed', sans-serif",
-        color: '#3a5270',
+        color: '#5a5c88',
       }}>
         {label}
       </span>
