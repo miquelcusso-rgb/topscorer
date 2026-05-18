@@ -3,6 +3,8 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import AddToHomeScreen from '@/components/AddToHomeScreen'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -72,9 +74,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         </head>
         <body className="min-h-full">
-          <Navbar />
-          {children}
-          <Footer />
+          <ThemeProvider>
+            <Navbar />
+            {children}
+            <Footer />
+            <AddToHomeScreen />
+          </ThemeProvider>
           <SpeedInsights />
         </body>
       </html>

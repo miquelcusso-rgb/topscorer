@@ -19,7 +19,7 @@ export default function MainApp() {
 
       {/* ── PAGE HEADER — hero section ── */}
       <div
-        className="w-full"
+        className="w-full page-hero"
         style={{
           background: 'linear-gradient(180deg, rgba(8,16,32,.95) 0%, rgba(6,13,24,.88) 100%)',
           borderBottom: '1px solid rgba(255,255,255,.06)',

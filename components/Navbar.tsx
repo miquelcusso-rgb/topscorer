@@ -4,7 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useTheme } from '@/contexts/ThemeContext'
 
 
 export default function Navbar() {
@@ -12,6 +13,23 @@ export default function Navbar() {
   const { user, isLoaded } = useUser()
   const isSignedIn = isLoaded && !!user
   const [menuOpen, setMenuOpen] = useState(false)
+  const { theme, toggle } = useTheme()
+  const [showHint, setShowHint] = useState(false)
+
+  useEffect(() => {
+    const seen = localStorage.getItem('ts-theme-hint')
+    if (!seen) {
+      setShowHint(true)
+      const t = setTimeout(() => setShowHint(false), 8000)
+      return () => clearTimeout(t)
+    }
+  }, [])
+
+  function handleToggle() {
+    toggle()
+    setShowHint(false)
+    localStorage.setItem('ts-theme-hint', '1')
+  }
 
   const navLinks = [
     { href: '/',             label: 'Estadísticas' },
@@ -80,6 +98,34 @@ export default function Navbar() {
             <span style={{ fontSize: 9.5, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#38c47a' }}>
               LIVE
             </span>
+          </div>
+
+          {/* Theme toggle + hint arrow */}
+          <div className="relative flex items-center">
+            {showHint && (
+              <div className="absolute right-full mr-2 flex items-center gap-1 pointer-events-none whitespace-nowrap">
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '1px', color: '#f0c040', fontFamily: "'Barlow Condensed', sans-serif", textTransform: 'uppercase' }}>
+                  Modo claro
+                </span>
+                <span className="theme-hint-arrow" style={{ color: '#f0c040', fontSize: 14 }}>→</span>
+              </div>
+            )}
+            <button
+              onClick={handleToggle}
+              aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              className="cursor-pointer rounded-full flex items-center justify-center transition-all duration-200"
+              style={{
+                width: 32, height: 32,
+                background: theme === 'dark' ? 'rgba(240,192,64,.12)' : 'rgba(240,192,64,.18)',
+                border: `1.5px solid ${theme === 'dark' ? 'rgba(240,192,64,.25)' : 'rgba(240,192,64,.5)'}`,
+                color: '#f0c040',
+                fontSize: 15,
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(240,192,64,.22)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = theme === 'dark' ? 'rgba(240,192,64,.12)' : 'rgba(240,192,64,.18)' }}
+            >
+              {theme === 'dark' ? '☀' : '🌙'}
+            </button>
           </div>
 
           {/* Auth */}
