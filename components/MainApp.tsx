@@ -42,7 +42,7 @@ export default function MainApp() {
               }}>
                 Top <span style={{ color: activeTab.color }}>{activeTab.label}</span><br />
                 <span style={{ color: '#eef4ff' }}>de </span>
-                <span style={{ color: '#00c8b0' }}>Europa</span>
+                <span style={{ color: '#eef4ff' }}>Europa</span>
               </h1>
               {/* Meta pills */}
               <div className="flex items-center gap-2 flex-wrap">
