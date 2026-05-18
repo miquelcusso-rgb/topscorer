@@ -62,7 +62,11 @@ export type SortKey =
 export interface PanelState {
   season: Season
   age: number
-  showEur5: boolean
+  showEsp: boolean
+  showEng: boolean
+  showGer: boolean
+  showIta: boolean
+  showFra: boolean
   showPt: boolean
   showTr: boolean
   showGr: boolean

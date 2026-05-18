@@ -14,7 +14,11 @@ import WatchlistPanel, { type WatchlistEntry } from './WatchlistPanel'
 const DEFAULT: PanelState = {
   season: '2526',
   age: 99,
-  showEur5: true,
+  showEsp: true,
+  showEng: true,
+  showGer: true,
+  showIta: true,
+  showFra: true,
   showPt: false,
   showTr: false,
   showGr: false,
@@ -290,10 +294,56 @@ export default function StatsPanel({ tab }: Props) {
           </FilterGroup>
 
           <FilterGroup label="Liga">
-            <Pill active={st.showEur5} color="gr" onClick={() => { if (st.showEur5 && !st.showPt && !st.showTr && !st.showGr) return; update({ showEur5: !st.showEur5 }) }}>Top 5</Pill>
-            <Pill active={st.showPt}   color="mu" onClick={() => { if (!st.showPt && !st.showEur5 && !st.showTr && !st.showGr) return; update({ showPt: !st.showPt }) }}>PT</Pill>
-            <Pill active={st.showTr}   color="mu" onClick={() => { if (!st.showTr && !st.showEur5 && !st.showPt && !st.showGr) return; update({ showTr: !st.showTr }) }}>TR</Pill>
-            <Pill active={st.showGr}   color="mu" onClick={() => { if (!st.showGr && !st.showEur5 && !st.showPt && !st.showTr) return; update({ showGr: !st.showGr }) }}>GR</Pill>
+            {/* TOP 5 shortcut */}
+            {(() => {
+              const allFive = st.showEsp && st.showEng && st.showGer && st.showIta && st.showFra
+              const hasExtra = st.showPt || st.showTr || st.showGr
+              const isTop5Only = allFive && !hasExtra
+              return (
+                <Pill active={isTop5Only} color="gr" onClick={() => {
+                  // Select all 5, deselect extras
+                  update({ showEsp: true, showEng: true, showGer: true, showIta: true, showFra: true, showPt: false, showTr: false, showGr: false })
+                }}>Top 5</Pill>
+              )
+            })()}
+            {/* Individual Big 5 */}
+            {([
+              { key: 'showEsp', label: 'ESP', c: '220,70,40'  },
+              { key: 'showEng', label: 'ENG', c: '80,170,80'  },
+              { key: 'showGer', label: 'GER', c: '220,50,50'  },
+              { key: 'showIta', label: 'ITA', c: '60,110,220' },
+              { key: 'showFra', label: 'FRA', c: '110,70,220' },
+            ] as const).map(({ key, label, c }) => {
+              const active = st[key]
+              const count = ['showEsp','showEng','showGer','showIta','showFra','showPt','showTr','showGr'].filter(k => st[k as keyof typeof st]).length
+              return (
+                <button
+                  key={key}
+                  onClick={() => { if (active && count <= 1) return; update({ [key]: !active }) }}
+                  className="text-[11px] font-bold px-2.5 py-1 rounded transition-all duration-150 cursor-pointer"
+                  style={active
+                    ? { background: `rgba(${c},.14)`, border: `1px solid rgba(${c},.45)`, color: `rgb(${c})` }
+                    : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#6878a0' }
+                  }
+                >{label}</button>
+              )
+            })}
+            {/* Divider */}
+            <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,.08)', margin: '0 2px', alignSelf: 'center' }} />
+            {/* PT / TR / GR */}
+            {([
+              { key: 'showPt', label: 'PT' },
+              { key: 'showTr', label: 'TR' },
+              { key: 'showGr', label: 'GR' },
+            ] as const).map(({ key, label }) => {
+              const active = st[key]
+              const count = ['showEsp','showEng','showGer','showIta','showFra','showPt','showTr','showGr'].filter(k => st[k as keyof typeof st]).length
+              return (
+                <Pill key={key} active={active} color="mu"
+                  onClick={() => { if (active && count <= 1) return; update({ [key]: !active }) }}
+                >{label}</Pill>
+              )
+            })}
           </FilterGroup>
 
           <FilterGroup label="Edad">
@@ -338,9 +388,21 @@ export default function StatsPanel({ tab }: Props) {
                 ★{watchlist.length > 0 && <span className="text-[9px]">{watchlist.length}</span>}
               </button>
             )}
-            <div className="flex flex-col gap-1">
-              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#3a5270', fontFamily: "'Barlow Condensed', sans-serif" }}>
-                Añadir jugador
+            <div className="flex items-center gap-2">
+              <span
+                style={{
+                  fontSize: 9.5, fontWeight: 700, letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  color: '#3a5270',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  padding: '5px 10px',
+                  border: '1px solid rgba(255,255,255,.07)',
+                  borderRadius: 6,
+                  whiteSpace: 'nowrap',
+                  background: 'rgba(8,16,30,.6)',
+                }}
+              >
+                + Añadir jugador
               </span>
               <SearchInput
                 pool={pool.filter(p => p.season === st.season)}

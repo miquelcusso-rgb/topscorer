@@ -49,10 +49,14 @@ export function makeSortFn(key: SortKey, dir: 1 | -1) {
 
 export function buildTopN(pool: EnrichedPlayer[], state: PanelState, limit = 25): EnrichedPlayer[] {
   const allowed = new Set<string>()
-  if (state.showEur5) ['La Liga','Premier League','Bundesliga','Serie A','Ligue 1'].forEach(l => allowed.add(l))
-  if (state.showPt) allowed.add('Primeira Liga')
-  if (state.showTr) allowed.add('Sueper Lig')
-  if (state.showGr) allowed.add('Super Liga Grecia')
+  if (state.showEsp) allowed.add('La Liga')
+  if (state.showEng) allowed.add('Premier League')
+  if (state.showGer) allowed.add('Bundesliga')
+  if (state.showIta) allowed.add('Serie A')
+  if (state.showFra) allowed.add('Ligue 1')
+  if (state.showPt)  allowed.add('Primeira Liga')
+  if (state.showTr)  allowed.add('Sueper Lig')
+  if (state.showGr)  allowed.add('Super Liga Grecia')
 
   const bySeason = pool.filter(p => p.season === state.season && allowed.has(p.league))
   const sf = makeSortFn(state.sort, state.dir)

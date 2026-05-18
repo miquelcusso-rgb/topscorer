@@ -33,11 +33,11 @@ export default function MainApp() {
             <div className="flex flex-col gap-3">
               <h1 style={{
                 fontFamily: "'Barlow Condensed', sans-serif",
-                fontSize: 'clamp(44px, 5vw, 68px)',
+                fontSize: 'clamp(58px, 6.5vw, 88px)',
                 fontWeight: 800,
                 color: '#eef4ff',
                 letterSpacing: 1,
-                lineHeight: 0.93,
+                lineHeight: 0.91,
                 textTransform: 'uppercase',
               }}>
                 Top <span style={{ color: activeTab.color }}>{activeTab.label}</span><br />

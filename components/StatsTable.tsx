@@ -66,7 +66,7 @@ export default function StatsTable({
       style={{ overflowX: 'auto', overflowY: 'clip', background: 'rgba(7,14,26,.90)', border: '1px solid rgba(255,255,255,.07)', borderTop: 'none' }}
     >
       <table className="w-full border-collapse" style={{ minWidth: 680 }}>
-        <thead className="sticky top-[88px] z-[30]">
+        <thead>
           <tr
             style={{
               background: 'rgba(8,16,30,.97)',

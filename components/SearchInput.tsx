@@ -31,24 +31,24 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
   }, [])
 
   return (
-    <div className="relative" ref={ref} style={{ minWidth: 220, maxWidth: 300 }}>
-        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[12px] pointer-events-none" style={{ color: '#5a5a7a' }}>
+    <div className="relative" ref={ref} style={{ minWidth: 180, maxWidth: 260 }}>
+        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ fontSize: 16, color: '#4a6080', lineHeight: 1 }}>
           ⌕
         </span>
         <input
           type="text"
           value={query}
-          placeholder="Buscar jugador…"
+          placeholder="Buscar..."
           onChange={e => { setQuery(e.target.value); setOpen(true) }}
-          className="w-full pl-7 pr-3 py-1.5 text-[12px] rounded-sm outline-none transition-colors duration-150"
+          className="w-full pl-8 pr-3 py-1.5 text-[12px] rounded outline-none transition-colors duration-150"
           style={{
-            background: '#10111e',
-            border: '1px solid #1a1b2e',
-            color: '#e5e5f2',
+            background: 'rgba(8,16,30,.8)',
+            border: '1px solid rgba(255,255,255,.1)',
+            color: '#dde8ff',
             fontFamily: "'DM Sans', sans-serif",
           }}
-          onFocus={e => { e.currentTarget.style.borderColor = '#f0c040'; setOpen(true) }}
-          onBlur={e => { e.currentTarget.style.borderColor = '#1a1b2e' }}
+          onFocus={e => { e.currentTarget.style.borderColor = 'rgba(240,192,64,.5)'; setOpen(true) }}
+          onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,.1)' }}
         />
 
         {open && matches.length > 0 && (

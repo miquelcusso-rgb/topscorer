@@ -6,25 +6,6 @@ import { usePathname } from 'next/navigation'
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 import { useState } from 'react'
 
-interface LeaguePill {
-  code: string
-  label: string
-  color: string
-  borderColor: string
-  textColor?: string
-  transparentBg?: boolean
-}
-
-const LEAGUE_PILLS: LeaguePill[] = [
-  { code: 'ESP', label: 'ESP', color: '#ee3124', borderColor: 'rgba(238,49,36,.4)' },
-  { code: 'ENG', label: 'ENG', color: '#3d195b', borderColor: 'rgba(61,25,91,.6)', textColor: '#a060ff' },
-  { code: 'GER', label: 'GER', color: '#e00000', borderColor: 'rgba(224,0,0,.4)' },
-  { code: 'ITA', label: 'ITA', color: '#1a4db5', borderColor: 'rgba(26,77,181,.45)' },
-  { code: 'FRA', label: 'FRA', color: '#003399', borderColor: 'rgba(0,51,153,.45)' },
-  { code: 'PRT', label: 'PRT', color: '#00c8b0', borderColor: 'rgba(0,200,176,.4)', textColor: '#00c8b0', transparentBg: true },
-  { code: 'TUR', label: 'TUR', color: '#e00000', borderColor: 'rgba(224,0,0,.4)' },
-  { code: 'GR',  label: 'GR',  color: '#1a4db5', borderColor: 'rgba(26,77,181,.45)' },
-]
 
 export default function Navbar() {
   const path = usePathname()
@@ -90,8 +71,19 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* LIVE chip */}
+          <div className="hidden md:flex items-center gap-1.5 ml-auto">
+            <span
+              className="inline-block w-1.5 h-1.5 rounded-full"
+              style={{ background: '#38c47a', boxShadow: '0 0 6px #38c47a', animation: 'pulse-live 2s ease-in-out infinite' }}
+            />
+            <span style={{ fontSize: 9.5, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#38c47a' }}>
+              LIVE
+            </span>
+          </div>
+
           {/* Auth */}
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-2">
             {isLoaded && !isSignedIn && (
               <>
                 <SignInButton mode="modal">
@@ -151,70 +143,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Row 2 — h-[36px] secondary bar — desktop only */}
-      <div
-        className="hidden md:block"
-        style={{
-          height: 36,
-          background: 'rgba(5,10,20,.90)',
-          borderBottom: '1px solid rgba(255,255,255,.05)',
-        }}
-      >
-        <div className="max-w-[1100px] mx-auto px-5 h-full flex items-center gap-2">
-
-          {/* League pills */}
-          {LEAGUE_PILLS.map(pill => (
-            <a
-              key={pill.code}
-              href={`/?league=${pill.code}`}
-              className="inline-flex items-center rounded-sm cursor-pointer transition-all duration-150"
-              style={{
-                fontSize: 9,
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700,
-                letterSpacing: 1,
-                textTransform: 'uppercase',
-                padding: '2px 6px',
-                color: pill.transparentBg ? pill.textColor ?? pill.color : '#c8c8e0',
-                background: pill.transparentBg ? 'transparent' : `${pill.color}22`,
-                border: `1px solid ${pill.borderColor}`,
-              }}
-              onMouseEnter={e => { e.currentTarget.style.opacity = '0.75' }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1' }}
-            >
-              {pill.label}
-            </a>
-          ))}
-
-          {/* Spacer */}
-          <div className="flex-1" />
-
-          {/* LIVE badge */}
-          <div className="flex items-center gap-1.5">
-            <span
-              className="inline-block w-1.5 h-1.5 rounded-full"
-              style={{
-                background: '#38c47a',
-                boxShadow: '0 0 6px #38c47a',
-                animation: 'pulse-live 2s ease-in-out infinite',
-              }}
-            />
-            <span
-              style={{
-                fontSize: 9,
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700,
-                letterSpacing: 2,
-                textTransform: 'uppercase',
-                color: '#38c47a',
-              }}
-            >
-              LIVE
-            </span>
-          </div>
-
-        </div>
-      </div>
 
       {/* Mobile menu dropdown */}
       {menuOpen && (
