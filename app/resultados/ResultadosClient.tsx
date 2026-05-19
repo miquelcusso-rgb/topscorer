@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react'
 import type { ApiStandingEntry, ApiFixture, LeagueMeta } from '@/lib/api-football'
 
 const LEAGUES: LeagueMeta[] = [
-  { id: 140, name: 'La Liga',        country: 'Spain',    short: 'ESP', color: '#ee3124' },
-  { id:  39, name: 'Premier League', country: 'England',  short: 'ENG', color: '#3d195b' },
-  { id:  78, name: 'Bundesliga',     country: 'Germany',  short: 'GER', color: '#d20515' },
-  { id: 135, name: 'Serie A',        country: 'Italy',    short: 'ITA', color: '#024494' },
-  { id:  61, name: 'Ligue 1',        country: 'France',   short: 'FRA', color: '#003087' },
-  { id:  94, name: 'Primeira Liga',  country: 'Portugal', short: 'PRT', color: '#006600' },
-  { id: 203, name: 'Süper Lig',      country: 'Turkey',   short: 'TUR', color: '#e30a17' },
-  { id: 197, name: 'Super League',   country: 'Greece',   short: 'GRE', color: '#0d5eaf' },
+  { id: 140, name: 'La Liga',        country: 'Spain',    short: 'ESP', color: '#ee3124', flag: '🇪🇸' },
+  { id:  39, name: 'Premier League', country: 'England',  short: 'ENG', color: '#3d195b', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+  { id:  78, name: 'Bundesliga',     country: 'Germany',  short: 'GER', color: '#d20515', flag: '🇩🇪' },
+  { id: 135, name: 'Serie A',        country: 'Italy',    short: 'ITA', color: '#024494', flag: '🇮🇹' },
+  { id:  61, name: 'Ligue 1',        country: 'France',   short: 'FRA', color: '#003087', flag: '🇫🇷' },
+  { id:  94, name: 'Primeira Liga',  country: 'Portugal', short: 'PRT', color: '#006600', flag: '🇵🇹' },
+  { id: 203, name: 'Süper Lig',      country: 'Turkey',   short: 'TUR', color: '#e30a17', flag: '🇹🇷' },
+  { id: 197, name: 'Super League',   country: 'Greece',   short: 'GRE', color: '#0d5eaf', flag: '🇬🇷' },
 ]
 
 function formatDate(iso: string) {
@@ -295,20 +295,26 @@ export default function ResultadosClient() {
                 <button
                   key={league.id}
                   onClick={() => setActiveLeague(league)}
-                  className="cursor-pointer transition-all duration-150 shrink-0"
+                  className="flex flex-col items-center gap-0.5 cursor-pointer transition-all duration-150 shrink-0 py-2 px-3"
                   style={{
-                    fontSize: 11, fontFamily: "'Barlow Condensed', sans-serif",
-                    letterSpacing: 1.5, fontWeight: 700, textTransform: 'uppercase',
                     color: active ? league.color : '#3a3b52',
                     background: 'transparent', border: 'none',
                     borderBottom: active ? `2px solid ${league.color}` : '2px solid transparent',
-                    padding: '9px 16px', marginBottom: -1,
-                    whiteSpace: 'nowrap',
+                    marginBottom: -1,
                   }}
                   onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#60608a' }}
                   onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#3a3b52' }}
                 >
-                  {league.short}
+                  <img
+                    src={`https://media.api-sports.io/football/leagues/${league.id}.png`}
+                    width={22}
+                    height={22}
+                    alt={league.name}
+                    style={{ borderRadius: 2, objectFit: 'contain' }}
+                  />
+                  <span style={{ fontSize: 9, letterSpacing: 1, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, textTransform: 'uppercase' }}>
+                    {league.short} {league.flag}
+                  </span>
                 </button>
               )
             })}
@@ -355,15 +361,24 @@ export default function ResultadosClient() {
               className="flex items-center gap-3 px-4 py-3"
               style={{ borderBottom: '1px solid #151626', borderLeft: `3px solid ${activeLeague.color}` }}
             >
-              <span
-                className="text-[13px] font-bold uppercase tracking-[1px]"
-                style={{ color: activeLeague.color, fontFamily: "'Barlow Condensed', sans-serif" }}
-              >
-                {activeLeague.name}
-              </span>
-              <span className="text-[11px]" style={{ color: '#3a3b52' }}>
-                {activeLeague.country} · 2025/26
-              </span>
+              <img
+                src={`https://media.api-sports.io/football/leagues/${activeLeague.id}.png`}
+                width={40}
+                height={40}
+                alt={activeLeague.name}
+                style={{ borderRadius: 3, objectFit: 'contain', flexShrink: 0 }}
+              />
+              <div>
+                <span
+                  className="text-[13px] font-bold uppercase tracking-[1px]"
+                  style={{ color: activeLeague.color, fontFamily: "'Barlow Condensed', sans-serif" }}
+                >
+                  {activeLeague.name}
+                </span>
+                <div className="text-[11px]" style={{ color: '#3a3b52' }}>
+                  {activeLeague.country} · 2025/26
+                </div>
+              </div>
             </div>
 
             <LeagueSection league={activeLeague} activeTab={activeTab} />

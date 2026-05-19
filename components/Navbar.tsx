@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
+import { isPro } from '@/lib/plans'
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 
@@ -100,16 +101,8 @@ export default function Navbar() {
             </span>
           </div>
 
-          {/* Theme toggle + hint arrow */}
+          {/* Theme toggle + hint arrow (drops below) */}
           <div className="relative flex items-center">
-            {showHint && (
-              <div className="absolute right-full mr-2 flex items-center gap-1 pointer-events-none whitespace-nowrap">
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '1px', color: '#f0c040', fontFamily: "'Barlow Condensed', sans-serif", textTransform: 'uppercase' }}>
-                  Modo claro
-                </span>
-                <span className="theme-hint-arrow" style={{ color: '#f0c040', fontSize: 14 }}>→</span>
-              </div>
-            )}
             <button
               onClick={handleToggle}
               aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
@@ -126,6 +119,18 @@ export default function Navbar() {
             >
               {theme === 'dark' ? '☀' : '🌙'}
             </button>
+            {showHint && (
+              <div className="absolute top-full right-0 mt-1 flex flex-col items-center pointer-events-none z-50">
+                <span className="theme-hint-arrow" style={{ color: '#f0c040', fontSize: 12, lineHeight: 1 }}>▼</span>
+                <div style={{
+                  background: 'rgba(6,10,22,.97)', border: '1px solid rgba(240,192,64,.35)',
+                  borderRadius: 5, padding: '4px 9px', whiteSpace: 'nowrap', marginTop: 2,
+                  fontSize: 9.5, fontWeight: 700, letterSpacing: '1.5px', color: '#f0c040',
+                  fontFamily: "'Barlow Condensed', sans-serif", textTransform: 'uppercase',
+                  boxShadow: '0 4px 16px rgba(0,0,0,.4)',
+                }}>Modo claro</div>
+              </div>
+            )}
           </div>
 
           {/* Auth */}
@@ -156,16 +161,22 @@ export default function Navbar() {
             )}
 
             {isSignedIn && (
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/pricing"
-                  className="text-[11.5px] font-semibold px-3 py-1.5 rounded-sm transition-all duration-150 cursor-pointer hidden md:inline-flex"
-                  style={{ color: '#f0c040', background: 'rgba(240,192,64,.08)', border: '1px solid rgba(240,192,64,.2)' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(240,192,64,.14)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(240,192,64,.08)')}
-                >
-                  Upgrade
-                </Link>
+              <div className="flex items-center gap-2">
+                {!isPro(user?.publicMetadata as Record<string, unknown>) && (
+                  <Link
+                    href="/pricing"
+                    className="font-bold px-3.5 py-1.5 rounded cursor-pointer transition-all duration-150 inline-flex items-center gap-1"
+                    style={{
+                      fontSize: 12, color: '#060d18', background: '#f0c040',
+                      boxShadow: '0 2px 12px rgba(240,192,64,.28)',
+                      textDecoration: 'none',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
+                  >
+                    ⚡ Pro
+                  </Link>
+                )}
                 <UserButton />
               </div>
             )}

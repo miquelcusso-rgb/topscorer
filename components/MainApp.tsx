@@ -1,17 +1,58 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { useUser } from '@clerk/nextjs'
+import { isPro } from '@/lib/plans'
 import StatsPanel from './StatsPanel'
 import MidfielderPanel from './MidfielderPanel'
+import PositionPanel from './PositionPanel'
 
 const TABS = [
-  { id: 's' as const, label: 'Goleadores',      color: '#f0c040', rgb: '240,192,64' },
-  { id: 'a' as const, label: 'Asistentes',       color: '#00c8b0', rgb: '0,200,176'  },
-  { id: 'c' as const, label: 'Centrocampistas',  color: '#a060ff', rgb: '160,96,255' },
+  { id: 's' as const, label: 'Goleadores',      color: '#f0c040', rgb: '240,192,64'  },
+  { id: 'a' as const, label: 'Asistentes',       color: '#00c8b0', rgb: '0,200,176'   },
+  { id: 'c' as const, label: 'Centrocampistas',  color: '#a060ff', rgb: '160,96,255'  },
+  { id: 'd' as const, label: 'Defensas',         color: '#4090ff', rgb: '64,144,255'  },
+  { id: 'g' as const, label: 'Porteros',         color: '#e05a30', rgb: '224,90,48'   },
 ]
 
+function ProGateCard({ title, description }: { title: string; description: string }) {
+  return (
+    <div
+      className="flex flex-col items-center justify-center gap-5 py-16 rounded"
+      style={{
+        background: 'rgba(6,7,14,.9)',
+        border: '1px solid rgba(240,192,64,.18)',
+        borderTop: '2px solid rgba(240,192,64,.35)',
+      }}
+    >
+      <span style={{ fontSize: 36 }}>⚡</span>
+      <div className="text-center">
+        <div
+          className="font-bold mb-2"
+          style={{ fontSize: 18, color: '#d8d8ec', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5 }}
+        >
+          {title}
+        </div>
+        <div style={{ fontSize: 13, color: '#52526e' }}>{description}</div>
+      </div>
+      <Link
+        href="/pricing"
+        className="inline-flex items-center gap-2 font-bold rounded-sm transition-all duration-150 cursor-pointer"
+        style={{ fontSize: 13, padding: '9px 24px', background: '#f0c040', color: '#05060c', boxShadow: '0 2px 16px rgba(240,192,64,.25)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(240,192,64,.4)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(240,192,64,.25)' }}
+      >
+        Hazte Pro →
+      </Link>
+    </div>
+  )
+}
+
 export default function MainApp() {
-  const [tab, setTab] = useState<'s' | 'a' | 'c'>('s')
+  const [tab, setTab] = useState<'s' | 'a' | 'c' | 'd' | 'g'>('s')
+  const { user, isLoaded } = useUser()
+  const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
   const activeTab = TABS.find(t => t.id === tab)!
 
   return (
@@ -126,7 +167,22 @@ export default function MainApp() {
             <StatsPanel tab="a" />
           </div>
           <div style={{ display: tab === 'c' ? 'block' : 'none' }}>
-            <MidfielderPanel />
+            {proUser
+              ? <PositionPanel position="MF" accentColor="#a060ff" proUser={proUser} />
+              : <ProGateCard title="Datos de Centrocampistas — Solo Pro" description="Accede a estadísticas de centrocampistas de las 8 principales ligas europeas." />
+            }
+          </div>
+          <div style={{ display: tab === 'd' ? 'block' : 'none' }}>
+            {proUser
+              ? <PositionPanel position="DF" accentColor="#4090ff" proUser={proUser} />
+              : <ProGateCard title="Datos de Defensas — Solo Pro" description="Accede a estadísticas de defensas de las 8 principales ligas europeas." />
+            }
+          </div>
+          <div style={{ display: tab === 'g' ? 'block' : 'none' }}>
+            {proUser
+              ? <PositionPanel position="GK" accentColor="#e05a30" proUser={proUser} />
+              : <ProGateCard title="Datos de Porteros — Solo Pro" description="Accede a estadísticas de porteros de las 8 principales ligas europeas." />
+            }
           </div>
         </div>
       </div>

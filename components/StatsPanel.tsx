@@ -48,11 +48,11 @@ const SEASONS: { id: Season; label: string; live?: boolean; proOnly?: boolean }[
 ]
 
 const AGES = [
-  { v: 18, label: 'U18' },
-  { v: 21, label: 'U21' },
+  { v: 18, label: 'U18', proOnly: true },
+  { v: 21, label: 'U21', proOnly: true },
   { v: 24, label: 'U24' },
-  { v: 27, label: 'U27' },
-  { v: 30, label: 'U30' },
+  { v: 27, label: 'U27', proOnly: true },
+  { v: 30, label: 'U30', proOnly: true },
   { v: 99, label: 'Todos' },
 ]
 
@@ -347,16 +347,82 @@ export default function StatsPanel({ tab }: Props) {
           </FilterGroup>
 
           <FilterGroup label="Edad">
-            {AGES.map(a => (
-              <Pill key={a.v} active={st.age === a.v} color="bl" onClick={() => update({ age: a.v })}>
-                {a.label}
-              </Pill>
-            ))}
+            {AGES.map(a => {
+              const locked = !!a.proOnly && !proUser
+              if (locked) {
+                return (
+                  <div key={a.v} style={{ position: 'relative', display: 'inline-block' }}>
+                    <span style={{
+                      position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)',
+                      fontSize: 7, fontWeight: 700, letterSpacing: 0.5,
+                      background: 'rgba(240,192,64,.15)', color: '#f0c040',
+                      border: '1px solid rgba(240,192,64,.25)', borderRadius: 3,
+                      padding: '1px 4px', pointerEvents: 'none' as const, whiteSpace: 'nowrap' as const,
+                    }}>PRO</span>
+                    <button
+                      className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 whitespace-nowrap"
+                      style={{
+                        background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)',
+                        color: '#6878a0', textDecoration: 'line-through', opacity: 0.45,
+                        cursor: 'default',
+                      }}
+                    >
+                      {a.label}
+                    </button>
+                  </div>
+                )
+              }
+              return (
+                <Pill key={a.v} active={st.age === a.v} color="bl" onClick={() => update({ age: a.v })}>
+                  {a.label}
+                </Pill>
+              )
+            })}
           </FilterGroup>
 
           <FilterGroup label="Columnas">
-            <Pill active={st.showElo}     color="gd" onClick={() => update({ showElo: !st.showElo })}>ELO</Pill>
-            <Pill active={st.showFantasy} color="mu" onClick={() => update({ showFantasy: !st.showFantasy })}>Fantasy</Pill>
+            {proUser ? (
+              <Pill active={st.showElo} color="gd" onClick={() => update({ showElo: !st.showElo })}>ELO</Pill>
+            ) : (
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <span style={{
+                  position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)',
+                  fontSize: 7, fontWeight: 700, letterSpacing: 0.5,
+                  background: 'rgba(240,192,64,.15)', color: '#f0c040',
+                  border: '1px solid rgba(240,192,64,.25)', borderRadius: 3,
+                  padding: '1px 4px', pointerEvents: 'none' as const, whiteSpace: 'nowrap' as const,
+                }}>PRO</span>
+                <button
+                  className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 whitespace-nowrap"
+                  style={{
+                    background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)',
+                    color: '#6878a0', textDecoration: 'line-through', opacity: 0.45,
+                    cursor: 'default',
+                  }}
+                >ELO</button>
+              </div>
+            )}
+            {proUser ? (
+              <Pill active={st.showFantasy} color="mu" onClick={() => update({ showFantasy: !st.showFantasy })}>Fantasy</Pill>
+            ) : (
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <span style={{
+                  position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)',
+                  fontSize: 7, fontWeight: 700, letterSpacing: 0.5,
+                  background: 'rgba(240,192,64,.15)', color: '#f0c040',
+                  border: '1px solid rgba(240,192,64,.25)', borderRadius: 3,
+                  padding: '1px 4px', pointerEvents: 'none' as const, whiteSpace: 'nowrap' as const,
+                }}>PRO</span>
+                <button
+                  className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 whitespace-nowrap"
+                  style={{
+                    background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)',
+                    color: '#6878a0', textDecoration: 'line-through', opacity: 0.45,
+                    cursor: 'default',
+                  }}
+                >Fantasy</button>
+              </div>
+            )}
             {proUser && [{ v: false, label: 'Top 25' }, { v: true, label: 'Top 50' }].map(o => (
               <button key={String(o.v)} onClick={() => update({ showTop50: o.v })}
                 className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 cursor-pointer"

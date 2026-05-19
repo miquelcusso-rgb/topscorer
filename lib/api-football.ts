@@ -18,6 +18,7 @@ export interface LeagueMeta {
   country: string
   short: string
   color: string
+  flag?: string
 }
 
 export const LEAGUES: LeagueMeta[] = [
