@@ -144,7 +144,7 @@ body::before {
 
 /* Val columns */
 [data-theme="light"] .val-sin-cell { color: #6878a8 !important; }
-[data-theme="light"] .val-con-cell span { color: #0f1830 !important; }
+/* val-con keeps its accent color (yellow/teal) — visible on white bg */
 [data-theme="light"] .val-con-cell small { color: #8090b0 !important; }
 
 /* Mini bar track */

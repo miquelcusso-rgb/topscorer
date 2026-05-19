@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { useUser, SignInButton, SignUpButton, UserButton, useClerk } from '@clerk/nextjs'
+import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 import { isPro } from '@/lib/plans'
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -12,7 +12,6 @@ import { useTheme } from '@/contexts/ThemeContext'
 export default function Navbar() {
   const path = usePathname()
   const { user, isLoaded } = useUser()
-  const { openSignIn } = useClerk()
   const isSignedIn = isLoaded && !!user
   const [menuOpen, setMenuOpen] = useState(false)
   const { theme, toggle } = useTheme()
@@ -143,25 +142,38 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             {/* Pro CTA — oculto SOLO cuando sabemos con certeza que ya es Pro */}
             {!(isLoaded && isSignedIn && isPro(user?.publicMetadata as Record<string, unknown>)) && (
-              <button
-                onClick={() => {
-                  if (!isSignedIn) {
-                    openSignIn()
-                  } else {
-                    window.location.href = '/pricing'
-                  }
-                }}
-                className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
-                style={{
-                  fontSize: 12.5, color: '#060d18', background: '#f0c040',
-                  boxShadow: '0 2px 12px rgba(240,192,64,.28)',
-                  letterSpacing: '0.3px', border: 'none',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
-              >
-                ⚡ {isSignedIn ? 'Pro' : 'Entrar / Pro'}
-              </button>
+              isSignedIn ? (
+                /* Signed in but not Pro → go to pricing */
+                <Link
+                  href="/pricing"
+                  className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
+                  style={{
+                    fontSize: 12.5, color: '#060d18', background: '#f0c040',
+                    boxShadow: '0 2px 12px rgba(240,192,64,.28)',
+                    letterSpacing: '0.3px', textDecoration: 'none',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
+                >
+                  ⚡ Pro
+                </Link>
+              ) : (
+                /* Not signed in → open Clerk sign-in modal */
+                <SignInButton mode="modal" forceRedirectUrl="/pricing">
+                  <button
+                    className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
+                    style={{
+                      fontSize: 12.5, color: '#060d18', background: '#f0c040',
+                      boxShadow: '0 2px 12px rgba(240,192,64,.28)',
+                      letterSpacing: '0.3px', border: 'none',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
+                  >
+                    ⚡ Entrar / Pro
+                  </button>
+                </SignInButton>
+              )
             )}
 
             {isSignedIn && (

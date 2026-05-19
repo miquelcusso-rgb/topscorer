@@ -245,7 +245,7 @@ export default function PlayerRow({
       {/* Val con coef (scorer only) */}
       {!isAssist && showValCoef && (
         <td className="pr-3 text-right val-con-cell tabular">
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, color: '#eef4ff', lineHeight: 1 }}>
+          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, color: '#f0c040', lineHeight: 1 }}>
             {player.val_con}
           </span>
           <small className="ml-1" style={{ fontSize: 8, color: '#585880' }}>×{player.coef}</small>
