@@ -135,50 +135,38 @@ export default function Navbar() {
 
           {/* Auth */}
           <div className="flex items-center gap-2">
+            {/* Pro CTA — visible siempre que no sea ya Pro */}
+            {isLoaded && !(isSignedIn && isPro(user?.publicMetadata as Record<string, unknown>)) && (
+              <Link
+                href="/pricing"
+                className="hidden sm:inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
+                style={{
+                  fontSize: 12.5, color: '#060d18', background: '#f0c040',
+                  boxShadow: '0 2px 12px rgba(240,192,64,.28)',
+                  textDecoration: 'none',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
+              >
+                ⚡ Pro
+              </Link>
+            )}
+
             {isLoaded && !isSignedIn && (
-              <>
-                <SignInButton mode="modal">
-                  <button
-                    className="font-medium px-3.5 py-1.5 rounded cursor-pointer transition-all duration-150"
-                    style={{ fontSize: 12.5, color: '#7888aa', background: 'transparent', border: '1px solid rgba(255,255,255,.1)' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#eef4ff'; e.currentTarget.style.borderColor = 'rgba(240,192,64,.3)' }}
-                    onMouseLeave={e => { e.currentTarget.style.color = '#7888aa'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.1)' }}
-                  >
-                    Entrar
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button
-                    className="font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150"
-                    style={{ fontSize: 12.5, color: '#060d18', background: '#f0c040', boxShadow: '0 2px 12px rgba(240,192,64,.28)' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
-                  >
-                    Pro →
-                  </button>
-                </SignUpButton>
-              </>
+              <SignInButton mode="modal">
+                <button
+                  className="font-medium px-3.5 py-1.5 rounded cursor-pointer transition-all duration-150 hidden sm:block"
+                  style={{ fontSize: 12.5, color: '#7888aa', background: 'transparent', border: '1px solid rgba(255,255,255,.1)' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#eef4ff'; e.currentTarget.style.borderColor = 'rgba(240,192,64,.3)' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#7888aa'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.1)' }}
+                >
+                  Entrar
+                </button>
+              </SignInButton>
             )}
 
             {isSignedIn && (
-              <div className="flex items-center gap-2">
-                {!isPro(user?.publicMetadata as Record<string, unknown>) && (
-                  <Link
-                    href="/pricing"
-                    className="font-bold px-3.5 py-1.5 rounded cursor-pointer transition-all duration-150 inline-flex items-center gap-1"
-                    style={{
-                      fontSize: 12, color: '#060d18', background: '#f0c040',
-                      boxShadow: '0 2px 12px rgba(240,192,64,.28)',
-                      textDecoration: 'none',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
-                  >
-                    ⚡ Pro
-                  </Link>
-                )}
-                <UserButton />
-              </div>
+              <UserButton />
             )}
 
             {/* Hamburger — mobile only */}
@@ -235,15 +223,14 @@ export default function Navbar() {
                       Entrar
                     </button>
                   </SignInButton>
-                  <SignUpButton mode="modal">
-                    <button
-                      className="flex-1 py-2 rounded text-[13px] font-bold cursor-pointer"
-                      style={{ color: '#060d18', background: '#f0c040' }}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Pro →
-                    </button>
-                  </SignUpButton>
+                  <Link
+                    href="/pricing"
+                    className="flex-1 py-2 rounded text-[13px] font-bold cursor-pointer text-center"
+                    style={{ color: '#060d18', background: '#f0c040', textDecoration: 'none' }}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    ⚡ Pro
+                  </Link>
                 </>
               ) : (
                 <div className="flex items-center gap-3">
