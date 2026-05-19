@@ -16,6 +16,11 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { theme, toggle } = useTheme()
   const [showHint, setShowHint] = useState(false)
+  const isLight = theme === 'light'
+  const navBg   = isLight ? 'rgba(248,250,255,.97)' : 'rgba(6,13,24,.96)'
+  const navText = isLight ? '#1a2a40' : '#7888aa'
+  const navActive = isLight ? '#0f1830' : '#eef4ff'
+  const navActiveBg = isLight ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.06)'
 
   useEffect(() => {
     const seen = localStorage.getItem('ts-theme-hint')
@@ -40,13 +45,13 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="sticky top-0 z-50" style={{ background: 'rgba(6,13,24,.96)', backdropFilter: 'blur(24px)' }}>
+    <nav className="sticky top-0 z-50" style={{ background: navBg, backdropFilter: 'blur(24px)' }}>
 
       {/* Row 1 — h-[58px] */}
       <div
         style={{
           height: 58,
-          borderBottom: '1px solid rgba(255,255,255,.06)',
+          borderBottom: `1px solid ${isLight ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.06)'}`,
         }}
       >
         <div className="max-w-[1100px] mx-auto px-5 h-full flex items-center gap-5">
@@ -63,7 +68,7 @@ export default function Navbar() {
             </div>
             <span
               className="font-bold tracking-wide"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 19, color: '#eef4ff', letterSpacing: '2.5px', textTransform: 'uppercase' }}
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 19, color: navActive, letterSpacing: '2.5px', textTransform: 'uppercase' }}
             >
               Top<span style={{ color: '#f0c040' }}>Scorers</span>
             </span>
@@ -78,12 +83,12 @@ export default function Navbar() {
                 className="px-3 py-1.5 rounded transition-all duration-150 cursor-pointer"
                 style={{
                   fontSize: 13.5,
-                  color: path === href ? '#eef4ff' : '#7888aa',
-                  background: path === href ? 'rgba(255,255,255,.06)' : 'transparent',
+                  color: path === href ? navActive : navText,
+                  background: path === href ? navActiveBg : 'transparent',
                   fontWeight: path === href ? 600 : 500,
                 }}
-                onMouseEnter={e => { if (path !== href) { e.currentTarget.style.color = '#b8c8e0'; e.currentTarget.style.background = 'rgba(255,255,255,.04)' } }}
-                onMouseLeave={e => { if (path !== href) { e.currentTarget.style.color = '#7888aa'; e.currentTarget.style.background = 'transparent' } }}
+                onMouseEnter={e => { if (path !== href) { e.currentTarget.style.color = isLight ? '#2a3a54' : '#b8c8e0'; e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.04)' } }}
+                onMouseLeave={e => { if (path !== href) { e.currentTarget.style.color = navText; e.currentTarget.style.background = 'transparent' } }}
               >
                 {label}
               </Link>
@@ -135,15 +140,16 @@ export default function Navbar() {
 
           {/* Auth */}
           <div className="flex items-center gap-2">
-            {/* Pro CTA — visible siempre que no sea ya Pro */}
-            {isLoaded && !(isSignedIn && isPro(user?.publicMetadata as Record<string, unknown>)) && (
+            {/* Pro CTA — oculto SOLO cuando sabemos con certeza que ya es Pro */}
+            {!(isLoaded && isSignedIn && isPro(user?.publicMetadata as Record<string, unknown>)) && (
               <Link
                 href="/pricing"
-                className="hidden sm:inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
+                className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
                 style={{
                   fontSize: 12.5, color: '#060d18', background: '#f0c040',
                   boxShadow: '0 2px 12px rgba(240,192,64,.28)',
                   textDecoration: 'none',
+                  letterSpacing: '0.3px',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
@@ -193,7 +199,7 @@ export default function Navbar() {
       {menuOpen && (
         <div
           className="md:hidden"
-          style={{ background: 'rgba(9,7,16,.98)', borderBottom: '1px solid #1a1630' }}
+          style={{ background: isLight ? 'rgba(240,244,255,.99)' : 'rgba(9,7,16,.98)', borderBottom: `1px solid ${isLight ? 'rgba(0,0,0,.1)' : '#1a1630'}` }}
         >
           {navLinks.map(({ href, label }) => (
             <Link
@@ -202,8 +208,8 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
               className="block px-5 py-3 text-[14px] font-medium border-b transition-colors duration-150"
               style={{
-                color: path === href ? '#d8d8ec' : '#8080a8',
-                borderColor: '#0e0f1e',
+                color: path === href ? (isLight ? '#0f1830' : '#d8d8ec') : (isLight ? '#3a5070' : '#8080a8'),
+                borderColor: isLight ? 'rgba(0,0,0,.08)' : '#0e0f1e',
               }}
             >
               {label}
@@ -211,7 +217,7 @@ export default function Navbar() {
           ))}
           {/* Auth buttons in mobile menu */}
           {isLoaded && (
-            <div className="px-5 py-4 flex items-center gap-3" style={{ borderTop: '1px solid #1a1630' }}>
+            <div className="px-5 py-4 flex items-center gap-3" style={{ borderTop: `1px solid ${isLight ? 'rgba(0,0,0,.1)' : '#1a1630'}` }}>
               {!isSignedIn ? (
                 <>
                   <SignInButton mode="modal">
