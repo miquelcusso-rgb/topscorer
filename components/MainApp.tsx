@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { isPro } from '@/lib/plans'
+import { useTheme } from '@/contexts/ThemeContext'
 import StatsPanel from './StatsPanel'
 import MidfielderPanel from './MidfielderPanel'
 import PositionPanel from './PositionPanel'
@@ -54,6 +55,20 @@ export default function MainApp() {
   const { user, isLoaded } = useUser()
   const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
   const activeTab = TABS.find(t => t.id === tab)!
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
+
+  // Hero siempre sobre fondo oscuro (gris en claro, oscuro en dark)
+  const heroTitleColor = '#eef4ff'
+  const heroMidText    = isLight ? 'rgba(195,210,235,.72)' : '#6888aa'
+  const heroBg   = isLight
+    ? 'linear-gradient(180deg, rgba(42,56,88,.84) 0%, rgba(32,46,78,.80) 100%)'
+    : 'linear-gradient(180deg, rgba(8,16,32,.95) 0%, rgba(6,13,24,.88) 100%)'
+  const heroBorder = 'rgba(255,255,255,.07)'
+
+  // Colores adaptativos para zonas claras (tabla, etc.)
+  const dimBorder = isLight ? 'rgba(58,82,112,.2)' : 'rgba(255,255,255,.08)'
+  const dimBg    = isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.03)'
 
   return (
     <main className="relative z-10 min-h-screen">
@@ -62,8 +77,8 @@ export default function MainApp() {
       <div
         className="w-full page-hero"
         style={{
-          background: 'linear-gradient(180deg, rgba(8,16,32,.95) 0%, rgba(6,13,24,.88) 100%)',
-          borderBottom: '1px solid rgba(255,255,255,.06)',
+          background: heroBg,
+          borderBottom: `1px solid ${heroBorder}`,
           backdropFilter: 'blur(10px)',
         }}
       >
@@ -76,48 +91,48 @@ export default function MainApp() {
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontSize: 'clamp(58px, 6.5vw, 88px)',
                 fontWeight: 800,
-                color: '#eef4ff',
+                color: heroTitleColor,
                 letterSpacing: 1,
                 lineHeight: 0.91,
                 textTransform: 'uppercase',
               }}>
                 Top <span style={{ color: activeTab.color }}>{activeTab.label}</span><br />
-                <span style={{ color: '#eef4ff' }}>de </span>
-                <span style={{ color: '#eef4ff' }}>Europa</span>
+                <span style={{ color: heroMidText }}>de </span>
+                <span style={{ color: heroTitleColor }}>Europa</span>
               </h1>
-              {/* Meta pills */}
+              {/* Meta pills — always on dark hero bg */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span style={{
                   fontSize: 10.5, fontWeight: 700, letterSpacing: '1.5px',
                   textTransform: 'uppercase', color: '#f0c040',
                   padding: '4px 10px', borderRadius: 20,
-                  border: '1px solid rgba(240,192,64,.22)',
-                  background: 'rgba(240,192,64,.06)',
+                  border: 'rgba(240,192,64,.22) solid 1px',
+                  background: 'rgba(240,192,64,.07)',
                   fontFamily: "'Barlow Condensed', sans-serif",
                 }}>Temporada 2025/26</span>
                 <span style={{
                   fontSize: 10.5, fontWeight: 700, letterSpacing: '1.5px',
                   textTransform: 'uppercase', color: '#00c8b0',
                   padding: '4px 10px', borderRadius: 20,
-                  border: '1px solid rgba(0,200,176,.2)',
-                  background: 'rgba(0,200,176,.05)',
+                  border: 'rgba(0,200,176,.2) solid 1px',
+                  background: 'rgba(0,200,176,.06)',
                   fontFamily: "'Barlow Condensed', sans-serif",
                 }}>Tiempo real</span>
                 <span style={{
                   fontSize: 10.5, fontWeight: 700, letterSpacing: '1.5px',
                   textTransform: 'uppercase', color: '#7888aa',
                   padding: '4px 10px', borderRadius: 20,
-                  border: '1px solid rgba(255,255,255,.08)',
-                  background: 'rgba(255,255,255,.03)',
+                  border: `1px solid ${dimBorder}`,
+                  background: dimBg,
                   fontFamily: "'Barlow Condensed', sans-serif",
                 }}>8 ligas activas</span>
               </div>
             </div>
 
-            {/* Descripción derecha */}
+            {/* Descripción derecha — always on dark hero bg */}
             <p className="hidden md:block shrink-0" style={{
-              fontSize: 12.5, color: '#6888aa', lineHeight: 1.6,
-              borderLeft: '2px solid rgba(58,82,112,.6)', paddingLeft: 14,
+              fontSize: 12.5, color: heroMidText, lineHeight: 1.6,
+              borderLeft: 'rgba(100,120,160,.45) solid 2px', paddingLeft: 14,
               maxWidth: 240, marginTop: 4,
             }}>
               Las 5 grandes ligas + Portugal,<br />Turquía y Grecia. Estadísticas<br />actualizadas en tiempo real.

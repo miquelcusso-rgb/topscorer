@@ -30,6 +30,7 @@ function Th({ label, sortKey, currentSort, dir, onSort, align = 'left', width }:
   const active = sortKey === currentSort
   return (
     <th
+      data-active={active ? "true" : undefined}
       className="py-2.5 px-3 whitespace-nowrap select-none transition-colors duration-150"
       style={{
         fontSize: 12,
@@ -63,6 +64,7 @@ export default function StatsTable({
 
   return (
     <div
+      className="stats-table-wrap"
       style={{ overflowX: 'auto', overflowY: 'clip', background: 'rgba(7,14,26,.90)', border: '1px solid rgba(255,255,255,.07)', borderTop: 'none' }}
     >
       <table className="w-full border-collapse" style={{ minWidth: 680 }}>

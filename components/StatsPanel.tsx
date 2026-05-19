@@ -94,6 +94,7 @@ function Pill({
   const c = map[color]
   return (
     <button
+      data-active={active ? "true" : undefined}
       onClick={onClick}
       className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 cursor-pointer whitespace-nowrap flex items-center gap-1"
       style={active
@@ -111,7 +112,7 @@ function Pill({
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5 shrink-0">
-      <span style={{
+      <span className="filter-label" style={{
         fontSize: 10, fontWeight: 700, letterSpacing: '2px',
         textTransform: 'uppercase' as const,
         fontFamily: "'Barlow Condensed', sans-serif",
@@ -272,6 +273,7 @@ export default function StatsPanel({ tab }: Props) {
 
       {/* ── FILTER TOOLBAR ── */}
       <div
+        className="filter-toolbar"
         style={{ background: 'rgba(8,16,30,.92)', border: '1px solid rgba(255,255,255,.07)', borderRadius: '8px 8px 0 0', backdropFilter: 'blur(8px)' }}
       >
         {/* Fila 1: filtros — Main groups row */}
@@ -319,6 +321,7 @@ export default function StatsPanel({ tab }: Props) {
               return (
                 <button
                   key={key}
+                  data-active={active ? "true" : undefined}
                   onClick={() => { if (active && count <= 1) return; update({ [key]: !active }) }}
                   className="text-[11px] font-bold px-2.5 py-1 rounded transition-all duration-150 cursor-pointer"
                   style={active
@@ -436,7 +439,7 @@ export default function StatsPanel({ tab }: Props) {
         </div>
 
         {/* Fila 2: count + actions */}
-        <div className="flex items-center gap-3 px-4 py-2" style={{ background: 'rgba(5,10,20,.70)' }}>
+        <div className="filter-toolbar-row2 flex items-center gap-3 px-4 py-2" style={{ background: 'rgba(5,10,20,.70)' }}>
           <span style={{ fontSize: 12, color: '#6878a0' }}>
             <strong style={{ color: '#8898bc' }}>{topN.length}</strong> jugadores
           </span>

@@ -77,7 +77,7 @@ export default function PlayerRow({
 
   return (
     <tr
-      className="group cursor-pointer"
+      className="group cursor-pointer stats-row"
       style={{
         height: 44,
         borderBottom: '1px solid rgba(255,255,255,.04)',
@@ -117,7 +117,7 @@ export default function PlayerRow({
         <div className="flex items-center gap-1.5 min-w-0">
           <div className="min-w-0">
             <div
-              className="leading-tight truncate"
+              className="player-name leading-tight truncate"
               style={{
                 fontSize: 14,
                 fontWeight: 600,
@@ -189,25 +189,24 @@ export default function PlayerRow({
       </td>
 
       {/* Age */}
-      <td className="pr-3 text-right tabular" style={{ fontSize: 12, color: '#7878a0' }}>
+      <td className="pr-3 text-right player-age tabular" style={{ fontSize: 12, color: '#7878a0' }}>
         {player.age}
       </td>
 
       {/* PJ */}
       {showPj && (
-        <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#585880' }}>
+        <td className="pr-3 text-right pj-cell tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#585880' }}>
           {player.pj}
         </td>
-
       )}
 
       {/* Main stat + mini bar */}
       <td className="pr-3">
         <div className="flex items-center justify-end gap-2">
-          <div className="h-[2px] rounded-full w-[52px] shrink-0" style={{ background: '#1e2033' }}>
+          <div className="bar-track h-[2px] rounded-full w-[52px] shrink-0" style={{ background: '#1e2033' }}>
             <div className="h-full rounded-full" style={{ width: `${barPct}%`, background: isAssist ? 'rgba(0,200,176,.35)' : 'rgba(240,192,64,.45)' }} />
           </div>
-          <span className="tabular" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 800, color: '#eef4ff', lineHeight: 1, minWidth: 22, textAlign: 'right', letterSpacing: '0.5px' }}>
+          <span className="main-stat-num tabular" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 800, color: isAssist ? '#00c8b0' : '#f0c040', lineHeight: 1, minWidth: 22, textAlign: 'right', letterSpacing: '0.5px' }}>
             {mainVal}
           </span>
         </div>
@@ -221,10 +220,10 @@ export default function PlayerRow({
       {/* Ratios */}
       {showRatios && (
         <>
-          <td className="pr-3 text-right tabular" style={{ fontSize: 13, fontWeight: 600, color: '#7878a0' }}>
+          <td className="pr-3 text-right player-ratio tabular" style={{ fontSize: 13, fontWeight: 600, color: '#7878a0' }}>
             {isAssist ? player.ratio_a.toFixed(2) : player.ratio_g.toFixed(2)}
           </td>
-          <td className="pr-3 text-right tabular" style={{ fontSize: 13, fontWeight: 600, color: '#7878a0' }}>
+          <td className="pr-3 text-right player-ratio tabular" style={{ fontSize: 13, fontWeight: 600, color: '#7878a0' }}>
             {isAssist ? player.ratio_g.toFixed(2) : player.ratio_a.toFixed(2)}
           </td>
         </>
@@ -233,11 +232,11 @@ export default function PlayerRow({
       {/* Val sin / G+A */}
       {showValSin && (
         isAssist ? (
-          <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#f0c040', lineHeight: 1 }}>
+          <td className="pr-3 text-right val-sin-cell tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#7878a0', lineHeight: 1 }}>
             {player.goles + player.asist}
           </td>
         ) : (
-          <td className="pr-3 text-right tabular" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, color: '#f0c040', lineHeight: 1 }}>
+          <td className="pr-3 text-right val-sin-cell tabular" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, color: '#7878a0', lineHeight: 1 }}>
             {player.val_sin}
           </td>
         )
@@ -245,8 +244,8 @@ export default function PlayerRow({
 
       {/* Val con coef (scorer only) */}
       {!isAssist && showValCoef && (
-        <td className="pr-3 text-right tabular">
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, color: '#a060ff', lineHeight: 1 }}>
+        <td className="pr-3 text-right val-con-cell tabular">
+          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, color: '#eef4ff', lineHeight: 1 }}>
             {player.val_con}
           </span>
           <small className="ml-1" style={{ fontSize: 8, color: '#585880' }}>×{player.coef}</small>
