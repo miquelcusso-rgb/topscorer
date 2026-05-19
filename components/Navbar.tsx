@@ -158,21 +158,20 @@ export default function Navbar() {
                   ⚡ Pro
                 </Link>
               ) : (
-                /* Not signed in → open Clerk sign-in modal */
-                <SignInButton mode="modal" forceRedirectUrl="/pricing">
-                  <button
-                    className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
-                    style={{
-                      fontSize: 12.5, color: '#060d18', background: '#f0c040',
-                      boxShadow: '0 2px 12px rgba(240,192,64,.28)',
-                      letterSpacing: '0.3px', border: 'none',
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
-                    onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
-                  >
-                    ⚡ Entrar / Pro
-                  </button>
-                </SignInButton>
+                /* Not signed in → go to sign-in page (redirect to pricing after) */
+                <Link
+                  href="/sign-in?redirect_url=%2Fpricing"
+                  className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
+                  style={{
+                    fontSize: 12.5, color: '#060d18', background: '#f0c040',
+                    boxShadow: '0 2px 12px rgba(240,192,64,.28)',
+                    letterSpacing: '0.3px', textDecoration: 'none',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
+                >
+                  ⚡ Entrar / Pro
+                </Link>
               )
             )}
 
