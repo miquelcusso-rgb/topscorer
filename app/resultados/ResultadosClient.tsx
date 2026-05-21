@@ -206,8 +206,8 @@ function LeagueSection({ league, activeTab }: { league: LeagueMeta; activeTab: '
     setLoading(true)
     setError(false)
     const ep = activeTab === 'standings'
-      ? `/api/football/standings?league=${league.id}&season=2024`
-      : `/api/football/fixtures?league=${league.id}&season=2024&last=8`
+      ? `/api/football/standings?league=${league.id}&season=2025`
+      : `/api/football/fixtures?league=${league.id}&season=2025&last=8`
 
     fetch(ep)
       .then(r => r.json())
