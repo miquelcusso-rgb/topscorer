@@ -1,4 +1,5 @@
 import { stripe } from '@/lib/stripe'
+import { sendWelcomeEmail } from '@/lib/email'
 import { clerkClient } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import type Stripe from 'stripe'
@@ -33,6 +34,18 @@ export async function POST(req: NextRequest) {
           planActivatedAt: new Date().toISOString(),
         },
       })
+
+      // Send welcome email (non-blocking)
+      try {
+        const clerkUser = await clerk.users.getUser(userId)
+        const email = clerkUser.emailAddresses[0]?.emailAddress
+        const name = clerkUser.firstName ?? clerkUser.username ?? 'futbolero'
+        if (email) {
+          await sendWelcomeEmail({ to: email, name, plan: plan as 'pro' | 'scout' })
+        }
+      } catch {
+        // Email failure is non-fatal — don't break the webhook
+      }
     }
   }
 
