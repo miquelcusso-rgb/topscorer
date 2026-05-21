@@ -8,6 +8,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import StatsPanel from './StatsPanel'
 import MidfielderPanel from './MidfielderPanel'
 import PositionPanel from './PositionPanel'
+import type { PlayerData } from '@/types'
 
 const TABS = [
   { id: 's' as const, label: 'Goleadores',      color: '#f0c040', rgb: '240,192,64'  },
@@ -50,7 +51,7 @@ function ProGateCard({ title, description }: { title: string; description: strin
   )
 }
 
-export default function MainApp() {
+export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerData[] }) {
   const [tab, setTab] = useState<'s' | 'a' | 'c' | 'd' | 'g'>('s')
   const { user, isLoaded } = useUser()
   const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
@@ -176,10 +177,10 @@ export default function MainApp() {
       <div className="w-full" style={{ background: 'transparent' }}>
         <div className="max-w-[1100px] mx-auto px-5 py-5 pb-20">
           <div style={{ display: tab === 's' ? 'block' : 'none' }}>
-            <StatsPanel tab="s" />
+            <StatsPanel tab="s" initialPlayers={initialPlayers} />
           </div>
           <div style={{ display: tab === 'a' ? 'block' : 'none' }}>
-            <StatsPanel tab="a" />
+            <StatsPanel tab="a" initialPlayers={initialPlayers} />
           </div>
           <div style={{ display: tab === 'c' ? 'block' : 'none' }}>
             {proUser

@@ -1,9 +1,21 @@
 import type { MetadataRoute } from 'next'
+import { PLAYERS } from '@/data/players'
+import { slugify } from '@/lib/slugify'
 
 const BASE = 'https://www.top-scorers.com'
 const NOW = new Date()
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const playerUrls: MetadataRoute.Sitemap = PLAYERS
+    .filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i)
+    .filter(p => p.season === '2526')
+    .map(p => ({
+      url: `${BASE}/jugadores/${slugify(p.name)}`,
+      lastModified: NOW,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+
   return [
     {
       url: BASE,
@@ -47,5 +59,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+    {
+      url: `${BASE}/jugadores`,
+      lastModified: NOW,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    ...playerUrls,
   ]
 }

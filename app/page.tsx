@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import MainApp from '@/components/MainApp'
+import { getTopScorers, getTopAssists, LEAGUES } from '@/lib/api-football'
+import { transformApiPlayer } from '@/lib/api-to-players'
+import type { PlayerData } from '@/types'
 
 export const metadata: Metadata = {
   title: 'TopScorers — Goleadores y Asistentes Fútbol Europeo',
@@ -31,14 +34,40 @@ const jsonLd = {
   },
 }
 
-export default function Home() {
+export const revalidate = 3600
+
+export default async function Home() {
+  // Fetch all 8 leagues, both tabs, in parallel
+  let initialPlayers: PlayerData[] = []
+  try {
+    const season = 2025
+    const [scorerResults, assistResults] = await Promise.all([
+      Promise.all(LEAGUES.map(l => getTopScorers(l.id, season))),
+      Promise.all(LEAGUES.map(l => getTopAssists(l.id, season))),
+    ])
+    for (const results of scorerResults) {
+      for (const r of results) {
+        const p = transformApiPlayer(r, 's')
+        if (p && p.pj > 0) initialPlayers.push(p)
+      }
+    }
+    for (const results of assistResults) {
+      for (const r of results) {
+        const p = transformApiPlayer(r, 'a')
+        if (p && p.pj > 0) initialPlayers.push(p)
+      }
+    }
+  } catch {
+    // will fall back to static PLAYERS in StatsPanel
+  }
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
-      <MainApp />
+      <MainApp initialPlayers={initialPlayers.length > 0 ? initialPlayers : undefined} />
     </>
   )
 }

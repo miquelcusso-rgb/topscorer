@@ -37,7 +37,7 @@ const DEFAULT: PanelState = {
 
 const DEFAULT_ASSIST: PanelState = { ...DEFAULT, sort: 'asist' }
 
-interface Props { tab: Tab }
+interface Props { tab: Tab; initialPlayers?: PlayerData[] }
 
 const SEASONS: { id: Season; label: string; live?: boolean; proOnly?: boolean }[] = [
   { id: '2526', label: '25/26', live: true },
@@ -206,7 +206,7 @@ function UpgradeBanner() {
 }
 
 
-export default function StatsPanel({ tab }: Props) {
+export default function StatsPanel({ tab, initialPlayers }: Props) {
   const isAssist = tab === 'a'
   const [st, setSt] = useState<PanelState>(isAssist ? DEFAULT_ASSIST : DEFAULT)
   const { user, isLoaded } = useUser()
@@ -263,9 +263,10 @@ export default function StatsPanel({ tab }: Props) {
     [watchlist, st.season, tab],
   )
 
-  const [livePlayers, setLivePlayers] = useState<PlayerData[] | null>(null)
+  const [livePlayers, setLivePlayers] = useState<PlayerData[] | null>(initialPlayers ?? null)
 
   useEffect(() => {
+    if (initialPlayers) return
     Promise.all([
       fetch('/api/players?tab=s&season=2025').then(r => r.json()),
       fetch('/api/players?tab=a&season=2025').then(r => r.json()),
@@ -274,7 +275,7 @@ export default function StatsPanel({ tab }: Props) {
         setLivePlayers([...scorers.data, ...assists.data])
       }
     }).catch(() => {}) // silently fall back to static data
-  }, [])
+  }, [initialPlayers])
 
   const dataSource = livePlayers ?? PLAYERS
   const pool = useMemo(() => getPool(dataSource, tab), [dataSource, tab])
