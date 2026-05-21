@@ -13,16 +13,17 @@ const C = {
 }
 
 const COMPARISON = [
-  { label: 'Jugadores visibles',   free: 'Top 10',           pro: 'Top 25 + Top 50'   },
-  { label: 'Temporadas',           free: '2 (25/26, 24/25)', pro: '5+ (desde 20/21)'  },
-  { label: 'Filtros liga / edad',  free: true,               pro: true                },
-  { label: 'ELO & Fantasy',        free: true,               pro: true                },
-  { label: 'Hover card',           free: 'Básico',           pro: 'Completo'          },
-  { label: 'Columnas custom',      free: false,              pro: true                },
-  { label: 'Sin publicidad',       free: false,              pro: true                },
-  { label: 'Watchlist privada',    free: false,              pro: 'soon'              },
-  { label: 'Comparador jugadores', free: false,              pro: 'soon'              },
-  { label: 'Export CSV',           free: false,              pro: 'soon'              },
+  { label: 'Jugadores visibles',   free: 'Top 10',           pro: 'Top 25 + Top 50',  scout: 'Top 25 + Top 50'  },
+  { label: 'Temporadas',           free: '2 (25/26, 24/25)', pro: '5+ (desde 20/21)', scout: '6+ (desde 20/21)' },
+  { label: 'Filtros liga / edad',  free: true,               pro: true,               scout: true               },
+  { label: 'ELO & Fantasy',        free: true,               pro: true,               scout: true               },
+  { label: 'Hover card',           free: 'Básico',           pro: 'Completo',         scout: 'Completo'         },
+  { label: 'Columnas custom',      free: false,              pro: true,               scout: true               },
+  { label: 'Sin publicidad',       free: false,              pro: true,               scout: true               },
+  { label: 'Watchlist privada',    free: false,              pro: 'soon',             scout: 'soon'             },
+  { label: 'Comparador avanzado',  free: false,              pro: false,              scout: true               },
+  { label: 'Alertas email',        free: false,              pro: false,              scout: true               },
+  { label: 'Export CSV',           free: false,              pro: 'soon',             scout: true               },
 ]
 
 const FAQ = [
@@ -48,6 +49,7 @@ const FAQ = [
   },
 ]
 
+type ComparisonRow = { label: string; free: FeatureValue; pro: FeatureValue; scout: FeatureValue }
 type FeatureValue = boolean | string
 
 function Cell({ v }: { v: FeatureValue }) {
@@ -72,7 +74,7 @@ interface CardProps {
   highlight?: boolean
   cta: string
   ctaHref: string
-  ctaVariant: 'gold' | 'purple' | 'ghost'
+  ctaVariant: 'gold' | 'purple' | 'ghost' | 'scout'
   features: string[]
   locked?: string[]
   disabled?: boolean
@@ -167,6 +169,7 @@ function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlig
             style={
               ctaVariant === 'gold'   ? { background: C.gd, color: '#07070f', border: `1px solid ${C.gd}` } :
               ctaVariant === 'purple' ? { background: 'rgba(160,96,255,.15)', color: C.pu, border: '1px solid rgba(160,96,255,.35)' } :
+              ctaVariant === 'scout'  ? { background: 'rgba(160,96,255,.15)', color: C.pu, border: '1px solid rgba(160,96,255,.35)' } :
               { background: C.s2, color: C.tx, border: `1px solid ${C.bd}` }
             }
           >
@@ -244,7 +247,7 @@ export default function PricingPage() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-16 max-w-[760px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16 max-w-[1100px] mx-auto">
           <PlanCard
             name="Free"
             price={0}
@@ -273,9 +276,9 @@ export default function PricingPage() {
 
           <PlanCard
             name="Pro"
-            price={billing === 'monthly' ? 5 : 48}
+            price={billing === 'monthly' ? 6 : 58}
             billing={billing}
-            perMonth={billing === 'yearly' ? 4 : undefined}
+            perMonth={billing === 'yearly' ? 4.8 : undefined}
             desc="Para el analista de fútbol serio."
             highlight={true}
             badge="Más popular"
@@ -295,6 +298,32 @@ export default function PricingPage() {
               'Export CSV — Próx.',
             ]}
           />
+
+          <PlanCard
+            name="Scout"
+            price={billing === 'monthly' ? 18 : 168}
+            billing={billing}
+            perMonth={billing === 'yearly' ? 14 : undefined}
+            desc="Para analistas, periodistas y ojeadores."
+            accent={C.pu}
+            highlight={false}
+            badge="Para profesionales"
+            cta="Empezar Scout"
+            ctaHref={`/api/stripe/checkout?plan=scout&billing=${billing}`}
+            ctaVariant="scout"
+            disabled={plan === 'scout'}
+            onCtaClick={() => handleProCta(`/api/stripe/checkout?plan=scout&billing=${billing}`)}
+            features={[
+              'Todo lo de Pro',
+              'Radar de atributos comparativo',
+              'Comparador avanzado de jugadores',
+              'Alertas de lesiones y transferencias',
+              'Export CSV de estadísticas',
+              'Historial 6+ temporadas',
+              'Hasta 3 usuarios — Próx.',
+              'Acceso API datos — Próx.',
+            ]}
+          />
         </div>
 
         {/* Comparison table */}
@@ -309,13 +338,14 @@ export default function PricingPage() {
             <table className="w-full text-[13px] border-collapse">
               <thead>
                 <tr style={{ background: C.sf, borderBottom: `1px solid ${C.bd}` }}>
-                  <th className="py-3 px-5 text-left font-semibold" style={{ color: C.mu, width: '55%' }}>Feature</th>
+                  <th className="py-3 px-5 text-left font-semibold" style={{ color: C.mu, width: '45%' }}>Feature</th>
                   <th className="py-3 px-4 text-center font-semibold" style={{ color: C.mu }}>Free</th>
                   <th className="py-3 px-4 text-center font-bold" style={{ color: C.gd }}>Pro</th>
+                  <th className="py-3 px-4 text-center font-bold" style={{ color: C.pu }}>Scout</th>
                 </tr>
               </thead>
               <tbody>
-                {COMPARISON.map((row, i) => (
+                {(COMPARISON as ComparisonRow[]).map((row, i) => (
                   <tr
                     key={row.label}
                     style={{
@@ -326,6 +356,7 @@ export default function PricingPage() {
                     <td className="py-3 px-5 font-medium" style={{ color: C.tx }}>{row.label}</td>
                     <td className="py-3 px-4 text-center"><Cell v={row.free} /></td>
                     <td className="py-3 px-4 text-center"><Cell v={row.pro} /></td>
+                    <td className="py-3 px-4 text-center"><Cell v={row.scout} /></td>
                   </tr>
                 ))}
               </tbody>

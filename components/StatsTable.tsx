@@ -12,6 +12,7 @@ interface Props {
   showRatios?: boolean
   showValSin?: boolean
   showValCoef?: boolean
+  showMinG?: boolean
   watchlistKeys?: Set<string>
   onWatchlistToggle?: (name: string) => void
   onSort: (key: SortKey) => void
@@ -56,7 +57,7 @@ function Th({ label, sortKey, currentSort, dir, onSort, align = 'left', width }:
 export default function StatsTable({
   players, isAssist, sort, dir,
   showElo, showFantasy,
-  showPj = true, showRatios = true, showValSin = true, showValCoef = true,
+  showPj = true, showRatios = true, showValSin = true, showValCoef = true, showMinG = false,
   watchlistKeys, onWatchlistToggle,
   onSort, onUnpin,
 }: Props) {
@@ -98,6 +99,7 @@ export default function StatsTable({
                 {showValCoef && <Th label="Val.+"     align="right" sortKey="val_con" currentSort={sort} dir={dir} onSort={onSort} />}
               </>
             )}
+            {showMinG    && <Th label="Min/G"  align="right"                         currentSort={sort} dir={dir} onSort={onSort} />}
             {showElo     && <Th label="ELO"    align="right" sortKey="elo"           currentSort={sort} dir={dir} onSort={onSort} />}
             {showFantasy && <Th label="Fant."  align="right" sortKey="fantasyPoints" currentSort={sort} dir={dir} onSort={onSort} />}
           </tr>
@@ -116,6 +118,7 @@ export default function StatsTable({
               showRatios={showRatios}
               showValSin={showValSin}
               showValCoef={showValCoef}
+              showMinG={showMinG}
               watchlisted={watchlistKeys?.has(p.name)}
               onWatchlistToggle={onWatchlistToggle}
               onUnpin={p.isPinned ? onUnpin : undefined}

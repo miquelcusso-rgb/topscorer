@@ -204,6 +204,7 @@ export default function StatsPanel({ tab }: Props) {
   const { user, isLoaded } = useUser()
   const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
 
+  const [showMinG, setShowMinG] = useState(false)
   const [watchlist, setWatchlist] = useState<WatchlistEntry[]>([])
   const [watchlistOpen, setWatchlistOpen] = useState(false)
 
@@ -426,6 +427,7 @@ export default function StatsPanel({ tab }: Props) {
                 >Fantasy</button>
               </div>
             )}
+            <Pill active={showMinG} color="mu" onClick={() => setShowMinG(v => !v)}>Min/G</Pill>
             {proUser && [{ v: false, label: 'Top 25' }, { v: true, label: 'Top 50' }].map(o => (
               <button key={String(o.v)} onClick={() => update({ showTop50: o.v })}
                 className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 cursor-pointer"
@@ -495,6 +497,7 @@ export default function StatsPanel({ tab }: Props) {
         showRatios={proUser ? st.showRatios : true}
         showValSin={proUser ? st.showValSin : true}
         showValCoef={proUser ? st.showValCoef : true}
+        showMinG={showMinG}
         watchlistKeys={proUser ? watchlistKeys : undefined}
         onWatchlistToggle={proUser ? handleWatchlistToggle : undefined}
         onSort={(key) => {

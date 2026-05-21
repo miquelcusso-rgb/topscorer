@@ -16,6 +16,21 @@ export const LEAGUE_STYLE: Record<string, { bg: string; color: string; border: s
   'Super Liga Grecia': { bg: 'rgba(60,120,200,.12)',  color: '#4080d0', border: 'rgba(60,120,200,.24)' },
 }
 
+export const LEAGUE_IDS: Record<string, number> = {
+  'La Liga':           140,
+  'Premier League':    39,
+  'Bundesliga':        78,
+  'Serie A':           135,
+  'Ligue 1':           61,
+  'Primeira Liga':     94,
+  'Sueper Lig':        203,
+  'Super Liga Grecia': 197,
+}
+export function leagueLogoUrl(league: string): string {
+  const id = LEAGUE_IDS[league]
+  return id ? `https://media.api-sports.io/football/leagues/${id}.png` : ''
+}
+
 export function enrich(p: PlayerData): EnrichedPlayer {
   const coef = COEF[p.league] || 1
   return {

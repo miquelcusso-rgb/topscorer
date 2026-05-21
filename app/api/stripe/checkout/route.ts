@@ -11,10 +11,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(signInUrl)
   }
 
-  const plan    = req.nextUrl.searchParams.get('plan') as 'pro' | null
+  const VALID_PLANS = ['pro', 'scout']
+  const plan    = req.nextUrl.searchParams.get('plan')
   const billing = (req.nextUrl.searchParams.get('billing') ?? 'monthly') as 'monthly' | 'yearly'
 
-  if (plan !== 'pro') {
+  if (!VALID_PLANS.includes(plan ?? '')) {
     return NextResponse.redirect(new URL('/pricing', req.url))
   }
 

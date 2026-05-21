@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { EnrichedPlayer } from '@/types'
-import { LEAGUE_STYLE } from '@/lib/utils'
+import { LEAGUE_STYLE, leagueLogoUrl } from '@/lib/utils'
 import PlayerHoverCard from './PlayerHoverCard'
 import WatchlistButton from './WatchlistButton'
 
@@ -17,6 +17,7 @@ interface Props {
   showRatios?: boolean
   showValSin?: boolean
   showValCoef?: boolean
+  showMinG?: boolean
   watchlisted?: boolean
   onWatchlistToggle?: (name: string) => void
   onUnpin?: (name: string) => void
@@ -32,7 +33,7 @@ const POS_STYLE: Record<string, { color: string; bg: string }> = {
 export default function PlayerRow({
   player, rank, isAssist, maxVal,
   showElo, showFantasy,
-  showPj = true, showRatios = true, showValSin = true, showValCoef = true,
+  showPj = true, showRatios = true, showValSin = true, showValCoef = true, showMinG = false,
   watchlisted, onWatchlistToggle,
   onUnpin,
 }: Props) {
@@ -184,6 +185,14 @@ export default function PlayerRow({
           className="font-semibold whitespace-nowrap rounded-sm"
           style={{ fontSize: 11, letterSpacing: 0.5, padding: '2px 6px', color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}
         >
+          {leagueLogoUrl(player.league) && (
+            <img
+              src={leagueLogoUrl(player.league)}
+              alt=""
+              width={14} height={14}
+              style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4, borderRadius: 2 }}
+            />
+          )}
           {player.league}
         </span>
       </td>
@@ -249,6 +258,13 @@ export default function PlayerRow({
             {player.val_con}
           </span>
           <small className="ml-1" style={{ fontSize: 8, color: '#585880' }}>×{player.coef}</small>
+        </td>
+      )}
+
+      {/* Min/G */}
+      {showMinG && (
+        <td className="pr-3 text-right player-ratio tabular" style={{ fontSize: 13, color: '#7878a0' }}>
+          {player.minutes && player.goles > 0 ? Math.round(player.minutes / player.goles) : '—'}
         </td>
       )}
 

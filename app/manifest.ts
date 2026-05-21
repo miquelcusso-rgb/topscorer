@@ -1,24 +1,24 @@
 import type { MetadataRoute } from 'next'
-
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'TopScorers',
+    name: 'TopScorers — Estadísticas de Fútbol',
     short_name: 'TopScorers',
-    description: 'Top goleadores y asistentes de las principales ligas europeas',
+    description: 'Top goleadores y asistentes de las principales ligas europeas. Estadísticas en tiempo real.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#07070f',
-    theme_color: '#f0c040',
-    orientation: 'portrait-primary',
-    categories: ['sports'],
+    background_color: '#060d18',
+    theme_color: '#060d18',
+    orientation: 'portrait',
+    categories: ['sports', 'news'],
+    lang: 'es',
     icons: [
-      { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+      { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
-    shortcuts: [
-      { name: 'Goleadores', url: '/?tab=s', description: 'Top goleadores europeos' },
-      { name: 'Asistentes', url: '/?tab=a', description: 'Top asistentes europeos' },
-      { name: 'Pricing',    url: '/pricing',  description: 'Planes y precios' },
+    screenshots: [
+      { src: '/screenshot-mobile.png', sizes: '390x844', type: 'image/png', form_factor: 'narrow', label: 'TopScorers Mobile' },
+      { src: '/screenshot-desktop.png', sizes: '1280x800', type: 'image/png', form_factor: 'wide', label: 'TopScorers Desktop' },
     ],
   }
 }

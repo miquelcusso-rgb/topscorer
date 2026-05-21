@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import type { EnrichedPlayer, Season } from '@/types'
 import { PLAYERS } from '@/data/players'
-import { enrich, LEAGUE_STYLE } from '@/lib/utils'
+import { enrich, LEAGUE_STYLE, leagueLogoUrl } from '@/lib/utils'
 import { FREE_ROW_LIMIT } from '@/lib/plans'
 
 const SEASONS: { id: Season; label: string; live?: boolean }[] = [
@@ -298,6 +298,14 @@ export default function PositionPanel({ position, accentColor, proUser }: Props)
                   {/* League */}
                   <td className="pr-3">
                     <span className="font-semibold whitespace-nowrap rounded-sm" style={{ fontSize: 9, letterSpacing: 0.5, padding: '2px 5px', color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}>
+                      {leagueLogoUrl(p.league) && (
+                        <img
+                          src={leagueLogoUrl(p.league)}
+                          alt=""
+                          width={14} height={14}
+                          style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4, borderRadius: 2 }}
+                        />
+                      )}
                       {p.league}
                     </span>
                   </td>

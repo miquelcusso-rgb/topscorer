@@ -3,7 +3,7 @@ export type Tab = 's' | 'a'
 export type SrcType = 'live' | 'srch' | 'est'
 export type Position = 'FW' | 'MF' | 'DF' | 'GK'
 export type PlayerStatus = 'injured' | 'loan' | 'questionable' | 'transfer' | null
-export type Plan = 'free' | 'pro' | 'team'
+export type Plan = 'free' | 'pro' | 'team' | 'scout'
 
 export interface PlayerData {
   name: string

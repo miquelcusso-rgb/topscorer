@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import AddToHomeScreen from '@/components/AddToHomeScreen'
+import ServiceWorkerRegistrar from '@/components/ServiceWorkerRegistrar'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
             <AddToHomeScreen />
           </ThemeProvider>
+          <ServiceWorkerRegistrar />
           <SpeedInsights />
         </body>
       </html>

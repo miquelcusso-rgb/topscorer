@@ -38,10 +38,12 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { href: '/',             label: 'Estadísticas' },
-    { href: '/resultados',   label: 'Resultados' },
-    { href: '/mundial-2026', label: 'Mundial 2026' },
-    { href: '/pricing',      label: 'Precios' },
+    { href: '/',                        label: 'Estadísticas' },
+    { href: '/jugadores',               label: 'Jugadores' },
+    { href: '/estadisticas/comparador', label: 'Comparar' },
+    { href: '/resultados',              label: 'Resultados' },
+    { href: '/mundial-2026',            label: 'Mundial 2026' },
+    { href: '/pricing',                 label: 'Precios' },
   ]
 
   return (
