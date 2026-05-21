@@ -172,6 +172,19 @@ export const getNextFixtures = unstable_cache(
   { revalidate: 1800, tags: ['api-football'] }
 )
 
+export async function searchPlayer(name: string, season: number = 2025): Promise<ApiPlayerResponse[]> {
+  return unstable_cache(
+    async () => {
+      const data = await apiFetch<ApiPlayerResponse[]>(
+        `/players?search=${encodeURIComponent(name)}&season=${season}`
+      )
+      return data.response ?? []
+    },
+    [`api-football-player-search-${name.toLowerCase().replace(/\s+/g, '-')}-${season}`],
+    { revalidate: 3600, tags: ['api-football'] }
+  )()
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getLeague(id: number): LeagueMeta | undefined {

@@ -1,6 +1,6 @@
 import type { PlayerData } from '@/types'
 
-const EXT: Record<string, Partial<PlayerData>> = {
+export const EXT: Record<string, Partial<PlayerData>> = {
   'Harry Kane':            { nationality:'Inglés',     flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', position:'FW', marketValue:'€70M',  releaseClause:null,    contractUntil:'2027', elo:2185, fantasyPoints:248, fantasyPrice:12.5 },
   'Kylian Mbappe':         { nationality:'Francés',    flag:'🇫🇷', position:'FW', marketValue:'€200M', releaseClause:null,    contractUntil:'2029', elo:2220, fantasyPoints:211, fantasyPrice:14.5 },
   'Erling Haaland':        { nationality:'Noruego',    flag:'🇳🇴', position:'FW', marketValue:'€180M', releaseClause:null,    contractUntil:'2034', elo:2210, fantasyPoints:199, fantasyPrice:14.0 },

@@ -9,11 +9,15 @@ export function getUserPlan(publicMetadata?: Record<string, unknown>): Plan {
 
 export function isPro(publicMetadata?: Record<string, unknown>): boolean {
   const plan = getUserPlan(publicMetadata)
-  return plan === 'pro' || plan === 'team'
+  return plan === 'pro' || plan === 'team' || plan === 'scout'
 }
 
 export function isTeam(publicMetadata?: Record<string, unknown>): boolean {
   return getUserPlan(publicMetadata) === 'team'
+}
+
+export function isScout(publicMetadata?: Record<string, unknown>): boolean {
+  return getUserPlan(publicMetadata) === 'scout'
 }
 
 export const FREE_ROW_LIMIT = 10

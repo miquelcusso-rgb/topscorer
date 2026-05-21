@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
         publicMetadata: {
           plan,
           stripeCustomerId: session.customer as string,
+          stripeSubscriptionId: session.subscription as string | undefined,
           planActivatedAt: new Date().toISOString(),
         },
       })
@@ -48,9 +49,25 @@ export async function POST(req: NextRequest) {
   if (event.type === 'customer.subscription.updated') {
     const sub = event.data.object as Stripe.Subscription
     const userId = sub.metadata?.userId
-    if (userId && sub.status !== 'active') {
+    if (!userId) return NextResponse.json({ received: true })
+
+    if (sub.status !== 'active' && sub.status !== 'trialing') {
       await clerk.users.updateUserMetadata(userId, {
         publicMetadata: { plan: 'free' },
+      })
+    } else {
+      const priceId = sub.items.data[0]?.price?.id
+      const proMonthly = process.env.STRIPE_PRO_MONTHLY_PRICE_ID
+      const proYearly = process.env.STRIPE_PRO_YEARLY_PRICE_ID
+      const scoutMonthly = process.env.STRIPE_SCOUT_MONTHLY_PRICE_ID
+      const scoutYearly = process.env.STRIPE_SCOUT_YEARLY_PRICE_ID
+
+      let plan = 'free'
+      if (priceId === proMonthly || priceId === proYearly) plan = 'pro'
+      if (priceId === scoutMonthly || priceId === scoutYearly) plan = 'scout'
+
+      await clerk.users.updateUserMetadata(userId, {
+        publicMetadata: { plan, stripeCustomerId: sub.customer as string },
       })
     }
   }

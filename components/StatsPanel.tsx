@@ -3,7 +3,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
-import type { Tab, PanelState, SortKey, Season } from '@/types'
+import { useTheme } from '@/contexts/ThemeContext'
+import type { Tab, PanelState, SortKey, Season, PlayerData } from '@/types'
 import { PLAYERS } from '@/data/players'
 import { getPool, buildTopN, makeSortFn } from '@/lib/utils'
 import { isPro, FREE_ROW_LIMIT, FREE_SEASONS } from '@/lib/plans'
@@ -76,13 +77,14 @@ const ASSIST_SORTS: { key: SortKey; label: string }[] = [
 ]
 
 function Pill({
-  active, color = 'gd', locked, children, onClick,
+  active, color = 'gd', locked, children, onClick, isLight,
 }: {
   active: boolean
   color?: 'gd' | 'bl' | 'gr' | 'mu' | 'pu'
   locked?: boolean
   children: React.ReactNode
   onClick: () => void
+  isLight?: boolean
 }) {
   const map = {
     gd: { bg: 'rgba(240,192,64,.12)', border: 'rgba(240,192,64,.45)', text: '#f0c040' },
@@ -92,6 +94,12 @@ function Pill({
     pu: { bg: 'rgba(160,96,255,.1)',  border: 'rgba(160,96,255,.4)',  text: '#a060ff' },
   }
   const c = map[color]
+  const inactiveStyle = isLight
+    ? { background: 'rgba(210,220,245,.8)', border: '1px solid rgba(0,0,0,.12)', color: '#3a4a68' }
+    : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#6878a0' }
+  const lockedStyle = isLight
+    ? { background: 'rgba(200,210,235,.5)', border: '1px solid rgba(0,0,0,.08)', color: '#8898b8' }
+    : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#2a3a54' }
   return (
     <button
       data-active={active ? "true" : undefined}
@@ -100,8 +108,8 @@ function Pill({
       style={active
         ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
         : locked
-          ? { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#2a3a54' }
-          : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#6878a0' }
+          ? lockedStyle
+          : inactiveStyle
       }
     >
       {children}
@@ -203,6 +211,8 @@ export default function StatsPanel({ tab }: Props) {
   const [st, setSt] = useState<PanelState>(isAssist ? DEFAULT_ASSIST : DEFAULT)
   const { user, isLoaded } = useUser()
   const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
 
   const [showMinG, setShowMinG] = useState(false)
   const [watchlist, setWatchlist] = useState<WatchlistEntry[]>([])
@@ -253,7 +263,21 @@ export default function StatsPanel({ tab }: Props) {
     [watchlist, st.season, tab],
   )
 
-  const pool = useMemo(() => getPool(PLAYERS, tab), [tab])
+  const [livePlayers, setLivePlayers] = useState<PlayerData[] | null>(null)
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/players?tab=s&season=2025').then(r => r.json()),
+      fetch('/api/players?tab=a&season=2025').then(r => r.json()),
+    ]).then(([scorers, assists]) => {
+      if (scorers.ok && assists.ok) {
+        setLivePlayers([...scorers.data, ...assists.data])
+      }
+    }).catch(() => {}) // silently fall back to static data
+  }, [])
+
+  const dataSource = livePlayers ?? PLAYERS
+  const pool = useMemo(() => getPool(dataSource, tab), [dataSource, tab])
 
   function update(patch: Partial<PanelState>) {
     setSt(prev => ({ ...prev, ...patch }))
@@ -275,7 +299,11 @@ export default function StatsPanel({ tab }: Props) {
       {/* ── FILTER TOOLBAR ── */}
       <div
         className="filter-toolbar"
-        style={{ background: 'rgba(8,16,30,.92)', border: '1px solid rgba(255,255,255,.07)', borderRadius: '8px 8px 0 0', backdropFilter: 'blur(8px)' }}
+        style={{
+          background: isLight ? 'rgba(225,233,252,.92)' : 'rgba(8,16,30,.92)',
+          border: isLight ? '1px solid rgba(0,0,0,.1)' : '1px solid rgba(255,255,255,.07)',
+          borderRadius: '8px 8px 0 0', backdropFilter: 'blur(8px)',
+        }}
       >
         {/* Fila 1: filtros — Main groups row */}
         <div className="flex flex-wrap items-start gap-x-5 gap-y-3 px-4 pt-3.5 pb-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,.05)' }}>
@@ -283,7 +311,7 @@ export default function StatsPanel({ tab }: Props) {
             {SEASONS.map(s => {
               const locked = s.proOnly && !proUser
               return (
-                <Pill key={s.id} active={st.season === s.id} color="gd" locked={locked}
+                <Pill key={s.id} active={st.season === s.id} color="gd" locked={locked} isLight={isLight}
                   onClick={() => {
                     if (locked) { window.location.href = '/pricing'; return }
                     update({ season: s.id, pinned: {} })
@@ -303,7 +331,7 @@ export default function StatsPanel({ tab }: Props) {
               const hasExtra = st.showPt || st.showTr || st.showGr
               const isTop5Only = allFive && !hasExtra
               return (
-                <Pill active={isTop5Only} color="gr" onClick={() => {
+                <Pill active={isTop5Only} color="gr" isLight={isLight} onClick={() => {
                   // Select all 5, deselect extras
                   update({ showEsp: true, showEng: true, showGer: true, showIta: true, showFra: true, showPt: false, showTr: false, showGr: false })
                 }}>Top 5</Pill>
@@ -327,13 +355,15 @@ export default function StatsPanel({ tab }: Props) {
                   className="text-[11px] font-bold px-2.5 py-1 rounded transition-all duration-150 cursor-pointer"
                   style={active
                     ? { background: `rgba(${c},.14)`, border: `1px solid rgba(${c},.45)`, color: `rgb(${c})` }
-                    : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#6878a0' }
+                    : isLight
+                      ? { background: 'rgba(210,220,245,.8)', border: '1px solid rgba(0,0,0,.12)', color: '#3a4a68' }
+                      : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#6878a0' }
                   }
                 >{label}</button>
               )
             })}
             {/* Divider */}
-            <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,.08)', margin: '0 2px', alignSelf: 'center' }} />
+            <div style={{ width: 1, height: 20, background: isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.08)', margin: '0 2px', alignSelf: 'center' }} />
             {/* PT / TR / GR */}
             {([
               { key: 'showPt', label: 'PT' },
@@ -343,7 +373,7 @@ export default function StatsPanel({ tab }: Props) {
               const active = st[key]
               const count = ['showEsp','showEng','showGer','showIta','showFra','showPt','showTr','showGr'].filter(k => st[k as keyof typeof st]).length
               return (
-                <Pill key={key} active={active} color="mu"
+                <Pill key={key} active={active} color="mu" isLight={isLight}
                   onClick={() => { if (active && count <= 1) return; update({ [key]: !active }) }}
                 >{label}</Pill>
               )
@@ -365,11 +395,10 @@ export default function StatsPanel({ tab }: Props) {
                     }}>PRO</span>
                     <button
                       className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 whitespace-nowrap"
-                      style={{
-                        background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)',
-                        color: '#6878a0', textDecoration: 'line-through', opacity: 0.45,
-                        cursor: 'default',
-                      }}
+                      style={isLight
+                        ? { background: 'rgba(200,210,235,.5)', border: '1px solid rgba(0,0,0,.08)', color: '#8898b8', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
+                        : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#6878a0', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
+                      }
                     >
                       {a.label}
                     </button>
@@ -377,7 +406,7 @@ export default function StatsPanel({ tab }: Props) {
                 )
               }
               return (
-                <Pill key={a.v} active={st.age === a.v} color="bl" onClick={() => update({ age: a.v })}>
+                <Pill key={a.v} active={st.age === a.v} color="bl" isLight={isLight} onClick={() => update({ age: a.v })}>
                   {a.label}
                 </Pill>
               )
@@ -386,7 +415,7 @@ export default function StatsPanel({ tab }: Props) {
 
           <FilterGroup label="Columnas">
             {proUser ? (
-              <Pill active={st.showElo} color="gd" onClick={() => update({ showElo: !st.showElo })}>ELO</Pill>
+              <Pill active={st.showElo} color="gd" isLight={isLight} onClick={() => update({ showElo: !st.showElo })}>ELO</Pill>
             ) : (
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <span style={{
