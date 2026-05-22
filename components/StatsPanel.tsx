@@ -61,25 +61,6 @@ const AGES = [
   { v: 99, label: 'Todos' },
 ]
 
-const SCORER_SORTS: { key: SortKey; label: string }[] = [
-  { key: 'val_sin', label: 'Val.' },
-  { key: 'val_con', label: 'Val+' },
-  { key: 'goles',   label: 'Goles' },
-  { key: 'asist',   label: 'Asist' },
-  { key: 'ratio_g', label: 'G/PJ' },
-  { key: 'ratio_a', label: 'A/PJ' },
-  { key: 'age',     label: 'Edad' },
-]
-
-const ASSIST_SORTS: { key: SortKey; label: string }[] = [
-  { key: 'asist',   label: 'Asist' },
-  { key: 'ratio_a', label: 'A/PJ' },
-  { key: 'goles',   label: 'Goles' },
-  { key: 'val_sin', label: 'G+A' },
-  { key: 'ratio_g', label: 'G/PJ' },
-  { key: 'age',     label: 'Edad' },
-]
-
 function Pill({
   active, color = 'gd', locked, children, onClick, isLight,
 }: {
@@ -140,6 +121,7 @@ function FilterGroup({ label, children }: { label: string; children: React.React
 }
 
 function UpgradeBanner() {
+  const { lang } = useLang()
   return (
     <div
       className="relative overflow-hidden"
@@ -189,10 +171,10 @@ function UpgradeBanner() {
             className="font-bold mb-1"
             style={{ fontSize: 14, color: '#d8d8ec', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.3 }}
           >
-            Posiciones 11–25 bloqueadas
+            {t('upgrade_title', lang)}
           </div>
           <div style={{ fontSize: 11, color: '#52526e' }}>
-            Desbloquea el Top 25 completo + historial con Pro
+            {t('upgrade_desc', lang)}
           </div>
         </div>
         <Link
@@ -202,7 +184,7 @@ function UpgradeBanner() {
           onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(240,192,64,.4)' }}
           onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(240,192,64,.25)' }}
         >
-          Pro desde €5/mes →
+          {t('upgrade_cta', lang)}
         </Link>
       </div>
     </div>
@@ -464,13 +446,13 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
               }
               return (
                 <Pill key={a.v} active={st.age === a.v} color="bl" isLight={isLight} onClick={() => update({ age: a.v })}>
-                  {a.label}
+                  {a.v === 99 ? t('filter_all_ages', lang) : a.label}
                 </Pill>
               )
             })}
           </FilterGroup>
 
-          <FilterGroup label="Columnas">
+          <FilterGroup label={t('filter_columns', lang)}>
             {proUser ? (
               <Pill active={st.showElo} color="gd" isLight={isLight} onClick={() => update({ showElo: !st.showElo })}>ELO</Pill>
             ) : (
@@ -529,7 +511,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
         {/* Fila 2: count + actions */}
         <div className="filter-toolbar-row2 flex items-center gap-3 px-4 py-2" style={{ background: 'rgba(5,10,20,.70)' }}>
           <span style={{ fontSize: 12, color: '#6878a0' }}>
-            <strong style={{ color: '#8898bc' }}>{topN.length}</strong> jugadores
+            <strong style={{ color: '#8898bc' }}>{topN.length}</strong> {t('players_count', lang)}
           </span>
           <div className="ml-auto flex items-center gap-2">
             {proUser && (
@@ -559,7 +541,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                   background: 'rgba(8,16,30,.6)',
                 }}
               >
-                + Añadir jugador
+                {t('add_player', lang)}
               </span>
               <SearchInput
                 pool={pool.filter(p => p.season === st.season)}
