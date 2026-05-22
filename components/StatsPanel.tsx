@@ -124,8 +124,23 @@ function FilterGroup({ label, children }: { label: string; children: React.React
 
 function ProUpsellInline() {
   const { lang } = useLang()
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
   const sentinelRef = useRef<HTMLDivElement>(null)
   const [showSticky, setShowSticky] = useState(false)
+
+  // Light-mode-aware tokens
+  const skelBar    = isLight ? '#cfd8ee' : '#1e1f35'
+  const rowBorder  = isLight ? '#e2e8f4' : '#151626'
+  const rowAltBg   = isLight ? 'rgba(0,0,0,.025)' : 'rgba(255,255,255,.018)'
+  const fadeTop    = isLight ? 'rgba(244,246,255,.9)' : 'rgba(6,7,14,.85)'
+  const headColor  = isLight ? '#1a2236' : '#e8e0c0'
+  const pillColor  = isLight ? '#8a6a00' : '#c8a830'
+  const ghostNum   = isLight ? '#9aa6c8' : '#3a3b50'
+  const secLinkCol = isLight ? '#5a6a90' : '#7878a0'
+  const secLinkBd  = isLight ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.08)'
+  const stickyBg   = isLight ? 'rgba(244,246,255,.97)' : 'rgba(6,7,14,.96)'
+  const stickyText = isLight ? '#33405e' : '#9090b8'
 
   useEffect(() => {
     const el = sentinelRef.current
@@ -158,22 +173,22 @@ function ProUpsellInline() {
               key={n}
               className="flex items-center gap-4 px-4"
               style={{
-                borderBottom: '1px solid #151626',
+                borderBottom: `1px solid ${rowBorder}`,
                 height: 40,
-                background: i % 2 === 0 ? 'rgba(255,255,255,.018)' : 'transparent',
+                background: i % 2 === 0 ? rowAltBg : 'transparent',
               }}
             >
               <span
                 className="w-5 text-right shrink-0"
-                style={{ fontSize: 13, color: '#3a3b50', fontFamily: "'Bebas Neue', cursive" }}
+                style={{ fontSize: 13, color: ghostNum, fontFamily: "'Bebas Neue', cursive" }}
               >
                 {n}
               </span>
-              <div className="h-[6px] rounded-full" style={{ background: '#1e1f35', width: `${110 - i * 12}px` }} />
-              <div className="h-[6px] rounded-full w-12 shrink-0" style={{ background: '#1e1f35' }} />
-              <div className="ml-auto h-[6px] rounded-full w-6 shrink-0" style={{ background: '#1e1f35' }} />
-              <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: '#1e1f35' }} />
-              <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: '#1e1f35' }} />
+              <div className="h-[6px] rounded-full" style={{ background: skelBar, width: `${110 - i * 12}px` }} />
+              <div className="h-[6px] rounded-full w-12 shrink-0" style={{ background: skelBar }} />
+              <div className="ml-auto h-[6px] rounded-full w-6 shrink-0" style={{ background: skelBar }} />
+              <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: skelBar }} />
+              <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: skelBar }} />
             </div>
           ))}
         </div>
@@ -181,7 +196,7 @@ function ProUpsellInline() {
         {/* Gradient fade */}
         <div
           className="absolute inset-x-0 top-0"
-          style={{ height: 60, background: 'linear-gradient(180deg, rgba(6,7,14,.85) 0%, transparent 100%)', pointerEvents: 'none' }}
+          style={{ height: 60, background: `linear-gradient(180deg, ${fadeTop} 0%, transparent 100%)`, pointerEvents: 'none' }}
         />
 
         {/* Upsell overlay */}
@@ -193,7 +208,7 @@ function ProUpsellInline() {
           <div className="text-center">
             <div
               className="font-bold mb-2"
-              style={{ fontSize: 15, color: '#e8e0c0', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.4 }}
+              style={{ fontSize: 15, color: headColor, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.4 }}
             >
               🔒 Posiciones 11–25 desbloqueadas con Pro
             </div>
@@ -210,7 +225,7 @@ function ProUpsellInline() {
                     borderRadius: 20,
                     background: 'rgba(240,192,64,.1)',
                     border: '1px solid rgba(240,192,64,.25)',
-                    color: '#c8a830',
+                    color: pillColor,
                     letterSpacing: 0.2,
                   }}
                 >
@@ -234,9 +249,9 @@ function ProUpsellInline() {
             <Link
               href="/sign-in"
               className="inline-flex items-center gap-1 transition-all duration-150 cursor-pointer"
-              style={{ fontSize: 11, padding: '7px 14px', background: 'transparent', color: '#7878a0', border: '1px solid rgba(255,255,255,.08)', borderRadius: 4 }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#a0a0c8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.18)' }}
-              onMouseLeave={e => { e.currentTarget.style.color = '#7878a0'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.08)' }}
+              style={{ fontSize: 11, padding: '7px 14px', background: 'transparent', color: secLinkCol, border: `1px solid ${secLinkBd}`, borderRadius: 4 }}
+              onMouseEnter={e => { e.currentTarget.style.color = isLight ? '#0f1830' : '#a0a0c8'; e.currentTarget.style.borderColor = isLight ? 'rgba(0,0,0,.2)' : 'rgba(255,255,255,.18)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = secLinkCol; e.currentTarget.style.borderColor = secLinkBd }}
             >
               Ya tengo cuenta
             </Link>
@@ -249,12 +264,12 @@ function ProUpsellInline() {
         <div
           className="md:hidden fixed bottom-0 inset-x-0 z-50 flex items-center justify-between gap-3 px-4 py-3"
           style={{
-            background: 'rgba(6,7,14,.96)',
+            background: stickyBg,
             borderTop: '1px solid rgba(240,192,64,.2)',
             backdropFilter: 'blur(12px)',
           }}
         >
-          <span style={{ fontSize: 12, color: '#9090b8', lineHeight: 1.35 }}>
+          <span style={{ fontSize: 12, color: stickyText, lineHeight: 1.35 }}>
             Ver Top 25 completo —{' '}
             <span style={{ color: '#c8a830', fontWeight: 600 }}>Pro desde €4.99/mes</span>
           </span>
@@ -732,9 +747,15 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
       {/* Footnote */}
       <div
         className="px-4 py-2"
-        style={{ borderLeft: '1px solid #201c3a', borderRight: '1px solid #201c3a', borderBottom: '1px solid #201c3a', borderRadius: '0 0 6px 6px', background: 'rgba(10,8,18,.65)' }}
+        style={{
+          borderLeft: `1px solid ${isLight ? '#d8deef' : '#201c3a'}`,
+          borderRight: `1px solid ${isLight ? '#d8deef' : '#201c3a'}`,
+          borderBottom: `1px solid ${isLight ? '#d8deef' : '#201c3a'}`,
+          borderRadius: '0 0 6px 6px',
+          background: isLight ? 'rgba(232,237,248,.7)' : 'rgba(10,8,18,.65)',
+        }}
       >
-        <span style={{ fontSize: 10, color: '#525278' }}>
+        <span style={{ fontSize: 10, color: isLight ? '#5a6a90' : '#525278' }}>
           Datos 25/26: europeangoldenshoe.com + FotMob &nbsp;·&nbsp; Val: G×2+A &nbsp;·&nbsp; Val+: G×coef×2+A
         </span>
       </div>
