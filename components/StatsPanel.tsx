@@ -304,6 +304,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
   const [showMinG, setShowMinG] = useState(false)
   const [watchlist, setWatchlist] = useState<WatchlistEntry[]>([])
   const [watchlistOpen, setWatchlistOpen] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const loadWatchlist = useCallback(async () => {
     if (!proUser) return
@@ -377,6 +378,27 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
 
   const fillerCount = topN.filter(p => p.isFiller && !p.isPinned).length
   const metAge      = topN.filter(p => !p.isFiller || p.isPinned).length
+
+  // CSV export with server-side monthly quota enforcement (Pro 50/mo, Scout ∞)
+  const handleExportCSV = useCallback(async () => {
+    if (exporting) return
+    setExporting(true)
+    try {
+      const res = await fetch('/api/usage/export', { method: 'POST' })
+      if (res.status === 429) {
+        const body = await res.json().catch(() => ({}))
+        alert(body.error ?? 'Has alcanzado tu límite de exportaciones este mes.')
+        return
+      }
+      if (!res.ok) {
+        alert('No se pudo exportar. Inténtalo de nuevo.')
+        return
+      }
+      exportPlayersCSV(topN.filter(p => !p.isFiller))
+    } finally {
+      setExporting(false)
+    }
+  }, [exporting, topN])
 
   const sorts = isAssist ? ASSIST_SORTS : SCORER_SORTS
   const eloSortOpt:  { key: SortKey; label: string } = { key: 'elo',          label: 'ELO'     }
@@ -610,14 +632,15 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
             {/* CSV Export button */}
             {proUser ? (
               <button
-                onClick={() => exportPlayersCSV(topN.filter(p => !p.isFiller))}
+                onClick={handleExportCSV}
+                disabled={exporting}
                 className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer"
-                style={{ background: 'rgba(56,196,122,.08)', border: '1px solid rgba(56,196,122,.2)', color: '#38c47a' }}
+                style={{ background: 'rgba(56,196,122,.08)', border: '1px solid rgba(56,196,122,.2)', color: '#38c47a', opacity: exporting ? 0.5 : 1 }}
                 title="Exportar a CSV"
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(56,196,122,.15)'; e.currentTarget.style.borderColor = 'rgba(56,196,122,.4)' }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(56,196,122,.08)'; e.currentTarget.style.borderColor = 'rgba(56,196,122,.2)' }}
               >
-                ⬇ CSV
+                {exporting ? '…' : '⬇ CSV'}
               </button>
             ) : (
               <div className="relative group">
