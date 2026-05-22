@@ -1,10 +1,9 @@
-const CACHE_NAME = 'topscorers-v1'
+const CACHE_NAME = 'topscorers-v2'
 const STATIC_ASSETS = [
   '/',
-  '/manifest.json',
+  '/manifest.webmanifest',
+  '/logo.png',
   '/logo-ball.png',
-  '/icon-192.png',
-  '/icon-512.png',
 ]
 
 self.addEventListener('install', (event) => {
