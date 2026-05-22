@@ -18,6 +18,7 @@ export interface PlayerData {
   tab: Tab
   nationality?: string
   flag?: string
+  photo?: string
   position?: Position
   marketValue?: string
   releaseClause?: string | null

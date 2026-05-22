@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { slugify } from '@/lib/slugify'
 import { positionLabel } from '@/lib/position'
+import PlayerHoverCard from '@/components/PlayerHoverCard'
 import type { EnrichedPlayer } from '@/types'
 
 interface Props {
@@ -13,12 +14,14 @@ export default function JugadorCard({ player: p }: Props) {
   return (
     <Link href={`/jugadores/${slugify(p.name)}`} style={{ textDecoration: 'none' }}>
       <div
-        className="rounded-lg p-3 cursor-pointer transition-colors duration-150 hover:bg-white/[.07]"
+        className="group relative rounded-lg p-3 cursor-pointer transition-colors duration-150 hover:bg-white/[.07]"
         style={{
           background: 'rgba(255,255,255,.04)',
           border: '1px solid rgba(255,255,255,.07)',
         }}
       >
+        {/* Rich hover card (photo/avatar, market value, season stats) */}
+        <PlayerHoverCard player={p} showElo={false} showFantasy={false} />
         <div style={{ fontSize: 14, fontWeight: 600, color: '#dde8ff' }}>
           {p.flag} {p.name}
         </div>

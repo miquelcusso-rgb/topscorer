@@ -22,6 +22,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
   const status = player.status ? STATUS_LABEL[player.status] : null
   const posColor = player.position ? POS_COLOR[player.position] : '#5a5a7a'
   const isAssistTab = player.tab === 'a'
+  const initials = player.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
 
   return (
     <div
@@ -45,6 +46,22 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
         {/* Header */}
         <div className="px-4 py-3" style={{ borderBottom: '1px solid #1a1b2e', background: '#10111e' }}>
           <div className="flex items-start justify-between gap-2">
+            {/* Avatar (photo when available, initials fallback) */}
+            <div
+              className="shrink-0 rounded-full overflow-hidden flex items-center justify-center"
+              style={{
+                width: 44, height: 44,
+                background: `${posColor}1a`,
+                border: `1.5px solid ${posColor}55`,
+                fontFamily: "'Bebas Neue', cursive",
+                fontSize: 17, color: posColor, letterSpacing: '0.5px',
+              }}
+            >
+              {player.photo
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={player.photo} alt={player.name} width={44} height={44} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : initials}
+            </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 {player.flag && <span className="text-base leading-none">{player.flag}</span>}

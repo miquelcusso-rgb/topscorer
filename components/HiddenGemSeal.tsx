@@ -152,11 +152,18 @@ export function getSealVariant(
   age: number,
   isSmallLeague: boolean
 ): SealVariant | null {
-  if (score >= 4.3) return 'elite'                       // top ~5%
-  if (age <= 21 && score >= 3.6) return 'prospect'       // joven Y de élite
-  if (score >= 3.9) return 'gem'                         // élite en cualquier liga
-  if (isSmallLeague && score >= 3.6) return 'gem'        // destaca en 2ª división
+  if (score >= 4.5) return 'elite'                       // top ~3%
+  if (age <= 21 && score >= 4.0) return 'prospect'       // joven Y de élite
+  if (score >= 4.0) return 'gem'                         // élite en cualquier liga
+  if (isSmallLeague && score >= 3.8) return 'gem'        // destaca en 2ª división
   return null
+}
+
+// Tooltip text explaining each seal variant (shown on hover)
+const SEAL_TOOLTIP: Record<SealVariant, { es: string; en: string }> = {
+  elite:    { es: 'Élite: rendimiento de los mejores de Europa (goles + asistencias por 90 min).', en: 'Elite: top-tier output in Europe (goals + assists per 90 min).' },
+  prospect: { es: 'Promesa: jugador joven (≤21) rindiendo a nivel de élite.', en: 'Prospect: young player (≤21) performing at an elite level.' },
+  gem:      { es: 'Joya oculta: gran rendimiento por 90 min, a menudo infravalorado o en liga de menor exposición.', en: 'Hidden gem: high per-90 output, often undervalued or in a lower-exposure league.' },
 }
 
 // ─── Readable inline badge (para grids/tablas — el sello circular no se lee) ──
@@ -172,6 +179,7 @@ export function SealBadge({
 }) {
   const v = VARIANTS[variant]
   const label = lang === 'es' ? v.label : v.labelEN
+  const tooltip = lang === 'es' ? SEAL_TOOLTIP[variant].es : SEAL_TOOLTIP[variant].en
   const icons: Record<SealVariant, string> = { gem: '◆', prospect: '★', elite: '⚡' }
   return (
     <span
@@ -192,8 +200,10 @@ export function SealBadge({
         whiteSpace: 'nowrap',
         lineHeight: 1.4,
         flexShrink: 0,
+        cursor: 'help',
       }}
-      aria-label={label}
+      aria-label={`${label} — ${tooltip}`}
+      title={tooltip}
     >
       <span style={{ fontSize: compact ? 8 : 9 }}>{icons[variant]}</span>
       {label}
