@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useUser, SignInButton, UserButton } from '@clerk/nextjs'
-import { isPro } from '@/lib/plans'
+import { isPro, isScout, isTeam } from '@/lib/plans'
 import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
@@ -16,6 +16,8 @@ export default function Navbar() {
   const path = usePathname()
   const { user, isLoaded } = useUser()
   const isSignedIn = isLoaded && !!user
+  const userMeta = user?.publicMetadata as Record<string, unknown> | undefined
+  const isScoutUser = isSignedIn && (isScout(userMeta) || isTeam(userMeta))
   const [menuOpen, setMenuOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const moreRef = useRef<HTMLDivElement>(null)
@@ -68,6 +70,8 @@ export default function Navbar() {
     { href: '/descubrir',    label: t('nav_discover', lang) },
     { href: '/transferencias', label: t('nav_transfers', lang) },
     { href: '/mundial-2026', label: t('nav_world_cup', lang) },
+    // Scout-only: API key management
+    ...(isScoutUser ? [{ href: '/cuenta/api', label: 'API' }] : []),
   ]
   // All links for mobile menu
   const navLinks = [...primaryLinks, ...secondaryLinks]
@@ -75,6 +79,7 @@ export default function Navbar() {
   // Cancellation banner
   const planCancelsAt = user?.publicMetadata?.planCancelsAt as string | null | undefined
   const planExpiry    = user?.publicMetadata?.planExpiry    as string | null | undefined
+  const planName      = isScoutUser ? 'Scout' : 'Pro'
   const showCancelBanner = isSignedIn && !!planCancelsAt
 
   return (
@@ -92,9 +97,9 @@ export default function Navbar() {
             letterSpacing: 0.5,
           }}
         >
-          Tu plan Pro finaliza el{' '}
+          {lang === 'en' ? `Your ${planName} plan ends on ` : `Tu plan ${planName} finaliza el `}
           <strong>
-            {new Date(planCancelsAt ?? planExpiry ?? '').toLocaleDateString('es-ES', {
+            {new Date(planCancelsAt ?? planExpiry ?? '').toLocaleDateString(lang === 'en' ? 'en-GB' : 'es-ES', {
               day: 'numeric', month: 'long', year: 'numeric',
             })}
           </strong>

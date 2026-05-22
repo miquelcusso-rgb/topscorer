@@ -16,11 +16,26 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.top-scorers.com/resultados' },
 }
 
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.top-scorers.com' },
+    { '@type': 'ListItem', position: 2, name: 'Resultados', item: 'https://www.top-scorers.com/resultados' },
+  ],
+}
+
 export default function ResultadosPage() {
   return (
-    <Suspense fallback={<ResultadosSkeleton />}>
-      <ResultadosClient />
-    </Suspense>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
+      />
+      <Suspense fallback={<ResultadosSkeleton />}>
+        <ResultadosClient />
+      </Suspense>
+    </>
   )
 }
 

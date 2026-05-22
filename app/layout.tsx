@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'TopScorers', url: 'https://www.top-scorers.com' }],
   creator: 'TopScorers',
   publisher: 'TopScorers',
+  // TODO: paste Search Console token here before launch
   // verification: { google: 'YOUR_GOOGLE_SEARCH_CONSOLE_TOKEN' },
   openGraph: {
     type: 'website',
@@ -75,6 +76,21 @@ const organizationJsonLd = {
   ],
 }
 
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'TopScorers',
+  url: 'https://www.top-scorers.com',
+  description: 'Estadísticas de fútbol europeo: goleadores, asistentes y ligas en tiempo real.',
+  inLanguage: 'es-ES',
+  publisher: {
+    '@type': 'Organization',
+    name: 'TopScorers',
+    url: 'https://www.top-scorers.com',
+    logo: 'https://www.top-scorers.com/logo.png',
+  },
+}
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
   const detectedLang = (cookieStore.get('ts-lang')?.value ?? 'es') as Lang
@@ -97,6 +113,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, '\\u003c') }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd).replace(/</g, '\\u003c') }}
           />
           <GTMScript />
         </head>

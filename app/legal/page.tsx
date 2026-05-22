@@ -1,4 +1,25 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Aviso Legal — TopScorers',
+  description: 'Aviso legal y condiciones de uso de TopScorers, plataforma de estadísticas de fútbol europeo.',
+  alternates: { canonical: 'https://www.top-scorers.com/legal' },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: 'Aviso Legal — TopScorers',
+    description: 'Aviso legal y condiciones de uso de TopScorers.',
+    url: 'https://www.top-scorers.com/legal',
+    siteName: 'TopScorers',
+    locale: 'es_ES',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Aviso Legal — TopScorers',
+    description: 'Aviso legal y condiciones de uso de TopScorers.',
+  },
+}
 
 const C = {
   bg: '#07070f', sf: '#0c0d1a', bd: '#151626', tx: '#d8d8ec',

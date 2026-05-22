@@ -1,4 +1,27 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Sobre TopScorers — Quiénes Somos',
+  description: 'Conoce TopScorers: estadísticas de fútbol europeo en tiempo real. Goleadores, asistentes y centrocampistas de La Liga, Premier League, Bundesliga, Serie A y más.',
+  keywords: ['sobre topscorers', 'quiénes somos', 'estadísticas fútbol europeo', 'proyecto fútbol datos'],
+  alternates: { canonical: 'https://www.top-scorers.com/about' },
+  openGraph: {
+    title: 'Sobre TopScorers — Quiénes Somos',
+    description: 'Estadísticas de fútbol europeo en tiempo real: goleadores, asistentes y ligas.',
+    url: 'https://www.top-scorers.com/about',
+    siteName: 'TopScorers',
+    locale: 'es_ES',
+    type: 'website',
+    images: [{ url: 'https://www.top-scorers.com/og-default.jpg', width: 1200, height: 630, alt: 'TopScorers' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sobre TopScorers — Quiénes Somos',
+    description: 'Estadísticas de fútbol europeo en tiempo real: goleadores, asistentes y ligas.',
+    images: ['https://www.top-scorers.com/og-default.jpg'],
+  },
+}
 
 const C = {
   bg: '#07070f', sf: '#0c0d1a', bd: '#151626', tx: '#d8d8ec',

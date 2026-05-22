@@ -15,7 +15,7 @@ const C = {
 const COMPARISON = [
   // Core
   { label: 'Jugadores visibles',                    free: 'Top 10',          pro: 'Top 25',          scout: 'Top 50'           },
-  { label: 'Temporadas disponibles',                free: 'Solo 25/26',      pro: 'Desde 20/21',     scout: 'Desde 20/21'      },
+  { label: 'Temporadas disponibles',                free: '25/26 + 24/25',   pro: 'Desde 20/21',     scout: 'Desde 20/21'      },
   { label: 'Publicidad',                            free: '⚠ Con anuncios',  pro: '✓ Sin anuncios',  scout: '✓ Sin anuncios'   },
   // Stats
   { label: 'Stats básicos (G/A/PJ)',                free: true,              pro: true,              scout: true               },

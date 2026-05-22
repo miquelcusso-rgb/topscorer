@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { isPro } from '@/lib/plans'
@@ -56,6 +56,13 @@ function ProGateCard({ title, description }: { title: string; description: strin
 
 export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerData[] }) {
   const [tab, setTab] = useState<'s' | 'a' | 'c' | 'd' | 'g'>('s')
+  // Seed tab from ?tab= query param (footer deep-links, shared URLs)
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get('tab')
+    if (p && ['s', 'a', 'c', 'd', 'g'].includes(p)) {
+      setTab(p as 's' | 'a' | 'c' | 'd' | 'g')
+    }
+  }, [])
   const { user, isLoaded } = useUser()
   const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
   const { lang } = useLang()

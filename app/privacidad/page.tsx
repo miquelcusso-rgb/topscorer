@@ -1,4 +1,25 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Política de Privacidad — TopScorers',
+  description: 'Política de privacidad de TopScorers: cómo tratamos y protegemos tus datos personales en nuestra plataforma de estadísticas de fútbol.',
+  alternates: { canonical: 'https://www.top-scorers.com/privacidad' },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: 'Política de Privacidad — TopScorers',
+    description: 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
+    url: 'https://www.top-scorers.com/privacidad',
+    siteName: 'TopScorers',
+    locale: 'es_ES',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Política de Privacidad — TopScorers',
+    description: 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
+  },
+}
 
 const C = {
   bg: '#07070f', sf: '#0c0d1a', bd: '#151626', tx: '#d8d8ec',

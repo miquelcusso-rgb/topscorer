@@ -1,8 +1,11 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Link from 'next/link'
+import { useUser } from '@clerk/nextjs'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
+import { isPro } from '@/lib/plans'
 import type { EnrichedPlayer } from '@/types'
 import HiddenGemSeal, { getSealVariant } from '@/components/HiddenGemSeal'
 import AdSlot from '@/components/AdSlot'
@@ -53,7 +56,10 @@ interface Props {
 export default function DiscubrirClient({ players }: Props) {
   const { theme } = useTheme()
   const { lang } = useLang()
+  const { user, isLoaded } = useUser()
   const isLight = theme === 'light'
+  // Radar de Talentos is a Pro/Scout feature — free users get a 4-player teaser
+  const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
 
   const [posFilter, setPosFilter] = useState<PosFilter>('all')
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all')
@@ -478,10 +484,47 @@ export default function DiscubrirClient({ players }: Props) {
               {/* Ad between rows */}
               <AdSlot slot="1122334455" format="horizontal" />
 
-              {/* Remaining cards */}
-              {filtered.length > 4 && (
+              {/* Remaining cards — Pro/Scout only */}
+              {filtered.length > 4 && proUser && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                   {filtered.slice(4).map((item, idx) => renderCard(item, idx + 4))}
+                </div>
+              )}
+
+              {/* Upsell wall for free users */}
+              {filtered.length > 4 && isLoaded && !proUser && (
+                <div
+                  className="rounded-lg text-center"
+                  style={{
+                    padding: '40px 24px',
+                    background: isLight ? 'rgba(0,200,176,.06)' : 'rgba(0,200,176,.05)',
+                    border: `1px solid ${isLight ? 'rgba(0,200,176,.25)' : 'rgba(0,200,176,.2)'}`,
+                  }}
+                >
+                  <div style={{ fontSize: 26, marginBottom: 10 }}>🔓</div>
+                  <div
+                    style={{
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontSize: 22, fontWeight: 700, color: textPrimary,
+                      textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8,
+                    }}
+                  >
+                    {lang === 'es'
+                      ? `+${filtered.length - 4} talentos más con Pro`
+                      : `+${filtered.length - 4} more talents with Pro`}
+                  </div>
+                  <p style={{ fontSize: 13, color: textMuted, marginBottom: 18, lineHeight: 1.6, maxWidth: 420, margin: '0 auto 18px' }}>
+                    {lang === 'es'
+                      ? 'El Radar de Talentos completo es una función Pro. Descubre joyas ocultas en 8 ligas con nuestro algoritmo de rendimiento.'
+                      : 'The full Talent Radar is a Pro feature. Discover hidden gems across 8 leagues with our performance algorithm.'}
+                  </p>
+                  <Link
+                    href="/pricing"
+                    className="inline-block px-6 py-2.5 rounded font-bold"
+                    style={{ background: '#00c8b0', color: '#05060c', fontFamily: "'Barlow Condensed', sans-serif", fontSize: 14, letterSpacing: 1 }}
+                  >
+                    {lang === 'es' ? 'Desbloquear con Pro' : 'Unlock with Pro'}
+                  </Link>
                 </div>
               )}
             </div>

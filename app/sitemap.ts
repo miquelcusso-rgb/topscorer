@@ -98,10 +98,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${BASE}/estadisticas`,
+      lastModified: NOW,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
       url: `${BASE}/estadisticas/comparador`,
       lastModified: NOW,
       changeFrequency: 'weekly',
       priority: 0.65,
+    },
+    {
+      url: `${BASE}/centrocampistas`,
+      lastModified: NOW,
+      changeFrequency: 'weekly',
+      priority: 0.7,
     },
     ...competicionUrls,
     ...playerUrls,

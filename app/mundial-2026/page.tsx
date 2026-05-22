@@ -33,12 +33,25 @@ const jsonLd = {
   url: 'https://www.top-scorers.com/mundial-2026',
 }
 
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.top-scorers.com' },
+    { '@type': 'ListItem', position: 2, name: 'Mundial 2026', item: 'https://www.top-scorers.com/mundial-2026' },
+  ],
+}
+
 export default function Mundial2026Page() {
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <Mundial2026Client />
     </>

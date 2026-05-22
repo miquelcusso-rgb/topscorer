@@ -14,6 +14,15 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.top-scorers.com/descubrir' },
 }
 
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.top-scorers.com' },
+    { '@type': 'ListItem', position: 2, name: 'Descubrir', item: 'https://www.top-scorers.com/descubrir' },
+  ],
+}
+
 export default async function DescubrirPage() {
   const allLeagues = [...LEAGUES, ...LEAGUES_2]
   let players: EnrichedPlayer[] = []
@@ -52,5 +61,13 @@ export default async function DescubrirPage() {
     // will show empty state
   }
 
-  return <DiscubrirClient players={players} />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
+      />
+      <DiscubrirClient players={players} />
+    </>
+  )
 }
