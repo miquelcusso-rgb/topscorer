@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
 import type { EnrichedPlayer } from '@/types'
+import HiddenGemSeal, { getSealVariant } from '@/components/HiddenGemSeal'
 
 // Leagues that are "less visible" — hidden gem multiplier
 const SMALL_LEAGUE_NAMES = new Set([
@@ -285,23 +286,46 @@ export default function DiscubrirClient({ players }: Props) {
               const barWidth = Math.round((score / maxScore) * 100)
               const isSmallLeague = SMALL_LEAGUE_NAMES.has(p.league)
 
+              const sealVariant = getSealVariant(score, p.age ?? 99, isSmallLeague)
+
               return (
                 <div
                   key={`${p.name}-${idx}`}
-                  className="rounded-lg p-4 flex flex-col gap-2.5"
+                  className="rounded-lg p-4 flex flex-col gap-2.5 relative overflow-hidden"
                   style={{
                     background: cardBg,
-                    border: `1px solid ${cardBorder}`,
-                    transition: 'border-color .15s',
+                    border: `1px solid ${sealVariant ? (
+                      sealVariant === 'elite' ? 'rgba(240,192,64,.22)' :
+                      sealVariant === 'prospect' ? 'rgba(160,96,255,.22)' :
+                      'rgba(0,200,176,.22)'
+                    ) : cardBorder}`,
+                    transition: 'border-color .15s, box-shadow .15s',
                   }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor =
+                    const el = e.currentTarget as HTMLElement
+                    el.style.borderColor = sealVariant === 'elite' ? 'rgba(240,192,64,.45)' :
+                      sealVariant === 'prospect' ? 'rgba(160,96,255,.45)' :
+                      sealVariant === 'gem' ? 'rgba(0,200,176,.45)' :
                       isLight ? 'rgba(240,192,64,.3)' : 'rgba(240,192,64,.25)'
+                    el.style.boxShadow = sealVariant ? '0 4px 20px rgba(0,0,0,.12)' : 'none'
                   }}
                   onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = cardBorder
+                    const el = e.currentTarget as HTMLElement
+                    el.style.borderColor = sealVariant ? (
+                      sealVariant === 'elite' ? 'rgba(240,192,64,.22)' :
+                      sealVariant === 'prospect' ? 'rgba(160,96,255,.22)' :
+                      'rgba(0,200,176,.22)'
+                    ) : cardBorder
+                    el.style.boxShadow = 'none'
                   }}
                 >
+                  {/* Sello en esquina superior derecha */}
+                  {sealVariant && (
+                    <div style={{ position: 'absolute', top: 8, right: 8, opacity: 0.85 }}>
+                      <HiddenGemSeal variant={sealVariant} size="lg" lang={lang} />
+                    </div>
+                  )}
+
                   {/* Top row: avatar placeholder + name + score */}
                   <div className="flex items-start gap-2.5">
                     {/* Avatar placeholder */}
@@ -322,7 +346,7 @@ export default function DiscubrirClient({ players }: Props) {
                       {p.flag ?? '⚽'}
                     </div>
 
-                    <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ flex: 1, minWidth: 0, paddingRight: sealVariant ? 60 : 0 }}>
                       <div
                         style={{
                           fontSize: 14,
@@ -339,24 +363,6 @@ export default function DiscubrirClient({ players }: Props) {
                       </div>
                       <div style={{ fontSize: 11, color: textMuted, marginTop: 1 }}>
                         {p.club}
-                        {isSmallLeague && (
-                          <span
-                            style={{
-                              marginLeft: 4,
-                              fontSize: 9,
-                              fontWeight: 700,
-                              padding: '1px 4px',
-                              borderRadius: 2,
-                              background: 'rgba(0,200,176,.1)',
-                              color: '#00c8b0',
-                              fontFamily: "'Barlow Condensed', sans-serif",
-                              letterSpacing: '0.5px',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            {lang === 'es' ? 'JOYA' : 'GEM'}
-                          </span>
-                        )}
                       </div>
                     </div>
 

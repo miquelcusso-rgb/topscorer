@@ -6,6 +6,7 @@ import type { ApiPlayerResponse, ApiPlayerDetail } from '@/lib/api-football'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
+import HiddenGemSeal, { getSealVariant } from '@/components/HiddenGemSeal'
 import {
   BarChart,
   Bar,
@@ -146,10 +147,20 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
         </Link>
 
         {/* ── HERO BANNER (always dark) ───────────────────────────────────── */}
+        {(() => {
+          const smallLeagues = new Set(['Championship','2. Bundesliga','Serie B','Ligue 2','Segunda División','Liga Portugal 2','1. Lig','Primeira Liga','Süper Lig','Super League Grecia'])
+          const heroScore = player.pj > 0 ? ((player.goles / (player.pj * 0.9)) * 3 + (player.asist / (player.pj * 0.9)) * 2) * (smallLeagues.has(player.league) ? 1.4 : 1) * ((player.age ?? 99) <= 21 ? 1.5 : (player.age ?? 99) <= 24 ? 1.2 : 1) * (player.pj >= 20 ? 1.1 : 1) : 0
+          const heroSeal = getSealVariant(heroScore, player.age ?? 99, smallLeagues.has(player.league))
+          return (
         <div
-          className="rounded-xl p-6 mb-5 overflow-hidden"
-          style={{ background: '#060d18', border: '1px solid #1a1b2e' }}
+          className="rounded-xl p-6 mb-5 relative overflow-hidden"
+          style={{ background: '#060d18', border: `1px solid ${heroSeal === 'elite' ? 'rgba(240,192,64,.3)' : heroSeal === 'prospect' ? 'rgba(160,96,255,.25)' : heroSeal === 'gem' ? 'rgba(0,200,176,.25)' : '#1a1b2e'}` }}
         >
+          {heroSeal && (
+            <div style={{ position: 'absolute', top: 14, right: 16, opacity: 0.9, zIndex: 2 }}>
+              <HiddenGemSeal variant={heroSeal} size="md" lang="es" />
+            </div>
+          )}
           <div className="flex items-center gap-5 flex-wrap">
             {/* Photo */}
             {det?.player.photo ? (
@@ -309,6 +320,8 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
             )}
           </div>
         </div>
+          )
+        })()}
 
         {/* ── PRIMARY STAT CARDS ──────────────────────────────────────────── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">

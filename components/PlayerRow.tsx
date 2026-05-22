@@ -5,6 +5,7 @@ import type { EnrichedPlayer } from '@/types'
 import { LEAGUE_STYLE, leagueLogoUrl } from '@/lib/utils'
 import PlayerHoverCard from './PlayerHoverCard'
 import WatchlistButton from './WatchlistButton'
+import HiddenGemSeal, { getSealVariant } from './HiddenGemSeal'
 
 interface Props {
   player: EnrichedPlayer
@@ -51,6 +52,16 @@ export default function PlayerRow({
   const barPct  = Math.round((mainVal / maxVal) * 100)
   const ls      = LEAGUE_STYLE[player.league] ?? { bg: 'rgba(90,90,122,.1)', color: '#52526e', border: 'rgba(90,90,122,.22)' }
   const pos     = player.position ? POS_STYLE[player.position] : null
+
+  // ─── Hidden Gem Sello ──────────────────────────────────────────────────────
+  const SMALL_LEAGUES = new Set(['Championship','2. Bundesliga','Serie B','Ligue 2','Segunda División','Liga Portugal 2','1. Lig','Primeira Liga','Süper Lig','Super League Grecia'])
+  const rowScore = player.pj > 0
+    ? ((player.goles / (player.pj * 0.9)) * 3 + (player.asist / (player.pj * 0.9)) * 2)
+      * (SMALL_LEAGUES.has(player.league) ? 1.4 : 1)
+      * ((player.age ?? 99) <= 21 ? 1.5 : (player.age ?? 99) <= 24 ? 1.2 : 1)
+      * (player.pj >= 20 ? 1.1 : 1)
+    : 0
+  const rowSeal = getSealVariant(rowScore, player.age ?? 99, SMALL_LEAGUES.has(player.league))
 
   const eloColor = player.elo != null
     ? player.elo >= 2100 ? '#f0c040' : player.elo >= 1900 ? '#38c47a' : '#00c8b0'
@@ -136,11 +147,16 @@ export default function PlayerRow({
                 {player.name}
                 {player.isPinned && <span style={{ color: '#e05a30', fontSize: 9, marginLeft: 3 }}>★</span>}
               </div>
-              {pos && (
-                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
-                  {player.position}
-                </span>
-              )}
+              <div className="flex items-center gap-1 shrink-0">
+                {rowSeal && (
+                  <HiddenGemSeal variant={rowSeal} size="sm" lang="es" rotate={-10} />
+                )}
+                {pos && (
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
+                    {player.position}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-1 leading-tight">
               {player.isFiller && !player.isPinned && (
