@@ -80,9 +80,20 @@ export default function PrivacidadPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-[14px] font-bold" style={{ color: C.tx }}>7. Cookies</h2>
+            <h2 className="mb-2 text-[14px] font-bold" style={{ color: C.tx }}>7. Publicidad</h2>
             <p>
-              Utilizamos únicamente cookies técnicas necesarias para la sesión de usuario. No usamos cookies de seguimiento o publicidad de terceros. Vercel Analytics opera sin cookies.
+              Los usuarios del plan gratuito pueden ver anuncios servidos por <strong style={{ color: C.tx }}>Google AdSense</strong> (publisher ID: ca-pub-6498215334315959). Google puede utilizar cookies para mostrar anuncios personalizados basados en tus visitas a este y otros sitios web. Puedes consultar la{' '}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: C.gd }}>política de privacidad de Google</a>{' '}
+              y gestionar tus preferencias de publicidad en{' '}
+              <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" style={{ color: C.gd }}>adssettings.google.com</a>.
+              Los usuarios con plan Pro, Scout o Team no ven publicidad.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 text-[14px] font-bold" style={{ color: C.tx }}>8. Cookies</h2>
+            <p>
+              Utilizamos únicamente cookies técnicas necesarias para la sesión de usuario. Google AdSense puede utilizar cookies de publicidad en usuarios del plan gratuito. Vercel Analytics opera sin cookies.
             </p>
           </section>
 

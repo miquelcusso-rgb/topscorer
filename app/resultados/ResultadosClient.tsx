@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTheme } from '@/contexts/ThemeContext'
 import type { ApiStandingEntry, ApiFixture, LeagueMeta } from '@/lib/api-football'
+import AdSlot from '@/components/AdSlot'
 
 const LEAGUES: LeagueMeta[] = [
   { id: 140, name: 'La Liga',        country: 'Spain',    short: 'ESP', color: '#ee3124', flag: '🇪🇸' },
@@ -21,25 +23,23 @@ function formatDate(iso: string) {
   })
 }
 
-function getStatusLabel(short: string) {
-  const map: Record<string, string> = {
-    FT: 'FIN', AET: 'PRÓRR.', PEN: 'PENS.',
-    '1H': 'VIVO', '2H': 'VIVO', HT: 'DESCANSO',
-    NS: 'Pendiente', PST: 'Aplazado', CANC: 'Cancelado',
-  }
-  return map[short] ?? short
-}
-
 function isLive(short: string) {
   return ['1H', '2H', 'HT', 'ET', 'P'].includes(short)
 }
 
 // ─── Standings table ──────────────────────────────────────────────────────────
 
-function StandingsTable({ standings, leagueColor }: { standings: ApiStandingEntry[]; leagueColor: string }) {
+function StandingsTable({ standings, leagueColor, isLight }: { standings: ApiStandingEntry[]; leagueColor: string; isLight: boolean }) {
+  const border = isLight ? '#c8d0e8' : '#151626'
+  const rowBorder = isLight ? '#e2e8f4' : '#0d0e1c'
+  const rowAlt = isLight ? 'rgba(0,0,0,.03)' : 'rgba(255,255,255,.012)'
+  const textMuted = isLight ? '#5060a0' : '#52526e'
+  const textMain = isLight ? '#0f1830' : '#c8c8e0'
+  const textBright = isLight ? '#0f1830' : '#e8e8f8'
+
   if (!standings.length) {
     return (
-      <div className="py-10 text-center text-[12px]" style={{ color: '#3a3b52' }}>
+      <div className="py-10 text-center text-[12px]" style={{ color: textMuted }}>
         Clasificación no disponible
       </div>
     )
@@ -48,12 +48,12 @@ function StandingsTable({ standings, leagueColor }: { standings: ApiStandingEntr
     <div style={{ overflowX: 'auto' }}>
       <table className="w-full text-[12px]" style={{ borderCollapse: 'collapse' }}>
         <thead>
-          <tr style={{ borderBottom: '1px solid #151626' }}>
+          <tr style={{ borderBottom: `1px solid ${border}` }}>
             {['#', 'Equipo', 'PJ', 'G', 'E', 'P', 'GF', 'GC', 'DG', 'Pts', 'Forma'].map((h, i) => (
               <th
                 key={h}
                 className={`py-2 font-semibold ${i <= 1 ? 'text-left' : 'text-center'}`}
-                style={{ color: '#52526e', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1, paddingLeft: i === 0 ? 12 : 4, paddingRight: 4, fontSize: 10, textTransform: 'uppercase' }}
+                style={{ color: textMuted, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1, paddingLeft: i === 0 ? 12 : 4, paddingRight: 4, fontSize: 10, textTransform: 'uppercase' }}
               >
                 {h}
               </th>
@@ -62,8 +62,6 @@ function StandingsTable({ standings, leagueColor }: { standings: ApiStandingEntr
         </thead>
         <tbody>
           {standings.map((row, idx) => {
-            const highlight = row.description?.toLowerCase().includes('champion') || row.rank <= 4
-            const Europa = row.description?.toLowerCase().includes('europa') || row.rank <= 6
             const Relegation = row.description?.toLowerCase().includes('relegat')
 
             let leftBorder = 'transparent'
@@ -75,25 +73,26 @@ function StandingsTable({ standings, leagueColor }: { standings: ApiStandingEntr
               <tr
                 key={row.team.id}
                 style={{
-                  borderBottom: '1px solid #0d0e1c',
-                  background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,.012)',
+                  borderBottom: `1px solid ${rowBorder}`,
+                  background: idx % 2 === 0 ? 'transparent' : rowAlt,
                 }}
               >
                 <td style={{ paddingLeft: 0, paddingTop: 7, paddingBottom: 7, borderLeft: `2px solid ${leftBorder}`, width: 40 }}>
-                  <span className="pl-2" style={{ color: row.rank <= 3 ? leagueColor : '#52526e', fontWeight: row.rank <= 3 ? 700 : 400, fontSize: 12 }}>
+                  <span className="pl-2" style={{ color: row.rank <= 3 ? leagueColor : textMuted, fontWeight: row.rank <= 3 ? 700 : 400, fontSize: 12 }}>
                     {row.rank}
                   </span>
                 </td>
                 <td className="py-1.5 pr-2">
                   <div className="flex items-center gap-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={row.team.logo} alt={row.team.name} width={18} height={18} className="shrink-0 object-contain" />
-                    <span style={{ color: '#c8c8e0', fontSize: 12 }}>{row.team.name}</span>
+                    <span style={{ color: textMain, fontSize: 12 }}>{row.team.name}</span>
                   </div>
                 </td>
                 {[row.all.played, row.all.win, row.all.draw, row.all.lose, row.all.goals.for, row.all.goals.against, row.goalsDiff > 0 ? `+${row.goalsDiff}` : row.goalsDiff].map((val, i) => (
-                  <td key={i} className="text-center" style={{ color: '#52526e', paddingLeft: 4, paddingRight: 4 }}>{val}</td>
+                  <td key={i} className="text-center" style={{ color: textMuted, paddingLeft: 4, paddingRight: 4 }}>{val}</td>
                 ))}
-                <td className="text-center font-bold" style={{ color: '#e8e8f8', paddingLeft: 4, paddingRight: 4 }}>{row.points}</td>
+                <td className="text-center font-bold" style={{ color: textBright, paddingLeft: 4, paddingRight: 4 }}>{row.points}</td>
                 <td className="text-center py-1.5" style={{ paddingLeft: 4, paddingRight: 12 }}>
                   <div className="flex gap-0.5 justify-center">
                     {(row.form ?? '').split('').slice(-5).map((f, fi) => (
@@ -122,16 +121,20 @@ function StandingsTable({ standings, leagueColor }: { standings: ApiStandingEntr
 
 // ─── Fixtures list ────────────────────────────────────────────────────────────
 
-function FixtureRow({ fixture }: { fixture: ApiFixture }) {
+function FixtureRow({ fixture, isLight }: { fixture: ApiFixture; isLight: boolean }) {
   const status = fixture.fixture.status.short
   const live = isLive(status)
   const finished = ['FT', 'AET', 'PEN'].includes(status)
-  const pending = status === 'NS'
+
+  const rowBorder = isLight ? '#e2e8f4' : '#0d0e1c'
+  const textMuted = isLight ? '#5060a0' : '#52526e'
+  const textDim = isLight ? '#8898c0' : '#3a3b52'
+  const textWinner = isLight ? '#0f1830' : '#e8e8f8'
 
   return (
     <div
       className="flex items-center gap-3 py-2.5 px-3 rounded-sm"
-      style={{ background: live ? 'rgba(56,196,122,.04)' : 'transparent', borderBottom: '1px solid #0d0e1c' }}
+      style={{ background: live ? 'rgba(56,196,122,.06)' : 'transparent', borderBottom: `1px solid ${rowBorder}` }}
     >
       {/* Status */}
       <div className="shrink-0 w-[64px] text-right">
@@ -140,9 +143,9 @@ function FixtureRow({ fixture }: { fixture: ApiFixture }) {
             {fixture.fixture.status.elapsed}&apos;
           </span>
         ) : finished ? (
-          <span className="text-[10px]" style={{ color: '#52526e' }}>FIN</span>
+          <span className="text-[10px]" style={{ color: textMuted }}>FIN</span>
         ) : (
-          <span className="text-[10px]" style={{ color: '#3a3b52' }}>
+          <span className="text-[10px]" style={{ color: textDim }}>
             {new Date(fixture.fixture.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}
           </span>
         )}
@@ -152,10 +155,11 @@ function FixtureRow({ fixture }: { fixture: ApiFixture }) {
       <div className="flex items-center gap-1.5 flex-1 justify-end min-w-0">
         <span
           className="truncate text-[12px]"
-          style={{ color: fixture.teams.home.winner ? '#e8e8f8' : '#52526e', fontWeight: fixture.teams.home.winner ? 600 : 400 }}
+          style={{ color: fixture.teams.home.winner ? textWinner : textMuted, fontWeight: fixture.teams.home.winner ? 600 : 400 }}
         >
           {fixture.teams.home.name}
         </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={fixture.teams.home.logo} alt="" width={16} height={16} className="shrink-0 object-contain" />
       </div>
 
@@ -164,21 +168,22 @@ function FixtureRow({ fixture }: { fixture: ApiFixture }) {
         {finished || live ? (
           <span
             className="text-[13px] font-bold tabular-nums"
-            style={{ color: live ? '#38c47a' : '#e8e8f8', letterSpacing: 1 }}
+            style={{ color: live ? '#38c47a' : textWinner, letterSpacing: 1 }}
           >
             {fixture.goals.home} - {fixture.goals.away}
           </span>
         ) : (
-          <span className="text-[11px]" style={{ color: '#3a3b52' }}>vs</span>
+          <span className="text-[11px]" style={{ color: textMuted }}>vs</span>
         )}
       </div>
 
       {/* Away */}
       <div className="flex items-center gap-1.5 flex-1 min-w-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={fixture.teams.away.logo} alt="" width={16} height={16} className="shrink-0 object-contain" />
         <span
           className="truncate text-[12px]"
-          style={{ color: fixture.teams.away.winner ? '#e8e8f8' : '#52526e', fontWeight: fixture.teams.away.winner ? 600 : 400 }}
+          style={{ color: fixture.teams.away.winner ? textWinner : textMuted, fontWeight: fixture.teams.away.winner ? 600 : 400 }}
         >
           {fixture.teams.away.name}
         </span>
@@ -186,7 +191,7 @@ function FixtureRow({ fixture }: { fixture: ApiFixture }) {
 
       {/* Date */}
       <div className="shrink-0 hidden sm:block text-right w-[90px]">
-        <span className="text-[10px]" style={{ color: '#2a2b3e' }}>
+        <span className="text-[10px]" style={{ color: isLight ? '#a0a8c8' : '#2a2b3e' }}>
           {formatDate(fixture.fixture.date)}
         </span>
       </div>
@@ -196,11 +201,13 @@ function FixtureRow({ fixture }: { fixture: ApiFixture }) {
 
 // ─── League section ───────────────────────────────────────────────────────────
 
-function LeagueSection({ league, activeTab }: { league: LeagueMeta; activeTab: 'standings' | 'fixtures' }) {
+function LeagueSection({ league, activeTab, isLight }: { league: LeagueMeta; activeTab: 'standings' | 'fixtures'; isLight: boolean }) {
   const [standings, setStandings] = useState<ApiStandingEntry[]>([])
   const [fixtures, setFixtures] = useState<ApiFixture[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+
+  const textDim = isLight ? '#8898c0' : '#3a3b52'
 
   useEffect(() => {
     setLoading(true)
@@ -226,26 +233,26 @@ function LeagueSection({ league, activeTab }: { league: LeagueMeta; activeTab: '
   return (
     <div>
       {loading && (
-        <div className="py-12 text-center text-[12px]" style={{ color: '#3a3b52' }}>
+        <div className="py-12 text-center text-[12px]" style={{ color: textDim }}>
           Cargando...
         </div>
       )}
       {error && !loading && (
-        <div className="py-10 text-center text-[12px]" style={{ color: '#3a3b52' }}>
+        <div className="py-10 text-center text-[12px]" style={{ color: textDim }}>
           Error al cargar los datos. Intenta de nuevo.
         </div>
       )}
       {!loading && !error && activeTab === 'standings' && (
-        <StandingsTable standings={standings} leagueColor={league.color} />
+        <StandingsTable standings={standings} leagueColor={league.color} isLight={isLight} />
       )}
       {!loading && !error && activeTab === 'fixtures' && (
         <div>
           {fixtures.length === 0 ? (
-            <div className="py-10 text-center text-[12px]" style={{ color: '#3a3b52' }}>
+            <div className="py-10 text-center text-[12px]" style={{ color: textDim }}>
               Sin partidos recientes
             </div>
           ) : (
-            fixtures.slice().reverse().map(f => <FixtureRow key={f.fixture.id} fixture={f} />)
+            fixtures.slice().reverse().map(f => <FixtureRow key={f.fixture.id} fixture={f} isLight={isLight} />)
           )}
         </div>
       )}
@@ -258,6 +265,17 @@ function LeagueSection({ league, activeTab }: { league: LeagueMeta; activeTab: '
 export default function ResultadosClient() {
   const [activeLeague, setActiveLeague] = useState(LEAGUES[0])
   const [activeTab, setActiveTab] = useState<'standings' | 'fixtures'>('standings')
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
+
+  const pageBg = isLight ? '#edf1f8' : '#0b0c1a'
+  const headerBg = isLight ? 'linear-gradient(180deg, #dde5f4, #edf1f8)' : 'linear-gradient(180deg,#07081a,#050610)'
+  const headerBorder = isLight ? '#c8d0e8' : '#151626'
+  const cardBg = isLight ? '#ffffff' : '#06070e'
+  const cardBorder = isLight ? '#c8d0e8' : '#151626'
+  const textPrimary = isLight ? '#0f1830' : '#e8e8f8'
+  const textMuted = isLight ? '#5060a0' : '#52526e'
+  const textDim = isLight ? '#8898c0' : '#3a3b52'
 
   return (
     <main className="relative z-10 min-h-screen">
@@ -265,25 +283,25 @@ export default function ResultadosClient() {
       {/* Page header */}
       <div
         className="w-full"
-        style={{ background: 'linear-gradient(180deg,#07081a,#050610)', borderBottom: '1px solid #151626' }}
+        style={{ background: headerBg, borderBottom: `1px solid ${headerBorder}` }}
       >
         <div className="max-w-[1100px] mx-auto px-5">
           <div className="pt-6 pb-0">
             <div
               className="font-bold tracking-[3px] uppercase mb-2"
-              style={{ fontSize: 10, color: '#52526e', fontFamily: "'Barlow Condensed', sans-serif" }}
+              style={{ fontSize: 10, color: textMuted, fontFamily: "'Barlow Condensed', sans-serif" }}
             >
               Europa &nbsp;·&nbsp; Temporada 2025/26
             </div>
             <h1
               style={{
                 fontFamily: "'Barlow Condensed', sans-serif",
-                fontSize: 30, fontWeight: 700, color: '#e8e8f8',
+                fontSize: 30, fontWeight: 700, color: textPrimary,
                 letterSpacing: 0.5, lineHeight: 1,
               }}
             >
               Resultados{' '}
-              <span style={{ color: '#52526e', fontWeight: 400 }}>y Clasificaciones</span>
+              <span style={{ color: textMuted, fontWeight: 400 }}>y Clasificaciones</span>
             </h1>
           </div>
 
@@ -297,14 +315,15 @@ export default function ResultadosClient() {
                   onClick={() => setActiveLeague(league)}
                   className="flex flex-col items-center gap-0.5 cursor-pointer transition-all duration-150 shrink-0 py-2 px-3"
                   style={{
-                    color: active ? league.color : '#3a3b52',
+                    color: active ? league.color : textDim,
                     background: 'transparent', border: 'none',
                     borderBottom: active ? `2px solid ${league.color}` : '2px solid transparent',
                     marginBottom: -1,
                   }}
-                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#60608a' }}
-                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#3a3b52' }}
+                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = isLight ? '#8898c0' : '#60608a' }}
+                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = textDim }}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`https://media.api-sports.io/football/leagues/${league.id}.png`}
                     width={22}
@@ -323,7 +342,7 @@ export default function ResultadosClient() {
       </div>
 
       {/* Content */}
-      <div className="w-full" style={{ background: '#0b0c1a' }}>
+      <div className="w-full" style={{ background: pageBg }}>
         <div className="max-w-[1100px] mx-auto px-5 py-5 pb-20">
 
           {/* Sub-tabs: Standings vs Fixtures */}
@@ -336,11 +355,11 @@ export default function ResultadosClient() {
                 style={{
                   fontFamily: "'Barlow Condensed', sans-serif",
                   background: activeTab === t ? activeLeague.color : 'transparent',
-                  color: activeTab === t ? '#05060c' : '#52526e',
-                  border: `1px solid ${activeTab === t ? activeLeague.color : '#151626'}`,
+                  color: activeTab === t ? (isLight ? '#ffffff' : '#05060c') : textMuted,
+                  border: `1px solid ${activeTab === t ? activeLeague.color : headerBorder}`,
                 }}
-                onMouseEnter={e => { if (activeTab !== t) { e.currentTarget.style.borderColor = '#3a3b52'; e.currentTarget.style.color = '#c8c8e0' } }}
-                onMouseLeave={e => { if (activeTab !== t) { e.currentTarget.style.borderColor = '#151626'; e.currentTarget.style.color = '#52526e' } }}
+                onMouseEnter={e => { if (activeTab !== t) { e.currentTarget.style.borderColor = isLight ? '#8898c0' : '#3a3b52'; e.currentTarget.style.color = isLight ? '#0f1830' : '#c8c8e0' } }}
+                onMouseLeave={e => { if (activeTab !== t) { e.currentTarget.style.borderColor = headerBorder; e.currentTarget.style.color = textMuted } }}
               >
                 {t === 'standings' ? 'Clasificación' : 'Últimos partidos'}
               </button>
@@ -350,8 +369,8 @@ export default function ResultadosClient() {
           {/* League panel */}
           <div
             style={{
-              background: '#06070e',
-              border: '1px solid #151626',
+              background: cardBg,
+              border: `1px solid ${cardBorder}`,
               borderRadius: 4,
               overflow: 'hidden',
             }}
@@ -359,8 +378,9 @@ export default function ResultadosClient() {
             {/* League header */}
             <div
               className="flex items-center gap-3 px-4 py-3"
-              style={{ borderBottom: '1px solid #151626', borderLeft: `3px solid ${activeLeague.color}` }}
+              style={{ borderBottom: `1px solid ${cardBorder}`, borderLeft: `3px solid ${activeLeague.color}` }}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`https://media.api-sports.io/football/leagues/${activeLeague.id}.png`}
                 width={40}
@@ -375,13 +395,16 @@ export default function ResultadosClient() {
                 >
                   {activeLeague.name}
                 </span>
-                <div className="text-[11px]" style={{ color: '#3a3b52' }}>
+                <div className="text-[11px]" style={{ color: textDim }}>
                   {activeLeague.country} · 2025/26
                 </div>
               </div>
             </div>
 
-            <LeagueSection league={activeLeague} activeTab={activeTab} />
+            <LeagueSection league={activeLeague} activeTab={activeTab} isLight={isLight} />
+
+            {/* Ad below standings, before fixtures */}
+            <AdSlot slot="5544332211" format="horizontal" className="px-4 py-3" />
           </div>
 
           {/* Legend */}
@@ -394,7 +417,7 @@ export default function ResultadosClient() {
               ].map(({ color, label }) => (
                 <div key={label} className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-                  <span className="text-[10px]" style={{ color: '#3a3b52' }}>{label}</span>
+                  <span className="text-[10px]" style={{ color: textDim }}>{label}</span>
                 </div>
               ))}
             </div>

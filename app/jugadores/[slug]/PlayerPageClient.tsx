@@ -16,6 +16,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts'
+import AdSlot from '@/components/AdSlot'
 
 const PlayerRadar = dynamic(() => import('@/components/PlayerRadar'), { ssr: false })
 
@@ -362,6 +363,9 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
             </div>
           ))}
         </div>
+
+        {/* Ad after primary stat cards */}
+        <AdSlot slot="0987654321" format="rectangle" className="my-4" />
 
         {/* ── SECONDARY STATS ROW ─────────────────────────────────────────── */}
         {det && (

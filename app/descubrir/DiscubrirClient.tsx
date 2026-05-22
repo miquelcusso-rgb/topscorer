@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
 import type { EnrichedPlayer } from '@/types'
 import HiddenGemSeal, { getSealVariant } from '@/components/HiddenGemSeal'
+import AdSlot from '@/components/AdSlot'
 
 // Leagues that are "less visible" — hidden gem multiplier
 const SMALL_LEAGUE_NAMES = new Set([
@@ -276,200 +277,216 @@ export default function DiscubrirClient({ players }: Props) {
               {lang === 'es' ? 'No hay jugadores con los filtros actuales.' : 'No players match the current filters.'}
             </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {filtered.map(({ player: p, score }, idx) => {
-              const pj = p.pj || 1
-              const g90 = (p.goles / (pj * 0.9)).toFixed(2)
-              const a90 = (p.asist / (pj * 0.9)).toFixed(2)
-              const reason = generateReason(p)
-              const barWidth = Math.round((score / maxScore) * 100)
-              const isSmallLeague = SMALL_LEAGUE_NAMES.has(p.league)
+        ) : (() => {
+          function renderCard({ player: p, score }: { player: EnrichedPlayer; score: number }, idx: number) {
+            const pj = p.pj || 1
+            const g90 = (p.goles / (pj * 0.9)).toFixed(2)
+            const a90 = (p.asist / (pj * 0.9)).toFixed(2)
+            const reason = generateReason(p)
+            const barWidth = Math.round((score / maxScore) * 100)
+            const isSmallLeague = SMALL_LEAGUE_NAMES.has(p.league)
+            const sealVariant = getSealVariant(score, p.age ?? 99, isSmallLeague)
 
-              const sealVariant = getSealVariant(score, p.age ?? 99, isSmallLeague)
+            return (
+              <div
+                key={`${p.name}-${idx}`}
+                className="rounded-lg p-4 flex flex-col gap-2.5 relative overflow-hidden"
+                style={{
+                  background: cardBg,
+                  border: `1px solid ${sealVariant ? (
+                    sealVariant === 'elite' ? 'rgba(240,192,64,.22)' :
+                    sealVariant === 'prospect' ? 'rgba(160,96,255,.22)' :
+                    'rgba(0,200,176,.22)'
+                  ) : cardBorder}`,
+                  transition: 'border-color .15s, box-shadow .15s',
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = sealVariant === 'elite' ? 'rgba(240,192,64,.45)' :
+                    sealVariant === 'prospect' ? 'rgba(160,96,255,.45)' :
+                    sealVariant === 'gem' ? 'rgba(0,200,176,.45)' :
+                    isLight ? 'rgba(240,192,64,.3)' : 'rgba(240,192,64,.25)'
+                  el.style.boxShadow = sealVariant ? '0 4px 20px rgba(0,0,0,.12)' : 'none'
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = sealVariant ? (
+                    sealVariant === 'elite' ? 'rgba(240,192,64,.22)' :
+                    sealVariant === 'prospect' ? 'rgba(160,96,255,.22)' :
+                    'rgba(0,200,176,.22)'
+                  ) : cardBorder
+                  el.style.boxShadow = 'none'
+                }}
+              >
+                {/* Sello en esquina superior derecha */}
+                {sealVariant && (
+                  <div style={{ position: 'absolute', top: 8, right: 8, opacity: 0.85 }}>
+                    <HiddenGemSeal variant={sealVariant} size="lg" lang={lang} />
+                  </div>
+                )}
 
-              return (
-                <div
-                  key={`${p.name}-${idx}`}
-                  className="rounded-lg p-4 flex flex-col gap-2.5 relative overflow-hidden"
-                  style={{
-                    background: cardBg,
-                    border: `1px solid ${sealVariant ? (
-                      sealVariant === 'elite' ? 'rgba(240,192,64,.22)' :
-                      sealVariant === 'prospect' ? 'rgba(160,96,255,.22)' :
-                      'rgba(0,200,176,.22)'
-                    ) : cardBorder}`,
-                    transition: 'border-color .15s, box-shadow .15s',
-                  }}
-                  onMouseEnter={e => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = sealVariant === 'elite' ? 'rgba(240,192,64,.45)' :
-                      sealVariant === 'prospect' ? 'rgba(160,96,255,.45)' :
-                      sealVariant === 'gem' ? 'rgba(0,200,176,.45)' :
-                      isLight ? 'rgba(240,192,64,.3)' : 'rgba(240,192,64,.25)'
-                    el.style.boxShadow = sealVariant ? '0 4px 20px rgba(0,0,0,.12)' : 'none'
-                  }}
-                  onMouseLeave={e => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = sealVariant ? (
-                      sealVariant === 'elite' ? 'rgba(240,192,64,.22)' :
-                      sealVariant === 'prospect' ? 'rgba(160,96,255,.22)' :
-                      'rgba(0,200,176,.22)'
-                    ) : cardBorder
-                    el.style.boxShadow = 'none'
-                  }}
-                >
-                  {/* Sello en esquina superior derecha */}
-                  {sealVariant && (
-                    <div style={{ position: 'absolute', top: 8, right: 8, opacity: 0.85 }}>
-                      <HiddenGemSeal variant={sealVariant} size="lg" lang={lang} />
-                    </div>
-                  )}
-
-                  {/* Top row: avatar placeholder + name + score */}
-                  <div className="flex items-start gap-2.5">
-                    {/* Avatar placeholder */}
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: '50%',
-                        background: isLight ? 'rgba(240,192,64,.12)' : 'rgba(240,192,64,.1)',
-                        border: '1.5px solid rgba(240,192,64,.25)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        fontSize: 16,
-                      }}
-                    >
-                      {p.flag ?? '⚽'}
-                    </div>
-
-                    <div style={{ flex: 1, minWidth: 0, paddingRight: sealVariant ? 60 : 0 }}>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 700,
-                          color: textPrimary,
-                          fontFamily: "'Barlow Condensed', sans-serif",
-                          letterSpacing: '0.3px',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {p.name}
-                      </div>
-                      <div style={{ fontSize: 11, color: textMuted, marginTop: 1 }}>
-                        {p.club}
-                      </div>
-                    </div>
-
-                    <ScoreBadge score={score} />
+                {/* Top row: avatar placeholder + name + score */}
+                <div className="flex items-start gap-2.5">
+                  {/* Avatar placeholder */}
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '50%',
+                      background: isLight ? 'rgba(240,192,64,.12)' : 'rgba(240,192,64,.1)',
+                      border: '1.5px solid rgba(240,192,64,.25)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      fontSize: 16,
+                    }}
+                  >
+                    {p.flag ?? '⚽'}
                   </div>
 
-                  {/* Position + League badges */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <PosBadge pos={p.position} />
-                    <span
+                  <div style={{ flex: 1, minWidth: 0, paddingRight: sealVariant ? 60 : 0 }}>
+                    <div
                       style={{
-                        fontSize: 10,
-                        fontWeight: 600,
-                        padding: '2px 6px',
-                        borderRadius: 3,
-                        background: 'rgba(240,192,64,.08)',
-                        border: '1px solid rgba(240,192,64,.18)',
-                        color: isLight ? '#b08020' : '#c0a040',
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: textPrimary,
                         fontFamily: "'Barlow Condensed', sans-serif",
                         letterSpacing: '0.3px',
-                      }}
-                    >
-                      {p.league}
-                    </span>
-                  </div>
-
-                  {/* Key stats row */}
-                  <div
-                    className="flex gap-3"
-                    style={{
-                      padding: '6px 8px',
-                      borderRadius: 6,
-                      background: isLight ? 'rgba(0,0,0,.03)' : 'rgba(255,255,255,.03)',
-                    }}
-                  >
-                    {[
-                      { label: 'G/90', value: g90, color: '#f0c040' },
-                      { label: 'A/90', value: a90, color: '#00c8b0' },
-                      { label: 'PJ',   value: p.pj, color: textMuted },
-                      { label: lang === 'es' ? 'Edad' : 'Age', value: p.age, color: p.age <= 21 ? '#a060ff' : p.age <= 24 ? '#38c47a' : textMuted },
-                    ].map(stat => (
-                      <div key={stat.label} className="flex-1 text-center">
-                        <div
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 800,
-                            color: stat.color,
-                            fontFamily: "'Barlow Condensed', sans-serif",
-                            lineHeight: 1,
-                          }}
-                        >
-                          {stat.value}
-                        </div>
-                        <div style={{ fontSize: 8.5, color: textMuted, letterSpacing: '0.8px', marginTop: 2 }}>
-                          {stat.label}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Score bar */}
-                  <div>
-                    <div
-                      style={{
-                        height: 3,
-                        borderRadius: 2,
-                        background: isLight ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.06)',
+                        whiteSpace: 'nowrap',
                         overflow: 'hidden',
+                        textOverflow: 'ellipsis',
                       }}
                     >
-                      <div
-                        style={{
-                          height: '100%',
-                          width: `${barWidth}%`,
-                          borderRadius: 2,
-                          background: score >= maxScore * 0.7
-                            ? 'linear-gradient(90deg, #f0c040, #f8d060)'
-                            : 'linear-gradient(90deg, #00c8b0, #00e8c8)',
-                          transition: 'width .3s',
-                        }}
-                      />
+                      {p.name}
+                    </div>
+                    <div style={{ fontSize: 11, color: textMuted, marginTop: 1 }}>
+                      {p.club}
                     </div>
                   </div>
 
-                  {/* Reason */}
-                  <div
+                  <ScoreBadge score={score} />
+                </div>
+
+                {/* Position + League badges */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <PosBadge pos={p.position} />
+                  <span
                     style={{
-                      fontSize: 10.5,
-                      color: textMuted,
-                      lineHeight: 1.4,
-                      padding: '6px 8px',
-                      borderRadius: 5,
-                      background: isLight ? 'rgba(0,200,176,.04)' : 'rgba(0,200,176,.05)',
-                      border: `1px solid ${isLight ? 'rgba(0,200,176,.15)' : 'rgba(0,200,176,.12)'}`,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      padding: '2px 6px',
+                      borderRadius: 3,
+                      background: 'rgba(240,192,64,.08)',
+                      border: '1px solid rgba(240,192,64,.18)',
+                      color: isLight ? '#b08020' : '#c0a040',
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      letterSpacing: '0.3px',
                     }}
                   >
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#00c8b0', letterSpacing: '1px', textTransform: 'uppercase', fontFamily: "'Barlow Condensed', sans-serif" }}>
-                      {lang === 'es' ? 'Por qué lo marcamos' : 'Why we flagged them'}
-                    </span>
-                    <br />
-                    {reason}
+                    {p.league}
+                  </span>
+                </div>
+
+                {/* Key stats row */}
+                <div
+                  className="flex gap-3"
+                  style={{
+                    padding: '6px 8px',
+                    borderRadius: 6,
+                    background: isLight ? 'rgba(0,0,0,.03)' : 'rgba(255,255,255,.03)',
+                  }}
+                >
+                  {[
+                    { label: 'G/90', value: g90, color: '#f0c040' },
+                    { label: 'A/90', value: a90, color: '#00c8b0' },
+                    { label: 'PJ',   value: p.pj, color: textMuted },
+                    { label: lang === 'es' ? 'Edad' : 'Age', value: p.age, color: p.age <= 21 ? '#a060ff' : p.age <= 24 ? '#38c47a' : textMuted },
+                  ].map(stat => (
+                    <div key={stat.label} className="flex-1 text-center">
+                      <div
+                        style={{
+                          fontSize: 15,
+                          fontWeight: 800,
+                          color: stat.color,
+                          fontFamily: "'Barlow Condensed', sans-serif",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {stat.value}
+                      </div>
+                      <div style={{ fontSize: 8.5, color: textMuted, letterSpacing: '0.8px', marginTop: 2 }}>
+                        {stat.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Score bar */}
+                <div>
+                  <div
+                    style={{
+                      height: 3,
+                      borderRadius: 2,
+                      background: isLight ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.06)',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${barWidth}%`,
+                        borderRadius: 2,
+                        background: score >= maxScore * 0.7
+                          ? 'linear-gradient(90deg, #f0c040, #f8d060)'
+                          : 'linear-gradient(90deg, #00c8b0, #00e8c8)',
+                        transition: 'width .3s',
+                      }}
+                    />
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        )}
+
+                {/* Reason */}
+                <div
+                  style={{
+                    fontSize: 10.5,
+                    color: textMuted,
+                    lineHeight: 1.4,
+                    padding: '6px 8px',
+                    borderRadius: 5,
+                    background: isLight ? 'rgba(0,200,176,.04)' : 'rgba(0,200,176,.05)',
+                    border: `1px solid ${isLight ? 'rgba(0,200,176,.15)' : 'rgba(0,200,176,.12)'}`,
+                  }}
+                >
+                  <span style={{ fontSize: 9, fontWeight: 700, color: '#00c8b0', letterSpacing: '1px', textTransform: 'uppercase', fontFamily: "'Barlow Condensed', sans-serif" }}>
+                    {lang === 'es' ? 'Por qué lo marcamos' : 'Why we flagged them'}
+                  </span>
+                  <br />
+                  {reason}
+                </div>
+              </div>
+            )
+          }
+
+          return (
+            <div className="flex flex-col gap-3">
+              {/* First row of cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {filtered.slice(0, 4).map((item, idx) => renderCard(item, idx))}
+              </div>
+
+              {/* Ad between rows */}
+              <AdSlot slot="1122334455" format="horizontal" />
+
+              {/* Remaining cards */}
+              {filtered.length > 4 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {filtered.slice(4).map((item, idx) => renderCard(item, idx + 4))}
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         {/* Disclaimer */}
         <div

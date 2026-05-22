@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -10,9 +10,11 @@ import type { Tab, PanelState, SortKey, Season, PlayerData } from '@/types'
 import { PLAYERS } from '@/data/players'
 import { getPool, buildTopN, makeSortFn } from '@/lib/utils'
 import { isPro, FREE_ROW_LIMIT, FREE_SEASONS } from '@/lib/plans'
+import { exportPlayersCSV } from '@/lib/export-csv'
 import StatsTable from './StatsTable'
 import SearchInput from './SearchInput'
 import WatchlistPanel, { type WatchlistEntry } from './WatchlistPanel'
+import AdSlot from './AdSlot'
 
 const DEFAULT: PanelState = {
   season: '2526',
@@ -120,74 +122,152 @@ function FilterGroup({ label, children }: { label: string; children: React.React
   )
 }
 
-function UpgradeBanner() {
+function ProUpsellInline() {
   const { lang } = useLang()
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const [showSticky, setShowSticky] = useState(false)
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowSticky(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
   return (
-    <div
-      className="relative overflow-hidden"
-      style={{
-        border: '1px solid rgba(240,192,64,.22)',
-        borderTop: 'none',
-        background: 'linear-gradient(180deg, rgba(240,192,64,.03) 0%, rgba(240,192,64,.06) 100%)',
-      }}
-    >
-      {/* Ghost rows — sharper blur */}
-      <div style={{ filter: 'blur(2.5px)', opacity: 0.28, pointerEvents: 'none', userSelect: 'none' }}>
-        {[11, 12, 13, 14, 15].map((n, i) => (
-          <div
-            key={n}
-            className="flex items-center gap-4 px-4"
-            style={{
-              borderBottom: '1px solid #151626',
-              height: 40,
-              background: i % 2 === 0 ? 'rgba(255,255,255,.018)' : 'transparent',
-            }}
-          >
-            <span
-              className="w-5 text-right shrink-0"
-              style={{ fontSize: 13, color: '#3a3b50', fontFamily: "'Bebas Neue', cursive" }}
-            >
-              {n}
-            </span>
-            <div className="h-[6px] rounded-full" style={{ background: '#1e1f35', width: `${110 - i * 12}px` }} />
-            <div className="h-[6px] rounded-full w-12 shrink-0" style={{ background: '#1e1f35' }} />
-            <div className="ml-auto h-[6px] rounded-full w-6 shrink-0" style={{ background: '#1e1f35' }} />
-            <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: '#1e1f35' }} />
-            <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: '#1e1f35' }} />
-          </div>
-        ))}
-      </div>
+    <>
+      {/* Sentinel div — marks end of free rows */}
+      <div ref={sentinelRef} />
 
-      {/* Gradient fade at top of ghost rows */}
+      {/* Ghost rows with blur */}
       <div
-        className="absolute inset-x-0 top-0"
-        style={{ height: 40, background: 'linear-gradient(180deg, rgba(6,7,14,.0) 0%, transparent 100%)', pointerEvents: 'none' }}
-      />
+        className="relative overflow-hidden"
+        style={{
+          borderLeft: '1px solid rgba(240,192,64,.15)',
+          borderRight: '1px solid rgba(240,192,64,.15)',
+          borderTop: '1px solid rgba(240,192,64,.12)',
+        }}
+      >
+        <div style={{ filter: 'blur(2.5px)', opacity: 0.22, pointerEvents: 'none', userSelect: 'none' }}>
+          {[11, 12, 13, 14, 15].map((n, i) => (
+            <div
+              key={n}
+              className="flex items-center gap-4 px-4"
+              style={{
+                borderBottom: '1px solid #151626',
+                height: 40,
+                background: i % 2 === 0 ? 'rgba(255,255,255,.018)' : 'transparent',
+              }}
+            >
+              <span
+                className="w-5 text-right shrink-0"
+                style={{ fontSize: 13, color: '#3a3b50', fontFamily: "'Bebas Neue', cursive" }}
+              >
+                {n}
+              </span>
+              <div className="h-[6px] rounded-full" style={{ background: '#1e1f35', width: `${110 - i * 12}px` }} />
+              <div className="h-[6px] rounded-full w-12 shrink-0" style={{ background: '#1e1f35' }} />
+              <div className="ml-auto h-[6px] rounded-full w-6 shrink-0" style={{ background: '#1e1f35' }} />
+              <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: '#1e1f35' }} />
+              <div className="h-[6px] rounded-full w-8 shrink-0" style={{ background: '#1e1f35' }} />
+            </div>
+          ))}
+        </div>
 
-      {/* CTA overlay */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-        <div className="text-center">
-          <div
-            className="font-bold mb-1"
-            style={{ fontSize: 14, color: '#d8d8ec', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.3 }}
-          >
-            {t('upgrade_title', lang)}
+        {/* Gradient fade */}
+        <div
+          className="absolute inset-x-0 top-0"
+          style={{ height: 60, background: 'linear-gradient(180deg, rgba(6,7,14,.85) 0%, transparent 100%)', pointerEvents: 'none' }}
+        />
+
+        {/* Upsell overlay */}
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-4"
+          style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(240,192,64,.04) 100%)' }}
+        >
+          {/* Headline */}
+          <div className="text-center">
+            <div
+              className="font-bold mb-2"
+              style={{ fontSize: 15, color: '#e8e0c0', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.4 }}
+            >
+              🔒 Posiciones 11–25 desbloqueadas con Pro
+            </div>
+
+            {/* Feature pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
+              {['Top 25 jugadores', 'Todas las temporadas', 'Sin anuncios'].map(feat => (
+                <span
+                  key={feat}
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    padding: '3px 10px',
+                    borderRadius: 20,
+                    background: 'rgba(240,192,64,.1)',
+                    border: '1px solid rgba(240,192,64,.25)',
+                    color: '#c8a830',
+                    letterSpacing: 0.2,
+                  }}
+                >
+                  {feat}
+                </span>
+              ))}
+            </div>
           </div>
-          <div style={{ fontSize: 11, color: '#52526e' }}>
-            {t('upgrade_desc', lang)}
+
+          {/* CTAs */}
+          <div className="flex items-center gap-3 flex-wrap justify-center">
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-1.5 font-bold rounded-sm transition-all duration-150 cursor-pointer"
+              style={{ fontSize: 12, padding: '8px 20px', background: '#f0c040', color: '#05060c', boxShadow: '0 2px 18px rgba(240,192,64,.28)', borderRadius: 4 }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 28px rgba(240,192,64,.45)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 18px rgba(240,192,64,.28)' }}
+            >
+              Ver Precios →
+            </Link>
+            <Link
+              href="/sign-in"
+              className="inline-flex items-center gap-1 transition-all duration-150 cursor-pointer"
+              style={{ fontSize: 11, padding: '7px 14px', background: 'transparent', color: '#7878a0', border: '1px solid rgba(255,255,255,.08)', borderRadius: 4 }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#a0a0c8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.18)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = '#7878a0'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.08)' }}
+            >
+              Ya tengo cuenta
+            </Link>
           </div>
         </div>
-        <Link
-          href="/pricing"
-          className="inline-flex items-center gap-1.5 font-bold rounded-sm transition-all duration-150 cursor-pointer"
-          style={{ fontSize: 12, padding: '7px 18px', background: '#f0c040', color: '#05060c', boxShadow: '0 2px 16px rgba(240,192,64,.25)' }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(240,192,64,.4)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(240,192,64,.25)' }}
-        >
-          {t('upgrade_cta', lang)}
-        </Link>
       </div>
-    </div>
+
+      {/* Sticky CTA — mobile only, appears when user scrolls past free rows */}
+      {showSticky && (
+        <div
+          className="md:hidden fixed bottom-0 inset-x-0 z-50 flex items-center justify-between gap-3 px-4 py-3"
+          style={{
+            background: 'rgba(6,7,14,.96)',
+            borderTop: '1px solid rgba(240,192,64,.2)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          <span style={{ fontSize: 12, color: '#9090b8', lineHeight: 1.35 }}>
+            Ver Top 25 completo —{' '}
+            <span style={{ color: '#c8a830', fontWeight: 600 }}>Pro desde €4.99/mes</span>
+          </span>
+          <Link
+            href="/pricing"
+            className="shrink-0 font-bold rounded-sm"
+            style={{ fontSize: 11, padding: '7px 14px', background: '#f0c040', color: '#05060c', borderRadius: 4, whiteSpace: 'nowrap' }}
+          >
+            Activar Pro
+          </Link>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -527,6 +607,38 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                 ★{watchlist.length > 0 && <span className="text-[9px]">{watchlist.length}</span>}
               </button>
             )}
+            {/* CSV Export button */}
+            {proUser ? (
+              <button
+                onClick={() => exportPlayersCSV(topN.filter(p => !p.isFiller))}
+                className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer"
+                style={{ background: 'rgba(56,196,122,.08)', border: '1px solid rgba(56,196,122,.2)', color: '#38c47a' }}
+                title="Exportar a CSV"
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(56,196,122,.15)'; e.currentTarget.style.borderColor = 'rgba(56,196,122,.4)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(56,196,122,.08)'; e.currentTarget.style.borderColor = 'rgba(56,196,122,.2)' }}
+              >
+                ⬇ CSV
+              </button>
+            ) : (
+              <div className="relative group">
+                <button
+                  className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-sm cursor-default"
+                  style={{ background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#2a3a54', opacity: 0.55 }}
+                  title="Feature Pro"
+                >
+                  ⬇ CSV
+                </button>
+                <div
+                  className="absolute bottom-full mb-1.5 right-0 hidden group-hover:block z-30 whitespace-nowrap"
+                  style={{ fontSize: 10, background: 'rgba(14,16,28,.96)', border: '1px solid rgba(240,192,64,.2)', color: '#c8a830', padding: '4px 8px', borderRadius: 4 }}
+                >
+                  Feature Pro —{' '}
+                  <Link href="/pricing" style={{ color: '#f0c040', textDecoration: 'underline' }}>
+                    Actualiza tu plan
+                  </Link>
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <span
                 style={{
@@ -553,6 +665,9 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
         </div>
       </div>
 
+      {/* Ad between filter toolbar and table */}
+      <AdSlot slot="1234567890" format="horizontal" className="my-3" />
+
       {/* Table */}
       <StatsTable
         players={topN}
@@ -577,8 +692,8 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
         }}
       />
 
-      {/* Upgrade banner (free users only) */}
-      {!proUser && <UpgradeBanner />}
+      {/* Pro upsell inline section (free users only) */}
+      {!proUser && <ProUpsellInline />}
 
       {/* Watchlist panel */}
       {proUser && (
