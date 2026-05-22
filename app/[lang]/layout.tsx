@@ -17,49 +17,55 @@ export function generateStaticParams() {
   return LOCALES.map(lang => ({ lang }))
 }
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://www.top-scorers.com'),
-  title: {
-    default: 'TopScorers — Estadísticas Fútbol Europeo',
-    template: '%s | TopScorers',
-  },
-  description: 'Top goleadores, asistentes y centrocampistas de La Liga, Premier League, Bundesliga, Serie A y más. Estadísticas en tiempo real. Mundial 2026.',
-  keywords: ['goleadores', 'asistentes', 'estadísticas fútbol', 'La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1', 'mundial 2026', 'top scorers', 'clasificación fútbol', 'resultados fútbol', 'fichajes', 'transferencias', 'champions league', 'europa league'],
-  authors: [{ name: 'TopScorers', url: 'https://www.top-scorers.com' }],
-  creator: 'TopScorers',
-  publisher: 'TopScorers',
-  // Search Console: verified via DNS domain property (sc-domain:top-scorers.com).
-  // No HTML meta tag needed — DNS verification covers all subdomains/protocols.
-  openGraph: {
-    type: 'website',
-    locale: 'es_ES',
-    url: 'https://www.top-scorers.com',
-    siteName: 'TopScorers',
-    title: 'TopScorers — Estadísticas Fútbol Europeo',
-    description: 'Top goleadores y asistentes de las principales ligas europeas en tiempo real.',
-    images: [{ url: '/og-default.jpg', width: 1200, height: 630, alt: 'TopScorers' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'TopScorers — Estadísticas Fútbol Europeo',
-    description: 'Top goleadores y asistentes de las principales ligas europeas en tiempo real.',
-    images: ['/og-default.jpg'],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
-  },
-  manifest: '/manifest.webmanifest',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'TopScorers',
-  },
-  icons: {
-    icon: [{ url: '/logo.png', type: 'image/png' }],
-    apple: '/logo.png',
-  },
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params
+  const en = lang === 'en'
+  const ogImage = en ? '/og-default-en.jpg' : '/og-default-es.jpg'
+  const title = 'TopScorers — Estadísticas Fútbol Europeo'
+  const ogDesc = 'Top goleadores y asistentes de las principales ligas europeas en tiempo real.'
+  return {
+    metadataBase: new URL('https://www.top-scorers.com'),
+    title: {
+      default: title,
+      template: '%s | TopScorers',
+    },
+    description: 'Top goleadores, asistentes y centrocampistas de La Liga, Premier League, Bundesliga, Serie A y más. Estadísticas en tiempo real. Mundial 2026.',
+    keywords: ['goleadores', 'asistentes', 'estadísticas fútbol', 'La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1', 'mundial 2026', 'top scorers', 'clasificación fútbol', 'resultados fútbol', 'fichajes', 'transferencias', 'champions league', 'europa league'],
+    authors: [{ name: 'TopScorers', url: 'https://www.top-scorers.com' }],
+    creator: 'TopScorers',
+    publisher: 'TopScorers',
+    // Search Console: verified via DNS domain property (sc-domain:top-scorers.com).
+    openGraph: {
+      type: 'website',
+      locale: en ? 'en_US' : 'es_ES',
+      url: `https://www.top-scorers.com/${en ? 'en' : 'es'}`,
+      siteName: 'TopScorers',
+      title,
+      description: ogDesc,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: 'TopScorers' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: ogDesc,
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+    },
+    manifest: '/manifest.webmanifest',
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'black-translucent',
+      title: 'TopScorers',
+    },
+    icons: {
+      icon: [{ url: '/logo.png', type: 'image/png' }],
+      apple: '/logo.png',
+    },
+  }
 }
 
 export const viewport: Viewport = {

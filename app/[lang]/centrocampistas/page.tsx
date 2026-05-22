@@ -25,13 +25,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       siteName: 'TopScorers',
       locale: 'es_ES',
       type: 'website',
-      images: [{ url: 'https://www.top-scorers.com/og-default.jpg', width: 1200, height: 630, alt: 'TopScorers' }],
+      images: [{ url: `https://www.top-scorers.com/og-default-${lang}.jpg`, width: 1200, height: 630, alt: 'TopScorers' }],
     },
     twitter: {
       card: 'summary_large_image',
       title: 'Mejores Centrocampistas — Estadísticas y Asistencias | TopScorers',
       description: 'Ranking de los mejores centrocampistas del fútbol europeo.',
-      images: ['https://www.top-scorers.com/og-default.jpg'],
+      images: [`https://www.top-scorers.com/og-default-${lang}.jpg`],
     },
   }
 }

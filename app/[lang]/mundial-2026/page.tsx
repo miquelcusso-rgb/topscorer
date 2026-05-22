@@ -14,9 +14,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       description: 'Sigue el FIFA World Cup 2026 en tiempo real. 48 selecciones, 3 sedes, 1 trofeo.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
-      locale: 'es_ES',
+      locale: lang === 'en' ? 'en_US' : 'es_ES',
       type: 'website',
-      images: [{ url: 'https://www.top-scorers.com/og-mundial.jpg', width: 1200, height: 630 }],
+      images: [{ url: `https://www.top-scorers.com/og-mundial-${lang}.jpg`, width: 1200, height: 630 }],
     },
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
