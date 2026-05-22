@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { getUserPlan } from '@/lib/plans'
+import { useLang } from '@/contexts/LangContext'
+import { t, type Lang, type TKey } from '@/lib/i18n'
 
 type Billing = 'monthly' | 'yearly'
 
@@ -12,72 +14,54 @@ const C = {
   tx: '#e5e5f2', mu: '#5a5a7a', bd: '#1e1e34', sf: '#0e0e1c', s2: '#151528',
 }
 
-const COMPARISON = [
+// Feature cell value: boolean checkmark/dash, 'soon' token, or a translation key to resolve at render.
+type FeatureValue = boolean | 'soon' | { key: TKey }
+
+const COMPARISON: { labelKey: TKey; free: FeatureValue; pro: FeatureValue; scout: FeatureValue }[] = [
   // Core
-  { label: 'Jugadores visibles',                    free: 'Top 10',          pro: 'Top 25',          scout: 'Top 50'           },
-  { label: 'Temporadas disponibles',                free: '25/26 + 24/25',   pro: 'Desde 20/21',     scout: 'Desde 20/21'      },
-  { label: 'Publicidad',                            free: '⚠ Con anuncios',  pro: '✓ Sin anuncios',  scout: '✓ Sin anuncios'   },
+  { labelKey: 'pricing_cmp_players',     free: { key: 'pricing_val_top10' },       pro: { key: 'pricing_val_top25' },     scout: { key: 'pricing_val_top50' }     },
+  { labelKey: 'pricing_cmp_seasons',     free: { key: 'pricing_val_seasons_free' },pro: { key: 'pricing_val_since_2021' },scout: { key: 'pricing_val_since_2021' }},
+  { labelKey: 'pricing_cmp_ads',         free: { key: 'pricing_val_ads_warn' },    pro: { key: 'pricing_val_ad_free' },   scout: { key: 'pricing_val_ad_free' }   },
   // Stats
-  { label: 'Stats básicos (G/A/PJ)',                free: true,              pro: true,              scout: true               },
-  { label: 'Stats avanzados (G/90, A/90, ratio)',   free: false,             pro: true,              scout: true               },
-  { label: 'Disparos / Pases clave',                free: false,             pro: true,              scout: true               },
-  { label: 'Stats físicos (altura/peso/duelos)',    free: false,             pro: true,              scout: true               },
+  { labelKey: 'pricing_cmp_basic_stats', free: true,                               pro: true,                             scout: true                             },
+  { labelKey: 'pricing_cmp_adv_stats',   free: false,                              pro: true,                             scout: true                             },
+  { labelKey: 'pricing_cmp_shots',       free: false,                              pro: true,                             scout: true                             },
+  { labelKey: 'pricing_cmp_physical',    free: false,                              pro: true,                             scout: true                             },
   // Tools
-  { label: 'Radar chart (6 ejes)',                  free: 'Básico (3 ejes)', pro: true,              scout: true               },
-  { label: 'Comparador de jugadores',               free: false,             pro: true,              scout: true               },
-  { label: 'Trayectoria de temporada',              free: false,             pro: true,              scout: true               },
-  { label: 'Radar de Talentos',                     free: false,             pro: true,              scout: true               },
-  { label: 'Clasificaciones + partidos',            free: true,              pro: true,              scout: true               },
+  { labelKey: 'pricing_cmp_radar',       free: { key: 'pricing_val_radar_basic' }, pro: true,                             scout: true                             },
+  { labelKey: 'pricing_cmp_comparator',  free: false,                              pro: true,                             scout: true                             },
+  { labelKey: 'pricing_cmp_trajectory',  free: false,                              pro: true,                             scout: true                             },
+  { labelKey: 'pricing_cmp_scout_radar', free: false,                              pro: true,                             scout: true                             },
+  { labelKey: 'pricing_cmp_tables',      free: true,                               pro: true,                             scout: true                             },
   // User
-  { label: 'Watchlist privada',                     free: false,             pro: 'Hasta 20',        scout: 'Ilimitada'        },
-  { label: 'Export CSV',                            free: false,             pro: '50/mes',          scout: 'Ilimitado'        },
-  { label: 'Alertas de rendimiento',                free: false,             pro: false,             scout: 'soon'             },
+  { labelKey: 'pricing_cmp_watchlist',   free: false,                              pro: { key: 'pricing_val_upto20' },    scout: { key: 'pricing_val_unlimited_f' }},
+  { labelKey: 'pricing_cmp_export',      free: false,                              pro: { key: 'pricing_val_export_pro' },scout: { key: 'pricing_val_unlimited_m' }},
+  { labelKey: 'pricing_cmp_alerts',      free: false,                              pro: false,                            scout: 'soon'                           },
   // Scout
-  { label: 'Stats match-by-match',                  free: false,             pro: false,             scout: true               },
-  { label: 'Acceso API (100K req/mes)',             free: false,             pro: false,             scout: true               },
-  { label: 'Filtros avanzados pro',                 free: false,             pro: false,             scout: true               },
-  { label: 'Soporte prioritario',                   free: false,             pro: false,             scout: true               },
+  { labelKey: 'pricing_cmp_mbm',         free: false,                              pro: false,                            scout: true                             },
+  { labelKey: 'pricing_cmp_api',         free: false,                              pro: false,                            scout: true                             },
+  { labelKey: 'pricing_cmp_adv_filters', free: false,                              pro: false,                            scout: true                             },
+  { labelKey: 'pricing_cmp_support',     free: false,                              pro: false,                            scout: true                             },
 ]
 
-const FAQ = [
-  {
-    q: '¿La versión gratuita tiene publicidad?',
-    a: 'Sí, la versión gratuita incluye publicidad discreta para poder mantener el servicio. Los planes Pro y Scout son completamente libres de anuncios.',
-  },
-  {
-    q: '¿Puedo cancelar cuando quiera?',
-    a: 'Sí, sin permanencia. Cancelas desde tu cuenta y mantienes acceso hasta el final del período ya pagado.',
-  },
-  {
-    q: '¿Hay período de prueba?',
-    a: 'La versión Free es completamente gratuita para siempre. No hay prueba de tiempo limitado — simplemente empieza con Free y actualiza cuando lo necesites.',
-  },
-  {
-    q: '¿Qué métodos de pago aceptáis?',
-    a: 'Tarjeta de crédito/débito (Visa, Mastercard, Amex) y SEPA Direct Debit para cuentas europeas, todo gestionado de forma segura a través de Stripe.',
-  },
-  {
-    q: '¿Con qué frecuencia se actualizan los datos?',
-    a: 'Los datos de la temporada en curso (25/26) se actualizan periódicamente desde las fuentes indicadas. Las temporadas anteriores son históricos consolidados.',
-  },
-  {
-    q: '¿Puedo cambiar de mensual a anual?',
-    a: 'Sí, puedes cambiar en cualquier momento desde tu cuenta. Al cambiar a anual se aplica un prorrateo del período restante.',
-  },
+const FAQ: { q: TKey; a: TKey }[] = [
+  { q: 'pricing_faq_q1', a: 'pricing_faq_a1' },
+  { q: 'pricing_faq_q2', a: 'pricing_faq_a2' },
+  { q: 'pricing_faq_q3', a: 'pricing_faq_a3' },
+  { q: 'pricing_faq_q4', a: 'pricing_faq_a4' },
+  { q: 'pricing_faq_q5', a: 'pricing_faq_a5' },
+  { q: 'pricing_faq_q6', a: 'pricing_faq_a6' },
 ]
 
-type ComparisonRow = { label: string; free: FeatureValue; pro: FeatureValue; scout: FeatureValue }
-type FeatureValue = boolean | string
-
-function Cell({ v }: { v: FeatureValue }) {
+function Cell({ v, lang }: { v: FeatureValue; lang: Lang }) {
   if (v === true)    return <span style={{ color: C.gr, fontSize: 15 }}>✓</span>
   if (v === false)   return <span style={{ color: '#2a2a48', fontSize: 15 }}>—</span>
   if (v === 'soon')  return (
     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ color: C.bl, background: 'rgba(74,158,255,.12)', border: '1px solid rgba(74,158,255,.22)' }}>
-      Próx.
+      {t('pricing_soon_short', lang)}
     </span>
   )
-  return <span style={{ color: C.tx, fontSize: 12 }}>{v}</span>
+  return <span style={{ color: C.tx, fontSize: 12 }}>{t(v.key, lang)}</span>
 }
 
 interface CardProps {
@@ -99,9 +83,10 @@ interface CardProps {
   disabled?: boolean
   onCtaClick?: () => void
   contextLine?: string
+  lang: Lang
 }
 
-function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, badge, badgeColor, highlight, cta, ctaHref, ctaVariant, features, locked, disabled, onCtaClick, contextLine }: CardProps) {
+function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, badge, badgeColor, highlight, cta, ctaHref, ctaVariant, features, locked, disabled, onCtaClick, contextLine, lang }: CardProps) {
   const a = accent ?? (highlight ? C.gd : C.bd)
   const bColor = badgeColor ?? a
   return (
@@ -129,18 +114,18 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
 
         <div className="flex items-end gap-1 mb-1">
           {price === 0 ? (
-            <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 44, color: C.tx, lineHeight: 1 }}>Gratis</span>
+            <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 44, color: C.tx, lineHeight: 1 }}>{t('pricing_free_price', lang)}</span>
           ) : (
             <>
               <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 44, color: C.tx, lineHeight: 1 }}>€{price}</span>
-              <span className="text-[12px] pb-2" style={{ color: C.mu }}>/{billing === 'monthly' ? 'mes' : 'año'}</span>
+              <span className="text-[12px] pb-2" style={{ color: C.mu }}>/{billing === 'monthly' ? t('pricing_per_month', lang) : t('pricing_per_year', lang)}</span>
             </>
           )}
         </div>
 
         {perMonth && savePercent && (
           <div className="text-[11px] mb-1" style={{ color: C.mu }}>
-            €{perMonth}/mes · <span style={{ color: C.gr }}>ahorra {savePercent}%</span>
+            €{perMonth}{t('pricing_per_month_unit', lang)} · <span style={{ color: C.gr }}>{t('pricing_save', lang)} {savePercent}%</span>
           </div>
         )}
 
@@ -153,8 +138,9 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
 
       <div className="flex flex-col gap-2 px-6 py-4 flex-1">
         {features.map(f => {
-          const soon = f.endsWith(' — Próx.')
-          const text = f.replace(' — Próx.', '')
+          const soonSuffix = ` — ${t('pricing_soon_short', lang)}`
+          const soon = f.endsWith(soonSuffix)
+          const text = soon ? f.slice(0, -soonSuffix.length) : f
           const isWarning = f.startsWith('⚠')
           return (
             <div key={f} className="flex items-start gap-2 text-[12.5px]">
@@ -165,7 +151,7 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
                 {text}
                 {soon && (
                   <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ color: C.bl, background: 'rgba(74,158,255,.12)', border: '1px solid rgba(74,158,255,.22)' }}>
-                    Próx.
+                    {t('pricing_soon_short', lang)}
                   </span>
                 )}
               </span>
@@ -186,7 +172,7 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
             className="block text-center text-[13px] font-bold py-2.5 rounded-sm"
             style={{ background: 'rgba(56,196,122,.1)', color: C.gr, border: '1px solid rgba(56,196,122,.25)' }}
           >
-            ✓ Plan activo
+            {t('pricing_plan_active', lang)}
           </div>
         ) : (
           <button
@@ -212,6 +198,7 @@ export default function PricingPage() {
   const [billing, setBilling] = useState<Billing>('monthly')
   const { user } = useUser()
   const clerk = useClerk()
+  const { lang } = useLang()
   const plan = getUserPlan(user?.publicMetadata as Record<string, unknown>)
 
   function handleProCta(ctaHref: string) {
@@ -229,16 +216,16 @@ export default function PricingPage() {
         {/* Hero */}
         <div className="text-center mb-12">
           <div className="text-[10px] font-bold tracking-[3.5px] uppercase mb-3" style={{ color: C.gd }}>
-            Planes y precios
+            {t('pricing_eyebrow', lang)}
           </div>
           <h1
             className="leading-none mb-4"
             style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(40px, 7vw, 80px)', letterSpacing: 2 }}
           >
-            Elige tu <span style={{ color: C.gd }}>plan</span>
+            {t('pricing_h1_pre', lang)} <span style={{ color: C.gd }}>{t('pricing_h1_accent', lang)}</span>
           </h1>
           <p className="text-[14px] max-w-[500px] mx-auto leading-relaxed" style={{ color: C.mu }}>
-            Desde el Top 10 gratuito hasta datos históricos de 5+ temporadas, stats avanzados y herramientas de análisis profesional. Los planes de pago son completamente <span style={{ color: C.tx }}>sin publicidad</span>.
+            {t('pricing_subtitle_pre', lang)}<span style={{ color: C.tx }}>{t('pricing_subtitle_em', lang)}</span>.
           </p>
         </div>
 
@@ -255,7 +242,7 @@ export default function PricingPage() {
                   : { background: 'transparent', color: C.mu }
                 }
               >
-                {b === 'monthly' ? 'Mensual' : 'Anual'}
+                {b === 'monthly' ? t('pricing_monthly', lang) : t('pricing_yearly', lang)}
                 {b === 'yearly' && (
                   <span
                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
@@ -264,7 +251,7 @@ export default function PricingPage() {
                       : { color: C.gr, background: 'rgba(56,196,122,.15)', border: '1px solid rgba(56,196,122,.3)' }
                     }
                   >
-                    Ahorra 33–37%
+                    {t('pricing_save_badge', lang)}
                   </span>
                 )}
               </button>
@@ -278,18 +265,19 @@ export default function PricingPage() {
             name="Free"
             price={0}
             billing={billing}
-            desc="Para explorar sin compromiso. Sin registro."
+            lang={lang}
+            desc={t('pricing_free_desc', lang)}
             highlight={false}
-            cta="Empezar gratis"
+            cta={t('pricing_free_cta', lang)}
             ctaHref="/"
             ctaVariant="ghost"
             disabled={plan === 'free' && !!user}
             features={[
-              'Top 10 goleadores y asistentes por liga',
-              'Clasificaciones y partidos en directo',
-              'Perfiles básicos de jugadores',
-              'Todas las competiciones europeas',
-              '⚠ Con publicidad discreta',
+              t('pricing_free_f1', lang),
+              t('pricing_free_f2', lang),
+              t('pricing_free_f3', lang),
+              t('pricing_free_f4', lang),
+              t('pricing_free_f5', lang),
             ]}
           />
 
@@ -297,27 +285,28 @@ export default function PricingPage() {
             name="Pro"
             price={billing === 'monthly' ? 4.99 : 39.99}
             billing={billing}
+            lang={lang}
             perMonth={billing === 'yearly' ? 3.33 : undefined}
             savePercent={billing === 'yearly' ? 33 : undefined}
-            desc="Para el analista de fútbol serio."
+            desc={t('pricing_pro_desc', lang)}
             highlight={true}
-            badge="MÁS POPULAR"
+            badge={t('pricing_pro_badge', lang)}
             badgeColor={C.gd}
-            cta="Empezar Pro"
+            cta={t('pricing_pro_cta', lang)}
             ctaHref={`/api/stripe/checkout?plan=pro&billing=${billing}`}
             ctaVariant="gold"
             disabled={plan === 'pro'}
             onCtaClick={() => handleProCta(`/api/stripe/checkout?plan=pro&billing=${billing}`)}
-            contextLine="Compara con: FotMob Pro $2.99/mes (solo quita anuncios)"
+            contextLine={t('pricing_pro_context', lang)}
             features={[
-              'Todo lo de Free, sin anuncios',
-              'Top 25 + todas las temporadas desde 20/21',
-              'Stats avanzados: G/90, A/90, disparos, pases clave',
-              'Radar completo + comparador de jugadores',
-              'Trayectoria de temporada visual',
-              'Radar de Talentos — descubre jugadores infravalorados',
-              'Watchlist privada hasta 20 jugadores',
-              'Export CSV 50/mes',
+              t('pricing_pro_f1', lang),
+              t('pricing_pro_f2', lang),
+              t('pricing_pro_f3', lang),
+              t('pricing_pro_f4', lang),
+              t('pricing_pro_f5', lang),
+              t('pricing_pro_f6', lang),
+              t('pricing_pro_f7', lang),
+              t('pricing_pro_f8', lang),
             ]}
           />
 
@@ -325,29 +314,30 @@ export default function PricingPage() {
             name="Scout"
             price={billing === 'monthly' ? 11.99 : 89.99}
             billing={billing}
+            lang={lang}
             perMonth={billing === 'yearly' ? 7.5 : undefined}
             savePercent={billing === 'yearly' ? 37 : undefined}
-            desc="Para analistas, periodistas y ojeadores."
+            desc={t('pricing_scout_desc', lang)}
             accent={C.pu}
             highlight={false}
-            badge="PARA SCOUTS"
+            badge={t('pricing_scout_badge', lang)}
             badgeColor={C.pu}
-            cta="Empezar Scout"
+            cta={t('pricing_scout_cta', lang)}
             ctaHref={`/api/stripe/checkout?plan=scout&billing=${billing}`}
             ctaVariant="scout"
             disabled={plan === 'scout'}
             onCtaClick={() => handleProCta(`/api/stripe/checkout?plan=scout&billing=${billing}`)}
-            contextLine="Todo el análisis que los scouts profesionales necesitan"
+            contextLine={t('pricing_scout_context', lang)}
             features={[
-              'Todo lo de Pro, sin límites',
-              'Top 50 + historial completo',
-              'Stats match-by-match por jugador',
-              'API acceso 100K req/mes',
-              'Filtros avanzados: posición exacta, edad, valor mercado',
-              'Alertas de rendimiento por email (próximo) — Próx.',
-              'Watchlist ilimitada',
-              'Export CSV sin límites',
-              'Soporte prioritario',
+              t('pricing_scout_f1', lang),
+              t('pricing_scout_f2', lang),
+              t('pricing_scout_f3', lang),
+              t('pricing_scout_f4', lang),
+              t('pricing_scout_f5', lang),
+              t('pricing_scout_f6', lang),
+              t('pricing_scout_f7', lang),
+              t('pricing_scout_f8', lang),
+              t('pricing_scout_f9', lang),
             ]}
           />
         </div>
@@ -358,31 +348,31 @@ export default function PricingPage() {
             className="text-center mb-8 leading-none"
             style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 34, letterSpacing: 2 }}
           >
-            Comparativa completa
+            {t('pricing_cmp_title', lang)}
           </h2>
           <div className="overflow-x-auto" style={{ border: `1px solid ${C.bd}`, borderRadius: 2 }}>
             <table className="w-full text-[13px] border-collapse">
               <thead>
                 <tr style={{ background: C.sf, borderBottom: `1px solid ${C.bd}` }}>
-                  <th className="py-3 px-5 text-left font-semibold" style={{ color: C.mu, width: '45%' }}>Feature</th>
+                  <th className="py-3 px-5 text-left font-semibold" style={{ color: C.mu, width: '45%' }}>{t('pricing_cmp_feature', lang)}</th>
                   <th className="py-3 px-4 text-center font-semibold" style={{ color: C.mu }}>Free</th>
                   <th className="py-3 px-4 text-center font-bold" style={{ color: C.gd }}>Pro</th>
                   <th className="py-3 px-4 text-center font-bold" style={{ color: C.pu }}>Scout</th>
                 </tr>
               </thead>
               <tbody>
-                {(COMPARISON as ComparisonRow[]).map((row, i) => (
+                {COMPARISON.map((row, i) => (
                   <tr
-                    key={row.label}
+                    key={row.labelKey}
                     style={{
                       background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,.012)',
                       borderBottom: i < COMPARISON.length - 1 ? `1px solid rgba(30,30,52,.8)` : 'none',
                     }}
                   >
-                    <td className="py-3 px-5 font-medium" style={{ color: C.tx }}>{row.label}</td>
-                    <td className="py-3 px-4 text-center"><Cell v={row.free} /></td>
-                    <td className="py-3 px-4 text-center"><Cell v={row.pro} /></td>
-                    <td className="py-3 px-4 text-center"><Cell v={row.scout} /></td>
+                    <td className="py-3 px-5 font-medium" style={{ color: C.tx }}>{t(row.labelKey, lang)}</td>
+                    <td className="py-3 px-4 text-center"><Cell v={row.free} lang={lang} /></td>
+                    <td className="py-3 px-4 text-center"><Cell v={row.pro} lang={lang} /></td>
+                    <td className="py-3 px-4 text-center"><Cell v={row.scout} lang={lang} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -396,7 +386,7 @@ export default function PricingPage() {
             className="text-center mb-8 leading-none"
             style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 34, letterSpacing: 2 }}
           >
-            Preguntas frecuentes
+            {t('pricing_faq_title', lang)}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {FAQ.map(item => (
@@ -405,8 +395,8 @@ export default function PricingPage() {
                 className="p-5 rounded-sm"
                 style={{ background: C.sf, border: `1px solid ${C.bd}` }}
               >
-                <p className="font-semibold mb-2 text-[13px]" style={{ color: C.tx }}>{item.q}</p>
-                <p className="text-[12px] leading-relaxed" style={{ color: C.mu }}>{item.a}</p>
+                <p className="font-semibold mb-2 text-[13px]" style={{ color: C.tx }}>{t(item.q, lang)}</p>
+                <p className="text-[12px] leading-relaxed" style={{ color: C.mu }}>{t(item.a, lang)}</p>
               </div>
             ))}
           </div>
@@ -421,7 +411,7 @@ export default function PricingPage() {
           }}
         >
           <p className="text-[13px] mb-5" style={{ color: C.mu }}>
-            ¿Tienes preguntas?{' '}
+            {t('pricing_questions', lang)}{' '}
             <a href="mailto:support@top-scorers.com" style={{ color: C.tx }}>
               support@top-scorers.com
             </a>
@@ -431,7 +421,7 @@ export default function PricingPage() {
             className="inline-block text-[12px] font-semibold px-4 py-2 rounded-sm transition-all duration-150"
             style={{ color: C.gd, border: `1px solid rgba(240,192,64,.25)`, background: 'rgba(240,192,64,.05)' }}
           >
-            ← Volver a la app
+            {t('pricing_back_app', lang)}
           </Link>
         </div>
 

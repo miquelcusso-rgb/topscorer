@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@/lib/i18n'
 
 // Clubs agrupados por liga
 const CLUBS_BY_LEAGUE: Record<string, { name: string; logo: number }[]> = {
@@ -66,6 +68,7 @@ const ALL_CLUBS = Object.values(CLUBS_BY_LEAGUE).flat()
 export default function OnboardingPage() {
   const { user, isLoaded } = useUser()
   const router = useRouter()
+  const { lang } = useLang()
   const [selected, setSelected] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
@@ -121,10 +124,10 @@ export default function OnboardingPage() {
               fontSize: 26, color: '#e8e8f8', letterSpacing: 0.5,
             }}
           >
-            ¡Bienvenido{user?.firstName ? `, ${user.firstName}` : ''}!
+            {t('onb_welcome', lang)}{user?.firstName ? `, ${user.firstName}` : ''}!
           </h1>
           <p className="text-[13px]" style={{ color: '#5060a0' }}>
-            ¿Cuál es tu club favorito? Personalizaremos tu experiencia.
+            {t('onb_subtitle', lang)}
           </p>
         </div>
 
@@ -132,7 +135,7 @@ export default function OnboardingPage() {
         <div className="px-5 pt-4 pb-2">
           <input
             type="text"
-            placeholder="Buscar club…"
+            placeholder={t('onb_search', lang)}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full rounded text-[13px] px-3 py-2 outline-none"
@@ -152,7 +155,7 @@ export default function OnboardingPage() {
                 className="text-[10px] font-bold uppercase tracking-[2px] mb-2 mt-3"
                 style={{ color: '#3a3b52', fontFamily: "'Barlow Condensed', sans-serif" }}
               >
-                {league}
+                {league === 'Resultados' ? t('onb_results', lang) : league === 'Outros' ? t('onb_league_others', lang) : league}
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {clubs.map(club => {
@@ -208,7 +211,7 @@ export default function OnboardingPage() {
               letterSpacing: 1,
             }}
           >
-            {saving ? 'Guardando…' : selected ? `Seguir con ${selected}` : 'Selecciona un club'}
+            {saving ? t('onb_saving', lang) : selected ? `${t('onb_continue_with', lang)} ${selected}` : t('onb_select_club', lang)}
           </button>
           <button
             onClick={handleSkip}
@@ -217,7 +220,7 @@ export default function OnboardingPage() {
             onMouseEnter={e => (e.currentTarget.style.color = '#7878a0')}
             onMouseLeave={e => (e.currentTarget.style.color = '#3a3b52')}
           >
-            Ahora no
+            {t('onb_skip', lang)}
           </button>
         </div>
       </div>

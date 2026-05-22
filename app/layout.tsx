@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'TopScorers', url: 'https://www.top-scorers.com' }],
   creator: 'TopScorers',
   publisher: 'TopScorers',
-  // TODO: paste Search Console token here before launch
-  // verification: { google: 'YOUR_GOOGLE_SEARCH_CONSOLE_TOKEN' },
+  // Search Console: verified via DNS domain property (sc-domain:top-scorers.com).
+  // No HTML meta tag needed — DNS verification covers all subdomains/protocols.
   openGraph: {
     type: 'website',
     locale: 'es_ES',
