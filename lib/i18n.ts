@@ -128,6 +128,9 @@ export const T = {
   theme_aria_to_light: { es: 'Cambiar a modo claro', en: 'Switch to light mode' },
   theme_aria_to_dark:  { es: 'Cambiar a modo oscuro', en: 'Switch to dark mode' },
 
+  // Discovery
+  nav_discover:    { es: 'Radar Talentos', en: 'Scout Radar' },
+
   // Nav auth
   nav_sign_in:     { es: 'Entrar', en: 'Sign in' },
   nav_go_pro:      { es: '⚡ Pro', en: '⚡ Pro' },

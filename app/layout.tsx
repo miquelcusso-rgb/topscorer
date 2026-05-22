@@ -9,6 +9,7 @@ import { LangProvider } from '@/contexts/LangContext'
 import type { Lang } from '@/lib/i18n'
 import AddToHomeScreen from '@/components/AddToHomeScreen'
 import ServiceWorkerRegistrar from '@/components/ServiceWorkerRegistrar'
+import AppDownloadBanner from '@/components/AppDownloadBanner'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -90,6 +91,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </ThemeProvider>
           </LangProvider>
           <ServiceWorkerRegistrar />
+          <AppDownloadBanner />
           <SpeedInsights />
         </body>
       </html>

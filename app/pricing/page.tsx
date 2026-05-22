@@ -13,20 +13,37 @@ const C = {
 }
 
 const COMPARISON = [
-  { label: 'Jugadores visibles',   free: 'Top 10',           pro: 'Top 25 + Top 50',  scout: 'Top 25 + Top 50'  },
-  { label: 'Temporadas',           free: '2 (25/26, 24/25)', pro: '5+ (desde 20/21)', scout: '6+ (desde 20/21)' },
-  { label: 'Filtros liga / edad',  free: true,               pro: true,               scout: true               },
-  { label: 'ELO & Fantasy',        free: true,               pro: true,               scout: true               },
-  { label: 'Hover card',           free: 'Básico',           pro: 'Completo',         scout: 'Completo'         },
-  { label: 'Columnas custom',      free: false,              pro: true,               scout: true               },
-  { label: 'Sin publicidad',       free: false,              pro: true,               scout: true               },
-  { label: 'Watchlist privada',    free: false,              pro: 'soon',             scout: 'soon'             },
-  { label: 'Comparador avanzado',  free: false,              pro: false,              scout: true               },
-  { label: 'Alertas email',        free: false,              pro: false,              scout: true               },
-  { label: 'Export CSV',           free: false,              pro: 'soon',             scout: true               },
+  // Core
+  { label: 'Jugadores visibles',                    free: 'Top 10',          pro: 'Top 25',          scout: 'Top 50'           },
+  { label: 'Temporadas disponibles',                free: 'Solo 25/26',      pro: 'Desde 20/21',     scout: 'Desde 20/21'      },
+  { label: 'Publicidad',                            free: '⚠ Con anuncios',  pro: '✓ Sin anuncios',  scout: '✓ Sin anuncios'   },
+  // Stats
+  { label: 'Stats básicos (G/A/PJ)',                free: true,              pro: true,              scout: true               },
+  { label: 'Stats avanzados (G/90, A/90, ratio)',   free: false,             pro: true,              scout: true               },
+  { label: 'Disparos / Pases clave',                free: false,             pro: true,              scout: true               },
+  { label: 'Stats físicos (altura/peso/duelos)',    free: false,             pro: true,              scout: true               },
+  // Tools
+  { label: 'Radar chart (6 ejes)',                  free: 'Básico (3 ejes)', pro: true,              scout: true               },
+  { label: 'Comparador de jugadores',               free: false,             pro: true,              scout: true               },
+  { label: 'Trayectoria de temporada',              free: false,             pro: true,              scout: true               },
+  { label: 'Radar de Talentos',                     free: false,             pro: true,              scout: true               },
+  { label: 'Clasificaciones + partidos',            free: true,              pro: true,              scout: true               },
+  // User
+  { label: 'Watchlist privada',                     free: false,             pro: 'Hasta 20',        scout: 'Ilimitada'        },
+  { label: 'Export CSV',                            free: false,             pro: '50/mes',          scout: 'Ilimitado'        },
+  { label: 'Alertas de rendimiento',                free: false,             pro: false,             scout: 'soon'             },
+  // Scout
+  { label: 'Stats match-by-match',                  free: false,             pro: false,             scout: true               },
+  { label: 'Acceso API (100K req/mes)',             free: false,             pro: false,             scout: true               },
+  { label: 'Filtros avanzados pro',                 free: false,             pro: false,             scout: true               },
+  { label: 'Soporte prioritario',                   free: false,             pro: false,             scout: true               },
 ]
 
 const FAQ = [
+  {
+    q: '¿La versión gratuita tiene publicidad?',
+    a: 'Sí, la versión gratuita incluye publicidad discreta para poder mantener el servicio. Los planes Pro y Scout son completamente libres de anuncios.',
+  },
   {
     q: '¿Puedo cancelar cuando quiera?',
     a: 'Sí, sin permanencia. Cancelas desde tu cuenta y mantienes acceso hasta el final del período ya pagado.',
@@ -68,9 +85,11 @@ interface CardProps {
   price: number
   billing: Billing
   perMonth?: number
+  savePercent?: number
   desc: string
   accent?: string
   badge?: string
+  badgeColor?: string
   highlight?: boolean
   cta: string
   ctaHref: string
@@ -79,10 +98,12 @@ interface CardProps {
   locked?: string[]
   disabled?: boolean
   onCtaClick?: () => void
+  contextLine?: string
 }
 
-function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlight, cta, ctaHref, ctaVariant, features, locked, disabled, onCtaClick }: CardProps) {
+function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, badge, badgeColor, highlight, cta, ctaHref, ctaVariant, features, locked, disabled, onCtaClick, contextLine }: CardProps) {
   const a = accent ?? (highlight ? C.gd : C.bd)
+  const bColor = badgeColor ?? a
   return (
     <div
       className="flex flex-col rounded-sm relative"
@@ -95,7 +116,7 @@ function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlig
       {badge && (
         <div
           className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold tracking-[2px] uppercase px-3 py-0.5 rounded-full"
-          style={{ background: a, color: '#07070f' }}
+          style={{ background: bColor, color: '#07070f' }}
         >
           {badge}
         </div>
@@ -117,10 +138,14 @@ function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlig
           )}
         </div>
 
-        {perMonth && (
-          <div className="text-[11px] mb-2" style={{ color: C.mu }}>
-            €{perMonth}/mes · <span style={{ color: C.gr }}>2 meses gratis</span>
+        {perMonth && savePercent && (
+          <div className="text-[11px] mb-1" style={{ color: C.mu }}>
+            €{perMonth}/mes · <span style={{ color: C.gr }}>ahorra {savePercent}%</span>
           </div>
+        )}
+
+        {contextLine && (
+          <div className="text-[10px] mb-2" style={{ color: '#3a3a5a' }}>{contextLine}</div>
         )}
 
         <p className="text-[12px] leading-relaxed" style={{ color: C.mu }}>{desc}</p>
@@ -130,12 +155,13 @@ function PlanCard({ name, price, billing, perMonth, desc, accent, badge, highlig
         {features.map(f => {
           const soon = f.endsWith(' — Próx.')
           const text = f.replace(' — Próx.', '')
+          const isWarning = f.startsWith('⚠')
           return (
             <div key={f} className="flex items-start gap-2 text-[12.5px]">
-              <span className="shrink-0 mt-0.5" style={{ color: soon ? C.bl : C.gr }}>
-                {soon ? '◷' : '✓'}
+              <span className="shrink-0 mt-0.5" style={{ color: soon ? C.bl : isWarning ? '#c48a30' : C.gr }}>
+                {soon ? '◷' : isWarning ? '' : '✓'}
               </span>
-              <span style={{ color: soon ? '#5a5a9a' : C.tx }}>
+              <span style={{ color: soon ? '#5a5a9a' : isWarning ? '#9a7a40' : C.tx }}>
                 {text}
                 {soon && (
                   <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ color: C.bl, background: 'rgba(74,158,255,.12)', border: '1px solid rgba(74,158,255,.22)' }}>
@@ -212,7 +238,7 @@ export default function PricingPage() {
             Elige tu <span style={{ color: C.gd }}>plan</span>
           </h1>
           <p className="text-[14px] max-w-[500px] mx-auto leading-relaxed" style={{ color: C.mu }}>
-            Desde el Top 10 gratuito hasta datos históricos de 5+ temporadas, columnas personalizables y herramientas de análisis avanzado.
+            Desde el Top 10 gratuito hasta datos históricos de 5+ temporadas, stats avanzados y herramientas de análisis profesional. Los planes de pago son completamente <span style={{ color: C.tx }}>sin publicidad</span>.
           </p>
         </div>
 
@@ -238,7 +264,7 @@ export default function PricingPage() {
                       : { color: C.gr, background: 'rgba(56,196,122,.15)', border: '1px solid rgba(56,196,122,.3)' }
                     }
                   >
-                    −20%
+                    Ahorra 33–37%
                   </span>
                 )}
               </button>
@@ -259,69 +285,69 @@ export default function PricingPage() {
             ctaVariant="ghost"
             disabled={plan === 'free' && !!user}
             features={[
-              'Top 10 goleadores / asistentes',
-              '2 temporadas (25/26 + 24/25)',
-              'Filtros de liga y edad',
-              'Hover card con estadísticas',
-              'ELO y Fantasy',
-              'Sin registro necesario',
-            ]}
-            locked={[
-              'Top 25 y Top 50',
-              '5+ temporadas históricas',
-              'Columnas personalizables',
-              'Watchlist y comparador',
+              'Top 10 goleadores y asistentes por liga',
+              'Clasificaciones y partidos en directo',
+              'Perfiles básicos de jugadores',
+              'Todas las competiciones europeas',
+              '⚠ Con publicidad discreta',
             ]}
           />
 
           <PlanCard
             name="Pro"
-            price={billing === 'monthly' ? 6 : 58}
+            price={billing === 'monthly' ? 4.99 : 39.99}
             billing={billing}
-            perMonth={billing === 'yearly' ? 4.8 : undefined}
+            perMonth={billing === 'yearly' ? 3.33 : undefined}
+            savePercent={billing === 'yearly' ? 33 : undefined}
             desc="Para el analista de fútbol serio."
             highlight={true}
-            badge="Más popular"
+            badge="MÁS POPULAR"
+            badgeColor={C.gd}
             cta="Empezar Pro"
             ctaHref={`/api/stripe/checkout?plan=pro&billing=${billing}`}
             ctaVariant="gold"
             disabled={plan === 'pro'}
             onCtaClick={() => handleProCta(`/api/stripe/checkout?plan=pro&billing=${billing}`)}
+            contextLine="Compara con: FotMob Pro $2.99/mes (solo quita anuncios)"
             features={[
-              'Top 25 + toggle Top 50',
-              '5+ temporadas (hasta 20/21)',
-              'Columnas totalmente personalizables',
-              'Sin publicidad',
-              'ELO y Fantasy completo',
-              'Watchlist privada — Próx.',
-              'Comparador de jugadores — Próx.',
-              'Export CSV — Próx.',
+              'Todo lo de Free, sin anuncios',
+              'Top 25 + todas las temporadas desde 20/21',
+              'Stats avanzados: G/90, A/90, disparos, pases clave',
+              'Radar completo + comparador de jugadores',
+              'Trayectoria de temporada visual',
+              'Radar de Talentos — descubre jugadores infravalorados',
+              'Watchlist privada hasta 20 jugadores',
+              'Export CSV 50/mes',
             ]}
           />
 
           <PlanCard
             name="Scout"
-            price={billing === 'monthly' ? 18 : 168}
+            price={billing === 'monthly' ? 11.99 : 89.99}
             billing={billing}
-            perMonth={billing === 'yearly' ? 14 : undefined}
+            perMonth={billing === 'yearly' ? 7.5 : undefined}
+            savePercent={billing === 'yearly' ? 37 : undefined}
             desc="Para analistas, periodistas y ojeadores."
             accent={C.pu}
             highlight={false}
-            badge="Para profesionales"
+            badge="PARA SCOUTS"
+            badgeColor={C.pu}
             cta="Empezar Scout"
             ctaHref={`/api/stripe/checkout?plan=scout&billing=${billing}`}
             ctaVariant="scout"
             disabled={plan === 'scout'}
             onCtaClick={() => handleProCta(`/api/stripe/checkout?plan=scout&billing=${billing}`)}
+            contextLine="Todo el análisis que los scouts profesionales necesitan"
             features={[
-              'Todo lo de Pro',
-              'Radar de atributos comparativo',
-              'Comparador avanzado de jugadores',
-              'Alertas de lesiones y transferencias',
-              'Export CSV de estadísticas',
-              'Historial 6+ temporadas',
-              'Hasta 3 usuarios — Próx.',
-              'Acceso API datos — Próx.',
+              'Todo lo de Pro, sin límites',
+              'Top 50 + historial completo',
+              'Stats match-by-match por jugador',
+              'API acceso 100K req/mes',
+              'Filtros avanzados: posición exacta, edad, valor mercado',
+              'Alertas de rendimiento por email (próximo) — Próx.',
+              'Watchlist ilimitada',
+              'Export CSV sin límites',
+              'Soporte prioritario',
             ]}
           />
         </div>

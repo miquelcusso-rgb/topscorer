@@ -65,6 +65,7 @@ export default function Navbar() {
   // Secondary links (in "Más" dropdown)
   const secondaryLinks = [
     { href: '/jugadores',    label: t('nav_players', lang) },
+    { href: '/descubrir',    label: t('nav_discover', lang) },
     { href: '/transferencias', label: t('nav_transfers', lang) },
     { href: '/mundial-2026', label: t('nav_world_cup', lang) },
   ]

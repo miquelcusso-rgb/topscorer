@@ -143,7 +143,7 @@ export const getTopScorers = unstable_cache(
     return data.response ?? []
   },
   ['api-football-topscorers'],
-  { revalidate: 3600, tags: ['api-football'] }
+  { revalidate: 10800, tags: ['api-football'] } // 3 h — scorers change slowly
 )
 
 export const getTopAssists = unstable_cache(
@@ -154,7 +154,7 @@ export const getTopAssists = unstable_cache(
     return data.response ?? []
   },
   ['api-football-topassists'],
-  { revalidate: 3600, tags: ['api-football'] }
+  { revalidate: 10800, tags: ['api-football'] } // 3 h — assists change slowly
 )
 
 export const getStandings = unstable_cache(
@@ -165,7 +165,7 @@ export const getStandings = unstable_cache(
     return data.response?.[0]?.league?.standings?.[0] ?? []
   },
   ['api-football-standings'],
-  { revalidate: 3600, tags: ['api-football'] }
+  { revalidate: 21600, tags: ['api-football'] } // 6 h — standings update ~weekly
 )
 
 export const getFixtures = unstable_cache(
@@ -176,7 +176,7 @@ export const getFixtures = unstable_cache(
     return data.response ?? []
   },
   ['api-football-fixtures'],
-  { revalidate: 1800, tags: ['api-football'] }
+  { revalidate: 86400, tags: ['api-football'] } // 24 h — past fixtures never change
 )
 
 export const getNextFixtures = unstable_cache(
@@ -187,8 +187,67 @@ export const getNextFixtures = unstable_cache(
     return data.response ?? []
   },
   ['api-football-next-fixtures'],
-  { revalidate: 1800, tags: ['api-football'] }
+  { revalidate: 3600, tags: ['api-football'] } // 1 h — upcoming fixtures may shift
 )
+
+// ─── Extended player detail type ─────────────────────────────────────────────
+
+export interface ApiPlayerDetail {
+  player: {
+    id: number
+    name: string
+    firstname: string
+    lastname: string
+    age: number
+    birth: { date: string; place: string; country: string }
+    nationality: string
+    height: string
+    weight: string
+    injured: boolean
+    photo: string
+  }
+  statistics: Array<{
+    team: { id: number; name: string; logo: string }
+    league: { id: number; name: string; country: string; logo: string; season: number }
+    games: {
+      appearences: number
+      lineups: number
+      minutes: number
+      rating: string | null
+      captain: boolean
+    }
+    substitutes: { in: number; out: number; bench: number }
+    shots: { total: number | null; on: number | null }
+    goals: { total: number; conceded: number; assists: number | null; saves: number | null }
+    passes: { total: number | null; key: number | null; accuracy: number | null }
+    tackles: { total: number | null; blocks: number | null; interceptions: number | null }
+    duels: { total: number | null; won: number | null }
+    dribbles: { attempts: number | null; success: number | null }
+    fouls: { drawn: number | null; committed: number | null }
+    cards: { yellow: number; yellowred: number; red: number }
+    penalty: { won: number | null; scored: number; missed: number; saved: number | null }
+  }>
+}
+
+export async function getPlayerDetails(
+  playerId: number,
+  season: number = 2025
+): Promise<ApiPlayerDetail | null> {
+  return unstable_cache(
+    async () => {
+      try {
+        const data = await apiFetch<ApiPlayerDetail[]>(
+          `/players?id=${playerId}&season=${season}`
+        )
+        return data.response?.[0] ?? null
+      } catch {
+        return null
+      }
+    },
+    [`api-football-player-detail-${playerId}-${season}`],
+    { revalidate: 7200, tags: ['api-football'] } // 2 h — bio never changes, stats update per match
+  )()
+}
 
 export async function searchPlayer(name: string, season: number = 2025): Promise<ApiPlayerResponse[]> {
   return unstable_cache(

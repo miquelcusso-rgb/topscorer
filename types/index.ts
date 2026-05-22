@@ -36,6 +36,22 @@ export interface PlayerData {
   ballsLost?: number
   keyPasses?: number
   progressivePasses?: number
+  // Enhanced physical & API data
+  height?: string
+  weight?: string
+  birthPlace?: string
+  birthDate?: string
+  rating?: number
+  shotsTotal?: number
+  shotsOn?: number
+  passesKey?: number
+  passesAccuracy?: number
+  tacklesTotal?: number
+  duelsWon?: number
+  dribblesSuccess?: number
+  yellowCards?: number
+  redCards?: number
+  penaltiesScored?: number
 }
 
 export interface EnrichedPlayer extends PlayerData {

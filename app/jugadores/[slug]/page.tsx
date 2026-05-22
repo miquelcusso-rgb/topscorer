@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation'
 import { PLAYERS } from '@/data/players'
 import { enrich } from '@/lib/utils'
 import { slugify } from '@/lib/slugify'
-import { searchPlayer } from '@/lib/api-football'
+import { searchPlayer, getPlayerDetails } from '@/lib/api-football'
+import type { ApiPlayerDetail } from '@/lib/api-football'
 import PlayerPageClient from './PlayerPageClient'
 
 export const revalidate = 3600
@@ -36,14 +37,27 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
   const enriched = enrich(basePlayer)
 
   let liveStats = null
+  let playerDetails: ApiPlayerDetail | null = null
+
   try {
     const results = await searchPlayer(basePlayer.name)
-    if (results.length > 0) liveStats = results[0]
+    if (results.length > 0) {
+      liveStats = results[0]
+      const apiId = results[0].player.id
+      playerDetails = await getPlayerDetails(apiId, 2025)
+    }
   } catch {
     // fall back to static data
   }
 
   const allSeasons = PLAYERS.filter(p => slugify(p.name) === slug).map(enrich)
 
-  return <PlayerPageClient player={enriched} liveStats={liveStats} allSeasons={allSeasons} />
+  return (
+    <PlayerPageClient
+      player={enriched}
+      liveStats={liveStats}
+      allSeasons={allSeasons}
+      playerDetails={playerDetails}
+    />
+  )
 }

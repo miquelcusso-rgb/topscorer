@@ -3,6 +3,8 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.topscorers.app",
-    "sha256_cert_fingerprints": ["PLACEHOLDER_REPLACE_WITH_REAL_FINGERPRINT"]
+    "sha256_cert_fingerprints": [
+      "REPLACE_WITH_REAL_SHA256_FROM_BUBBLEWRAP_KEYSTORE"
+    ]
   }
 }]
