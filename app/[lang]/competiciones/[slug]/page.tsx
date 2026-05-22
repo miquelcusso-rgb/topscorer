@@ -16,20 +16,28 @@ export async function generateStaticParams() {
   return ALL_LEAGUES.map(l => ({ slug: l.short.toLowerCase() }))
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
+export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
+  const { lang, slug } = await params
   const league = ALL_LEAGUES.find(l => l.short.toLowerCase() === slug)
   if (!league) return {}
   const description = `Clasificación, goleadores, asistentes y resultados de ${league.name}. Estadísticas en tiempo real de la temporada 2025/26.`
+  const path = `/competiciones/${slug}`
   return {
     title: `${league.name} — Clasificación y Estadísticas | TopScorers`,
     description,
     keywords: [league.name, league.country, 'clasificación', 'goleadores', 'estadísticas fútbol', 'temporada 2025 2026'],
-    alternates: { canonical: `https://www.top-scorers.com/competiciones/${slug}` },
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
     openGraph: {
       title: `${league.name} — Clasificación y Estadísticas | TopScorers`,
       description,
-      url: `https://www.top-scorers.com/competiciones/${slug}`,
+      url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: 'es_ES',
       type: 'website',

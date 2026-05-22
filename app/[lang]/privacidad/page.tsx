@@ -1,24 +1,37 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { isLocale } from '@/lib/i18n'
 
-export const metadata: Metadata = {
-  title: 'Política de Privacidad — TopScorers',
-  description: 'Política de privacidad de TopScorers: cómo tratamos y protegemos tus datos personales en nuestra plataforma de estadísticas de fútbol.',
-  alternates: { canonical: 'https://www.top-scorers.com/privacidad' },
-  robots: { index: true, follow: true },
-  openGraph: {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/privacidad'
+  return {
     title: 'Política de Privacidad — TopScorers',
-    description: 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
-    url: 'https://www.top-scorers.com/privacidad',
-    siteName: 'TopScorers',
-    locale: 'es_ES',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary',
-    title: 'Política de Privacidad — TopScorers',
-    description: 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
-  },
+    description: 'Política de privacidad de TopScorers: cómo tratamos y protegemos tus datos personales en nuestra plataforma de estadísticas de fútbol.',
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+    robots: { index: true, follow: true },
+    openGraph: {
+      title: 'Política de Privacidad — TopScorers',
+      description: 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
+      url: `https://www.top-scorers.com/${lang}${path}`,
+      siteName: 'TopScorers',
+      locale: 'es_ES',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary',
+      title: 'Política de Privacidad — TopScorers',
+      description: 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
+    },
+  }
 }
 
 const C = {

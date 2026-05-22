@@ -1,19 +1,32 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import { isLocale } from '@/lib/i18n'
 import ResultadosClient from './ResultadosClient'
 
-export const metadata: Metadata = {
-  title: 'Resultados y Clasificaciones — TopScorers',
-  description: 'Clasificaciones y últimos resultados de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más ligas europeas. Actualizado cada hora.',
-  openGraph: {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/resultados'
+  return {
     title: 'Resultados y Clasificaciones — TopScorers',
-    description: 'Clasificaciones y últimos resultados de las principales ligas europeas.',
-    url: 'https://www.top-scorers.com/resultados',
-    siteName: 'TopScorers',
-    locale: 'es_ES',
-    type: 'website',
-  },
-  alternates: { canonical: 'https://www.top-scorers.com/resultados' },
+    description: 'Clasificaciones y últimos resultados de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más ligas europeas. Actualizado cada hora.',
+    openGraph: {
+      title: 'Resultados y Clasificaciones — TopScorers',
+      description: 'Clasificaciones y últimos resultados de las principales ligas europeas.',
+      url: `https://www.top-scorers.com/${lang}${path}`,
+      siteName: 'TopScorers',
+      locale: 'es_ES',
+      type: 'website',
+    },
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+  }
 }
 
 const breadcrumbJsonLd = {

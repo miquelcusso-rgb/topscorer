@@ -16,20 +16,28 @@ export async function generateStaticParams() {
     .map(p => ({ slug: slugify(p.name) }))
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
+export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
+  const { lang, slug } = await params
   const player = PLAYERS.find(p => slugify(p.name) === slug)
   if (!player) return { title: 'Jugador — TopScorers' }
   const description = `Estadísticas de ${player.name}: goles, asistencias, valoración y más. Temporada 2025/26.`
+  const path = `/jugadores/${slug}`
   return {
     title: `${player.name} — Estadísticas | TopScorers`,
     description,
     keywords: [player.name, player.club ?? '', 'estadísticas fútbol', 'goleadores', 'temporada 2025 2026'],
-    alternates: { canonical: `https://www.top-scorers.com/jugadores/${slug}` },
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
     openGraph: {
       title: `${player.name} — Estadísticas | TopScorers`,
       description,
-      url: `https://www.top-scorers.com/jugadores/${slug}`,
+      url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: 'es_ES',
       type: 'profile',

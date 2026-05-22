@@ -1,25 +1,38 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { isLocale } from '@/lib/i18n'
 
-export const metadata: Metadata = {
-  title: 'Goleadores Liga Española 2025/26 — Top Máximos Anotadores | TopScorers',
-  description: 'Ranking completo de goleadores de La Liga Española 2025/26. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.',
-  keywords: [
-    'goleadores liga española', 'goleadores la liga', 'máximos goleadores la liga',
-    'pichichi 2025', 'pichichi 2026', 'top goleadores liga española',
-    'estadísticas goles la liga', 'goles laliga 2025 2026',
-    'goleadores primera división española', 'quien mete más goles en la liga',
-  ],
-  alternates: { canonical: 'https://www.top-scorers.com/goleadores-liga-espanola' },
-  openGraph: {
-    title: 'Goleadores Liga Española 2025/26 | TopScorers',
-    description: 'Ranking completo de goleadores de La Liga EA Sports 2025/26 con histórico de las últimas temporadas.',
-    url: 'https://www.top-scorers.com/goleadores-liga-espanola',
-    siteName: 'TopScorers',
-    locale: 'es_ES',
-    type: 'website',
-    images: [{ url: 'https://www.top-scorers.com/og-default.jpg', width: 1200, height: 630 }],
-  },
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/goleadores-liga-espanola'
+  return {
+    title: 'Goleadores Liga Española 2025/26 — Top Máximos Anotadores | TopScorers',
+    description: 'Ranking completo de goleadores de La Liga Española 2025/26. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.',
+    keywords: [
+      'goleadores liga española', 'goleadores la liga', 'máximos goleadores la liga',
+      'pichichi 2025', 'pichichi 2026', 'top goleadores liga española',
+      'estadísticas goles la liga', 'goles laliga 2025 2026',
+      'goleadores primera división española', 'quien mete más goles en la liga',
+    ],
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+    openGraph: {
+      title: 'Goleadores Liga Española 2025/26 | TopScorers',
+      description: 'Ranking completo de goleadores de La Liga EA Sports 2025/26 con histórico de las últimas temporadas.',
+      url: `https://www.top-scorers.com/${lang}${path}`,
+      siteName: 'TopScorers',
+      locale: 'es_ES',
+      type: 'website',
+      images: [{ url: 'https://www.top-scorers.com/og-default.jpg', width: 1200, height: 630 }],
+    },
+  }
 }
 
 // ── Data ─────────────────────────────────────────────────────────────────────

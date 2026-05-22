@@ -3,15 +3,28 @@ import { getTopScorers, getTopAssists, LEAGUES, LEAGUES_2 } from '@/lib/api-foot
 import { transformApiPlayer } from '@/lib/api-to-players'
 import { enrich } from '@/lib/utils'
 import type { EnrichedPlayer } from '@/types'
+import { isLocale } from '@/lib/i18n'
 import DiscubrirClient from './DiscubrirClient'
 
 export const revalidate = 3600
 
-export const metadata: Metadata = {
-  title: 'Radar de Talentos — Jugadores Infravalorados | TopScorers',
-  description:
-    'Descubre jugadores infravalorados con alto rendimiento por 90 minutos en ligas de menor exposición. Algoritmo propio que puntúa más de 500 jugadores cada semana.',
-  alternates: { canonical: 'https://www.top-scorers.com/descubrir' },
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/descubrir'
+  return {
+    title: 'Radar de Talentos — Jugadores Infravalorados | TopScorers',
+    description:
+      'Descubre jugadores infravalorados con alto rendimiento por 90 minutos en ligas de menor exposición. Algoritmo propio que puntúa más de 500 jugadores cada semana.',
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+  }
 }
 
 const breadcrumbJsonLd = {

@@ -2,20 +2,33 @@ import type { Metadata } from 'next'
 import MainApp from '@/components/MainApp'
 import { getTopScorers, getTopAssists, LEAGUES } from '@/lib/api-football'
 import { transformApiPlayer } from '@/lib/api-to-players'
+import { isLocale } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 
-export const metadata: Metadata = {
-  title: 'TopScorers — Goleadores y Asistentes Fútbol Europeo',
-  description: 'Top 25 goleadores y asistentes de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más. Estadísticas actualizadas en tiempo real. Temporada 2025/26.',
-  alternates: { canonical: 'https://www.top-scorers.com' },
-  openGraph: {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = ''
+  return {
     title: 'TopScorers — Goleadores y Asistentes Fútbol Europeo',
-    description: 'Top 25 goleadores y asistentes de las principales ligas europeas. Temporada 2025/26.',
-    url: 'https://www.top-scorers.com',
-    siteName: 'TopScorers',
-    locale: 'es_ES',
-    type: 'website',
-  },
+    description: 'Top 25 goleadores y asistentes de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más. Estadísticas actualizadas en tiempo real. Temporada 2025/26.',
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+    openGraph: {
+      title: 'TopScorers — Goleadores y Asistentes Fútbol Europeo',
+      description: 'Top 25 goleadores y asistentes de las principales ligas europeas. Temporada 2025/26.',
+      url: `https://www.top-scorers.com/${lang}${path}`,
+      siteName: 'TopScorers',
+      locale: 'es_ES',
+      type: 'website',
+    },
+  }
 }
 
 const jsonLd = {

@@ -1,12 +1,25 @@
 import type { Metadata } from 'next'
 import { PLAYERS } from '@/data/players'
 import { enrich } from '@/lib/utils'
+import { isLocale } from '@/lib/i18n'
 import JugadorCard from './JugadorCard'
 
-export const metadata: Metadata = {
-  title: 'Jugadores — TopScorers',
-  description: 'Estadísticas por jugador de las principales ligas europeas. Temporada 2025/26.',
-  alternates: { canonical: 'https://www.top-scorers.com/jugadores' },
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/jugadores'
+  return {
+    title: 'Jugadores — TopScorers',
+    description: 'Estadísticas por jugador de las principales ligas europeas. Temporada 2025/26.',
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+  }
 }
 
 const breadcrumbJsonLd = {

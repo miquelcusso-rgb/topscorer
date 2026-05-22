@@ -1,20 +1,33 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { LEAGUES, LEAGUES_2, LEAGUES_EURO } from '@/lib/api-football'
+import { isLocale } from '@/lib/i18n'
 
-export const metadata: Metadata = {
-  title: 'Competiciones de Fútbol — La Liga, Premier, Bundesliga | TopScorers',
-  description: 'Estadísticas de La Liga, Premier League, Bundesliga, Serie A, Ligue 1, Champions League y más. Clasificaciones, goleadores y resultados en tiempo real.',
-  keywords: ['la liga', 'premier league', 'bundesliga', 'serie a', 'champions league', 'europa league', 'ligas futbol europeo'],
-  alternates: { canonical: 'https://www.top-scorers.com/competiciones' },
-  openGraph: {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/competiciones'
+  return {
     title: 'Competiciones de Fútbol — La Liga, Premier, Bundesliga | TopScorers',
-    description: 'Todas las ligas europeas: clasificaciones, goleadores y resultados.',
-    url: 'https://www.top-scorers.com/competiciones',
-    siteName: 'TopScorers',
-    locale: 'es_ES',
-    type: 'website',
-  },
+    description: 'Estadísticas de La Liga, Premier League, Bundesliga, Serie A, Ligue 1, Champions League y más. Clasificaciones, goleadores y resultados en tiempo real.',
+    keywords: ['la liga', 'premier league', 'bundesliga', 'serie a', 'champions league', 'europa league', 'ligas futbol europeo'],
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+    openGraph: {
+      title: 'Competiciones de Fútbol — La Liga, Premier, Bundesliga | TopScorers',
+      description: 'Todas las ligas europeas: clasificaciones, goleadores y resultados.',
+      url: `https://www.top-scorers.com/${lang}${path}`,
+      siteName: 'TopScorers',
+      locale: 'es_ES',
+      type: 'website',
+    },
+  }
 }
 
 const breadcrumbJsonLd = {

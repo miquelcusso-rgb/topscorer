@@ -1,20 +1,33 @@
 import type { Metadata } from 'next'
+import { isLocale } from '@/lib/i18n'
 import Mundial2026Client from './Mundial2026Client'
 
-export const metadata: Metadata = {
-  title: 'Mundial 2026 — Grupos, Resultados y Goleadores | TopScorers',
-  description: 'Sigue el FIFA World Cup 2026 en tiempo real. Grupos, resultados, clasificaciones y top goleadores del Mundial 2026 en USA, Canadá y México.',
-  openGraph: {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/mundial-2026'
+  return {
     title: 'Mundial 2026 — Grupos, Resultados y Goleadores | TopScorers',
-    description: 'Sigue el FIFA World Cup 2026 en tiempo real. 48 selecciones, 3 sedes, 1 trofeo.',
-    url: 'https://www.top-scorers.com/mundial-2026',
-    siteName: 'TopScorers',
-    locale: 'es_ES',
-    type: 'website',
-    images: [{ url: 'https://www.top-scorers.com/og-mundial.jpg', width: 1200, height: 630 }],
-  },
-  alternates: { canonical: 'https://www.top-scorers.com/mundial-2026' },
-  keywords: ['mundial 2026', 'world cup 2026', 'FIFA 2026', 'goleadores mundial', 'grupos mundial 2026'],
+    description: 'Sigue el FIFA World Cup 2026 en tiempo real. Grupos, resultados, clasificaciones y top goleadores del Mundial 2026 en USA, Canadá y México.',
+    openGraph: {
+      title: 'Mundial 2026 — Grupos, Resultados y Goleadores | TopScorers',
+      description: 'Sigue el FIFA World Cup 2026 en tiempo real. 48 selecciones, 3 sedes, 1 trofeo.',
+      url: `https://www.top-scorers.com/${lang}${path}`,
+      siteName: 'TopScorers',
+      locale: 'es_ES',
+      type: 'website',
+      images: [{ url: 'https://www.top-scorers.com/og-mundial.jpg', width: 1200, height: 630 }],
+    },
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+    keywords: ['mundial 2026', 'world cup 2026', 'FIFA 2026', 'goleadores mundial', 'grupos mundial 2026'],
+  }
 }
 
 const jsonLd = {

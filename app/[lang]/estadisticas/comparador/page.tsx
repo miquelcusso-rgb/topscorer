@@ -1,10 +1,24 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import { isLocale } from '@/lib/i18n'
 import ComparadorClient from './ComparadorClient'
 
-export const metadata: Metadata = {
-  title: 'Comparador de Jugadores | TopScorers',
-  description: 'Compara estadísticas y perfiles de atributos de jugadores de las principales ligas europeas.',
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/estadisticas/comparador'
+  return {
+    title: 'Comparador de Jugadores | TopScorers',
+    description: 'Compara estadísticas y perfiles de atributos de jugadores de las principales ligas europeas.',
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+  }
 }
 
 export default function ComparadorPage() {

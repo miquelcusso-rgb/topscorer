@@ -1,24 +1,37 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { isLocale } from '@/lib/i18n'
 
-export const metadata: Metadata = {
-  title: 'Aviso Legal — TopScorers',
-  description: 'Aviso legal y condiciones de uso de TopScorers, plataforma de estadísticas de fútbol europeo.',
-  alternates: { canonical: 'https://www.top-scorers.com/legal' },
-  robots: { index: true, follow: true },
-  openGraph: {
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/legal'
+  return {
     title: 'Aviso Legal — TopScorers',
-    description: 'Aviso legal y condiciones de uso de TopScorers.',
-    url: 'https://www.top-scorers.com/legal',
-    siteName: 'TopScorers',
-    locale: 'es_ES',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary',
-    title: 'Aviso Legal — TopScorers',
-    description: 'Aviso legal y condiciones de uso de TopScorers.',
-  },
+    description: 'Aviso legal y condiciones de uso de TopScorers, plataforma de estadísticas de fútbol europeo.',
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+    robots: { index: true, follow: true },
+    openGraph: {
+      title: 'Aviso Legal — TopScorers',
+      description: 'Aviso legal y condiciones de uso de TopScorers.',
+      url: `https://www.top-scorers.com/${lang}${path}`,
+      siteName: 'TopScorers',
+      locale: 'es_ES',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary',
+      title: 'Aviso Legal — TopScorers',
+      description: 'Aviso legal y condiciones de uso de TopScorers.',
+    },
+  }
 }
 
 const C = {
