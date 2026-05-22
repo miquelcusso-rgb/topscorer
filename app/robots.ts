@@ -8,6 +8,18 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: ['/api/', '/sign-in', '/sign-up'],
       },
+      {
+        userAgent: 'Googlebot-Image',
+        allow: '/',
+      },
+      {
+        userAgent: 'GPTBot',
+        disallow: ['/'],
+      },
+      {
+        userAgent: 'CCBot',
+        disallow: ['/'],
+      },
     ],
     sitemap: 'https://www.top-scorers.com/sitemap.xml',
     host: 'https://www.top-scorers.com',

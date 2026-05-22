@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { PLAYERS } from '@/data/players'
 import { slugify } from '@/lib/slugify'
+import { ALL_LEAGUES } from '@/lib/api-football'
 
 const BASE = 'https://www.top-scorers.com'
 const NOW = new Date()
@@ -15,6 +16,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     }))
+
+  const competicionUrls: MetadataRoute.Sitemap = ALL_LEAGUES.map(l => ({
+    url: `${BASE}/competiciones/${l.short.toLowerCase()}`,
+    lastModified: NOW,
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }))
 
   return [
     {
@@ -65,6 +73,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
+    {
+      url: `${BASE}/competiciones`,
+      lastModified: NOW,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: `${BASE}/descubrir`,
+      lastModified: NOW,
+      changeFrequency: 'weekly',
+      priority: 0.75,
+    },
+    {
+      url: `${BASE}/transferencias`,
+      lastModified: NOW,
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${BASE}/estadisticas/comparador`,
+      lastModified: NOW,
+      changeFrequency: 'weekly',
+      priority: 0.65,
+    },
+    ...competicionUrls,
     ...playerUrls,
   ]
 }

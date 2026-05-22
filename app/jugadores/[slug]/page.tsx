@@ -20,10 +20,26 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const player = PLAYERS.find(p => slugify(p.name) === slug)
   if (!player) return { title: 'Jugador — TopScorers' }
+  const description = `Estadísticas de ${player.name}: goles, asistencias, valoración y más. Temporada 2025/26.`
   return {
     title: `${player.name} — Estadísticas | TopScorers`,
-    description: `Estadísticas de ${player.name}: goles, asistencias, valoración y más. Temporada 2025/26.`,
+    description,
+    keywords: [player.name, player.club ?? '', 'estadísticas fútbol', 'goleadores', 'temporada 2025 2026'],
     alternates: { canonical: `https://www.top-scorers.com/jugadores/${slug}` },
+    openGraph: {
+      title: `${player.name} — Estadísticas | TopScorers`,
+      description,
+      url: `https://www.top-scorers.com/jugadores/${slug}`,
+      siteName: 'TopScorers',
+      locale: 'es_ES',
+      type: 'profile',
+      images: [{ url: 'https://www.top-scorers.com/og-player.jpg', width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${player.name} — Estadísticas | TopScorers`,
+      description,
+    },
   }
 }
 
@@ -52,12 +68,41 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
 
   const allSeasons = PLAYERS.filter(p => slugify(p.name) === slug).map(enrich)
 
+  const personJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: basePlayer.name,
+    url: `https://www.top-scorers.com/jugadores/${slug}`,
+    jobTitle: 'Professional Football Player',
+    ...(basePlayer.club ? { memberOf: { '@type': 'SportsTeam', name: basePlayer.club } } : {}),
+  }
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.top-scorers.com' },
+      { '@type': 'ListItem', position: 2, name: 'Jugadores', item: 'https://www.top-scorers.com/jugadores' },
+      { '@type': 'ListItem', position: 3, name: basePlayer.name, item: `https://www.top-scorers.com/jugadores/${slug}` },
+    ],
+  }
+
   return (
-    <PlayerPageClient
-      player={enriched}
-      liveStats={liveStats}
-      allSeasons={allSeasons}
-      playerDetails={playerDetails}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
+      />
+      <PlayerPageClient
+        player={enriched}
+        liveStats={liveStats}
+        allSeasons={allSeasons}
+        playerDetails={playerDetails}
+      />
+    </>
   )
 }

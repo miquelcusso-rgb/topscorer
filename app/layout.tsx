@@ -10,6 +10,7 @@ import type { Lang } from '@/lib/i18n'
 import AddToHomeScreen from '@/components/AddToHomeScreen'
 import ServiceWorkerRegistrar from '@/components/ServiceWorkerRegistrar'
 import AppDownloadBanner from '@/components/AppDownloadBanner'
+import { GTMScript, GTMNoScript } from '@/components/GoogleTagManager'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -19,10 +20,11 @@ export const metadata: Metadata = {
     template: '%s | TopScorers',
   },
   description: 'Top goleadores, asistentes y centrocampistas de La Liga, Premier League, Bundesliga, Serie A y más. Estadísticas en tiempo real. Mundial 2026.',
-  keywords: ['goleadores', 'asistentes', 'estadísticas fútbol', 'La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1', 'mundial 2026', 'top scorers'],
+  keywords: ['goleadores', 'asistentes', 'estadísticas fútbol', 'La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1', 'mundial 2026', 'top scorers', 'clasificación fútbol', 'resultados fútbol', 'fichajes', 'transferencias', 'champions league', 'europa league'],
   authors: [{ name: 'TopScorers', url: 'https://www.top-scorers.com' }],
   creator: 'TopScorers',
   publisher: 'TopScorers',
+  // verification: { google: 'YOUR_GOOGLE_SEARCH_CONSOLE_TOKEN' },
   openGraph: {
     type: 'website',
     locale: 'es_ES',
@@ -61,6 +63,18 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'TopScorers',
+  url: 'https://www.top-scorers.com',
+  logo: 'https://www.top-scorers.com/logo.png',
+  description: 'Estadísticas de fútbol europeo: goleadores, asistentes y ligas en tiempo real.',
+  sameAs: [
+    'https://www.top-scorers.com',
+  ],
+}
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
   const detectedLang = (cookieStore.get('ts-lang')?.value ?? 'es') as Lang
@@ -80,8 +94,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6498215334315959"
             crossOrigin="anonymous"
           />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, '\\u003c') }}
+          />
+          <GTMScript />
         </head>
         <body className="min-h-full">
+          <GTMNoScript />
           <LangProvider defaultLang={detectedLang}>
             <ThemeProvider>
               <Navbar />
