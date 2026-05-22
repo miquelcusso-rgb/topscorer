@@ -3,9 +3,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
+import { useUser, SignInButton, UserButton } from '@clerk/nextjs'
 import { isPro } from '@/lib/plans'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
 import { t } from '@/lib/i18n'
@@ -17,7 +17,20 @@ export default function Navbar() {
   const { user, isLoaded } = useUser()
   const isSignedIn = isLoaded && !!user
   const [menuOpen, setMenuOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
+  const moreRef = useRef<HTMLDivElement>(null)
   const { theme, toggle } = useTheme()
+
+  // Close "Más" dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
   const { lang, setLang } = useLang()
   const [showHint, setShowHint] = useState(false)
   const isLight = theme === 'light'
@@ -41,16 +54,22 @@ export default function Navbar() {
     localStorage.setItem('ts-theme-hint', '1')
   }
 
-  const navLinks = [
+  // Primary links (always visible on desktop)
+  const primaryLinks = [
     { href: '/',                        label: t('nav_stats', lang) },
-    { href: '/jugadores',               label: t('nav_players', lang) },
     { href: '/competiciones',           label: t('nav_competitions', lang) },
-    { href: '/estadisticas/comparador', label: t('nav_compare', lang) },
     { href: '/resultados',              label: t('nav_results', lang) },
-    { href: '/transferencias',          label: t('nav_transfers', lang) },
-    { href: '/mundial-2026',            label: t('nav_world_cup', lang) },
+    { href: '/estadisticas/comparador', label: t('nav_compare', lang) },
     { href: '/pricing',                 label: t('nav_pricing', lang) },
   ]
+  // Secondary links (in "Más" dropdown)
+  const secondaryLinks = [
+    { href: '/jugadores',    label: t('nav_players', lang) },
+    { href: '/transferencias', label: t('nav_transfers', lang) },
+    { href: '/mundial-2026', label: t('nav_world_cup', lang) },
+  ]
+  // All links for mobile menu
+  const navLinks = [...primaryLinks, ...secondaryLinks]
 
   return (
     <nav className="sticky top-0 z-50" style={{ background: navBg, backdropFilter: 'blur(24px)' }}>
@@ -84,13 +103,13 @@ export default function Navbar() {
 
           {/* Nav links — desktop */}
           <div className="hidden md:flex items-center gap-0.5 font-medium">
-            {navLinks.map(({ href, label }) => (
+            {primaryLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className="px-3 py-1.5 rounded transition-all duration-150 cursor-pointer"
+                className="px-3 py-1.5 rounded transition-all duration-150 cursor-pointer whitespace-nowrap"
                 style={{
-                  fontSize: 13.5,
+                  fontSize: 13,
                   color: path === href ? navActive : navText,
                   background: path === href ? navActiveBg : 'transparent',
                   fontWeight: path === href ? 600 : 500,
@@ -101,6 +120,55 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+
+            {/* "Más" dropdown */}
+            <div className="relative" ref={moreRef}>
+              <button
+                onClick={() => setMoreOpen(v => !v)}
+                className="px-3 py-1.5 rounded transition-all duration-150 cursor-pointer flex items-center gap-1"
+                style={{
+                  fontSize: 13,
+                  color: secondaryLinks.some(l => l.href === path) ? navActive : navText,
+                  background: secondaryLinks.some(l => l.href === path) ? navActiveBg : 'transparent',
+                  fontWeight: 500, border: 'none', outline: 'none',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.04)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = secondaryLinks.some(l => l.href === path) ? navActiveBg : 'transparent' }}
+              >
+                {lang === 'es' ? 'Más' : 'More'}
+                <span style={{ fontSize: 9, opacity: 0.6, marginTop: 1 }}>▼</span>
+              </button>
+              {moreOpen && (
+                <div
+                  className="absolute left-0 top-full mt-1 rounded-lg py-1 z-50 min-w-[160px]"
+                  style={{
+                    background: isLight ? '#ffffff' : '#10111e',
+                    border: `1px solid ${isLight ? 'rgba(0,0,0,.1)' : '#1a1b2e'}`,
+                    boxShadow: '0 8px 32px rgba(0,0,0,.32)',
+                  }}
+                >
+                  {secondaryLinks.map(({ href, label }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => setMoreOpen(false)}
+                      className="block px-4 py-2.5 transition-colors duration-150"
+                      style={{
+                        fontSize: 13,
+                        color: path === href ? (isLight ? '#0f1830' : '#eef4ff') : (isLight ? '#3a5070' : '#8090b0'),
+                        fontWeight: path === href ? 600 : 400,
+                        background: path === href ? (isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.05)') : 'transparent',
+                        textDecoration: 'none',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.06)'; e.currentTarget.style.color = isLight ? '#0f1830' : '#d8d8ec' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = path === href ? (isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.05)') : 'transparent'; e.currentTarget.style.color = path === href ? (isLight ? '#0f1830' : '#eef4ff') : (isLight ? '#3a5070' : '#8090b0') }}
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* LIVE chip */}
