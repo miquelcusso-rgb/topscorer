@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { slugify } from '@/lib/slugify'
+import { positionLabel } from '@/lib/position'
 import type { EnrichedPlayer } from '@/types'
 
 interface Props {
@@ -21,8 +22,10 @@ export default function JugadorCard({ player: p }: Props) {
         <div style={{ fontSize: 14, fontWeight: 600, color: '#dde8ff' }}>
           {p.flag} {p.name}
         </div>
-        <div style={{ fontSize: 11, color: '#6878a0', marginTop: 2 }}>
-          {p.club} · {p.league}
+        {/* Position directly below the name (always shown) */}
+        <div style={{ fontSize: 11, marginTop: 2 }}>
+          <span style={{ color: '#00c8b0', fontWeight: 600 }}>{positionLabel(p)}</span>
+          <span style={{ color: '#6878a0' }}> · {p.club}</span>
         </div>
         <div className="flex gap-2 mt-2">
           <span

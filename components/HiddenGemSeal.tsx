@@ -139,16 +139,64 @@ export default function HiddenGemSeal({
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Determina qué variante aplicar según el score y datos del jugador */
+/**
+ * Determina qué variante aplicar según el score y datos del jugador.
+ * Calibrado sobre el dataset real para que el sello sea SELECTIVO (~12-15% de
+ * los jugadores mostrados, no el 60%+). Cada criterio exige excelencia real:
+ *  - elite:    rendimiento de élite (score muy alto, cualquier liga)
+ *  - prospect: joven (≤21) Y rindiendo a nivel alto
+ *  - gem:      score alto en cualquier liga, o destacado en liga de menor exposición
+ */
 export function getSealVariant(
   score: number,
   age: number,
   isSmallLeague: boolean
 ): SealVariant | null {
-  if (score < 1.2) return null          // umbral mínimo — no todos son joyas
-  if (score >= 4.0) return 'elite'       // top performers
-  if (age <= 21) return 'prospect'       // jóvenes promesas
-  if (isSmallLeague) return 'gem'        // hidden gems en ligas pequeñas
-  if (score >= 2.5) return 'gem'         // alto ratio en cualquier liga
+  if (score >= 4.3) return 'elite'                       // top ~5%
+  if (age <= 21 && score >= 3.6) return 'prospect'       // joven Y de élite
+  if (score >= 3.9) return 'gem'                         // élite en cualquier liga
+  if (isSmallLeague && score >= 3.6) return 'gem'        // destaca en 2ª división
   return null
+}
+
+// ─── Readable inline badge (para grids/tablas — el sello circular no se lee) ──
+
+export function SealBadge({
+  variant,
+  lang = 'es',
+  compact = false,
+}: {
+  variant: SealVariant
+  lang?: 'es' | 'en'
+  compact?: boolean
+}) {
+  const v = VARIANTS[variant]
+  const label = lang === 'es' ? v.label : v.labelEN
+  const icons: Record<SealVariant, string> = { gem: '◆', prospect: '★', elite: '⚡' }
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 3,
+        padding: compact ? '1px 6px' : '2px 8px',
+        borderRadius: 999,
+        background: v.bg,
+        border: `1px solid ${v.color}66`,
+        color: v.color,
+        fontSize: compact ? 9 : 10,
+        fontWeight: 700,
+        fontFamily: "'Barlow Condensed', sans-serif",
+        letterSpacing: '0.6px',
+        textTransform: 'uppercase',
+        whiteSpace: 'nowrap',
+        lineHeight: 1.4,
+        flexShrink: 0,
+      }}
+      aria-label={label}
+    >
+      <span style={{ fontSize: compact ? 8 : 9 }}>{icons[variant]}</span>
+      {label}
+    </span>
+  )
 }

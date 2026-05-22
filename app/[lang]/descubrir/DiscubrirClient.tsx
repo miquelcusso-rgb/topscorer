@@ -7,7 +7,8 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
 import { isPro } from '@/lib/plans'
 import type { EnrichedPlayer } from '@/types'
-import HiddenGemSeal, { getSealVariant } from '@/components/HiddenGemSeal'
+import { getSealVariant, SealBadge } from '@/components/HiddenGemSeal'
+import { positionLabel } from '@/lib/position'
 import AdSlot from '@/components/AdSlot'
 
 // Leagues that are "less visible" — hidden gem multiplier
@@ -144,27 +145,6 @@ export default function DiscubrirClient({ players }: Props) {
         }}
       >
         {display}
-      </span>
-    )
-  }
-
-  function PosBadge({ pos }: { pos?: string }) {
-    if (!pos) return null
-    return (
-      <span
-        style={{
-          fontSize: 10,
-          fontWeight: 700,
-          padding: '2px 6px',
-          borderRadius: 3,
-          background: 'rgba(0,200,176,.08)',
-          border: '1px solid rgba(0,200,176,.2)',
-          color: '#00c8b0',
-          fontFamily: "'Barlow Condensed', sans-serif",
-          letterSpacing: '0.5px',
-        }}
-      >
-        {pos}
       </span>
     )
   }
@@ -324,14 +304,7 @@ export default function DiscubrirClient({ players }: Props) {
                   el.style.boxShadow = 'none'
                 }}
               >
-                {/* Sello en esquina superior derecha */}
-                {sealVariant && (
-                  <div style={{ position: 'absolute', top: 8, right: 8, opacity: 0.85 }}>
-                    <HiddenGemSeal variant={sealVariant} size="lg" lang={lang} />
-                  </div>
-                )}
-
-                {/* Top row: avatar placeholder + name + score */}
+                {/* Top row: avatar placeholder + name/position + score */}
                 <div className="flex items-start gap-2.5">
                   {/* Avatar placeholder */}
                   <div
@@ -351,22 +324,29 @@ export default function DiscubrirClient({ players }: Props) {
                     {p.flag ?? '⚽'}
                   </div>
 
-                  <div style={{ flex: 1, minWidth: 0, paddingRight: sealVariant ? 60 : 0 }}>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: textPrimary,
-                        fontFamily: "'Barlow Condensed', sans-serif",
-                        letterSpacing: '0.3px',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {p.name}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {/* Name + readable seal badge to the right */}
+                    <div className="flex items-center gap-2" style={{ minWidth: 0 }}>
+                      <span
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 700,
+                          color: textPrimary,
+                          fontFamily: "'Barlow Condensed', sans-serif",
+                          letterSpacing: '0.3px',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {p.name}
+                      </span>
+                      {sealVariant && <SealBadge variant={sealVariant} lang={lang} />}
                     </div>
-                    <div style={{ fontSize: 11, color: textMuted, marginTop: 1 }}>
+                    {/* Position directly below the name (always shown) */}
+                    <div style={{ fontSize: 11, color: textMuted, marginTop: 2 }}>
+                      <span style={{ color: '#00c8b0', fontWeight: 600 }}>{positionLabel(p, lang)}</span>
+                      <span style={{ opacity: 0.5 }}> · </span>
                       {p.club}
                     </div>
                   </div>
@@ -374,9 +354,8 @@ export default function DiscubrirClient({ players }: Props) {
                   <ScoreBadge score={score} />
                 </div>
 
-                {/* Position + League badges */}
+                {/* League badge */}
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <PosBadge pos={p.position} />
                   <span
                     style={{
                       fontSize: 10,
