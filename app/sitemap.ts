@@ -86,6 +86,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.75,
     },
     {
+      url: `${BASE}/goleadores-liga-espanola`,
+      lastModified: NOW,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
       url: `${BASE}/transferencias`,
       lastModified: NOW,
       changeFrequency: 'daily',
