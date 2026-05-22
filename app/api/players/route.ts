@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getTopScorers, getTopAssists, LEAGUES } from '@/lib/api-football'
+import { getTopScorers, getTopAssists, LEAGUES, LEAGUES_2, LEAGUES_EURO } from '@/lib/api-football'
 import { transformApiPlayer } from '@/lib/api-to-players'
 import type { PlayerData, Tab } from '@/types'
 
@@ -8,10 +8,18 @@ export const revalidate = 3600
 export async function GET(req: NextRequest) {
   const tab = (req.nextUrl.searchParams.get('tab') ?? 's') as Tab
   const season = Number(req.nextUrl.searchParams.get('season') ?? '2025')
+  const include2nd = req.nextUrl.searchParams.get('second') === '1'
+  const includeEuro = req.nextUrl.searchParams.get('euro') === '1'
+
+  const leaguesToFetch = [
+    ...LEAGUES,
+    ...(include2nd ? LEAGUES_2 : []),
+    ...(includeEuro ? LEAGUES_EURO : []),
+  ]
 
   try {
     const results = await Promise.all(
-      LEAGUES.map(league =>
+      leaguesToFetch.map(league =>
         tab === 'a'
           ? getTopAssists(league.id, season)
           : getTopScorers(league.id, season)

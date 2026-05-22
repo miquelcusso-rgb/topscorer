@@ -7,6 +7,9 @@ import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 import { isPro } from '@/lib/plans'
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@/lib/i18n'
+import ShareButton from '@/components/ShareButton'
 
 
 export default function Navbar() {
@@ -15,6 +18,7 @@ export default function Navbar() {
   const isSignedIn = isLoaded && !!user
   const [menuOpen, setMenuOpen] = useState(false)
   const { theme, toggle } = useTheme()
+  const { lang, setLang } = useLang()
   const [showHint, setShowHint] = useState(false)
   const isLight = theme === 'light'
   const navBg   = isLight ? 'rgba(248,250,255,.97)' : 'rgba(6,13,24,.96)'
@@ -38,12 +42,14 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { href: '/',                        label: 'Estadísticas' },
-    { href: '/jugadores',               label: 'Jugadores' },
-    { href: '/estadisticas/comparador', label: 'Comparar' },
-    { href: '/resultados',              label: 'Resultados' },
-    { href: '/mundial-2026',            label: 'Mundial 2026' },
-    { href: '/pricing',                 label: 'Precios' },
+    { href: '/',                        label: t('nav_stats', lang) },
+    { href: '/jugadores',               label: t('nav_players', lang) },
+    { href: '/competiciones',           label: t('nav_competitions', lang) },
+    { href: '/estadisticas/comparador', label: t('nav_compare', lang) },
+    { href: '/resultados',              label: t('nav_results', lang) },
+    { href: '/transferencias',          label: t('nav_transfers', lang) },
+    { href: '/mundial-2026',            label: t('nav_world_cup', lang) },
+    { href: '/pricing',                 label: t('nav_pricing', lang) },
   ]
 
   return (
@@ -108,11 +114,33 @@ export default function Navbar() {
             </span>
           </div>
 
+          {/* Share button */}
+          <ShareButton />
+
+          {/* Language toggle */}
+          <button
+            onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+            className="cursor-pointer rounded-full flex items-center justify-center transition-all duration-200"
+            style={{
+              width: 32, height: 32, fontSize: 11, fontWeight: 700,
+              letterSpacing: '0.5px',
+              background: 'rgba(255,255,255,.06)',
+              border: '1.5px solid rgba(255,255,255,.12)',
+              color: '#9090a8',
+              fontFamily: "'Barlow Condensed', sans-serif",
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,.1)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,.06)' }}
+            aria-label="Change language"
+          >
+            {lang === 'es' ? 'EN' : 'ES'}
+          </button>
+
           {/* Theme toggle + hint arrow (drops below) */}
           <div className="relative flex items-center">
             <button
               onClick={handleToggle}
-              aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              aria-label={theme === 'dark' ? t('theme_aria_to_light', lang) : t('theme_aria_to_dark', lang)}
               className="cursor-pointer rounded-full flex items-center justify-center transition-all duration-200"
               style={{
                 width: 32, height: 32,
@@ -135,7 +163,7 @@ export default function Navbar() {
                   fontSize: 9.5, fontWeight: 700, letterSpacing: '1.5px', color: '#f0c040',
                   fontFamily: "'Barlow Condensed', sans-serif", textTransform: 'uppercase',
                   boxShadow: '0 4px 16px rgba(0,0,0,.4)',
-                }}>Modo claro</div>
+                }}>{t('theme_hint_light', lang)}</div>
               </div>
             )}
           </div>
@@ -172,7 +200,7 @@ export default function Navbar() {
                   onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(240,192,64,.4)' }}
                   onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 12px rgba(240,192,64,.28)' }}
                 >
-                  ⚡ Entrar / Pro
+                  ⚡ {t('nav_enter', lang)}
                 </Link>
               )
             )}
@@ -232,7 +260,7 @@ export default function Navbar() {
                       style={{ color: '#aab8cc', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)' }}
                       onClick={() => setMenuOpen(false)}
                     >
-                      Entrar
+                      {t('nav_sign_in', lang)}
                     </button>
                   </SignInButton>
                   <Link

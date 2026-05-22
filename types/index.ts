@@ -75,6 +75,8 @@ export interface PanelState {
   pinned: Record<string, boolean>
   showElo: boolean
   showFantasy: boolean
+  show2nd: boolean
+  showEuro: boolean
   // Pro-only
   showTop50: boolean
   showPj: boolean

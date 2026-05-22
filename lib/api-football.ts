@@ -32,6 +32,24 @@ export const LEAGUES: LeagueMeta[] = [
   { id: 197, name: 'Super League',   country: 'Greece',   short: 'GRE', color: '#0d5eaf' },
 ]
 
+export const LEAGUES_2: LeagueMeta[] = [
+  { id:  40, name: 'Championship',     country: 'England',  short: 'ENG2', color: '#3d195b' },
+  { id:  79, name: '2. Bundesliga',    country: 'Germany',  short: 'GER2', color: '#d20515' },
+  { id: 136, name: 'Serie B',          country: 'Italy',    short: 'ITA2', color: '#024494' },
+  { id:  62, name: 'Ligue 2',          country: 'France',   short: 'FRA2', color: '#003087' },
+  { id: 141, name: 'Segunda División', country: 'Spain',    short: 'ESP2', color: '#ee3124' },
+  { id:  95, name: 'Liga Portugal 2',  country: 'Portugal', short: 'PRT2', color: '#006600' },
+  { id: 204, name: '1. Lig',           country: 'Turkey',   short: 'TUR2', color: '#e30a17' },
+]
+
+export const LEAGUES_EURO: LeagueMeta[] = [
+  { id:   2, name: 'Champions League',  country: 'Europe', short: 'UCL',  color: '#1a3a6e' },
+  { id:   3, name: 'Europa League',     country: 'Europe', short: 'UEL',  color: '#f77f00' },
+  { id: 848, name: 'Conference League', country: 'Europe', short: 'UECL', color: '#38c47a' },
+]
+
+export const ALL_LEAGUES = [...LEAGUES, ...LEAGUES_2, ...LEAGUES_EURO]
+
 export const WORLD_CUP: LeagueMeta = {
   id: 1,
   name: 'FIFA World Cup',
@@ -185,10 +203,36 @@ export async function searchPlayer(name: string, season: number = 2025): Promise
   )()
 }
 
+// ─── Transfers ───────────────────────────────────────────────────────────────
+
+export interface ApiTransfer {
+  player: { id: number; name: string; photo: string }
+  update: string
+  transfers: Array<{
+    date: string
+    type: string // 'Free', '€Xm', 'Loan', 'N/A'
+    teams: {
+      in:  { id: number; name: string; logo: string }
+      out: { id: number; name: string; logo: string }
+    }
+  }>
+}
+
+export async function getTransfersByTeam(teamId: number): Promise<ApiTransfer[]> {
+  return unstable_cache(
+    async () => {
+      const data = await apiFetch<ApiTransfer[]>(`/transfers?team=${teamId}`)
+      return data.response ?? []
+    },
+    [`api-football-transfers-team-${teamId}`],
+    { revalidate: 3600, tags: ['api-football'] }
+  )()
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getLeague(id: number): LeagueMeta | undefined {
-  return LEAGUES.find(l => l.id === id)
+  return ALL_LEAGUES.find(l => l.id === id)
 }
 
 export function formatMatchDate(iso: string): string {

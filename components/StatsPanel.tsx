@@ -4,6 +4,8 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@/lib/i18n'
 import type { Tab, PanelState, SortKey, Season, PlayerData } from '@/types'
 import { PLAYERS } from '@/data/players'
 import { getPool, buildTopN, makeSortFn } from '@/lib/utils'
@@ -23,6 +25,8 @@ const DEFAULT: PanelState = {
   showPt: false,
   showTr: false,
   showGr: false,
+  show2nd: false,
+  showEuro: false,
   sort: 'val_sin',
   dir: -1,
   pinned: {},
@@ -212,7 +216,28 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
   const { user, isLoaded } = useUser()
   const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
   const { theme } = useTheme()
+  const { lang } = useLang()
   const isLight = theme === 'light'
+
+  // Dynamic sort options (translated)
+  const SCORER_SORTS: { key: SortKey; label: string }[] = [
+    { key: 'val_sin', label: t('sort_val', lang) },
+    { key: 'val_con', label: t('sort_val_plus', lang) },
+    { key: 'goles',   label: t('sort_goals', lang) },
+    { key: 'asist',   label: t('sort_assists', lang) },
+    { key: 'ratio_g', label: t('sort_ratio_g', lang) },
+    { key: 'ratio_a', label: t('sort_ratio_a', lang) },
+    { key: 'age',     label: t('sort_age', lang) },
+  ]
+
+  const ASSIST_SORTS: { key: SortKey; label: string }[] = [
+    { key: 'asist',   label: t('sort_assists', lang) },
+    { key: 'ratio_a', label: t('sort_ratio_a', lang) },
+    { key: 'goles',   label: t('sort_goals', lang) },
+    { key: 'val_sin', label: t('sort_ga', lang) },
+    { key: 'ratio_g', label: t('sort_ratio_g', lang) },
+    { key: 'age',     label: t('sort_age', lang) },
+  ]
 
   const [showMinG, setShowMinG] = useState(false)
   const [watchlist, setWatchlist] = useState<WatchlistEntry[]>([])
@@ -267,15 +292,16 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
 
   useEffect(() => {
     if (initialPlayers) return
+    const extra = `${st.show2nd ? '&second=1' : ''}${st.showEuro ? '&euro=1' : ''}`
     Promise.all([
-      fetch('/api/players?tab=s&season=2025').then(r => r.json()),
-      fetch('/api/players?tab=a&season=2025').then(r => r.json()),
+      fetch(`/api/players?tab=s&season=2025${extra}`).then(r => r.json()),
+      fetch(`/api/players?tab=a&season=2025${extra}`).then(r => r.json()),
     ]).then(([scorers, assists]) => {
       if (scorers.ok && assists.ok) {
         setLivePlayers([...scorers.data, ...assists.data])
       }
     }).catch(() => {}) // silently fall back to static data
-  }, [initialPlayers])
+  }, [initialPlayers, st.show2nd, st.showEuro])
 
   const dataSource = livePlayers ?? PLAYERS
   const pool = useMemo(() => getPool(dataSource, tab), [dataSource, tab])
@@ -308,7 +334,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
       >
         {/* Fila 1: filtros — Main groups row */}
         <div className="flex flex-wrap items-start gap-x-5 gap-y-3 px-4 pt-3.5 pb-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,.05)' }}>
-          <FilterGroup label="Temporada">
+          <FilterGroup label={t('filter_season', lang)}>
             {SEASONS.map(s => {
               const locked = s.proOnly && !proUser
               return (
@@ -325,7 +351,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
             })}
           </FilterGroup>
 
-          <FilterGroup label="Liga">
+          <FilterGroup label={t('filter_league', lang)}>
             {/* TOP 5 shortcut */}
             {(() => {
               const allFive = st.showEsp && st.showEng && st.showGer && st.showIta && st.showFra
@@ -379,9 +405,39 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                 >{label}</Pill>
               )
             })}
+            {/* Divider */}
+            <div style={{ width: 1, height: 20, background: isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.08)', margin: '0 2px', alignSelf: 'center' }} />
+            {/* 2ª DIV + EUROPA — Pro only */}
+            {proUser ? (
+              <>
+                <Pill active={st.show2nd} color="bl" isLight={isLight} onClick={() => update({ show2nd: !st.show2nd })}>2ª DIV</Pill>
+                <Pill active={st.showEuro} color="pu" isLight={isLight} onClick={() => update({ showEuro: !st.showEuro })}>EUROPA</Pill>
+              </>
+            ) : (
+              <>
+                {['2ª DIV', 'EUROPA'].map(label => (
+                  <div key={label} style={{ position: 'relative', display: 'inline-block' }}>
+                    <span style={{
+                      position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)',
+                      fontSize: 7, fontWeight: 700, letterSpacing: 0.5,
+                      background: 'rgba(240,192,64,.15)', color: '#f0c040',
+                      border: '1px solid rgba(240,192,64,.25)', borderRadius: 3,
+                      padding: '1px 4px', pointerEvents: 'none' as const, whiteSpace: 'nowrap' as const,
+                    }}>PRO</span>
+                    <button
+                      className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 whitespace-nowrap"
+                      style={isLight
+                        ? { background: 'rgba(200,210,235,.5)', border: '1px solid rgba(0,0,0,.08)', color: '#8898b8', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
+                        : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#6878a0', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
+                      }
+                    >{label}</button>
+                  </div>
+                ))}
+              </>
+            )}
           </FilterGroup>
 
-          <FilterGroup label="Edad">
+          <FilterGroup label={t('filter_age', lang)}>
             {AGES.map(a => {
               const locked = !!a.proOnly && !proUser
               if (locked) {

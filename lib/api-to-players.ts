@@ -11,6 +11,18 @@ const LEAGUE_NAME: Record<number, string> = {
   94:  'Primeira Liga',
   203: 'Sueper Lig',
   197: 'Super Liga Grecia',
+  // 2nd division
+  40:  'Championship',
+  79:  '2. Bundesliga',
+  136: 'Serie B',
+  62:  'Ligue 2',
+  141: 'Segunda División',
+  95:  'Liga Portugal 2',
+  204: '1. Lig',
+  // European
+  2:   'Champions League',
+  3:   'Europa League',
+  848: 'Conference League',
 }
 
 const SEASON_MAP: Record<number, Season> = {

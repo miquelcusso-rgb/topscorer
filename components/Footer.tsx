@@ -2,36 +2,40 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-
-const LINKS = [
-  {
-    group: 'Estadísticas',
-    items: [
-      { href: '/',             label: 'Goleadores' },
-      { href: '/?tab=a',       label: 'Asistentes' },
-      { href: '/?tab=c',       label: 'Centrocampistas' },
-      { href: '/resultados',   label: 'Resultados' },
-    ],
-  },
-  {
-    group: 'Competiciones',
-    items: [
-      { href: '/mundial-2026', label: 'Mundial 2026' },
-      { href: '/resultados',   label: 'Clasificaciones' },
-    ],
-  },
-  {
-    group: 'Producto',
-    items: [
-      { href: '/pricing',  label: 'Precios' },
-      { href: '/about',    label: 'Sobre TopScorers' },
-      { href: '/privacidad', label: 'Privacidad' },
-      { href: '/legal',      label: 'Aviso legal' },
-    ],
-  },
-]
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@/lib/i18n'
 
 export default function Footer() {
+  const { lang } = useLang()
+
+  const LINKS = [
+    {
+      group: t('footer_stats', lang),
+      items: [
+        { href: '/',           label: t('footer_scorers', lang) },
+        { href: '/?tab=a',     label: t('footer_assists', lang) },
+        { href: '/?tab=c',     label: t('footer_midfield', lang) },
+        { href: '/resultados', label: t('footer_results', lang) },
+      ],
+    },
+    {
+      group: t('footer_competitions', lang),
+      items: [
+        { href: '/mundial-2026', label: t('footer_world_cup', lang) },
+        { href: '/resultados',   label: t('footer_tables', lang) },
+      ],
+    },
+    {
+      group: t('footer_product', lang),
+      items: [
+        { href: '/pricing',    label: t('footer_pricing', lang) },
+        { href: '/about',      label: t('footer_about', lang) },
+        { href: '/privacidad', label: t('footer_privacy', lang) },
+        { href: '/legal',      label: t('footer_legal', lang) },
+      ],
+    },
+  ]
+
   return (
     <footer
       className="w-full"
@@ -55,10 +59,10 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-[12px] leading-relaxed max-w-[200px]" style={{ color: '#7070a0' }}>
-              Estadísticas de fútbol europeo. Goleadores y asistentes de las principales ligas.
+              {t('footer_desc', lang)}
             </p>
             <p className="text-[11px]" style={{ color: '#525278' }}>
-              Hecho con datos de API-Football
+              {t('footer_data', lang)}
             </p>
           </div>
 
@@ -95,7 +99,7 @@ export default function Footer() {
           style={{ borderTop: '1px solid #1e1a38' }}
         >
           <span style={{ fontSize: 12, color: '#525278' }}>
-            © {new Date().getFullYear()} TopScorers. Datos con fines informativos.
+            © {new Date().getFullYear()} TopScorers. {t('footer_copy', lang)}
           </span>
           <span style={{ fontSize: 12, color: '#525278' }}>
             <a href="mailto:support@top-scorers.com" style={{ color: '#525278' }}>

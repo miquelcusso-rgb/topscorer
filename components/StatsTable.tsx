@@ -1,4 +1,7 @@
+'use client'
 import type { EnrichedPlayer, SortKey } from '@/types'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@/lib/i18n'
 import PlayerRow from './PlayerRow'
 
 interface Props {
@@ -61,6 +64,7 @@ export default function StatsTable({
   watchlistKeys, onWatchlistToggle,
   onSort, onUnpin,
 }: Props) {
+  const { lang } = useLang()
   const maxVal = Math.max(1, ...players.map(p => isAssist ? p.asist : p.goles))
 
   return (
@@ -76,32 +80,32 @@ export default function StatsTable({
               borderBottom: '1px solid rgba(255,255,255,.08)',
             }}
           >
-            <Th label="#"       align="right" width={44}  currentSort={sort} dir={dir} onSort={onSort} />
-            <Th label="Jugador" width={210}               currentSort={sort} dir={dir} onSort={onSort} />
-            <Th label="Liga"    currentSort={sort} dir={dir} onSort={onSort} />
-            <Th label="Edad"    sortKey="age" currentSort={sort} dir={dir} onSort={onSort} align="right" />
-            {showPj && <Th label="PJ" align="right" currentSort={sort} dir={dir} onSort={onSort} />}
+            <Th label="#"                           align="right" width={44}  currentSort={sort} dir={dir} onSort={onSort} />
+            <Th label={t('th_player', lang)} width={210}               currentSort={sort} dir={dir} onSort={onSort} />
+            <Th label={t('th_league', lang)} width={140}               currentSort={sort} dir={dir} onSort={onSort} />
+            <Th label={t('th_age', lang)}    sortKey="age" currentSort={sort} dir={dir} onSort={onSort} align="right" />
+            {showPj && <Th label={t('th_pj', lang)} align="right" currentSort={sort} dir={dir} onSort={onSort} />}
             {isAssist ? (
               <>
-                <Th label="Asist." align="right" sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="Goles"  align="right" sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
-                {showRatios && <Th label="A/PJ" align="right" sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showRatios && <Th label="G/PJ" align="right" sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showValSin && <Th label="G+A"  align="right" sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
+                <Th label={t('th_assists', lang)} align="right" sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
+                <Th label={t('th_goals', lang)}   align="right" sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
+                {showRatios && <Th label={t('th_ratio_a', lang)} align="right" sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showRatios && <Th label={t('th_ratio_g', lang)} align="right" sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showValSin && <Th label={t('th_ga', lang)}      align="right" sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
               </>
             ) : (
               <>
-                <Th label="Goles"  align="right" sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
-                <Th label="Asist." align="right" sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
-                {showRatios && <Th label="G/PJ"      align="right" sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showRatios && <Th label="A/PJ"      align="right" sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showValSin  && <Th label="Val."      align="right" sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
-                {showValCoef && <Th label="Val.+"     align="right" sortKey="val_con" currentSort={sort} dir={dir} onSort={onSort} />}
+                <Th label={t('th_goals', lang)}   align="right" sortKey="goles"   currentSort={sort} dir={dir} onSort={onSort} />
+                <Th label={t('th_assists', lang)} align="right" sortKey="asist"   currentSort={sort} dir={dir} onSort={onSort} />
+                {showRatios && <Th label={t('th_ratio_g', lang)}  align="right" sortKey="ratio_g" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showRatios && <Th label={t('th_ratio_a', lang)}  align="right" sortKey="ratio_a" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showValSin  && <Th label={t('th_val', lang)}     align="right" sortKey="val_sin" currentSort={sort} dir={dir} onSort={onSort} />}
+                {showValCoef && <Th label={t('th_val_plus', lang)} align="right" sortKey="val_con" currentSort={sort} dir={dir} onSort={onSort} />}
               </>
             )}
-            {showMinG    && <Th label="Min/G"  align="right"                         currentSort={sort} dir={dir} onSort={onSort} />}
-            {showElo     && <Th label="ELO"    align="right" sortKey="elo"           currentSort={sort} dir={dir} onSort={onSort} />}
-            {showFantasy && <Th label="Fant."  align="right" sortKey="fantasyPoints" currentSort={sort} dir={dir} onSort={onSort} />}
+            {showMinG    && <Th label={t('th_min_g', lang)}   align="right"                         currentSort={sort} dir={dir} onSort={onSort} />}
+            {showElo     && <Th label={t('th_elo', lang)}     align="right" sortKey="elo"           currentSort={sort} dir={dir} onSort={onSort} />}
+            {showFantasy && <Th label={t('th_fantasy', lang)} align="right" sortKey="fantasyPoints" currentSort={sort} dir={dir} onSort={onSort} />}
           </tr>
         </thead>
         <tbody>

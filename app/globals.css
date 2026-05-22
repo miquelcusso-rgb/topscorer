@@ -135,8 +135,9 @@ body::before {
 }
 
 /* Player name / meta */
-[data-theme="light"] .player-name  { color: #0f1830 !important; }
-[data-theme="light"] .player-club  { color: #4a5878 !important; }
+[data-theme="light"] .player-name       { color: #0f1830 !important; }
+[data-theme="light"] .player-club       { color: #4a5878 !important; }
+[data-theme="light"] .player-club-name  { color: #0f1830 !important; }
 [data-theme="light"] .player-age   { color: #6070a0 !important; }
 [data-theme="light"] .player-ratio { color: #6070a0 !important; }
 [data-theme="light"] .pj-cell      { color: #8898c0 !important; }

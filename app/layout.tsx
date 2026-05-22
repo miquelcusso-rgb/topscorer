@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from 'next'
+import { cookies } from 'next/headers'
 import { ClerkProvider } from '@clerk/nextjs'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { LangProvider } from '@/contexts/LangContext'
+import type { Lang } from '@/lib/i18n'
 import AddToHomeScreen from '@/components/AddToHomeScreen'
 import ServiceWorkerRegistrar from '@/components/ServiceWorkerRegistrar'
 import './globals.css'
@@ -57,7 +60,10 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies()
+  const detectedLang = (cookieStore.get('ts-lang')?.value ?? 'es') as Lang
+
   return (
     <ClerkProvider>
       <html lang="es" className="h-full">
@@ -75,12 +81,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         </head>
         <body className="min-h-full">
-          <ThemeProvider>
-            <Navbar />
-            {children}
-            <Footer />
-            <AddToHomeScreen />
-          </ThemeProvider>
+          <LangProvider defaultLang={detectedLang}>
+            <ThemeProvider>
+              <Navbar />
+              {children}
+              <Footer />
+              <AddToHomeScreen />
+            </ThemeProvider>
+          </LangProvider>
           <ServiceWorkerRegistrar />
           <SpeedInsights />
         </body>

@@ -5,20 +5,23 @@ import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { isPro } from '@/lib/plans'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useLang } from '@/contexts/LangContext'
+import { t } from '@/lib/i18n'
 import StatsPanel from './StatsPanel'
 import MidfielderPanel from './MidfielderPanel'
 import PositionPanel from './PositionPanel'
 import type { PlayerData } from '@/types'
 
-const TABS = [
-  { id: 's' as const, label: 'Goleadores',      color: '#f0c040', rgb: '240,192,64'  },
-  { id: 'a' as const, label: 'Asistentes',       color: '#00c8b0', rgb: '0,200,176'   },
-  { id: 'c' as const, label: 'Centrocampistas',  color: '#a060ff', rgb: '160,96,255'  },
-  { id: 'd' as const, label: 'Defensas',         color: '#4090ff', rgb: '64,144,255'  },
-  { id: 'g' as const, label: 'Porteros',         color: '#e05a30', rgb: '224,90,48'   },
+const TAB_DEFS = [
+  { id: 's' as const, labelKey: 'tab_scorers'  as const, color: '#f0c040', rgb: '240,192,64'  },
+  { id: 'a' as const, labelKey: 'tab_assists'  as const, color: '#00c8b0', rgb: '0,200,176'   },
+  { id: 'c' as const, labelKey: 'tab_midfield' as const, color: '#a060ff', rgb: '160,96,255'  },
+  { id: 'd' as const, labelKey: 'tab_defense'  as const, color: '#4090ff', rgb: '64,144,255'  },
+  { id: 'g' as const, labelKey: 'tab_gk'       as const, color: '#e05a30', rgb: '224,90,48'   },
 ]
 
 function ProGateCard({ title, description }: { title: string; description: string }) {
+  const { lang } = useLang()
   return (
     <div
       className="flex flex-col items-center justify-center gap-5 py-16 rounded"
@@ -45,7 +48,7 @@ function ProGateCard({ title, description }: { title: string; description: strin
         onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(240,192,64,.4)' }}
         onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(240,192,64,.25)' }}
       >
-        Hazte Pro →
+        {t('pro_cta', lang)}
       </Link>
     </div>
   )
@@ -55,7 +58,9 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
   const [tab, setTab] = useState<'s' | 'a' | 'c' | 'd' | 'g'>('s')
   const { user, isLoaded } = useUser()
   const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
-  const activeTab = TABS.find(t => t.id === tab)!
+  const { lang } = useLang()
+  const TABS = TAB_DEFS.map(td => ({ ...td, label: t(td.labelKey, lang) }))
+  const activeTab = TABS.find(tab_item => tab_item.id === tab)!
   const { theme } = useTheme()
   const isLight = theme === 'light'
 
@@ -98,8 +103,8 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
                 textTransform: 'uppercase',
               }}>
                 Top <span style={{ color: activeTab.color }}>{activeTab.label}</span><br />
-                <span style={{ color: heroMidText }}>de </span>
-                <span style={{ color: heroTitleColor }}>Europa</span>
+                <span style={{ color: heroMidText }}>{t('hero_de', lang)} </span>
+                <span style={{ color: heroTitleColor }}>{t('hero_europe', lang)}</span>
               </h1>
               {/* Meta pills — always on dark hero bg */}
               <div className="flex items-center gap-2 flex-wrap">
@@ -110,7 +115,7 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
                   border: 'rgba(240,192,64,.22) solid 1px',
                   background: 'rgba(240,192,64,.07)',
                   fontFamily: "'Barlow Condensed', sans-serif",
-                }}>Temporada 2025/26</span>
+                }}>{t('hero_season', lang)}</span>
                 <span style={{
                   fontSize: 10.5, fontWeight: 700, letterSpacing: '1.5px',
                   textTransform: 'uppercase', color: '#00c8b0',
@@ -118,7 +123,7 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
                   border: 'rgba(0,200,176,.2) solid 1px',
                   background: 'rgba(0,200,176,.06)',
                   fontFamily: "'Barlow Condensed', sans-serif",
-                }}>Tiempo real</span>
+                }}>{t('hero_realtime', lang)}</span>
                 <span style={{
                   fontSize: 10.5, fontWeight: 700, letterSpacing: '1.5px',
                   textTransform: 'uppercase', color: '#7888aa',
@@ -126,7 +131,7 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
                   border: `1px solid ${dimBorder}`,
                   background: dimBg,
                   fontFamily: "'Barlow Condensed', sans-serif",
-                }}>8 ligas activas</span>
+                }}>{t('hero_leagues', lang)}</span>
               </div>
             </div>
 
@@ -136,7 +141,10 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
               borderLeft: 'rgba(100,120,160,.45) solid 2px', paddingLeft: 14,
               maxWidth: 240, marginTop: 4,
             }}>
-              Las 5 grandes ligas + Portugal,<br />Turquía y Grecia. Estadísticas<br />actualizadas en tiempo real.
+              {lang === 'es'
+                ? <>Las 5 grandes ligas + Portugal,<br />Turquía y Grecia. Estadísticas<br />actualizadas en tiempo real.</>
+                : <>Top 5 leagues + Portugal,<br />Turkey and Greece. Stats<br />updated in real time.</>
+              }
             </p>
           </div>
 
@@ -185,19 +193,19 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
           <div style={{ display: tab === 'c' ? 'block' : 'none' }}>
             {proUser
               ? <PositionPanel position="MF" accentColor="#a060ff" proUser={proUser} />
-              : <ProGateCard title="Datos de Centrocampistas — Solo Pro" description="Accede a estadísticas de centrocampistas de las 8 principales ligas europeas." />
+              : <ProGateCard title={t('pro_gate_mid_title', lang)} description={t('pro_gate_mid_desc', lang)} />
             }
           </div>
           <div style={{ display: tab === 'd' ? 'block' : 'none' }}>
             {proUser
               ? <PositionPanel position="DF" accentColor="#4090ff" proUser={proUser} />
-              : <ProGateCard title="Datos de Defensas — Solo Pro" description="Accede a estadísticas de defensas de las 8 principales ligas europeas." />
+              : <ProGateCard title={t('pro_gate_def_title', lang)} description={t('pro_gate_def_desc', lang)} />
             }
           </div>
           <div style={{ display: tab === 'g' ? 'block' : 'none' }}>
             {proUser
               ? <PositionPanel position="GK" accentColor="#e05a30" proUser={proUser} />
-              : <ProGateCard title="Datos de Porteros — Solo Pro" description="Accede a estadísticas de porteros de las 8 principales ligas europeas." />
+              : <ProGateCard title={t('pro_gate_gk_title', lang)} description={t('pro_gate_gk_desc', lang)} />
             }
           </div>
         </div>

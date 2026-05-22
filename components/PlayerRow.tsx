@@ -116,45 +116,35 @@ export default function PlayerRow({
       {/* Name + club */}
       <td className="py-0 pr-2 relative" style={{ width: 210, maxWidth: 210, overflow: 'hidden' }}>
         <div className="flex items-center gap-1.5 min-w-0">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div
-              className="player-name leading-tight truncate"
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: '#dde8ff',
-                textShadow: isTop1 ? '0 0 12px rgba(240,192,64,.18)' : 'none',
-              }}
+              className="flex items-center justify-between gap-1"
+              style={{ minWidth: 0 }}
             >
-              {player.flag && <span className="mr-0.5 text-xs">{player.flag}</span>}
-              {player.name}
-              {player.isPinned && <span style={{ color: '#e05a30', fontSize: 9, marginLeft: 3 }}>★</span>}
-            </div>
-            <div className="flex items-center gap-1 leading-tight">
-              <span
-                className="truncate rounded-sm"
+              <div
+                className="player-name leading-tight truncate"
                 style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: 0.3,
-                  padding: '2px 6px',
-                  color: ls.color,
-                  background: ls.bg,
-                  border: `1px solid ${ls.border}`,
-                  flexShrink: 0,
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  textTransform: 'uppercase' as const,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#dde8ff',
+                  textShadow: isTop1 ? '0 0 12px rgba(240,192,64,.18)' : 'none',
+                  minWidth: 0,
+                  flex: 1,
                 }}
               >
-                {player.club.slice(0, 3)}
-              </span>
-              {player.isFiller && !player.isPinned && (
-                <span style={{ fontSize: 8, color: '#585880' }}>(relleno)</span>
-              )}
+                {player.flag && <span className="mr-0.5 text-xs">{player.flag}</span>}
+                {player.name}
+                {player.isPinned && <span style={{ color: '#e05a30', fontSize: 9, marginLeft: 3 }}>★</span>}
+              </div>
               {pos && (
-                <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
                   {player.position}
                 </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1 leading-tight">
+              {player.isFiller && !player.isPinned && (
+                <span style={{ fontSize: 8, color: '#585880' }}>(relleno)</span>
               )}
             </div>
           </div>
@@ -179,22 +169,29 @@ export default function PlayerRow({
         <PlayerHoverCard player={player} showElo={showElo} showFantasy={showFantasy} open={cardOpen} />
       </td>
 
-      {/* League badge */}
-      <td className="pr-3">
-        <span
-          className="font-semibold whitespace-nowrap rounded-sm"
-          style={{ fontSize: 11, letterSpacing: 0.5, padding: '2px 6px', color: ls.color, background: ls.bg, border: `1px solid ${ls.border}` }}
-        >
-          {leagueLogoUrl(player.league) && (
-            <img
-              src={leagueLogoUrl(player.league)}
-              alt=""
-              width={14} height={14}
-              style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 4, borderRadius: 2 }}
-            />
-          )}
-          {player.league}
-        </span>
+      {/* Club + League cell */}
+      <td className="pr-3" style={{ minWidth: 130 }}>
+        <div className="flex flex-col gap-0.5">
+          <span
+            className="player-club-name"
+            style={{ fontSize: 13, fontWeight: 600, color: '#dde8ff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 120, display: 'block' }}
+          >
+            {player.club}
+          </span>
+          <span
+            className="flex items-center gap-1"
+            title={player.league}
+            style={{ fontSize: 10, color: ls.color, whiteSpace: 'nowrap' }}
+          >
+            {leagueLogoUrl(player.league) && (
+              <img src={leagueLogoUrl(player.league)} alt="" width={11} height={11}
+                style={{ display: 'inline-block', verticalAlign: 'middle', borderRadius: 1, opacity: 0.85 }} />
+            )}
+            <span style={{ fontWeight: 600, letterSpacing: 0.3, fontFamily: "'Barlow Condensed', sans-serif", textTransform: 'uppercase' as const, fontSize: 10 }}>
+              {player.league}
+            </span>
+          </span>
+        </div>
       </td>
 
       {/* Age */}
