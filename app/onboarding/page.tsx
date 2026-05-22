@@ -1,0 +1,226 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
+
+// Clubs agrupados por liga
+const CLUBS_BY_LEAGUE: Record<string, { name: string; logo: number }[]> = {
+  'La Liga': [
+    { name: 'Real Madrid',    logo: 541  },
+    { name: 'Barcelona',      logo: 529  },
+    { name: 'Atletico Madrid',logo: 530  },
+    { name: 'Villarreal',     logo: 533  },
+    { name: 'Real Sociedad',  logo: 548  },
+    { name: 'Osasuna',        logo: 727  },
+    { name: 'Girona',         logo: 547  },
+    { name: 'Mallorca',       logo: 798  },
+  ],
+  'Premier League': [
+    { name: 'Arsenal',        logo: 42   },
+    { name: 'Man City',       logo: 50   },
+    { name: 'Liverpool',      logo: 40   },
+    { name: 'Chelsea',        logo: 49   },
+    { name: 'Man United',     logo: 33   },
+    { name: 'Newcastle',      logo: 34   },
+    { name: 'Aston Villa',    logo: 66   },
+    { name: 'Brentford',      logo: 55   },
+    { name: 'Fulham',         logo: 36   },
+    { name: 'Crystal Palace', logo: 52   },
+    { name: 'Nottm Forest',   logo: 65   },
+  ],
+  'Bundesliga': [
+    { name: 'Bayern Munich',  logo: 157  },
+    { name: 'B. Dortmund',    logo: 165  },
+    { name: 'B. Leverkusen',  logo: 168  },
+    { name: 'RB Leipzig',     logo: 173  },
+    { name: 'Stuttgart',      logo: 172  },
+    { name: 'Frankfurt',      logo: 169  },
+  ],
+  'Serie A': [
+    { name: 'Inter Milan',    logo: 505  },
+    { name: 'Juventus',       logo: 496  },
+    { name: 'Napoli',         logo: 492  },
+    { name: 'Atalanta',       logo: 499  },
+    { name: 'Lazio',          logo: 487  },
+    { name: 'Fiorentina',     logo: 502  },
+    { name: 'Genoa',          logo: 495  },
+  ],
+  'Ligue 1': [
+    { name: 'PSG',            logo: 85   },
+    { name: 'Marseille',      logo: 81   },
+    { name: 'Lyon',           logo: 80   },
+    { name: 'Lille',          logo: 79   },
+    { name: 'Rennes',         logo: 94   },
+    { name: 'Strasbourg',     logo: 95   },
+  ],
+  'Outros': [
+    { name: 'Porto',          logo: 212  },
+    { name: 'Sporting CP',    logo: 228  },
+    { name: 'Galatasaray',    logo: 645  },
+  ],
+}
+
+const ALL_CLUBS = Object.values(CLUBS_BY_LEAGUE).flat()
+
+export default function OnboardingPage() {
+  const { user, isLoaded } = useUser()
+  const router = useRouter()
+  const [selected, setSelected] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [search, setSearch] = useState('')
+
+  const filtered = search.trim().length > 1
+    ? ALL_CLUBS.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
+    : null
+
+  async function handleSave() {
+    if (!user || !selected) return
+    setSaving(true)
+    try {
+      await user.update({
+        unsafeMetadata: { favoriteClub: selected },
+      })
+      router.push('/')
+    } catch {
+      setSaving(false)
+    }
+  }
+
+  function handleSkip() {
+    router.push('/')
+  }
+
+  if (!isLoaded) return null
+
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
+      style={{ background: 'linear-gradient(160deg,#07081a 0%,#0b0d22 100%)' }}
+    >
+      {/* Card */}
+      <div
+        className="w-full max-w-[560px] rounded-lg overflow-hidden"
+        style={{ background: '#0d0e24', border: '1px solid #1a1c38' }}
+      >
+        {/* Header */}
+        <div
+          className="px-6 pt-7 pb-5 text-center"
+          style={{ borderBottom: '1px solid #1a1c38' }}
+        >
+          <div
+            className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4"
+            style={{ background: '#f0c04015', border: '1px solid #f0c04030' }}
+          >
+            <span style={{ fontSize: 24 }}>⚽</span>
+          </div>
+          <h1
+            className="font-bold mb-1"
+            style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: 26, color: '#e8e8f8', letterSpacing: 0.5,
+            }}
+          >
+            ¡Bienvenido{user?.firstName ? `, ${user.firstName}` : ''}!
+          </h1>
+          <p className="text-[13px]" style={{ color: '#5060a0' }}>
+            ¿Cuál es tu club favorito? Personalizaremos tu experiencia.
+          </p>
+        </div>
+
+        {/* Search */}
+        <div className="px-5 pt-4 pb-2">
+          <input
+            type="text"
+            placeholder="Buscar club…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full rounded text-[13px] px-3 py-2 outline-none"
+            style={{
+              background: '#07070f',
+              border: '1px solid #1a1c38',
+              color: '#c8c8e0',
+            }}
+          />
+        </div>
+
+        {/* Club grid */}
+        <div className="px-5 pb-5 max-h-[380px] overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+          {(filtered ? [{ league: 'Resultados', clubs: filtered }] : Object.entries(CLUBS_BY_LEAGUE).map(([league, clubs]) => ({ league, clubs }))).map(({ league, clubs }) => (
+            <div key={league} className="mb-4">
+              <div
+                className="text-[10px] font-bold uppercase tracking-[2px] mb-2 mt-3"
+                style={{ color: '#3a3b52', fontFamily: "'Barlow Condensed', sans-serif" }}
+              >
+                {league}
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {clubs.map(club => {
+                  const active = selected === club.name
+                  return (
+                    <button
+                      key={club.name}
+                      onClick={() => setSelected(club.name)}
+                      className="flex flex-col items-center gap-1.5 py-3 px-1 rounded cursor-pointer transition-all duration-150"
+                      style={{
+                        background: active ? '#f0c04018' : 'transparent',
+                        border: `1px solid ${active ? '#f0c040' : '#1a1c38'}`,
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`https://media.api-sports.io/football/teams/${club.logo}.png`}
+                        alt={club.name}
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
+                      <span
+                        className="text-[10px] text-center leading-tight"
+                        style={{
+                          color: active ? '#f0c040' : '#7878a0',
+                          fontWeight: active ? 700 : 400,
+                        }}
+                      >
+                        {club.name}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Actions */}
+        <div
+          className="px-5 py-4 flex items-center gap-3"
+          style={{ borderTop: '1px solid #1a1c38' }}
+        >
+          <button
+            onClick={handleSave}
+            disabled={!selected || saving}
+            className="flex-1 py-2.5 rounded font-bold text-[13px] cursor-pointer transition-all duration-150"
+            style={{
+              background: selected ? '#f0c040' : '#1a1c38',
+              color: selected ? '#05060c' : '#3a3b52',
+              fontFamily: "'Barlow Condensed', sans-serif",
+              letterSpacing: 1,
+            }}
+          >
+            {saving ? 'Guardando…' : selected ? `Seguir con ${selected}` : 'Selecciona un club'}
+          </button>
+          <button
+            onClick={handleSkip}
+            className="px-4 py-2.5 text-[12px] cursor-pointer transition-colors duration-150"
+            style={{ color: '#3a3b52' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#7878a0')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#3a3b52')}
+          >
+            Ahora no
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

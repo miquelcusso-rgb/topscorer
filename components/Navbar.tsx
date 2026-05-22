@@ -72,8 +72,38 @@ export default function Navbar() {
   // All links for mobile menu
   const navLinks = [...primaryLinks, ...secondaryLinks]
 
+  // Cancellation banner
+  const planCancelsAt = user?.publicMetadata?.planCancelsAt as string | null | undefined
+  const planExpiry    = user?.publicMetadata?.planExpiry    as string | null | undefined
+  const showCancelBanner = isSignedIn && !!planCancelsAt
+
   return (
     <nav className="sticky top-0 z-50" style={{ background: navBg, backdropFilter: 'blur(24px)' }}>
+
+      {/* Cancellation notice banner */}
+      {showCancelBanner && (
+        <div
+          className="w-full text-center text-[11px] font-medium py-1.5 px-4"
+          style={{
+            background: isLight ? '#fff4e0' : '#1a1000',
+            borderBottom: `1px solid ${isLight ? '#f0c04060' : '#f0c04030'}`,
+            color: isLight ? '#7a5800' : '#f0c040',
+            fontFamily: "'Barlow Condensed', sans-serif",
+            letterSpacing: 0.5,
+          }}
+        >
+          Tu plan Pro finaliza el{' '}
+          <strong>
+            {new Date(planCancelsAt ?? planExpiry ?? '').toLocaleDateString('es-ES', {
+              day: 'numeric', month: 'long', year: 'numeric',
+            })}
+          </strong>
+          .{' '}
+          <Link href="/pricing" style={{ color: '#f0c040', textDecoration: 'underline' }}>
+            Renovar
+          </Link>
+        </div>
+      )}
 
       {/* Row 1 — h-[58px] */}
       <div
