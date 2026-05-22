@@ -5,7 +5,8 @@ import type { EnrichedPlayer } from '@/types'
 import { LEAGUE_STYLE, leagueLogoUrl } from '@/lib/utils'
 import PlayerHoverCard from './PlayerHoverCard'
 import WatchlistButton from './WatchlistButton'
-import HiddenGemSeal, { getSealVariant } from './HiddenGemSeal'
+import { getSealVariant, SealBadge } from './HiddenGemSeal'
+import { resolvePosition, positionShort } from '@/lib/position'
 
 interface Props {
   player: EnrichedPlayer
@@ -51,7 +52,10 @@ export default function PlayerRow({
   const mainVal = isAssist ? player.asist : player.goles
   const barPct  = Math.round((mainVal / maxVal) * 100)
   const ls      = LEAGUE_STYLE[player.league] ?? { bg: 'rgba(90,90,122,.1)', color: '#52526e', border: 'rgba(90,90,122,.22)' }
-  const pos     = player.position ? POS_STYLE[player.position] : null
+  // Always resolve a position (exact when known, generic fallback otherwise)
+  const posInfo = resolvePosition(player)
+  const pos     = POS_STYLE[posInfo.code]
+  const posText = positionShort(player)
 
   // ─── Hidden Gem Sello ──────────────────────────────────────────────────────
   const SMALL_LEAGUES = new Set(['Championship','2. Bundesliga','Serie B','Ligue 2','Segunda División','Liga Portugal 2','1. Lig','Primeira Liga','Süper Lig','Super League Grecia'])
@@ -148,14 +152,13 @@ export default function PlayerRow({
                 {player.isPinned && <span style={{ color: '#e05a30', fontSize: 9, marginLeft: 3 }}>★</span>}
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                {rowSeal && (
-                  <HiddenGemSeal variant={rowSeal} size="sm" lang="es" rotate={-10} />
-                )}
-                {pos && (
-                  <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3 }}>
-                    {player.position}
-                  </span>
-                )}
+                {rowSeal && <SealBadge variant={rowSeal} lang="es" compact />}
+                <span
+                  title={posInfo.exact ? undefined : 'Posición estimada'}
+                  style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 2, color: pos.color, background: pos.bg, flexShrink: 0, letterSpacing: 0.3, opacity: posInfo.exact ? 1 : 0.7 }}
+                >
+                  {posText}{!posInfo.exact && '*'}
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-1 leading-tight">

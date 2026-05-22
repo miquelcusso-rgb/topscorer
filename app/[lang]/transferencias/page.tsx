@@ -1,0 +1,42 @@
+import type { Metadata } from 'next'
+import { isLocale } from '@/lib/i18n'
+import TransferenciasClient from './TransferenciasClient'
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/transferencias'
+  return {
+    title: 'Transferencias — TopScorers',
+    description: 'Últimas transferencias del fútbol europeo. Fichajes, cesiones y movimientos de los principales clubes.',
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+  }
+}
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.top-scorers.com' },
+    { '@type': 'ListItem', position: 2, name: 'Transferencias', item: 'https://www.top-scorers.com/transferencias' },
+  ],
+}
+
+export default function TransferenciasPage() {
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
+      />
+      <TransferenciasClient />
+    </>
+  )
+}

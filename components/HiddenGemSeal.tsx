@@ -139,16 +139,74 @@ export default function HiddenGemSeal({
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Determina qué variante aplicar según el score y datos del jugador */
+/**
+ * Determina qué variante aplicar según el score y datos del jugador.
+ * Calibrado sobre el dataset real para que el sello sea SELECTIVO (~12-15% de
+ * los jugadores mostrados, no el 60%+). Cada criterio exige excelencia real:
+ *  - elite:    rendimiento de élite (score muy alto, cualquier liga)
+ *  - prospect: joven (≤21) Y rindiendo a nivel alto
+ *  - gem:      score alto en cualquier liga, o destacado en liga de menor exposición
+ */
 export function getSealVariant(
   score: number,
   age: number,
   isSmallLeague: boolean
 ): SealVariant | null {
-  if (score < 1.2) return null          // umbral mínimo — no todos son joyas
-  if (score >= 4.0) return 'elite'       // top performers
-  if (age <= 21) return 'prospect'       // jóvenes promesas
-  if (isSmallLeague) return 'gem'        // hidden gems en ligas pequeñas
-  if (score >= 2.5) return 'gem'         // alto ratio en cualquier liga
+  if (score >= 4.5) return 'elite'                       // top ~3%
+  if (age <= 21 && score >= 4.0) return 'prospect'       // joven Y de élite
+  if (score >= 4.0) return 'gem'                         // élite en cualquier liga
+  if (isSmallLeague && score >= 3.8) return 'gem'        // destaca en 2ª división
   return null
+}
+
+// Tooltip text explaining each seal variant (shown on hover)
+const SEAL_TOOLTIP: Record<SealVariant, { es: string; en: string }> = {
+  elite:    { es: 'Élite: rendimiento de los mejores de Europa (goles + asistencias por 90 min).', en: 'Elite: top-tier output in Europe (goals + assists per 90 min).' },
+  prospect: { es: 'Promesa: jugador joven (≤21) rindiendo a nivel de élite.', en: 'Prospect: young player (≤21) performing at an elite level.' },
+  gem:      { es: 'Joya oculta: gran rendimiento por 90 min, a menudo infravalorado o en liga de menor exposición.', en: 'Hidden gem: high per-90 output, often undervalued or in a lower-exposure league.' },
+}
+
+// ─── Readable inline badge (para grids/tablas — el sello circular no se lee) ──
+
+export function SealBadge({
+  variant,
+  lang = 'es',
+  compact = false,
+}: {
+  variant: SealVariant
+  lang?: 'es' | 'en'
+  compact?: boolean
+}) {
+  const v = VARIANTS[variant]
+  const label = lang === 'es' ? v.label : v.labelEN
+  const tooltip = lang === 'es' ? SEAL_TOOLTIP[variant].es : SEAL_TOOLTIP[variant].en
+  const icons: Record<SealVariant, string> = { gem: '◆', prospect: '★', elite: '⚡' }
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 3,
+        padding: compact ? '1px 6px' : '2px 8px',
+        borderRadius: 999,
+        background: v.bg,
+        border: `1px solid ${v.color}66`,
+        color: v.color,
+        fontSize: compact ? 9 : 10,
+        fontWeight: 700,
+        fontFamily: "'Barlow Condensed', sans-serif",
+        letterSpacing: '0.6px',
+        textTransform: 'uppercase',
+        whiteSpace: 'nowrap',
+        lineHeight: 1.4,
+        flexShrink: 0,
+        cursor: 'help',
+      }}
+      aria-label={`${label} — ${tooltip}`}
+      title={tooltip}
+    >
+      <span style={{ fontSize: compact ? 8 : 9 }}>{icons[variant]}</span>
+      {label}
+    </span>
+  )
 }

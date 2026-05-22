@@ -1,5 +1,11 @@
 export type Lang = 'es' | 'en'
 
+export const LOCALES: Lang[] = ['es', 'en']
+export const DEFAULT_LOCALE: Lang = 'es'
+export function isLocale(value: string): value is Lang {
+  return value === 'es' || value === 'en'
+}
+
 export const T = {
   // Navbar
   nav_stats:       { es: 'Estadísticas', en: 'Statistics' },
