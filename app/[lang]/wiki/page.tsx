@@ -30,6 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       siteName: 'TopScorers',
       locale: es ? 'es_ES' : 'en_US',
       type: 'article',
+      images: [{ url: `https://www.top-scorers.com/og-default-${l}.jpg`, width: 1200, height: 630, alt: 'TopScorers' }],
     },
     twitter: { card: 'summary_large_image', title, description },
   }

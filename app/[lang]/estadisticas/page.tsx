@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       description: 'Estadísticas completas de fútbol europeo: goles, asistencias y comparador de jugadores.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
-      locale: 'es_ES',
+      locale: lang === 'en' ? 'en_US' : 'es_ES',
       type: 'website',
       images: [{ url: `https://www.top-scorers.com/og-default-${lang}.jpg`, width: 1200, height: 630, alt: 'TopScorers' }],
     },

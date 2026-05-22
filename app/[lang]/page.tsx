@@ -25,8 +25,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       description: 'Top 25 goleadores y asistentes de las principales ligas europeas. Temporada 2025/26.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
-      locale: 'es_ES',
+      locale: lang === 'en' ? 'en_US' : 'es_ES',
       type: 'website',
+      images: [{ url: `https://www.top-scorers.com/og-default-${lang}.jpg`, width: 1200, height: 630, alt: 'TopScorers' }],
     },
   }
 }
