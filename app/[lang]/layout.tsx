@@ -1,17 +1,21 @@
 import type { Metadata, Viewport } from 'next'
-import { cookies } from 'next/headers'
+import { notFound } from 'next/navigation'
 import { ClerkProvider } from '@clerk/nextjs'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { LangProvider } from '@/contexts/LangContext'
-import type { Lang } from '@/lib/i18n'
+import { LOCALES, isLocale, type Lang } from '@/lib/i18n'
 import AddToHomeScreen from '@/components/AddToHomeScreen'
 import ServiceWorkerRegistrar from '@/components/ServiceWorkerRegistrar'
 import AppDownloadBanner from '@/components/AppDownloadBanner'
 import { GTMScript, GTMNoScript } from '@/components/GoogleTagManager'
-import './globals.css'
+import '../globals.css'
+
+export function generateStaticParams() {
+  return LOCALES.map(lang => ({ lang }))
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.top-scorers.com'),
@@ -91,13 +95,21 @@ const websiteJsonLd = {
   },
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies()
-  const detectedLang = (cookieStore.get('ts-lang')?.value ?? 'es') as Lang
+export default async function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{ lang: string }>
+}) {
+  const { lang } = await params
+  if (!isLocale(lang)) notFound()
+  const locale: Lang = lang
+  const htmlLang = locale === 'en' ? 'en' : 'es'
 
   return (
     <ClerkProvider>
-      <html lang="es" className="h-full">
+      <html lang={htmlLang} className="h-full">
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -122,7 +134,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </head>
         <body className="min-h-full">
           <GTMNoScript />
-          <LangProvider defaultLang={detectedLang}>
+          <LangProvider defaultLang={locale}>
             <ThemeProvider>
               <Navbar />
               {children}

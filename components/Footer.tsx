@@ -22,30 +22,33 @@ export default function Footer() {
   const textLinkHover = isLight ? '#0f1830' : '#b0b0cc'
   const textCopy = isLight ? '#6070a0' : '#525278'
 
+  // Locale-aware path builder
+  const lp = (p: string) => (p === '/' ? `/${lang}` : `/${lang}${p}`)
+
   const LINKS = [
     {
       group: t('footer_stats', lang),
       items: [
-        { href: '/',           label: t('footer_scorers', lang) },
-        { href: '/?tab=a',     label: t('footer_assists', lang) },
-        { href: '/?tab=c',     label: t('footer_midfield', lang) },
-        { href: '/resultados', label: t('footer_results', lang) },
+        { href: lp('/'),            label: t('footer_scorers', lang) },
+        { href: lp('/?tab=a'),      label: t('footer_assists', lang) },
+        { href: lp('/?tab=c'),      label: t('footer_midfield', lang) },
+        { href: lp('/resultados'),  label: t('footer_results', lang) },
       ],
     },
     {
       group: t('footer_competitions', lang),
       items: [
-        { href: '/mundial-2026', label: t('footer_world_cup', lang) },
-        { href: '/resultados',   label: t('footer_tables', lang) },
+        { href: lp('/mundial-2026'), label: t('footer_world_cup', lang) },
+        { href: lp('/resultados'),   label: t('footer_tables', lang) },
       ],
     },
     {
       group: t('footer_product', lang),
       items: [
-        { href: '/pricing',    label: t('footer_pricing', lang) },
-        { href: '/about',      label: t('footer_about', lang) },
-        { href: '/privacidad', label: t('footer_privacy', lang) },
-        { href: '/legal',      label: t('footer_legal', lang) },
+        { href: lp('/pricing'),    label: t('footer_pricing', lang) },
+        { href: lp('/about'),      label: t('footer_about', lang) },
+        { href: lp('/privacidad'), label: t('footer_privacy', lang) },
+        { href: lp('/legal'),      label: t('footer_legal', lang) },
       ],
     },
   ]

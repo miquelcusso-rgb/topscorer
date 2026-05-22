@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useUser, SignInButton, UserButton } from '@clerk/nextjs'
 import { isPro, isScout, isTeam } from '@/lib/plans'
 import { useState, useEffect, useRef } from 'react'
@@ -14,6 +14,17 @@ import ShareButton from '@/components/ShareButton'
 
 export default function Navbar() {
   const path = usePathname()
+  const router = useRouter()
+
+  // Switch language by navigating to the same path under the other locale prefix
+  function switchLang() {
+    const next = lang === 'es' ? 'en' : 'es'
+    setLang(next)
+    const segments = (path || '/').split('/')
+    if (segments[1] === 'es' || segments[1] === 'en') segments[1] = next
+    else segments.splice(1, 0, next)
+    router.push(segments.join('/') || `/${next}`)
+  }
   const { user, isLoaded } = useUser()
   const isSignedIn = isLoaded && !!user
   const userMeta = user?.publicMetadata as Record<string, unknown> | undefined
@@ -34,6 +45,8 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
   const { lang, setLang } = useLang()
+  // Locale-aware path builder
+  const lp = (p: string) => (p === '/' ? `/${lang}` : `/${lang}${p}`)
   const [showHint, setShowHint] = useState(false)
   const isLight = theme === 'light'
   const navBg   = isLight ? 'rgba(248,250,255,.97)' : 'rgba(6,13,24,.96)'
@@ -58,20 +71,20 @@ export default function Navbar() {
 
   // Primary links (always visible on desktop)
   const primaryLinks = [
-    { href: '/',                        label: t('nav_stats', lang) },
-    { href: '/competiciones',           label: t('nav_competitions', lang) },
-    { href: '/resultados',              label: t('nav_results', lang) },
-    { href: '/estadisticas/comparador', label: t('nav_compare', lang) },
-    { href: '/pricing',                 label: t('nav_pricing', lang) },
+    { href: lp('/'),                        label: t('nav_stats', lang) },
+    { href: lp('/competiciones'),           label: t('nav_competitions', lang) },
+    { href: lp('/resultados'),              label: t('nav_results', lang) },
+    { href: lp('/estadisticas/comparador'), label: t('nav_compare', lang) },
+    { href: lp('/pricing'),                 label: t('nav_pricing', lang) },
   ]
   // Secondary links (in "Más" dropdown)
   const secondaryLinks = [
-    { href: '/jugadores',    label: t('nav_players', lang) },
-    { href: '/descubrir',    label: t('nav_discover', lang) },
-    { href: '/transferencias', label: t('nav_transfers', lang) },
-    { href: '/mundial-2026', label: t('nav_world_cup', lang) },
+    { href: lp('/jugadores'),    label: t('nav_players', lang) },
+    { href: lp('/descubrir'),    label: t('nav_discover', lang) },
+    { href: lp('/transferencias'), label: t('nav_transfers', lang) },
+    { href: lp('/mundial-2026'), label: t('nav_world_cup', lang) },
     // Scout-only: API key management
-    ...(isScoutUser ? [{ href: '/cuenta/api', label: 'API' }] : []),
+    ...(isScoutUser ? [{ href: lp('/cuenta/api'), label: 'API' }] : []),
   ]
   // All links for mobile menu
   const navLinks = [...primaryLinks, ...secondaryLinks]
@@ -104,7 +117,7 @@ export default function Navbar() {
             })}
           </strong>
           .{' '}
-          <Link href="/pricing" style={{ color: '#f0c040', textDecoration: 'underline' }}>
+          <Link href={lp("/pricing")} style={{ color: '#f0c040', textDecoration: 'underline' }}>
             Renovar
           </Link>
         </div>
@@ -120,7 +133,7 @@ export default function Navbar() {
         <div className="max-w-[1100px] mx-auto px-5 h-full flex items-center gap-5">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+          <Link href={lp("/")} className="flex items-center gap-2.5 shrink-0">
             <div style={{
               width: 34, height: 34, borderRadius: '50%', overflow: 'hidden',
               border: '1.5px solid rgba(240,192,64,.32)',
@@ -223,7 +236,7 @@ export default function Navbar() {
 
           {/* Language toggle */}
           <button
-            onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+            onClick={switchLang}
             className="cursor-pointer rounded-full flex items-center justify-center transition-all duration-200"
             style={{
               width: 32, height: 32, fontSize: 11, fontWeight: 700,
@@ -279,7 +292,7 @@ export default function Navbar() {
               isSignedIn ? (
                 /* Signed in but not Pro → go to pricing */
                 <Link
-                  href="/pricing"
+                  href={lp("/pricing")}
                   className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
                   style={{
                     fontSize: 12.5, color: '#060d18', background: '#f0c040',
@@ -294,7 +307,7 @@ export default function Navbar() {
               ) : (
                 /* Not signed in → go to sign-in page (redirect to pricing after) */
                 <Link
-                  href="/sign-in?redirect_url=%2Fpricing"
+                  href={`${lp('/sign-in')}?redirect_url=${encodeURIComponent(lp('/pricing'))}`}
                   className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
                   style={{
                     fontSize: 12.5, color: '#060d18', background: '#f0c040',
@@ -368,7 +381,7 @@ export default function Navbar() {
                     </button>
                   </SignInButton>
                   <Link
-                    href="/pricing"
+                    href={lp("/pricing")}
                     className="flex-1 py-2 rounded text-[13px] font-bold cursor-pointer text-center"
                     style={{ color: '#060d18', background: '#f0c040', textDecoration: 'none' }}
                     onClick={() => setMenuOpen(false)}
@@ -380,7 +393,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-3">
                   <UserButton />
                   <Link
-                    href="/pricing"
+                    href={lp("/pricing")}
                     onClick={() => setMenuOpen(false)}
                     className="text-[12px] font-semibold px-3 py-1.5 rounded-sm"
                     style={{ color: '#f0c040', background: 'rgba(240,192,64,.08)', border: '1px solid rgba(240,192,64,.2)' }}

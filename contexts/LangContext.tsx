@@ -1,35 +1,26 @@
 'use client'
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect } from 'react'
 import type { Lang } from '@/lib/i18n'
 
 interface LangCtx { lang: Lang; setLang: (l: Lang) => void }
 const LangContext = createContext<LangCtx>({ lang: 'es', setLang: () => {} })
 
+// With path-based routing (/es, /en) the URL is the single source of truth for
+// language. `defaultLang` is derived from the [lang] route segment in the layout.
 export function LangProvider({ children, defaultLang = 'es' }: { children: React.ReactNode; defaultLang?: Lang }) {
-  const [lang, setLangState] = useState<Lang>(defaultLang)
-
+  // Keep the cookie in sync with the active route locale so any unprefixed
+  // internal link gets redirected by the middleware to the correct language.
   useEffect(() => {
-    // Check localStorage override first
-    const stored = localStorage.getItem('ts-lang') as Lang | null
-    if (stored === 'es' || stored === 'en') {
-      setLangState(stored)
-      return
-    }
-    // Check cookie set by middleware
-    const cookie = document.cookie.split(';').find(c => c.trim().startsWith('ts-lang='))
-    if (cookie) {
-      const val = cookie.split('=')[1]?.trim() as Lang
-      if (val === 'es' || val === 'en') setLangState(val)
-    }
-  }, [])
+    document.cookie = `ts-lang=${defaultLang}; path=/; max-age=31536000`
+    try { localStorage.setItem('ts-lang', defaultLang) } catch {}
+  }, [defaultLang])
 
   const setLang = (l: Lang) => {
-    setLangState(l)
-    localStorage.setItem('ts-lang', l)
     document.cookie = `ts-lang=${l}; path=/; max-age=31536000`
+    try { localStorage.setItem('ts-lang', l) } catch {}
   }
 
-  return <LangContext.Provider value={{ lang, setLang }}>{children}</LangContext.Provider>
+  return <LangContext.Provider value={{ lang: defaultLang, setLang }}>{children}</LangContext.Provider>
 }
 
 export const useLang = () => useContext(LangContext)
