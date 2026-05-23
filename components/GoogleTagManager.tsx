@@ -1,11 +1,8 @@
 import Script from 'next/script'
 
-// ⚠️  IMPORTANT: Set NEXT_PUBLIC_GTM_ID in Vercel env vars to TopScorer's own
-// dedicated container. Current fallback (GTM-T7GBHVCL) is shared with LunaLlena.
-// To fix: create a new GTM container at tagmanager.google.com, then add a GA4
-// Configuration tag inside it pointing to a dedicated TopScorer GA4 property.
-// Then set NEXT_PUBLIC_GTM_ID=GTM-XXXXXXXX in Vercel → Settings → Environment Variables.
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-T7GBHVCL'
+// TopScorer's own dedicated GTM container (account: furiosa studio).
+// Override per-environment with NEXT_PUBLIC_GTM_ID in Vercel if needed.
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-KXP63GLJ'
 
 export function GTMScript() {
   return (
