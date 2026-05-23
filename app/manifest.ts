@@ -19,10 +19,24 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
       { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
-    // screenshots: deshabilitados hasta capturar los PNGs reales y ponerlos en
-    // public/screenshots/ (móvil 390x844 + desktop 1280x720). Declararlos sin los
-    // archivos provocaba 404. Para reactivar: añadir los PNGs y restaurar este bloque
-    // con { src, sizes, type:'image/png', form_factor:'narrow'|'wide', label }.
+    screenshots: [
+      {
+        src: '/screenshots/screenshot-mobile.png',
+        sizes: '390x844',
+        type: 'image/png',
+        // @ts-ignore — form_factor not in Next.js types yet
+        form_factor: 'narrow',
+        label: 'Goleadores de Europa en el móvil',
+      },
+      {
+        src: '/screenshots/screenshot-desktop.png',
+        sizes: '1280x720',
+        type: 'image/png',
+        // @ts-ignore
+        form_factor: 'wide',
+        label: 'Dashboard de estadísticas de fútbol europeo',
+      },
+    ],
     shortcuts: [
       {
         name: 'Goleadores',
