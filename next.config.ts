@@ -10,6 +10,5 @@ export default withSentryConfig(nextConfig, {
   project: "topscorer",
   silent: true,
   widenClientFileUpload: true,
-  hideSourceMaps: true,
-  disableLogger: true,
+  sourcemaps: { deleteSourcemapsAfterUpload: true },
 });
