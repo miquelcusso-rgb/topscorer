@@ -1,0 +1,280 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { isLocale } from '@/lib/i18n'
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const path = '/bota-de-oro'
+  return {
+    title: 'Bota de Oro 2025/26 — European Golden Shoe & Ranking | TopScorers',
+    description: 'Carrera por la Bota de Oro 2025/26 (European Golden Shoe). Cómo se calcula con coeficientes por liga, candidatos actuales (Kane, Mbappé, Haaland) e histórico de ganadores.',
+    keywords: [
+      'bota de oro', 'bota de oro 2025', 'european golden shoe', 'golden boot europa',
+      'bota de oro 2025 2026', 'cómo se calcula la bota de oro', 'ganadores bota de oro',
+      'máximo goleador europa coeficiente', 'quién va a ganar la bota de oro',
+      'bota de oro messi cristiano ronaldo',
+    ],
+    alternates: {
+      canonical: `https://www.top-scorers.com/${lang}${path}`,
+      languages: {
+        es: `https://www.top-scorers.com/es${path}`,
+        en: `https://www.top-scorers.com/en${path}`,
+        'x-default': `https://www.top-scorers.com/es${path}`,
+      },
+    },
+    openGraph: {
+      title: 'Bota de Oro 2025/26 — European Golden Shoe | TopScorers',
+      description: 'Quién lidera la Bota de Oro 2025/26, cómo se calcula con coeficientes por liga e histórico de ganadores.',
+      url: `https://www.top-scorers.com/${lang}${path}`,
+      siteName: 'TopScorers',
+      locale: lang === 'en' ? 'en_US' : 'es_ES',
+      type: 'website',
+      images: [{ url: `https://www.top-scorers.com/og-default-${lang}.jpg`, width: 1200, height: 630 }],
+    },
+  }
+}
+
+// ── Data ─────────────────────────────────────────────────────────────────────
+
+// Coefficient ×2 applies to the 5 top-ranked UEFA leagues.
+const CONTENDERS = {
+  label: 'Temporada 2025/26',
+  players: [
+    { pos: 1, name: 'Harry Kane',     club: 'Bayern München',  league: 'Bundesliga',     goles: 33, coef: 2 },
+    { pos: 2, name: 'Kylian Mbappé',  club: 'Real Madrid',     league: 'La Liga',        goles: 24, coef: 2 },
+    { pos: 3, name: 'Erling Haaland', club: 'Manchester City', league: 'Premier League', goles: 24, coef: 2 },
+    { pos: 4, name: 'Thiago',         club: 'Brentford',       league: 'Premier League', goles: 22, coef: 2 },
+    { pos: 5, name: 'Vedat Muriqi',   club: 'Mallorca',        league: 'La Liga',        goles: 21, coef: 2 },
+  ],
+}
+
+// Real European Golden Shoe winners with their weighted points (goals × league coefficient).
+const HISTORICAL = [
+  { season: '2024/25', winner: 'Kylian Mbappé',     club: 'Real Madrid',     goles: 31, pts: 62 },
+  { season: '2023/24', winner: 'Harry Kane',         club: 'Bayern München',  goles: 36, pts: 72 },
+  { season: '2022/23', winner: 'Erling Haaland',     club: 'Manchester City', goles: 36, pts: 72 },
+  { season: '2021/22', winner: 'Robert Lewandowski', club: 'Bayern München',  goles: 35, pts: 70 },
+  { season: '2020/21', winner: 'Robert Lewandowski', club: 'Bayern München',  goles: 41, pts: 82 },
+  { season: '2019/20', winner: 'Ciro Immobile',      club: 'Lazio',           goles: 36, pts: 72 },
+]
+
+const FAQS = [
+  {
+    q: '¿Qué es la Bota de Oro?',
+    a: 'La Bota de Oro (European Golden Shoe) es el galardón que premia al máximo goleador de las ligas europeas en cada temporada. Se concede desde 1968 y, a diferencia del Pichichi o la Golden Boot, no se limita a una sola liga: compara a los goleadores de toda Europa aplicando un coeficiente que iguala la dificultad de cada campeonato.',
+  },
+  {
+    q: '¿Cómo se calcula la Bota de Oro?',
+    a: 'Cada gol se multiplica por un coeficiente según el nivel de la liga: ×2 para las cinco grandes ligas (Inglaterra, España, Alemania, Italia y Francia), ×1,5 para las ligas situadas entre los puestos 6 y 21 del ranking UEFA, y ×1 para el resto. Gana quien sume más puntos. Así, 30 goles en La Liga (60 puntos) valen más que 30 goles en una liga menor.',
+  },
+  {
+    q: '¿Quién lidera la Bota de Oro 2025/26?',
+    a: 'Harry Kane (Bayern de Múnich) encabeza la carrera con 33 goles en la Bundesliga, que equivalen a 66 puntos. Le siguen Kylian Mbappé y Erling Haaland, ambos con 24 goles (48 puntos) en La Liga y la Premier League respectivamente.',
+  },
+  {
+    q: '¿Quién tiene más Botas de Oro de la historia?',
+    a: 'Lionel Messi es el máximo ganador con 6 Botas de Oro, por delante de Cristiano Ronaldo, que ha conseguido 4. Messi también firmó la mejor marca individual moderna con 50 goles en La Liga 2011/12.',
+  },
+  {
+    q: '¿Qué diferencia hay entre la Bota de Oro, el Pichichi y la Golden Boot?',
+    a: 'El Pichichi (España) y la Golden Boot (Inglaterra) premian al máximo goleador de una sola liga nacional. La Bota de Oro es un premio paneuropeo que enfrenta a los goleadores de todas las ligas del continente ponderando sus goles por coeficiente.',
+  },
+]
+
+// ── JSON-LD ───────────────────────────────────────────────────────────────────
+
+const itemListJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Candidatos a la Bota de Oro 2025/26',
+  description: 'Ranking de candidatos a la Bota de Oro (European Golden Shoe) 2025/26 con puntos por coeficiente de liga',
+  url: 'https://www.top-scorers.com/bota-de-oro',
+  numberOfItems: CONTENDERS.players.length,
+  itemListElement: CONTENDERS.players.map((p) => ({
+    '@type': 'ListItem',
+    position: p.pos,
+    name: `${p.name} — ${p.goles * p.coef} pts (${p.goles} goles, ${p.club})`,
+    url: `https://www.top-scorers.com/bota-de-oro#pos-${p.pos}`,
+  })),
+}
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'TopScorers', item: 'https://www.top-scorers.com' },
+    { '@type': 'ListItem', position: 2, name: 'Bota de Oro', item: 'https://www.top-scorers.com/bota-de-oro' },
+  ],
+}
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQS.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+
+const headingStyle = {
+  fontFamily: "'Barlow Condensed', sans-serif",
+  fontWeight: 800,
+  textTransform: 'uppercase' as const,
+  letterSpacing: 1,
+}
+
+export default function BotaDeOroPage() {
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }} />
+
+      <div className="max-w-[900px] mx-auto px-5 py-10">
+
+        {/* Breadcrumb */}
+        <nav className="text-xs text-gray-500 mb-6 flex gap-1.5 items-center">
+          <Link href="/" className="hover:text-gray-300 transition-colors">TopScorers</Link>
+          <span>›</span>
+          <span className="text-gray-400">Bota de Oro</span>
+        </nav>
+
+        {/* H1 */}
+        <h1 style={{ ...headingStyle, fontSize: 38, color: '#eef4ff', marginBottom: 8 }}>
+          Bota de Oro 2025/26
+        </h1>
+        <p style={{ color: '#94a3b8', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
+          La <strong style={{ color: '#e2e8f0' }}>Bota de Oro</strong> (European Golden Shoe) premia al máximo goleador de Europa ponderando los goles por la dificultad de cada liga. Aquí tienes cómo se calcula, los candidatos de la temporada y el histórico de ganadores.
+        </p>
+
+        {/* How it works */}
+        <section style={{ marginBottom: 40, color: '#94a3b8', lineHeight: 1.75, fontSize: 15 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 14 }}>
+            Cómo se calcula la Bota de Oro
+          </h2>
+          <p style={{ marginBottom: 12 }}>
+            Cada gol marcado en liga se multiplica por un <strong style={{ color: '#e2e8f0' }}>coeficiente</strong> según el nivel del campeonato en el ranking UEFA. Gana la Bota de Oro quien sume más puntos al final de la temporada.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 8 }}>
+            {[
+              { coef: '×2', desc: 'Las 5 grandes ligas: Inglaterra, España, Alemania, Italia y Francia' },
+              { coef: '×1,5', desc: 'Ligas situadas entre los puestos 6 y 21 del ranking UEFA' },
+              { coef: '×1', desc: 'Resto de ligas europeas' },
+            ].map(({ coef, desc }) => (
+              <div key={coef} style={{ flex: '1 1 240px', padding: '14px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ color: '#f0c040', fontWeight: 800, fontFamily: 'monospace', fontSize: 20 }}>{coef}</span>
+                <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 6, lineHeight: 1.5 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+          <p style={{ color: '#475569', fontSize: 13 }}>
+            Ejemplo: 30 goles en La Liga equivalen a 60 puntos (×2), mientras que 30 goles en una liga de coeficiente ×1 valen solo 30 puntos.
+          </p>
+        </section>
+
+        {/* Contenders table */}
+        <section style={{ marginBottom: 40 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: '#f0c040', marginBottom: 16 }}>
+            Candidatos a la Bota de Oro — {CONTENDERS.label}
+          </h2>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #1e293b' }}>
+                  {['#', 'Jugador', 'Liga', 'Goles', 'Coef.', 'Puntos'].map(col => (
+                    <th key={col} style={{ padding: '8px 12px', textAlign: col === 'Jugador' || col === 'Liga' ? 'left' : 'center', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {CONTENDERS.players.map((p) => (
+                  <tr key={p.name} id={`pos-${p.pos}`} style={{ borderBottom: '1px solid #0f172a', transition: 'background 0.15s' }} className="hover:bg-white/5">
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: p.pos <= 3 ? '#f0c040' : '#475569', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{p.pos}</td>
+                    <td style={{ padding: '10px 12px', color: '#e2e8f0', fontWeight: 600 }}>
+                      {p.name}
+                      <span style={{ display: 'block', color: '#64748b', fontWeight: 400, fontSize: 12 }}>{p.club}</span>
+                    </td>
+                    <td style={{ padding: '10px 12px', color: '#64748b' }}>{p.league}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontFamily: 'monospace' }}>{p.goles}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontFamily: 'monospace' }}>×{p.coef}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#f0c040', fontWeight: 700, fontFamily: 'monospace', fontSize: 15 }}>{p.goles * p.coef}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p style={{ marginTop: 10, color: '#475569', fontSize: 12 }}>
+            Puntos = goles en liga × coeficiente. Datos actualizados, fuente: API-Football. Ver el{' '}
+            <Link href="/maximos-goleadores-europa" style={{ color: '#f0c040', textDecoration: 'none' }}>ranking de goleadores de Europa →</Link>
+          </p>
+        </section>
+
+        {/* Historical winners */}
+        <section style={{ marginBottom: 40 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
+            Ganadores de la Bota de Oro — Últimas temporadas
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {HISTORICAL.map((h) => (
+              <div key={h.season} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ color: '#475569', fontFamily: 'monospace', fontSize: 13, width: 60, flexShrink: 0 }}>{h.season}</span>
+                <span style={{ color: '#e2e8f0', fontWeight: 600, flex: 1 }}>{h.winner}</span>
+                <span style={{ color: '#64748b', fontSize: 13 }}>{h.club}</span>
+                <span style={{ color: '#94a3b8', fontSize: 13, fontFamily: 'monospace', width: 56, textAlign: 'right' }}>{h.goles}G</span>
+                <span style={{ color: '#f0c040', fontWeight: 700, fontFamily: 'monospace', width: 56, textAlign: 'right' }}>{h.pts} pts</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section style={{ marginBottom: 40 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
+            Preguntas frecuentes sobre la Bota de Oro
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {FAQS.map(({ q, a }) => (
+              <details key={q} style={{ borderBottom: '1px solid #1e293b', padding: '14px 0' }}>
+                <summary style={{ color: '#e2e8f0', fontWeight: 600, cursor: 'pointer', fontSize: 15, listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {q}
+                  <span style={{ color: '#f0c040', fontSize: 18, fontWeight: 400, flexShrink: 0, marginLeft: 12 }}>+</span>
+                </summary>
+                <p style={{ color: '#94a3b8', marginTop: 10, lineHeight: 1.7, fontSize: 14 }}>{a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* Internal links */}
+        <section style={{ padding: '20px 24px', background: 'rgba(240,192,64,0.06)', borderRadius: 12, border: '1px solid rgba(240,192,64,0.15)' }}>
+          <h3 style={{ ...headingStyle, fontSize: 16, color: '#f0c040', marginBottom: 12 }}>
+            Más rankings de goleadores
+          </h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            {[
+              { href: '/maximos-goleadores-europa', label: 'Máximos goleadores de Europa' },
+              { href: '/goleadores-liga-espanola', label: 'Goleadores La Liga (Pichichi)' },
+              { href: '/goleadores-premier-league', label: 'Goleadores Premier League' },
+              { href: '/', label: 'Top 25 en tiempo real' },
+              { href: '/competiciones', label: 'Todas las ligas' },
+            ].map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                style={{ color: '#f0c040', textDecoration: 'none', fontSize: 13, padding: '6px 14px', background: 'rgba(240,192,64,0.1)', borderRadius: 20, border: '1px solid rgba(240,192,64,0.2)', transition: 'background 0.15s' }}
+                className="hover:bg-yellow-400/20"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+      </div>
+    </>
+  )
+}

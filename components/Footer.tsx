@@ -43,6 +43,15 @@ export default function Footer() {
       ],
     },
     {
+      group: lang === 'es' ? 'Goleadores' : 'Top scorers',
+      items: [
+        { href: lp('/maximos-goleadores-europa'), label: lang === 'es' ? 'Goleadores de Europa' : 'Europe top scorers' },
+        { href: lp('/goleadores-liga-espanola'),  label: lang === 'es' ? 'Goleadores La Liga' : 'La Liga scorers' },
+        { href: lp('/goleadores-premier-league'), label: lang === 'es' ? 'Goleadores Premier' : 'Premier scorers' },
+        { href: lp('/bota-de-oro'),               label: lang === 'es' ? 'Bota de Oro' : 'Golden Shoe' },
+      ],
+    },
+    {
       group: t('footer_product', lang),
       items: [
         { href: lp('/pricing'),    label: t('footer_pricing', lang) },
