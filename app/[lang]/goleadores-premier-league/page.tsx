@@ -5,15 +5,15 @@ import { isLocale } from '@/lib/i18n'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
-  const path = '/goleadores-liga-espanola'
+  const path = '/goleadores-premier-league'
   return {
-    title: 'Goleadores Liga Española 2025/26 — Top Máximos Anotadores | TopScorers',
-    description: 'Ranking completo de goleadores de La Liga Española 2025/26. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.',
+    title: 'Goleadores Premier League 2025/26 — Golden Boot & Top Scorers | TopScorers',
+    description: 'Ranking de máximos goleadores de la Premier League 2025/26. Haaland, Thiago, Gyökeres… tabla de la Golden Boot con goles, partidos e histórico de ganadores.',
     keywords: [
-      'goleadores liga española', 'goleadores la liga', 'máximos goleadores la liga',
-      'pichichi 2025', 'pichichi 2026', 'top goleadores liga española',
-      'estadísticas goles la liga', 'goles laliga 2025 2026',
-      'goleadores primera división española', 'quien mete más goles en la liga',
+      'goleadores premier league', 'top scorers premier league', 'golden boot premier league',
+      'máximos goleadores premier league', 'premier league top scorers 2025 2026',
+      'bota de oro premier league', 'goleadores premier 2025', 'haaland goles premier',
+      'quién es el máximo goleador de la premier league', 'estadísticas goles premier league',
     ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Goleadores Liga Española 2025/26 | TopScorers',
-      description: 'Ranking completo de goleadores de La Liga EA Sports 2025/26 con histórico de las últimas temporadas.',
+      title: 'Goleadores Premier League 2025/26 | TopScorers',
+      description: 'Ranking de máximos anotadores de la Premier League 2025/26 con histórico de ganadores de la Golden Boot.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -40,75 +40,46 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 const CURRENT_SEASON = {
   label: 'Temporada 2025/26',
   players: [
-    { pos: 1,  name: 'Kylian Mbappé',      club: 'Real Madrid',     goles: 24, pj: 28 },
-    { pos: 2,  name: 'Vedat Muriqi',        club: 'Mallorca',        goles: 21, pj: 33 },
-    { pos: 3,  name: 'Lamine Yamal',        club: 'FC Barcelona',    goles: 16, pj: 28 },
-    { pos: 4,  name: 'Ante Budimir',        club: 'Osasuna',         goles: 16, pj: 33 },
-    { pos: 5,  name: 'Vinicius Junior',     club: 'Real Madrid',     goles: 15, pj: 33 },
-    { pos: 6,  name: 'Ferran Torres',       club: 'FC Barcelona',    goles: 15, pj: 30 },
-    { pos: 7,  name: 'Mikel Oyarzabal',     club: 'Real Sociedad',   goles: 14, pj: 29 },
-    { pos: 8,  name: 'Raphinha',            club: 'FC Barcelona',    goles: 10, pj: 27 },
+    { pos: 1, name: 'Erling Haaland',  club: 'Manchester City', goles: 24, pj: 32 },
+    { pos: 2, name: 'Thiago',          club: 'Brentford',       goles: 22, pj: 35 },
+    { pos: 3, name: 'João Pedro',      club: 'Chelsea',         goles: 14, pj: 32 },
+    { pos: 4, name: 'Viktor Gyökeres', club: 'Arsenal',         goles: 14, pj: 33 },
+    { pos: 5, name: 'Benjamin Šeško',  club: 'Manchester Utd',  goles: 11, pj: 27 },
+    { pos: 6, name: 'Cole Palmer',     club: 'Chelsea',         goles: 11, pj: 28 },
+    { pos: 7, name: 'Florian Wirtz',   club: 'Liverpool',       goles: 10, pj: 30 },
+    { pos: 8, name: 'Mikel Merino',    club: 'Arsenal',         goles: 9,  pj: 27 },
   ],
 }
 
+// Real Premier League Golden Boot winners.
 const HISTORICAL = [
-  {
-    season: '2024/25',
-    winner: 'Kylian Mbappé',
-    club: 'Real Madrid',
-    goles: 31,
-    pj: 35,
-  },
-  {
-    season: '2023/24',
-    winner: 'Artem Dovbyk',
-    club: 'Girona FC',
-    goles: 24,
-    pj: 36,
-  },
-  {
-    season: '2022/23',
-    winner: 'Robert Lewandowski',
-    club: 'FC Barcelona',
-    goles: 23,
-    pj: 34,
-  },
-  {
-    season: '2021/22',
-    winner: 'Karim Benzema',
-    club: 'Real Madrid',
-    goles: 27,
-    pj: 32,
-  },
-  {
-    season: '2020/21',
-    winner: 'Lionel Messi',
-    club: 'FC Barcelona',
-    goles: 30,
-    pj: 35,
-  },
+  { season: '2024/25', winner: 'Mohamed Salah',           club: 'Liverpool',       goles: 29 },
+  { season: '2023/24', winner: 'Erling Haaland',          club: 'Manchester City', goles: 27 },
+  { season: '2022/23', winner: 'Erling Haaland',          club: 'Manchester City', goles: 36 },
+  { season: '2021/22', winner: 'Son Heung-min / Salah',   club: 'Tottenham / Liverpool', goles: 23 },
+  { season: '2020/21', winner: 'Harry Kane',              club: 'Tottenham',       goles: 23 },
 ]
 
 const FAQS = [
   {
-    q: '¿Quién es el máximo goleador de La Liga en 2025/26?',
-    a: 'Kylian Mbappé (Real Madrid) lidera el ranking con 24 goles en 28 partidos a falta de jornadas por disputar. Le siguen Vedat Muriqi (Mallorca) con 21 goles y Lamine Yamal (Barcelona) con 16.',
+    q: '¿Quién es el máximo goleador de la Premier League en 2025/26?',
+    a: 'Erling Haaland (Manchester City) lidera la carrera por la Golden Boot con 24 goles, por delante de la revelación Thiago (Brentford), que suma 22. Más atrás aparecen João Pedro y Viktor Gyökeres, ambos con 14 tantos.',
   },
   {
-    q: '¿Qué es el Trofeo Pichichi?',
-    a: 'El Trofeo Pichichi es el galardón que otorga el diario Marca al máximo goleador de La Liga española cada temporada. Su nombre homenajea a Rafael Moreno "Pichichi", delantero del Athletic Club que fue uno de los primeros grandes goleadores del fútbol español, fallecido en 1922.',
+    q: '¿Qué es la Golden Boot de la Premier League?',
+    a: 'La Premier League Golden Boot es el trofeo que premia al máximo goleador de la liga inglesa cada temporada. Es el equivalente al Trofeo Pichichi en España. Si dos o más jugadores empatan a goles, el premio se comparte entre todos ellos.',
   },
   {
-    q: '¿Quién tiene más Trofeos Pichichi en la historia de La Liga?',
-    a: 'Lionel Messi es el jugador con más Trofeos Pichichi de la historia, con 8 galardones (2009/10, 2011/12, 2012/13, 2016/17, 2017/18, 2018/19, 2019/20 y 2021/22 con Messi compartido). Telmo Zarra ostenta el récord histórico de goles en La Liga con 251 tantos en 278 partidos.',
+    q: '¿Cuál es el récord de goles en una temporada de Premier League?',
+    a: 'Erling Haaland marcó 36 goles en la temporada 2022/23, récord absoluto desde que la Premier pasó a 38 jornadas. En la era de 42 partidos, Alan Shearer y Andy Cole comparten el récord con 34 goles.',
   },
   {
-    q: '¿Cuántos goles hay que marcar para ganar el Pichichi?',
-    a: 'No hay un mínimo fijo: depende de la competencia de esa temporada. En temporadas recientes, el ganador ha necesitado entre 23 y 31 goles. Mbappé ganó en 2024/25 con 31 goles, mientras que Dovbyk lo hizo en 2023/24 con 24.',
+    q: '¿Quién es el máximo goleador histórico de la Premier League?',
+    a: 'Alan Shearer es el máximo goleador histórico de la Premier League con 260 goles. Le siguen Harry Kane y Wayne Rooney como referentes ingleses, mientras que Mohamed Salah encabeza la lista de goleadores extranjeros del siglo XXI.',
   },
   {
-    q: '¿Dónde puedo ver las estadísticas de goleadores de La Liga en tiempo real?',
-    a: 'En TopScorers.com puedes consultar el ranking de goleadores y asistentes de La Liga actualizado en tiempo real, junto con estadísticas de la Premier League, Bundesliga, Serie A y Ligue 1.',
+    q: '¿Dónde puedo ver los goleadores de la Premier League en tiempo real?',
+    a: 'En TopScorers.com puedes consultar el ranking de goleadores y asistentes de la Premier League actualizado en tiempo real, junto con la clasificación, los resultados y las estadísticas del resto de grandes ligas europeas.',
   },
 ]
 
@@ -117,15 +88,15 @@ const FAQS = [
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'Goleadores La Liga Española 2025/26',
-  description: 'Ranking de máximos goleadores de La Liga EA Sports temporada 2025/26',
-  url: 'https://www.top-scorers.com/goleadores-liga-espanola',
+  name: 'Goleadores Premier League 2025/26',
+  description: 'Ranking de máximos goleadores de la Premier League temporada 2025/26 (Golden Boot)',
+  url: 'https://www.top-scorers.com/goleadores-premier-league',
   numberOfItems: CURRENT_SEASON.players.length,
   itemListElement: CURRENT_SEASON.players.map((p) => ({
     '@type': 'ListItem',
     position: p.pos,
     name: `${p.name} — ${p.goles} goles (${p.club})`,
-    url: `https://www.top-scorers.com/goleadores-liga-espanola#pos-${p.pos}`,
+    url: `https://www.top-scorers.com/goleadores-premier-league#pos-${p.pos}`,
   })),
 }
 
@@ -134,7 +105,7 @@ const breadcrumbJsonLd = {
   '@type': 'BreadcrumbList',
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'TopScorers', item: 'https://www.top-scorers.com' },
-    { '@type': 'ListItem', position: 2, name: 'Goleadores La Liga', item: 'https://www.top-scorers.com/goleadores-liga-espanola' },
+    { '@type': 'ListItem', position: 2, name: 'Goleadores Premier League', item: 'https://www.top-scorers.com/goleadores-premier-league' },
   ],
 }
 
@@ -157,7 +128,7 @@ const headingStyle = {
   letterSpacing: 1,
 }
 
-export default function GoleadoresLigaEspanolaPage() {
+export default function GoleadoresPremierLeaguePage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
@@ -170,15 +141,15 @@ export default function GoleadoresLigaEspanolaPage() {
         <nav className="text-xs text-gray-500 mb-6 flex gap-1.5 items-center">
           <Link href="/" className="hover:text-gray-300 transition-colors">TopScorers</Link>
           <span>›</span>
-          <span className="text-gray-400">Goleadores La Liga</span>
+          <span className="text-gray-400">Goleadores Premier League</span>
         </nav>
 
         {/* H1 */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: '#eef4ff', marginBottom: 8 }}>
-          Goleadores Liga Española 2025/26
+          Goleadores Premier League 2025/26
         </h1>
         <p style={{ color: '#94a3b8', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
-          Ranking actualizado de los máximos anotadores de <strong style={{ color: '#e2e8f0' }}>La Liga EA Sports</strong>, con datos de goles, partidos jugados y media por encuentro. Incluye histórico del <strong style={{ color: '#e2e8f0' }}>Trofeo Pichichi</strong> de las últimas temporadas.
+          Ranking actualizado de los máximos anotadores de la <strong style={{ color: '#e2e8f0' }}>Premier League</strong>, con goles, partidos jugados y media por encuentro. La carrera por la <strong style={{ color: '#e2e8f0' }}>Golden Boot</strong> y el histórico de ganadores de las últimas temporadas.
         </p>
 
         {/* Current season table */}
@@ -191,7 +162,7 @@ export default function GoleadoresLigaEspanolaPage() {
               <thead>
                 <tr style={{ borderBottom: '1px solid #1e293b' }}>
                   {['#', 'Jugador', 'Club', 'PJ', 'Goles', 'Media'].map(col => (
-                    <th key={col} style={{ padding: '8px 12px', textAlign: col === '#' || col === 'PJ' || col === 'Goles' || col === 'Media' ? 'center' : 'left', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
+                    <th key={col} style={{ padding: '8px 12px', textAlign: col === 'Jugador' || col === 'Club' ? 'left' : 'center', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
                   ))}
                 </tr>
               </thead>
@@ -210,31 +181,31 @@ export default function GoleadoresLigaEspanolaPage() {
             </table>
           </div>
           <p style={{ marginTop: 10, color: '#475569', fontSize: 12 }}>
-            Datos actualizados. Fuente: API-Football (Rapid API). Ver{' '}
-            <Link href="/" style={{ color: '#f0c040', textDecoration: 'none' }}>estadísticas en tiempo real →</Link>
+            Datos actualizados. Fuente: API-Football. Ver{' '}
+            <Link href="/competiciones/eng" style={{ color: '#f0c040', textDecoration: 'none' }}>la Premier League en tiempo real →</Link>
           </p>
         </section>
 
-        {/* Explanatory content — important for SEO */}
+        {/* Explanatory content */}
         <section style={{ marginBottom: 40, color: '#94a3b8', lineHeight: 1.75, fontSize: 15 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 14 }}>
-            La Liga 2025/26: análisis de la tabla de goleadores
+            Premier League 2025/26: análisis de la Golden Boot
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La temporada 2025/26 de <strong style={{ color: '#e2e8f0' }}>La Liga EA Sports</strong> está marcada por el duelo entre el poderío goleador de <strong style={{ color: '#e2e8f0' }}>Real Madrid</strong> y <strong style={{ color: '#e2e8f0' }}>FC Barcelona</strong>, con <strong style={{ color: '#e2e8f0' }}>Kylian Mbappé</strong> liderando con 24 dianas en 28 partidos. El delantero francés, en su segunda temporada en el Santiago Bernabéu, sigue la estela de su extraordinaria campaña 2024/25 cuando se proclamó Pichichi con 31 goles.
+            La carrera por la <strong style={{ color: '#e2e8f0' }}>Golden Boot</strong> de la Premier League 2025/26 vuelve a tener un nombre propio: <strong style={{ color: '#e2e8f0' }}>Erling Haaland</strong>. El noruego del Manchester City suma 24 goles y persigue una nueva bota de oro inglesa que reafirme su condición de delantero más determinante de la liga desde su llegada en 2022.
           </p>
           <p style={{ marginBottom: 12 }}>
-            La sorpresa de la temporada es <strong style={{ color: '#e2e8f0' }}>Vedat Muriqi</strong> del Mallorca, que con 21 goles se mantiene como el segundo máximo goleador de la competición y demuestra que los equipos modestos también tienen artilleros de élite. <strong style={{ color: '#e2e8f0' }}>Lamine Yamal</strong>, con apenas 17 años, comparte el tercer puesto y confirma que puede convertirse en uno de los grandes goleadores de la próxima década.
+            La gran historia de la temporada es <strong style={{ color: '#e2e8f0' }}>Thiago</strong>, el ariete del Brentford, que con 22 dianas planta cara a los grandes presupuestos y se mantiene como el perseguidor más serio de Haaland. Por detrás, <strong style={{ color: '#e2e8f0' }}>João Pedro</strong> y <strong style={{ color: '#e2e8f0' }}>Viktor Gyökeres</strong> lideran un pelotón de delanteros que reparte los goles entre Chelsea, Arsenal y Liverpool.
           </p>
           <p>
-            La diferencia entre el primero (24 goles) y el octavo (10 goles) refleja la concentración del talento goleador en los grandes clubes, aunque Muriqi y Budimir del Osasuna rompen esa tendencia desde la zona media-baja de la tabla.
+            La Premier es históricamente la liga más igualada en el reparto de goles: no es raro que la Golden Boot se decida en la última jornada o se comparta entre dos jugadores, como ocurrió en 2021/22 entre Son Heung-min y Mohamed Salah. Esa competitividad la convierte en una de las botas de oro más prestigiosas de Europa.
           </p>
         </section>
 
-        {/* Historical Pichichi */}
+        {/* Historical winners */}
         <section style={{ marginBottom: 40 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
-            Histórico Trofeo Pichichi — Últimas Temporadas
+            Histórico Golden Boot — Últimas temporadas
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {HISTORICAL.map((h) => (
@@ -251,7 +222,7 @@ export default function GoleadoresLigaEspanolaPage() {
         {/* FAQ */}
         <section style={{ marginBottom: 40 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
-            Preguntas Frecuentes sobre Goleadores de La Liga
+            Preguntas frecuentes sobre los goleadores de la Premier League
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {FAQS.map(({ q, a }) => (
@@ -269,16 +240,15 @@ export default function GoleadoresLigaEspanolaPage() {
         {/* Internal links */}
         <section style={{ padding: '20px 24px', background: 'rgba(240,192,64,0.06)', borderRadius: 12, border: '1px solid rgba(240,192,64,0.15)' }}>
           <h3 style={{ ...headingStyle, fontSize: 16, color: '#f0c040', marginBottom: 12 }}>
-            Más estadísticas en TopScorers
+            Más rankings de goleadores
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {[
               { href: '/maximos-goleadores-europa', label: 'Máximos goleadores de Europa' },
-              { href: '/goleadores-premier-league', label: 'Goleadores Premier League' },
+              { href: '/goleadores-liga-espanola', label: 'Goleadores La Liga (Pichichi)' },
               { href: '/bota-de-oro', label: 'Bota de Oro' },
-              { href: '/', label: 'Goleadores en tiempo real' },
-              { href: '/competiciones', label: 'Todas las ligas' },
-              { href: '/mundial-2026', label: 'Mundial 2026' },
+              { href: '/competiciones/eng', label: 'Premier League en directo' },
+              { href: '/', label: 'Top 25 en tiempo real' },
             ].map(({ href, label }) => (
               <Link
                 key={href}
