@@ -5,15 +5,15 @@ import { isLocale } from '@/lib/i18n'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
-  const path = '/goleadores-liga-espanola'
+  const path = '/goleadores-serie-a'
   return {
-    title: 'Goleadores Liga Española 2025/26 — Top Máximos Anotadores | TopScorers',
-    description: 'Ranking completo de goleadores de La Liga Española 2025/26. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.',
+    title: 'Goleadores Serie A 2025/26 — Capocannoniere y Máximos Anotadores | TopScorers',
+    description: 'Ranking completo de goleadores de la Serie A 2025/26. Lautaro Martínez, Thuram, Vlahović… histórico del Capocannoniere y máximos goleadores del calcio italiano.',
     keywords: [
-      'goleadores liga española', 'goleadores la liga', 'máximos goleadores la liga',
-      'pichichi 2025', 'pichichi 2026', 'top goleadores liga española',
-      'estadísticas goles la liga', 'goles laliga 2025 2026',
-      'goleadores primera división española', 'quien mete más goles en la liga',
+      'goleadores serie a', 'máximos goleadores serie a', 'capocannoniere 2025',
+      'capocannoniere 2026', 'top goleadores serie a', 'goles serie a 2025 2026',
+      'clasificación goleadores serie a', 'goleadores calcio', 'pichichi serie a',
+      'quien mete más goles en la serie a',
     ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Goleadores Liga Española 2025/26 | TopScorers',
-      description: 'Ranking completo de goleadores de La Liga EA Sports 2025/26 con histórico de las últimas temporadas.',
+      title: 'Goleadores Serie A 2025/26 | TopScorers',
+      description: 'Ranking completo de goleadores de la Serie A 2025/26 con histórico del Capocannoniere de las últimas temporadas.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -40,75 +40,46 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 const CURRENT_SEASON = {
   label: 'Temporada 2025/26',
   players: [
-    { pos: 1,  name: 'Kylian Mbappé',      club: 'Real Madrid',     goles: 24, pj: 28 },
-    { pos: 2,  name: 'Vedat Muriqi',        club: 'Mallorca',        goles: 21, pj: 33 },
-    { pos: 3,  name: 'Lamine Yamal',        club: 'FC Barcelona',    goles: 16, pj: 28 },
-    { pos: 4,  name: 'Ante Budimir',        club: 'Osasuna',         goles: 16, pj: 33 },
-    { pos: 5,  name: 'Vinicius Junior',     club: 'Real Madrid',     goles: 15, pj: 33 },
-    { pos: 6,  name: 'Ferran Torres',       club: 'FC Barcelona',    goles: 15, pj: 30 },
-    { pos: 7,  name: 'Mikel Oyarzabal',     club: 'Real Sociedad',   goles: 14, pj: 29 },
-    { pos: 8,  name: 'Raphinha',            club: 'FC Barcelona',    goles: 10, pj: 27 },
+    { pos: 1, name: 'Lautaro Martínez',  club: 'Inter de Milán', goles: 16, pj: 26 },
+    { pos: 2, name: 'Marcus Thuram',     club: 'Inter de Milán', goles: 12, pj: 26 },
+    { pos: 3, name: 'Dušan Vlahović',    club: 'Juventus',       goles: 12, pj: 25 },
+    { pos: 4, name: 'Moise Kean',        club: 'Fiorentina',     goles: 11, pj: 30 },
+    { pos: 5, name: 'Christian Pulisic', club: 'AC Milan',       goles: 11, pj: 28 },
+    { pos: 6, name: 'Ademola Lookman',   club: 'Atalanta',       goles: 10, pj: 27 },
+    { pos: 7, name: 'Riccardo Orsolini', club: 'Bologna',        goles: 9,  pj: 31 },
+    { pos: 8, name: 'Rafael Leão',       club: 'AC Milan',       goles: 9,  pj: 29 },
   ],
 }
 
+// Real Serie A Capocannoniere (Paolo Rossi Award) winners.
 const HISTORICAL = [
-  {
-    season: '2024/25',
-    winner: 'Kylian Mbappé',
-    club: 'Real Madrid',
-    goles: 31,
-    pj: 35,
-  },
-  {
-    season: '2023/24',
-    winner: 'Artem Dovbyk',
-    club: 'Girona FC',
-    goles: 24,
-    pj: 36,
-  },
-  {
-    season: '2022/23',
-    winner: 'Robert Lewandowski',
-    club: 'FC Barcelona',
-    goles: 23,
-    pj: 34,
-  },
-  {
-    season: '2021/22',
-    winner: 'Karim Benzema',
-    club: 'Real Madrid',
-    goles: 27,
-    pj: 32,
-  },
-  {
-    season: '2020/21',
-    winner: 'Lionel Messi',
-    club: 'FC Barcelona',
-    goles: 30,
-    pj: 35,
-  },
+  { season: '2024/25', winner: 'Mateo Retegui',      club: 'Atalanta',       goles: 25 },
+  { season: '2023/24', winner: 'Lautaro Martínez',   club: 'Inter de Milán', goles: 24 },
+  { season: '2022/23', winner: 'Victor Osimhen',     club: 'Napoli',         goles: 26 },
+  { season: '2021/22', winner: 'Ciro Immobile',      club: 'Lazio',          goles: 27 },
+  { season: '2020/21', winner: 'Cristiano Ronaldo',  club: 'Juventus',       goles: 29 },
 ]
 
 const FAQS = [
   {
-    q: '¿Quién es el máximo goleador de La Liga en 2025/26?',
-    a: 'Kylian Mbappé (Real Madrid) lidera el ranking con 24 goles en 28 partidos a falta de jornadas por disputar. Le siguen Vedat Muriqi (Mallorca) con 21 goles y Lamine Yamal (Barcelona) con 16.',
+    q: '¿Quién es el máximo goleador de la Serie A en 2025/26?',
+    a: 'Lautaro Martínez (Inter de Milán) lidera la tabla de goleadores de la Serie A con 16 goles, por delante de su compañero Marcus Thuram y de Dušan Vlahović (Juventus), ambos con 12 tantos. La carrera por el Capocannoniere sigue muy abierta a falta de jornadas por disputar.',
   },
   {
-    q: '¿Qué es el Trofeo Pichichi?',
-    a: 'El Trofeo Pichichi es el galardón que otorga el diario Marca al máximo goleador de La Liga española cada temporada. Su nombre homenajea a Rafael Moreno "Pichichi", delantero del Athletic Club que fue uno de los primeros grandes goleadores del fútbol español, fallecido en 1922.',
+    q: '¿Qué es el Capocannoniere?',
+    a: 'El Capocannoniere es el galardón que reconoce al máximo goleador de la Serie A italiana cada temporada. Desde 2023 se entrega de forma oficial como Premio Paolo Rossi, en homenaje al delantero campeón del mundo en 1982. Es el equivalente italiano al Trofeo Pichichi en España o a la Golden Boot inglesa.',
   },
   {
-    q: '¿Quién tiene más Trofeos Pichichi en la historia de La Liga?',
-    a: 'Lionel Messi es el jugador con más Trofeos Pichichi de la historia, con 8 galardones (2009/10, 2011/12, 2012/13, 2016/17, 2017/18, 2018/19, 2019/20 y 2021/22 con Messi compartido). Telmo Zarra ostenta el récord histórico de goles en La Liga con 251 tantos en 278 partidos.',
+    q: '¿Quién tiene más títulos de Capocannoniere en la historia de la Serie A?',
+    a: 'Gunnar Nordahl, leyenda del AC Milan, es el jugador con más títulos de Capocannoniere, con 5 galardones en los años 50. En la era moderna destacan Ciro Immobile y Luca Toni con varios trofeos. El récord de goles en una sola temporada lo ostenta Gonzalo Higuaín, con 36 tantos en la 2015/16.',
   },
   {
-    q: '¿Cuántos goles hay que marcar para ganar el Pichichi?',
-    a: 'No hay un mínimo fijo: depende de la competencia de esa temporada. En temporadas recientes, el ganador ha necesitado entre 23 y 31 goles. Mbappé ganó en 2024/25 con 31 goles, mientras que Dovbyk lo hizo en 2023/24 con 24.',
+    q: '¿Cuántos goles hacen falta para ganar el Capocannoniere?',
+    a: 'No existe un mínimo fijo: depende de la competencia de cada temporada. En las últimas campañas, el ganador ha necesitado entre 24 y 29 goles. Cristiano Ronaldo ganó en 2020/21 con 29 goles, mientras que Lautaro Martínez se proclamó en 2023/24 con 24.',
   },
   {
-    q: '¿Dónde puedo ver las estadísticas de goleadores de La Liga en tiempo real?',
-    a: 'En TopScorers.com puedes consultar el ranking de goleadores y asistentes de La Liga actualizado en tiempo real, junto con estadísticas de la Premier League, Bundesliga, Serie A y Ligue 1.',
+    q: '¿Dónde puedo ver las estadísticas de goleadores de la Serie A en tiempo real?',
+    a: 'En TopScorers.com puedes consultar el ranking de goleadores y asistentes de la Serie A actualizado en tiempo real, junto con las estadísticas de La Liga, la Premier League, la Bundesliga y la Ligue 1.',
   },
 ]
 
@@ -117,15 +88,15 @@ const FAQS = [
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'Goleadores La Liga Española 2025/26',
-  description: 'Ranking de máximos goleadores de La Liga EA Sports temporada 2025/26',
-  url: 'https://www.top-scorers.com/goleadores-liga-espanola',
+  name: 'Goleadores Serie A 2025/26',
+  description: 'Ranking de máximos goleadores de la Serie A temporada 2025/26 (Capocannoniere)',
+  url: 'https://www.top-scorers.com/goleadores-serie-a',
   numberOfItems: CURRENT_SEASON.players.length,
   itemListElement: CURRENT_SEASON.players.map((p) => ({
     '@type': 'ListItem',
     position: p.pos,
     name: `${p.name} — ${p.goles} goles (${p.club})`,
-    url: `https://www.top-scorers.com/goleadores-liga-espanola#pos-${p.pos}`,
+    url: `https://www.top-scorers.com/goleadores-serie-a#pos-${p.pos}`,
   })),
 }
 
@@ -134,7 +105,7 @@ const breadcrumbJsonLd = {
   '@type': 'BreadcrumbList',
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'TopScorers', item: 'https://www.top-scorers.com' },
-    { '@type': 'ListItem', position: 2, name: 'Goleadores La Liga', item: 'https://www.top-scorers.com/goleadores-liga-espanola' },
+    { '@type': 'ListItem', position: 2, name: 'Goleadores Serie A', item: 'https://www.top-scorers.com/goleadores-serie-a' },
   ],
 }
 
@@ -157,7 +128,7 @@ const headingStyle = {
   letterSpacing: 1,
 }
 
-export default function GoleadoresLigaEspanolaPage() {
+export default function GoleadoresSerieAPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
@@ -170,15 +141,15 @@ export default function GoleadoresLigaEspanolaPage() {
         <nav className="text-xs text-gray-500 mb-6 flex gap-1.5 items-center">
           <Link href="/" className="hover:text-gray-300 transition-colors">TopScorers</Link>
           <span>›</span>
-          <span className="text-gray-400">Goleadores La Liga</span>
+          <span className="text-gray-400">Goleadores Serie A</span>
         </nav>
 
         {/* H1 */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: '#eef4ff', marginBottom: 8 }}>
-          Goleadores Liga Española 2025/26
+          Goleadores Serie A 2025/26
         </h1>
         <p style={{ color: '#94a3b8', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
-          Ranking actualizado de los máximos anotadores de <strong style={{ color: '#e2e8f0' }}>La Liga EA Sports</strong>, con datos de goles, partidos jugados y media por encuentro. Incluye histórico del <strong style={{ color: '#e2e8f0' }}>Trofeo Pichichi</strong> de las últimas temporadas.
+          Ranking actualizado de los máximos anotadores de la <strong style={{ color: '#e2e8f0' }}>Serie A</strong>, con goles, partidos jugados y media por encuentro. La carrera por el <strong style={{ color: '#e2e8f0' }}>Capocannoniere</strong> y el histórico de ganadores de las últimas temporadas.
         </p>
 
         {/* Current season table */}
@@ -218,23 +189,23 @@ export default function GoleadoresLigaEspanolaPage() {
         {/* Explanatory content — important for SEO */}
         <section style={{ marginBottom: 40, color: '#94a3b8', lineHeight: 1.75, fontSize: 15 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 14 }}>
-            La Liga 2025/26: análisis de la tabla de goleadores
+            Serie A 2025/26: análisis de la tabla de goleadores
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La temporada 2025/26 de <strong style={{ color: '#e2e8f0' }}>La Liga EA Sports</strong> está marcada por el duelo entre el poderío goleador de <strong style={{ color: '#e2e8f0' }}>Real Madrid</strong> y <strong style={{ color: '#e2e8f0' }}>FC Barcelona</strong>, con <strong style={{ color: '#e2e8f0' }}>Kylian Mbappé</strong> liderando con 24 dianas en 28 partidos. El delantero francés, en su segunda temporada en el Santiago Bernabéu, sigue la estela de su extraordinaria campaña 2024/25 cuando se proclamó Pichichi con 31 goles.
+            La temporada 2025/26 de la <strong style={{ color: '#e2e8f0' }}>Serie A</strong> mantiene el sello del fútbol italiano: equilibrio defensivo y una lucha por el Capocannoniere muy repartida. <strong style={{ color: '#e2e8f0' }}>Lautaro Martínez</strong> lidera la tabla con 16 goles y aspira a repetir el título de máximo goleador que ya conquistó en la 2023/24, impulsando el ataque de un <strong style={{ color: '#e2e8f0' }}>Inter de Milán</strong> que pelea por el Scudetto.
           </p>
           <p style={{ marginBottom: 12 }}>
-            La sorpresa de la temporada es <strong style={{ color: '#e2e8f0' }}>Vedat Muriqi</strong> del Mallorca, que con 21 goles se mantiene como el segundo máximo goleador de la competición y demuestra que los equipos modestos también tienen artilleros de élite. <strong style={{ color: '#e2e8f0' }}>Lamine Yamal</strong>, con apenas 17 años, comparte el tercer puesto y confirma que puede convertirse en uno de los grandes goleadores de la próxima década.
+            Su compañero <strong style={{ color: '#e2e8f0' }}>Marcus Thuram</strong> y el delantero de la <strong style={{ color: '#e2e8f0' }}>Juventus</strong> <strong style={{ color: '#e2e8f0' }}>Dušan Vlahović</strong> comparten la segunda posición con 12 tantos, mientras que <strong style={{ color: '#e2e8f0' }}>Moise Kean</strong> confirma su resurgir en la Fiorentina. El AC Milan aporta dos nombres al top con Christian Pulisic y Rafael Leão.
           </p>
           <p>
-            La diferencia entre el primero (24 goles) y el octavo (10 goles) refleja la concentración del talento goleador en los grandes clubes, aunque Muriqi y Budimir del Osasuna rompen esa tendencia desde la zona media-baja de la tabla.
+            A diferencia de otras grandes ligas, la Serie A reparte los goles entre más equipos: del primer al octavo clasificado median apenas 7 dianas, reflejo de una competición donde el gol es un bien escaso y muy disputado.
           </p>
         </section>
 
-        {/* Historical Pichichi */}
+        {/* Historical Capocannoniere */}
         <section style={{ marginBottom: 40 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
-            Histórico Trofeo Pichichi — Últimas Temporadas
+            Histórico Capocannoniere — Últimas Temporadas
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {HISTORICAL.map((h) => (
@@ -251,7 +222,7 @@ export default function GoleadoresLigaEspanolaPage() {
         {/* FAQ */}
         <section style={{ marginBottom: 40 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
-            Preguntas Frecuentes sobre Goleadores de La Liga
+            Preguntas Frecuentes sobre Goleadores de la Serie A
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {FAQS.map(({ q, a }) => (
@@ -274,14 +245,13 @@ export default function GoleadoresLigaEspanolaPage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {[
               { href: '/maximos-goleadores-europa', label: 'Máximos goleadores de Europa' },
+              { href: '/goleadores-liga-espanola', label: 'Goleadores La Liga (Pichichi)' },
               { href: '/goleadores-premier-league', label: 'Goleadores Premier League' },
-              { href: '/goleadores-serie-a', label: 'Goleadores Serie A' },
               { href: '/goleadores-bundesliga', label: 'Goleadores Bundesliga' },
               { href: '/goleadores-ligue-1', label: 'Goleadores Ligue 1' },
               { href: '/bota-de-oro', label: 'Bota de Oro' },
               { href: '/', label: 'Goleadores en tiempo real' },
               { href: '/competiciones', label: 'Todas las ligas' },
-              { href: '/mundial-2026', label: 'Mundial 2026' },
             ].map(({ href, label }) => (
               <Link
                 key={href}
