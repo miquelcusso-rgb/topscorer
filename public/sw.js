@@ -1,4 +1,4 @@
-const CACHE_NAME = 'topscorers-v2'
+const CACHE_NAME = 'topscorers-v3'
 const STATIC_ASSETS = [
   '/',
   '/manifest.webmanifest',
@@ -23,11 +23,13 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
-  // Network first for API calls, cache first for static assets
-  if (event.request.url.includes('/api/')) {
+  // Network-first para API y NAVEGACIÓN (HTML) → siempre la última versión al abrir
+  // (evita servir páginas viejas si está fijada a inicio o en favoritos).
+  if (event.request.url.includes('/api/') || event.request.mode === 'navigate') {
     event.respondWith(fetch(event.request).catch(() => caches.match(event.request)))
     return
   }
+  // Cache-first + revalidate solo para assets estáticos (js/css/img versionados)
   event.respondWith(
     caches.match(event.request).then(cached => {
       const networkFetch = fetch(event.request).then(response => {
