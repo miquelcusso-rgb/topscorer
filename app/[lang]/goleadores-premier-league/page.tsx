@@ -246,6 +246,9 @@ export default function GoleadoresPremierLeaguePage() {
             {[
               { href: '/maximos-goleadores-europa', label: 'Máximos goleadores de Europa' },
               { href: '/goleadores-liga-espanola', label: 'Goleadores La Liga (Pichichi)' },
+              { href: '/goleadores-serie-a', label: 'Goleadores Serie A' },
+              { href: '/goleadores-bundesliga', label: 'Goleadores Bundesliga' },
+              { href: '/goleadores-ligue-1', label: 'Goleadores Ligue 1' },
               { href: '/bota-de-oro', label: 'Bota de Oro' },
               { href: '/competiciones/eng', label: 'Premier League en directo' },
               { href: '/', label: 'Top 25 en tiempo real' },

@@ -5,15 +5,15 @@ import { isLocale } from '@/lib/i18n'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
-  const path = '/goleadores-liga-espanola'
+  const path = '/goleadores-ligue-1'
   return {
-    title: 'Goleadores Liga Española 2025/26 — Top Máximos Anotadores | TopScorers',
-    description: 'Ranking completo de goleadores de La Liga Española 2025/26. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.',
+    title: 'Goleadores Ligue 1 2025/26 — Máximos Anotadores Liga Francesa | TopScorers',
+    description: 'Ranking completo de goleadores de la Ligue 1 2025/26. Lepaul, Panichelli, Greenwood… histórico de máximos goleadores del fútbol francés y carrera por el trofeo.',
     keywords: [
-      'goleadores liga española', 'goleadores la liga', 'máximos goleadores la liga',
-      'pichichi 2025', 'pichichi 2026', 'top goleadores liga española',
-      'estadísticas goles la liga', 'goles laliga 2025 2026',
-      'goleadores primera división española', 'quien mete más goles en la liga',
+      'goleadores ligue 1', 'máximos goleadores ligue 1', 'top goleadores ligue 1',
+      'goles ligue 1 2025 2026', 'clasificación goleadores ligue 1', 'goleadores liga francesa',
+      'pichichi ligue 1', 'máximo goleador ligue 1 2026', 'top scorer ligue 1',
+      'quien mete más goles en la ligue 1',
     ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Goleadores Liga Española 2025/26 | TopScorers',
-      description: 'Ranking completo de goleadores de La Liga EA Sports 2025/26 con histórico de las últimas temporadas.',
+      title: 'Goleadores Ligue 1 2025/26 | TopScorers',
+      description: 'Ranking completo de goleadores de la Ligue 1 2025/26 con histórico de máximos anotadores de las últimas temporadas.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -40,75 +40,44 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 const CURRENT_SEASON = {
   label: 'Temporada 2025/26',
   players: [
-    { pos: 1,  name: 'Kylian Mbappé',      club: 'Real Madrid',     goles: 24, pj: 28 },
-    { pos: 2,  name: 'Vedat Muriqi',        club: 'Mallorca',        goles: 21, pj: 33 },
-    { pos: 3,  name: 'Lamine Yamal',        club: 'FC Barcelona',    goles: 16, pj: 28 },
-    { pos: 4,  name: 'Ante Budimir',        club: 'Osasuna',         goles: 16, pj: 33 },
-    { pos: 5,  name: 'Vinicius Junior',     club: 'Real Madrid',     goles: 15, pj: 33 },
-    { pos: 6,  name: 'Ferran Torres',       club: 'FC Barcelona',    goles: 15, pj: 30 },
-    { pos: 7,  name: 'Mikel Oyarzabal',     club: 'Real Sociedad',   goles: 14, pj: 29 },
-    { pos: 8,  name: 'Raphinha',            club: 'FC Barcelona',    goles: 10, pj: 27 },
+    { pos: 1, name: 'Esteban Lepaul',     club: 'Stade Rennais', goles: 18, pj: 30 },
+    { pos: 2, name: 'Joaquín Panichelli', club: 'Estrasburgo',   goles: 16, pj: 27 },
+    { pos: 3, name: 'Mason Greenwood',    club: 'Marsella',      goles: 15, pj: 30 },
+    { pos: 4, name: 'Ousmane Dembélé',    club: 'Paris SG',      goles: 14, pj: 28 },
+    { pos: 5, name: 'Bradley Barcola',    club: 'Paris SG',      goles: 12, pj: 30 },
+    { pos: 6, name: 'Gonçalo Ramos',      club: 'Paris SG',      goles: 11, pj: 29 },
   ],
 }
 
+// Real Ligue 1 top scorer winners.
 const HISTORICAL = [
-  {
-    season: '2024/25',
-    winner: 'Kylian Mbappé',
-    club: 'Real Madrid',
-    goles: 31,
-    pj: 35,
-  },
-  {
-    season: '2023/24',
-    winner: 'Artem Dovbyk',
-    club: 'Girona FC',
-    goles: 24,
-    pj: 36,
-  },
-  {
-    season: '2022/23',
-    winner: 'Robert Lewandowski',
-    club: 'FC Barcelona',
-    goles: 23,
-    pj: 34,
-  },
-  {
-    season: '2021/22',
-    winner: 'Karim Benzema',
-    club: 'Real Madrid',
-    goles: 27,
-    pj: 32,
-  },
-  {
-    season: '2020/21',
-    winner: 'Lionel Messi',
-    club: 'FC Barcelona',
-    goles: 30,
-    pj: 35,
-  },
+  { season: '2024/25', winner: 'Ousmane Dembélé', club: 'Paris SG',     goles: 21 },
+  { season: '2023/24', winner: 'Kylian Mbappé',   club: 'Paris SG',     goles: 27 },
+  { season: '2022/23', winner: 'Kylian Mbappé',   club: 'Paris SG',     goles: 29 },
+  { season: '2021/22', winner: 'Kylian Mbappé',   club: 'Paris SG',     goles: 28 },
+  { season: '2020/21', winner: 'Kylian Mbappé',   club: 'Paris SG',     goles: 27 },
 ]
 
 const FAQS = [
   {
-    q: '¿Quién es el máximo goleador de La Liga en 2025/26?',
-    a: 'Kylian Mbappé (Real Madrid) lidera el ranking con 24 goles en 28 partidos a falta de jornadas por disputar. Le siguen Vedat Muriqi (Mallorca) con 21 goles y Lamine Yamal (Barcelona) con 16.',
+    q: '¿Quién es el máximo goleador de la Ligue 1 en 2025/26?',
+    a: 'Esteban Lepaul (Stade Rennais) lidera la tabla de goleadores de la Ligue 1 con 18 goles, una de las grandes sorpresas de la temporada. Le siguen el joven Joaquín Panichelli (Estrasburgo) con 16 y Mason Greenwood (Marsella) con 15. El PSG aporta varios nombres al top encabezados por Ousmane Dembélé.',
   },
   {
-    q: '¿Qué es el Trofeo Pichichi?',
-    a: 'El Trofeo Pichichi es el galardón que otorga el diario Marca al máximo goleador de La Liga española cada temporada. Su nombre homenajea a Rafael Moreno "Pichichi", delantero del Athletic Club que fue uno de los primeros grandes goleadores del fútbol español, fallecido en 1922.',
+    q: '¿Cómo se llama el trofeo al máximo goleador de la Ligue 1?',
+    a: 'La Ligue 1 no tiene un nombre propio tan icónico como el Pichichi o la Torjägerkanone, pero entrega el trofeo al "meilleur buteur" (mejor goleador) dentro de los Trophées UNFP, los premios oficiales del fútbol francés. Reconoce al jugador con más goles en la temporada regular.',
   },
   {
-    q: '¿Quién tiene más Trofeos Pichichi en la historia de La Liga?',
-    a: 'Lionel Messi es el jugador con más Trofeos Pichichi de la historia, con 8 galardones (2009/10, 2011/12, 2012/13, 2016/17, 2017/18, 2018/19, 2019/20 y 2021/22 con Messi compartido). Telmo Zarra ostenta el récord histórico de goles en La Liga con 251 tantos en 278 partidos.',
+    q: '¿Quién ha sido el máximo goleador de la Ligue 1 más veces?',
+    a: 'Kylian Mbappé dominó la Ligue 1 con cinco títulos de máximo goleador antes de marcharse al Real Madrid, encadenando cuatro de ellos de forma consecutiva entre 2020/21 y 2023/24. Su marcha ha abierto la lucha por el trofeo a una nueva generación de delanteros.',
   },
   {
-    q: '¿Cuántos goles hay que marcar para ganar el Pichichi?',
-    a: 'No hay un mínimo fijo: depende de la competencia de esa temporada. En temporadas recientes, el ganador ha necesitado entre 23 y 31 goles. Mbappé ganó en 2024/25 con 31 goles, mientras que Dovbyk lo hizo en 2023/24 con 24.',
+    q: '¿Cuántos goles suelen hacer falta para ser máximo goleador de la Ligue 1?',
+    a: 'En las últimas temporadas el ganador ha rondado entre los 21 y los 29 goles. Mbappé llegó a marcar 29 en la 2022/23, mientras que Ousmane Dembélé se llevó el premio en 2024/25 con 21 tantos en una carrera muy igualada.',
   },
   {
-    q: '¿Dónde puedo ver las estadísticas de goleadores de La Liga en tiempo real?',
-    a: 'En TopScorers.com puedes consultar el ranking de goleadores y asistentes de La Liga actualizado en tiempo real, junto con estadísticas de la Premier League, Bundesliga, Serie A y Ligue 1.',
+    q: '¿Dónde puedo ver las estadísticas de goleadores de la Ligue 1 en tiempo real?',
+    a: 'En TopScorers.com puedes consultar el ranking de goleadores y asistentes de la Ligue 1 actualizado en tiempo real, junto con las estadísticas de La Liga, la Premier League, la Bundesliga y la Serie A.',
   },
 ]
 
@@ -117,15 +86,15 @@ const FAQS = [
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'Goleadores La Liga Española 2025/26',
-  description: 'Ranking de máximos goleadores de La Liga EA Sports temporada 2025/26',
-  url: 'https://www.top-scorers.com/goleadores-liga-espanola',
+  name: 'Goleadores Ligue 1 2025/26',
+  description: 'Ranking de máximos goleadores de la Ligue 1 temporada 2025/26',
+  url: 'https://www.top-scorers.com/goleadores-ligue-1',
   numberOfItems: CURRENT_SEASON.players.length,
   itemListElement: CURRENT_SEASON.players.map((p) => ({
     '@type': 'ListItem',
     position: p.pos,
     name: `${p.name} — ${p.goles} goles (${p.club})`,
-    url: `https://www.top-scorers.com/goleadores-liga-espanola#pos-${p.pos}`,
+    url: `https://www.top-scorers.com/goleadores-ligue-1#pos-${p.pos}`,
   })),
 }
 
@@ -134,7 +103,7 @@ const breadcrumbJsonLd = {
   '@type': 'BreadcrumbList',
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'TopScorers', item: 'https://www.top-scorers.com' },
-    { '@type': 'ListItem', position: 2, name: 'Goleadores La Liga', item: 'https://www.top-scorers.com/goleadores-liga-espanola' },
+    { '@type': 'ListItem', position: 2, name: 'Goleadores Ligue 1', item: 'https://www.top-scorers.com/goleadores-ligue-1' },
   ],
 }
 
@@ -157,7 +126,7 @@ const headingStyle = {
   letterSpacing: 1,
 }
 
-export default function GoleadoresLigaEspanolaPage() {
+export default function GoleadoresLigue1Page() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
@@ -170,15 +139,15 @@ export default function GoleadoresLigaEspanolaPage() {
         <nav className="text-xs text-gray-500 mb-6 flex gap-1.5 items-center">
           <Link href="/" className="hover:text-gray-300 transition-colors">TopScorers</Link>
           <span>›</span>
-          <span className="text-gray-400">Goleadores La Liga</span>
+          <span className="text-gray-400">Goleadores Ligue 1</span>
         </nav>
 
         {/* H1 */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: '#eef4ff', marginBottom: 8 }}>
-          Goleadores Liga Española 2025/26
+          Goleadores Ligue 1 2025/26
         </h1>
         <p style={{ color: '#94a3b8', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
-          Ranking actualizado de los máximos anotadores de <strong style={{ color: '#e2e8f0' }}>La Liga EA Sports</strong>, con datos de goles, partidos jugados y media por encuentro. Incluye histórico del <strong style={{ color: '#e2e8f0' }}>Trofeo Pichichi</strong> de las últimas temporadas.
+          Ranking actualizado de los máximos anotadores de la <strong style={{ color: '#e2e8f0' }}>Ligue 1</strong>, con goles, partidos jugados y media por encuentro. La carrera por el título de <strong style={{ color: '#e2e8f0' }}>máximo goleador</strong> y el histórico de ganadores de las últimas temporadas.
         </p>
 
         {/* Current season table */}
@@ -218,23 +187,23 @@ export default function GoleadoresLigaEspanolaPage() {
         {/* Explanatory content — important for SEO */}
         <section style={{ marginBottom: 40, color: '#94a3b8', lineHeight: 1.75, fontSize: 15 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 14 }}>
-            La Liga 2025/26: análisis de la tabla de goleadores
+            Ligue 1 2025/26: análisis de la tabla de goleadores
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La temporada 2025/26 de <strong style={{ color: '#e2e8f0' }}>La Liga EA Sports</strong> está marcada por el duelo entre el poderío goleador de <strong style={{ color: '#e2e8f0' }}>Real Madrid</strong> y <strong style={{ color: '#e2e8f0' }}>FC Barcelona</strong>, con <strong style={{ color: '#e2e8f0' }}>Kylian Mbappé</strong> liderando con 24 dianas en 28 partidos. El delantero francés, en su segunda temporada en el Santiago Bernabéu, sigue la estela de su extraordinaria campaña 2024/25 cuando se proclamó Pichichi con 31 goles.
+            La temporada 2025/26 de la <strong style={{ color: '#e2e8f0' }}>Ligue 1</strong> vive una transición histórica tras la marcha de Kylian Mbappé, que durante años monopolizó el trofeo de máximo goleador. En su lugar ha emergido <strong style={{ color: '#e2e8f0' }}>Esteban Lepaul</strong>, que lidera la tabla con 18 goles y se ha convertido en la gran revelación del <strong style={{ color: '#e2e8f0' }}>Stade Rennais</strong>.
           </p>
           <p style={{ marginBottom: 12 }}>
-            La sorpresa de la temporada es <strong style={{ color: '#e2e8f0' }}>Vedat Muriqi</strong> del Mallorca, que con 21 goles se mantiene como el segundo máximo goleador de la competición y demuestra que los equipos modestos también tienen artilleros de élite. <strong style={{ color: '#e2e8f0' }}>Lamine Yamal</strong>, con apenas 17 años, comparte el tercer puesto y confirma que puede convertirse en uno de los grandes goleadores de la próxima década.
+            El argentino <strong style={{ color: '#e2e8f0' }}>Joaquín Panichelli</strong>, del Estrasburgo, confirma con 16 dianas el buen momento de la cantera sudamericana en Francia, mientras que <strong style={{ color: '#e2e8f0' }}>Mason Greenwood</strong> mantiene al Marsella entre los mejores. El <strong style={{ color: '#e2e8f0' }}>Paris Saint-Germain</strong> reparte sus goles entre Dembélé, Barcola y Gonçalo Ramos.
           </p>
           <p>
-            La diferencia entre el primero (24 goles) y el octavo (10 goles) refleja la concentración del talento goleador en los grandes clubes, aunque Muriqi y Budimir del Osasuna rompen esa tendencia desde la zona media-baja de la tabla.
+            La Ligue 1 confirma así su fama de liga reveladora de talento joven: nombres emergentes y futbolistas en pleno crecimiento copan una tabla de goleadores más abierta que nunca.
           </p>
         </section>
 
-        {/* Historical Pichichi */}
+        {/* Historical top scorers */}
         <section style={{ marginBottom: 40 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
-            Histórico Trofeo Pichichi — Últimas Temporadas
+            Histórico Máximos Goleadores Ligue 1 — Últimas Temporadas
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {HISTORICAL.map((h) => (
@@ -251,7 +220,7 @@ export default function GoleadoresLigaEspanolaPage() {
         {/* FAQ */}
         <section style={{ marginBottom: 40 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
-            Preguntas Frecuentes sobre Goleadores de La Liga
+            Preguntas Frecuentes sobre Goleadores de la Ligue 1
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {FAQS.map(({ q, a }) => (
@@ -274,14 +243,13 @@ export default function GoleadoresLigaEspanolaPage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {[
               { href: '/maximos-goleadores-europa', label: 'Máximos goleadores de Europa' },
+              { href: '/goleadores-liga-espanola', label: 'Goleadores La Liga (Pichichi)' },
               { href: '/goleadores-premier-league', label: 'Goleadores Premier League' },
               { href: '/goleadores-serie-a', label: 'Goleadores Serie A' },
               { href: '/goleadores-bundesliga', label: 'Goleadores Bundesliga' },
-              { href: '/goleadores-ligue-1', label: 'Goleadores Ligue 1' },
               { href: '/bota-de-oro', label: 'Bota de Oro' },
               { href: '/', label: 'Goleadores en tiempo real' },
               { href: '/competiciones', label: 'Todas las ligas' },
-              { href: '/mundial-2026', label: 'Mundial 2026' },
             ].map(({ href, label }) => (
               <Link
                 key={href}
