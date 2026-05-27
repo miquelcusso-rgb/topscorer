@@ -1,4 +1,5 @@
 import type { PlayerData } from '@/types'
+import { GENERATED_PLAYERS } from './players-generated'
 
 export const EXT: Record<string, Partial<PlayerData>> = {
   'Harry Kane':            { nationality:'Inglés',     flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', position:'FW', marketValue:'€70M',  releaseClause:null,    contractUntil:'2027', elo:2185, fantasyPoints:248, fantasyPrice:12.5 },
@@ -247,7 +248,21 @@ const RAW: RawPlayer[] = [
   { name:'Pedri',                  club:'Barcelona',      league:'La Liga',       age:21, pj:35, goles:8,  asist:9,  season:'2324', src:'srch', tab:'a' },
 ]
 
-export const PLAYERS = RAW.map(p => ({
+const CURATED = RAW.map(p => ({
   ...p,
   ...(EXT[p.name] ?? {}),
 })) as PlayerData[]
+
+// Generated leaderboard entries (data/players-generated.ts). Curated rich data
+// wins on name+season collisions; EXT is still applied in case of a name match.
+const seen = new Set(CURATED.map(p => `${p.name}|${p.season}`))
+const GENERATED: PlayerData[] = GENERATED_PLAYERS
+  .map(p => ({ ...p, ...(EXT[p.name] ?? {}) }))
+  .filter(p => {
+    const k = `${p.name}|${p.season}`
+    if (seen.has(k)) return false
+    seen.add(k)
+    return true
+  })
+
+export const PLAYERS: PlayerData[] = [...CURATED, ...GENERATED]

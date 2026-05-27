@@ -12,7 +12,7 @@ export const revalidate = 3600
 export async function generateStaticParams() {
   return PLAYERS
     .filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i)
-    .slice(0, 60)
+    .slice(0, 200)
     .map(p => ({ slug: slugify(p.name) }))
 }
 
