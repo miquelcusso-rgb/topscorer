@@ -95,7 +95,7 @@ const websiteJsonLd = {
   inLanguage: 'es-ES',
   publisher: {
     '@type': 'Organization',
-    name: 'TopScorers',
+    name: 'Furiosa Studio',
     url: 'https://www.top-scorers.com',
     logo: 'https://www.top-scorers.com/logo.png',
   },

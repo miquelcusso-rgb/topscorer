@@ -50,7 +50,37 @@ const jsonLd = {
 
 export const revalidate = 3600
 
-export default async function Home() {
+function buildFaq(lang: string) {
+  const entries =
+    lang === 'en'
+      ? [
+          ['Who is the top scorer in Europe this season?', 'TopScorers ranks the leading scorers across La Liga, the Premier League, Serie A, the Bundesliga and Ligue 1 in real time. The combined European ranking is updated as matches are played during the 2025/26 season.'],
+          ['Where can I see the top scorers of each league?', 'TopScorers has a dedicated page for each major league: LaLiga (Pichichi), the Premier League, Serie A (capocannoniere), the Bundesliga and Ligue 1, each with the top 25 scorers updated live.'],
+          ['What is the Golden Boot and how is it calculated?', 'The European Golden Boot is awarded to the top scorer across European leagues, with goals weighted by the strength of each league. TopScorers shows the live Golden Boot standings with that weighting applied.'],
+          ['How often is the data updated?', 'Scorer and assist data is sourced from API-Football and refreshed in near real time, typically within minutes of matches finishing.'],
+        ]
+      : [
+          ['¿Quién es el máximo goleador de Europa esta temporada?', 'TopScorers ordena en tiempo real a los máximos goleadores de LaLiga, la Premier League, la Serie A, la Bundesliga y la Ligue 1. El ranking europeo combinado se actualiza a medida que se juegan los partidos de la temporada 2025/26.'],
+          ['¿Dónde veo los goleadores de cada liga?', 'TopScorers tiene una página por cada gran liga: LaLiga (Pichichi), Premier League, Serie A (capocannoniere), Bundesliga y Ligue 1, cada una con el top 25 de goleadores actualizado en directo.'],
+          ['¿Qué es la Bota de Oro y cómo se calcula?', 'La Bota de Oro europea premia al máximo goleador de las ligas europeas, ponderando los goles según la dificultad de cada liga. TopScorers muestra la clasificación de la Bota de Oro en directo con esa ponderación aplicada.'],
+          ['¿Cada cuánto se actualizan los datos?', 'Los datos de goleadores y asistentes provienen de API-Football y se actualizan casi en tiempo real, normalmente pocos minutos después de terminar los partidos.'],
+        ]
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    inLanguage: lang === 'en' ? 'en' : 'es',
+    mainEntity: entries.map(([q, a]) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  }
+}
+
+export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang: rawLang } = await params
+  const lang = isLocale(rawLang) ? rawLang : 'es'
+  const faqJsonLd = buildFaq(lang)
   // Fetch all 8 leagues, both tabs, in parallel
   let initialPlayers: PlayerData[] = []
   try {
@@ -80,6 +110,10 @@ export default async function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}
       />
       <MainApp initialPlayers={initialPlayers.length > 0 ? initialPlayers : undefined} />
     </>
