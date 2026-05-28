@@ -134,6 +134,10 @@ export default function Footer() {
             </a>
           </span>
         </div>
+
+        <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid currentColor', borderTopColor: 'rgba(128,128,128,0.15)', fontSize: 11, opacity: 0.6, textAlign: 'center' }}>
+          Part of the <a href="https://furiosadata.com" rel="dofollow" style={{ color: 'inherit', borderBottom: '1px solid currentColor' }}>Furiosa Data Tools Network</a> — open data and 8 free tools by Furiosa Studio.
+        </div>
       </div>
     </footer>
   )
