@@ -251,6 +251,9 @@ export default function MaximosGoleadoresEuropaPage() {
             {[
               { href: '/goleadores-liga-espanola', label: 'Goleadores La Liga (Pichichi)' },
               { href: '/goleadores-premier-league', label: 'Goleadores Premier League' },
+              { href: '/goleadores-serie-a', label: 'Goleadores Serie A' },
+              { href: '/goleadores-bundesliga', label: 'Goleadores Bundesliga' },
+              { href: '/goleadores-ligue-1', label: 'Goleadores Ligue 1' },
               { href: '/bota-de-oro', label: 'Bota de Oro' },
               { href: '/', label: 'Top 25 en tiempo real' },
               { href: '/competiciones', label: 'Todas las ligas' },
