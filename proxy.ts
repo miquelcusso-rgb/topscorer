@@ -41,11 +41,13 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     return res
   }
 
-  // No locale prefix → redirect to the detected/preferred locale
+  // No locale prefix → redirect to the detected/preferred locale.
+  // 308 (permanent) so Google consolidates `/` → `/es` (or `/en`) and stops flagging
+  // "Página con redirección" in GSC. Was 307 default before.
   const locale = detectLocale(req)
   const url = req.nextUrl.clone()
   url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`
-  return NextResponse.redirect(url)
+  return NextResponse.redirect(url, 308)
 })
 
 export const config = {
