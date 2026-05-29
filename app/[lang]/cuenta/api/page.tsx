@@ -82,7 +82,7 @@ export default function ApiKeysPage() {
           </h1>
           <p className="text-[14px] mb-6" style={{ color: '#7888aa', lineHeight: 1.6 }}>
             La API REST de TopScorers está disponible en el plan <strong style={{ color: '#a060ff' }}>Scout</strong>:
-            100.000 peticiones/mes a goleadores, jugadores y clasificaciones de las grandes ligas.
+            50.000 peticiones/mes a goleadores, jugadores y clasificaciones de las grandes ligas.
           </p>
           <Link
             href="/pricing"
@@ -107,7 +107,7 @@ export default function ApiKeysPage() {
           Claves API
         </h1>
         <p className="text-[13px] mb-6" style={{ color: '#5060a0' }}>
-          Plan Scout · 100.000 peticiones/mes · máx. 5 claves activas
+          Plan Scout · 50.000 peticiones/mes · máx. 5 claves activas
         </p>
 
         {/* Newly created key — shown once */}
@@ -222,7 +222,7 @@ curl "https://www.top-scorers.com/api/v1/standings?league=PD&season=2025" \\
           </pre>
         </div>
         <p className="text-[11px] mt-3" style={{ color: '#3a3b52' }}>
-          Límite: 100.000 peticiones/mes. Cada respuesta incluye cabeceras{' '}
+          Límite: 50.000 peticiones/mes. Cada respuesta incluye cabeceras{' '}
           <code style={{ color: '#5060a0' }}>X-RateLimit-Remaining</code>.
         </p>
       </div>

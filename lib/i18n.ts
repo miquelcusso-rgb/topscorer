@@ -186,7 +186,7 @@ export const T = {
   pricing_scout_f1:     { es: 'Todo lo de Pro, sin límites', en: 'Everything in Pro, no limits' },
   pricing_scout_f2:     { es: 'Top 50 + historial completo', en: 'Top 50 + full history' },
   pricing_scout_f3:     { es: 'Stats match-by-match por jugador', en: 'Match-by-match stats per player' },
-  pricing_scout_f4:     { es: 'API acceso 100K req/mes', en: 'API access 100K req/mo' },
+  pricing_scout_f4:     { es: 'API acceso 50K req/mes', en: 'API access 50K req/mo' },
   pricing_scout_f5:     { es: 'Filtros avanzados: posición exacta, edad, valor mercado', en: 'Advanced filters: exact position, age, market value' },
   pricing_scout_f6:     { es: 'Alertas de rendimiento por email (próximo) — Próx.', en: 'Performance alerts by email (coming) — Soon' },
   pricing_scout_f7:     { es: 'Watchlist ilimitada', en: 'Unlimited watchlist' },
@@ -212,7 +212,7 @@ export const T = {
   pricing_cmp_export:         { es: 'Export CSV', en: 'CSV export' },
   pricing_cmp_alerts:         { es: 'Alertas de rendimiento', en: 'Performance alerts' },
   pricing_cmp_mbm:            { es: 'Stats match-by-match', en: 'Match-by-match stats' },
-  pricing_cmp_api:            { es: 'Acceso API (100K req/mes)', en: 'API access (100K req/mo)' },
+  pricing_cmp_api:            { es: 'Acceso API (50K req/mes)', en: 'API access (50K req/mo)' },
   pricing_cmp_adv_filters:    { es: 'Filtros avanzados pro', en: 'Advanced pro filters' },
   pricing_cmp_support:        { es: 'Soporte prioritario', en: 'Priority support' },
   // Plan B+ positioning (free expanded; Pro moat = community + no ads)

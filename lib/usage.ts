@@ -13,8 +13,8 @@ export const QUOTAS: Record<'csv_export' | 'api_request', Record<Plan, number | 
   api_request: {
     free:   0,
     pro:    0,       // API access is Scout-only
-    scout:  100_000, // Scout: 100K requests / month
-    team:   100_000,
+    scout:  50_000,  // Scout: 50K requests / month — sized to fit our API-Football budget
+    team:   50_000,
   },
 }
 

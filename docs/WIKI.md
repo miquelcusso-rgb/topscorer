@@ -90,7 +90,7 @@ Función `increment_usage()` (SQL, search_path bloqueado) — incremento atómic
 
 ## 5. API pública (Scout)
 
-Auth: `Authorization: Bearer tsk_live_…`. Gate de plan Scout + cuota 100K/mes (`lib/api-auth.ts` → `withApiAuth`). Cabeceras `X-RateLimit-*`.
+Auth: `Authorization: Bearer tsk_live_…`. Gate de plan Scout + cuota **50K/mes** (`lib/api-auth.ts` → `withApiAuth`, fuente de verdad: `QUOTAS` en `lib/usage.ts`). Cabeceras `X-RateLimit-*`.
 
 | Endpoint | Descripción |
 |---|---|

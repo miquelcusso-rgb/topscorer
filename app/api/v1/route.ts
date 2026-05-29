@@ -8,7 +8,7 @@ export function GET() {
     documentation: 'https://www.top-scorers.com/cuenta/api',
     authentication: 'Bearer token. Header: Authorization: Bearer tsk_live_…',
     plan_required: 'scout',
-    rate_limit: '100000 requests / month',
+    rate_limit: '50000 requests / month',
     endpoints: {
       'GET /api/v1/players':   'List players with filters (league, position, season, limit).',
       'GET /api/v1/scorers':   'Top scorers ranking (league, season, limit).',

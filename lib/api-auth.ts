@@ -16,7 +16,7 @@ type Handler = (req: NextRequest, ctx: ApiContext) => Promise<NextResponse> | Ne
  * Wrap a public API v1 handler with:
  *  - Bearer API-key authentication
  *  - Scout/Team plan gating (API access is Scout-only)
- *  - Monthly request quota enforcement (100K/mo) with usage increment
+ *  - Monthly request quota enforcement (see QUOTAS in lib/usage.ts) with usage increment
  *  - Standard rate-limit headers
  */
 export function withApiAuth(handler: Handler) {
