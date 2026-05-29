@@ -303,6 +303,46 @@ export default function ComparadorClient() {
           <PlayerSelector label="Jugador B" selected={playerB} onSelect={selectB} isLight={isLight} />
         </div>
 
+        {/* Save comparison button — shown when both selected */}
+        {bothSelected && (
+          <div style={{ textAlign: 'center', marginTop: 8, marginBottom: 20 }}>
+            <button
+              onClick={async () => {
+                if (!isLoaded) return
+                if (!user) {
+                  alert(lang === 'es' ? 'Inicia sesión para guardar comparaciones.' : 'Sign in to save comparisons.')
+                  return
+                }
+                const name = prompt(lang === 'es' ? 'Nombre para esta comparación (opcional):' : 'Name for this comparison (optional):', `${playerA.name} vs ${playerB.name}`)
+                if (name === null) return
+                const r = await fetch('/api/comparisons', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ name, player_names: [playerA.name, playerB.name], season: playerA.season }),
+                })
+                if (r.status === 409) {
+                  alert(lang === 'es' ? 'Has alcanzado el límite gratis (5). Pásate a Pro para guardar ilimitadas.' : 'You hit the free cap (5). Upgrade to Pro for unlimited.')
+                } else if (r.ok) {
+                  alert(lang === 'es' ? '✓ Comparación guardada' : '✓ Comparison saved')
+                } else if (r.status === 401) {
+                  alert(lang === 'es' ? 'Inicia sesión para guardar comparaciones.' : 'Sign in to save comparisons.')
+                } else {
+                  alert(lang === 'es' ? 'No se pudo guardar.' : 'Could not save.')
+                }
+              }}
+              style={{
+                background: 'transparent', color: C_DARK.gd,
+                border: `1px solid ${C_DARK.gd}66`,
+                padding: '6px 16px', borderRadius: 999,
+                fontFamily: "'Barlow Condensed', sans-serif", fontSize: 12, fontWeight: 700,
+                letterSpacing: 0.6, textTransform: 'uppercase', cursor: 'pointer',
+              }}
+            >
+              ⭐ {lang === 'es' ? 'Guardar comparación' : 'Save comparison'}
+            </button>
+          </div>
+        )}
+
         {/* Comparison sections — shown when both selected */}
         {bothSelected && (
           <>
