@@ -75,8 +75,9 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
   const { theme } = useTheme()
   const { user, isLoaded } = useUser()
   const isLight = theme === 'light'
-  // Pro-only gate: advanced stats / physicals / season trajectory (per pricing)
+  // Kept for future Pro-only perks; advanced sections are now free.
   const proUser = isLoaded ? isPro(user?.publicMetadata as Record<string, unknown>) : false
+  void proUser
 
   // ─── Design tokens ──────────────────────────────────────────────────────────
   const pageBg     = isLight ? '#edf1f8' : '#060d18'
@@ -372,8 +373,8 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
         {/* Ad after primary stat cards */}
         <AdSlot slot="0987654321" format="rectangle" className="my-4" />
 
-        {/* ── SECONDARY STATS ROW (Pro-only: disparos, pases clave, duelos…) ─ */}
-        {det && proUser && (
+        {/* ── SECONDARY STATS ROW (disparos, pases clave, duelos…) ───────── */}
+        {det && (
           <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-5">
             {([
               {
@@ -463,8 +464,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
             <PlayerRadar player={player} color={gold} />
           </div>
 
-          {/* Physical & profile card — Pro-only (altura/peso/nacimiento/etc.) */}
-          {proUser ? (
+          {/* Physical & profile card */}
           <div
             className="rounded-lg p-5"
             style={{ background: cardBg, border: `1px solid ${cardBorder}` }}
@@ -521,23 +521,6 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
               </div>
             </div>
           </div>
-          ) : (
-          <div
-            className="rounded-lg p-5 flex flex-col items-center justify-center text-center"
-            style={{ background: cardBg, border: `1px dashed ${cardBorder}`, minHeight: 180 }}
-          >
-            <div style={{ fontSize: 22, marginBottom: 6 }}>🔒</div>
-            <div style={{ fontSize: 14, color: isLight ? '#0f1830' : '#e5e5f2', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
-              Físicos & contrato
-            </div>
-            <p style={{ fontSize: 12, color: isLight ? '#5060a0' : '#8a8aae', maxWidth: 220, lineHeight: 1.55, marginBottom: 12 }}>
-              Altura, peso, fecha de nacimiento, valor de mercado y contrato. Desbloquéalo con Pro.
-            </p>
-            <Link href="/pricing" style={{ background: '#f0c040', color: '#05060c', padding: '5px 14px', borderRadius: 4, fontWeight: 700, fontSize: 12, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5, textDecoration: 'none' }}>
-              Activar Pro
-            </Link>
-          </div>
-          )}
         </div>
 
         {/* ── STATISTICS BY COMPETITION TABLE ─────────────────────────────── */}
@@ -653,8 +636,8 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
           </div>
         )}
 
-        {/* ── SEASON TREND MINI CHART (Pro-only: Trayectoria de temporada) ──── */}
-        {trendData.length > 1 && proUser && (
+        {/* ── SEASON TREND MINI CHART (Trayectoria de temporada) ──────────── */}
+        {trendData.length > 1 && (
           <div
             className="rounded-lg p-5 mb-5"
             style={{ background: cardBg, border: `1px solid ${cardBorder}` }}

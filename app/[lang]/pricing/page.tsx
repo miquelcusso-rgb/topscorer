@@ -18,30 +18,36 @@ const C = {
 type FeatureValue = boolean | 'soon' | { key: TKey }
 
 const COMPARISON: { labelKey: TKey; free: FeatureValue; pro: FeatureValue; scout: FeatureValue }[] = [
-  // Core
-  { labelKey: 'pricing_cmp_players',     free: { key: 'pricing_val_top10' },       pro: { key: 'pricing_val_top25' },     scout: { key: 'pricing_val_top50' }     },
-  { labelKey: 'pricing_cmp_seasons',     free: { key: 'pricing_val_seasons_free' },pro: { key: 'pricing_val_since_2021' },scout: { key: 'pricing_val_since_2021' }},
-  { labelKey: 'pricing_cmp_ads',         free: { key: 'pricing_val_ads_warn' },    pro: { key: 'pricing_val_ad_free' },   scout: { key: 'pricing_val_ad_free' }   },
-  // Stats
-  { labelKey: 'pricing_cmp_basic_stats', free: true,                               pro: true,                             scout: true                             },
-  { labelKey: 'pricing_cmp_adv_stats',   free: false,                              pro: true,                             scout: true                             },
-  { labelKey: 'pricing_cmp_shots',       free: false,                              pro: true,                             scout: true                             },
-  { labelKey: 'pricing_cmp_physical',    free: false,                              pro: true,                             scout: true                             },
-  // Tools
-  { labelKey: 'pricing_cmp_radar',       free: { key: 'pricing_val_radar_basic' }, pro: true,                             scout: true                             },
-  { labelKey: 'pricing_cmp_comparator',  free: false,                              pro: true,                             scout: true                             },
-  { labelKey: 'pricing_cmp_trajectory',  free: false,                              pro: true,                             scout: true                             },
-  { labelKey: 'pricing_cmp_scout_radar', free: false,                              pro: true,                             scout: true                             },
-  { labelKey: 'pricing_cmp_tables',      free: true,                               pro: true,                             scout: true                             },
-  // User
-  { labelKey: 'pricing_cmp_watchlist',   free: false,                              pro: { key: 'pricing_val_upto20' },    scout: { key: 'pricing_val_unlimited_f' }},
-  { labelKey: 'pricing_cmp_export',      free: false,                              pro: { key: 'pricing_val_export_pro' },scout: { key: 'pricing_val_unlimited_m' }},
-  { labelKey: 'pricing_cmp_alerts',      free: false,                              pro: false,                            scout: 'soon'                           },
-  // Scout
-  { labelKey: 'pricing_cmp_mbm',         free: false,                              pro: false,                            scout: true                             },
-  { labelKey: 'pricing_cmp_api',         free: false,                              pro: false,                            scout: true                             },
-  { labelKey: 'pricing_cmp_adv_filters', free: false,                              pro: false,                            scout: true                             },
-  { labelKey: 'pricing_cmp_support',     free: false,                              pro: false,                            scout: true                             },
+  // ─── CORE (libre y competitivo con FotMob / FBref / Transfermarkt) ───────
+  { labelKey: 'pricing_cmp_cross_league', free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_players',      free: { key: 'pricing_val_top25' },      pro: { key: 'pricing_val_top50' },         scout: { key: 'pricing_val_top100' }     },
+  { labelKey: 'pricing_cmp_seasons',      free: { key: 'pricing_val_full_history' },pro: { key: 'pricing_val_full_history' }, scout: { key: 'pricing_val_full_history' }},
+  { labelKey: 'pricing_cmp_basic_stats',  free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_adv_stats',    free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_shots',        free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_physical',     free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_radar',        free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_comparator',   free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_trajectory',   free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_tables',       free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_community',    free: true,                              pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_badges',       free: true,                              pro: true,                                 scout: true                              },
+
+  // ─── PRO MOAT (publicidad + perks de comunidad + watchlist amplia) ───────
+  { labelKey: 'pricing_cmp_ads',          free: { key: 'pricing_val_ads_warn' },   pro: { key: 'pricing_val_ad_free' },       scout: { key: 'pricing_val_ad_free' }    },
+  { labelKey: 'pricing_cmp_scout_radar',  free: false,                             pro: true,                                 scout: true                              },
+  { labelKey: 'pricing_cmp_watchlist',    free: { key: 'pricing_val_upto10' },     pro: { key: 'pricing_val_upto50' },        scout: { key: 'pricing_val_unlimited_f' }},
+  { labelKey: 'pricing_cmp_saved_comp',   free: { key: 'pricing_val_upto5' },      pro: { key: 'pricing_val_unlimited_f' },   scout: { key: 'pricing_val_unlimited_f' }},
+  { labelKey: 'pricing_cmp_export',       free: { key: 'pricing_val_export_free_5' },pro: { key: 'pricing_val_export_pro_100' }, scout: { key: 'pricing_val_unlimited_m' }},
+  { labelKey: 'pricing_cmp_early_access', free: false,                             pro: { key: 'pricing_val_early_24h' },     scout: { key: 'pricing_val_early_48h' }  },
+  { labelKey: 'pricing_cmp_pickem_mult',  free: false,                             pro: { key: 'pricing_val_mult_2x' },       scout: { key: 'pricing_val_mult_2x' }    },
+
+  // ─── SCOUT EXCLUSIVE ─────────────────────────────────────────────────────
+  { labelKey: 'pricing_cmp_alerts',       free: false,                             pro: false,                                scout: 'soon'                            },
+  { labelKey: 'pricing_cmp_mbm',          free: false,                             pro: false,                                scout: true                              },
+  { labelKey: 'pricing_cmp_api',          free: false,                             pro: false,                                scout: true                              },
+  { labelKey: 'pricing_cmp_adv_filters',  free: false,                             pro: false,                                scout: true                              },
+  { labelKey: 'pricing_cmp_support',      free: false,                             pro: false,                                scout: true                              },
 ]
 
 const FAQ: { q: TKey; a: TKey }[] = [
@@ -291,10 +297,10 @@ export default function PricingPage() {
 
           <PlanCard
             name="Pro"
-            price={billing === 'monthly' ? 4.99 : 39.99}
+            price={billing === 'monthly' ? 2.99 : 23.99}
             billing={billing}
             lang={lang}
-            perMonth={billing === 'yearly' ? 3.33 : undefined}
+            perMonth={billing === 'yearly' ? 2.0 : undefined}
             savePercent={billing === 'yearly' ? 33 : undefined}
             desc={t('pricing_pro_desc', lang)}
             highlight={true}
@@ -320,11 +326,11 @@ export default function PricingPage() {
 
           <PlanCard
             name="Scout"
-            price={billing === 'monthly' ? 11.99 : 89.99}
+            price={billing === 'monthly' ? 7.99 : 69.99}
             billing={billing}
             lang={lang}
-            perMonth={billing === 'yearly' ? 7.5 : undefined}
-            savePercent={billing === 'yearly' ? 37 : undefined}
+            perMonth={billing === 'yearly' ? 5.83 : undefined}
+            savePercent={billing === 'yearly' ? 27 : undefined}
             desc={t('pricing_scout_desc', lang)}
             accent={'#5a5a7a'}
             highlight={false}

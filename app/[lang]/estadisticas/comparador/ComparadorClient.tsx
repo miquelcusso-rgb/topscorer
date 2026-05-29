@@ -273,43 +273,8 @@ export default function ComparadorClient() {
   const accentB = posAccent(playerB?.position)
   const bothSelected = !!playerA && !!playerB
 
-  // Paywall for non-Pro users (feature promised as Pro-only in pricing)
-  if (isLoaded && !proUser) {
-    return (
-      <div style={{ minHeight: '100vh', background: pageBg, paddingBottom: 80 }}>
-        <main style={{ maxWidth: 680, margin: '0 auto', padding: '80px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: 42, marginBottom: 14 }}>⚖️</div>
-          <h1 style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontSize: 'clamp(32px, 6vw, 52px)', fontWeight: 900,
-            color: C_DARK.gd, letterSpacing: 1.5, textTransform: 'uppercase',
-            lineHeight: 1.05, marginBottom: 14,
-          }}>
-            {es ? 'Comparador de jugadores' : 'Player comparator'}
-          </h1>
-          <p style={{ fontSize: 15, color: isLight ? '#33405e' : C_DARK.mu, lineHeight: 1.6, marginBottom: 22, maxWidth: 480, margin: '0 auto 22px' }}>
-            {es
-              ? 'Compara cualquier par de jugadores europeos en goles, asistencias, valoración, físico y radar de 6 ejes. Función exclusiva de Pro.'
-              : 'Compare any two European players across goals, assists, rating, physicals and 6-axis radar. A Pro-only feature.'}
-          </p>
-          <Link
-            href={`/${lang}/pricing`}
-            style={{
-              display: 'inline-block', padding: '10px 22px', borderRadius: 6,
-              background: C_DARK.gd, color: '#05060c', fontWeight: 700,
-              fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1, fontSize: 14,
-              textDecoration: 'none',
-            }}
-          >
-            {es ? 'Desbloquear con Pro' : 'Unlock with Pro'}
-          </Link>
-          <p style={{ fontSize: 11, color: isLight ? '#6070a0' : C_DARK.mu, marginTop: 14 }}>
-            {es ? 'Desde €4,99/mes · Cancela cuando quieras' : 'From €4.99/mo · Cancel anytime'}
-          </p>
-        </main>
-      </div>
-    )
-  }
+  // Note: comparator is now free (was Pro-only). proUser kept for future Pro perks.
+  void proUser; void es
 
   return (
     <div style={{ minHeight: '100vh', background: pageBg, paddingBottom: 80 }}>
