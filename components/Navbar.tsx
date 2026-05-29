@@ -79,10 +79,12 @@ export default function Navbar() {
   ]
   // Secondary links (in "Más" dropdown)
   const secondaryLinks = [
-    { href: lp('/jugadores'),    label: t('nav_players', lang) },
-    { href: lp('/descubrir'),    label: t('nav_discover', lang) },
+    { href: lp('/jugadores'),      label: t('nav_players', lang) },
+    { href: lp('/descubrir'),      label: t('nav_discover', lang) },
+    { href: lp('/rumores'),        label: lang === 'es' ? 'Rumores' : 'Rumours' },
     { href: lp('/transferencias'), label: t('nav_transfers', lang) },
-    { href: lp('/mundial-2026'), label: t('nav_world_cup', lang) },
+    { href: lp('/clasificacion'),  label: lang === 'es' ? 'Comunidad' : 'Community' },
+    { href: lp('/mundial-2026'),   label: t('nav_world_cup', lang) },
     // Scout-only: API key management
     ...(isScoutUser ? [{ href: lp('/cuenta/api'), label: 'API' }] : []),
   ]

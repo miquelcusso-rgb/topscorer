@@ -38,8 +38,10 @@ export default function Footer() {
     {
       group: t('footer_competitions', lang),
       items: [
-        { href: lp('/mundial-2026'), label: t('footer_world_cup', lang) },
-        { href: lp('/resultados'),   label: t('footer_tables', lang) },
+        { href: lp('/mundial-2026'),    label: t('footer_world_cup', lang) },
+        { href: lp('/resultados'),      label: t('footer_tables', lang) },
+        { href: lp('/transferencias'),  label: lang === 'es' ? 'Fichajes' : 'Transfers' },
+        { href: lp('/rumores'),         label: lang === 'es' ? 'Rumores' : 'Rumours' },
       ],
     },
     {
@@ -56,6 +58,7 @@ export default function Footer() {
       items: [
         { href: lp('/pricing'),    label: t('footer_pricing', lang) },
         { href: lp('/wiki'),       label: lang === 'es' ? 'Wiki / Ayuda' : 'Wiki / Help' },
+        { href: lp('/clasificacion'), label: lang === 'es' ? 'Comunidad · Ranking' : 'Community · Ranking' },
         { href: lp('/about'),      label: t('footer_about', lang) },
         { href: lp('/privacidad'), label: t('footer_privacy', lang) },
         { href: lp('/legal'),      label: t('footer_legal', lang) },

@@ -55,6 +55,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ['/estadisticas/comparador', 'weekly',  0.65],
     ['/centrocampistas',         'weekly',  0.7],
     ['/wiki',                    'monthly', 0.6],
+    ['/rumores',                 'daily',   0.85],
+    ['/clasificacion',           'daily',   0.55],
   ]
 
   const staticUrls = staticPaths.flatMap(([p, f, pr]) => localized(p, f, pr))
