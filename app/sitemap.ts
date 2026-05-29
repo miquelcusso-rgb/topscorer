@@ -57,6 +57,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ['/wiki',                    'monthly', 0.6],
     ['/rumores',                 'daily',   0.85],
     ['/clasificacion',           'daily',   0.55],
+    ['/encuestas',               'daily',   0.7],
+    ['/predicciones',            'daily',   0.75],
   ]
 
   const staticUrls = staticPaths.flatMap(([p, f, pr]) => localized(p, f, pr))

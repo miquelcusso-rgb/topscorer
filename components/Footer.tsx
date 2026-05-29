@@ -59,6 +59,8 @@ export default function Footer() {
         { href: lp('/pricing'),    label: t('footer_pricing', lang) },
         { href: lp('/wiki'),       label: lang === 'es' ? 'Wiki / Ayuda' : 'Wiki / Help' },
         { href: lp('/clasificacion'), label: lang === 'es' ? 'Comunidad · Ranking' : 'Community · Ranking' },
+        { href: lp('/encuestas'),     label: lang === 'es' ? 'Encuestas' : 'Polls' },
+        { href: lp('/predicciones'),  label: lang === 'es' ? 'Predicciones' : 'Picks' },
         { href: lp('/about'),      label: t('footer_about', lang) },
         { href: lp('/privacidad'), label: t('footer_privacy', lang) },
         { href: lp('/legal'),      label: t('footer_legal', lang) },

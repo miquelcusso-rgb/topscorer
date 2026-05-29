@@ -4,6 +4,14 @@
     {
       "path": "/api/cron/refresh-rumors",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/generate-polls",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/resolve-picks",
+      "schedule": "0 4 * * *"
     }
   ]
 }
