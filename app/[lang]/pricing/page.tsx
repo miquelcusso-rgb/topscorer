@@ -326,11 +326,11 @@ export default function PricingPage() {
 
           <PlanCard
             name="Scout"
-            price={billing === 'monthly' ? 7.99 : 69.99}
+            price={billing === 'monthly' ? 5.99 : 49.99}
             billing={billing}
             lang={lang}
-            perMonth={billing === 'yearly' ? 5.83 : undefined}
-            savePercent={billing === 'yearly' ? 27 : undefined}
+            perMonth={billing === 'yearly' ? 4.17 : undefined}
+            savePercent={billing === 'yearly' ? 30 : undefined}
             desc={t('pricing_scout_desc', lang)}
             accent={'#5a5a7a'}
             highlight={false}
