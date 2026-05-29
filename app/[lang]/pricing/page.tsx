@@ -81,12 +81,13 @@ interface CardProps {
   features: string[]
   locked?: string[]
   disabled?: boolean
+  comingSoon?: boolean
   onCtaClick?: () => void
   contextLine?: string
   lang: Lang
 }
 
-function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, badge, badgeColor, highlight, cta, ctaHref, ctaVariant, features, locked, disabled, onCtaClick, contextLine, lang }: CardProps) {
+function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, badge, badgeColor, highlight, cta, ctaHref, ctaVariant, features, locked, disabled, comingSoon, onCtaClick, contextLine, lang }: CardProps) {
   const a = accent ?? (highlight ? C.gd : C.bd)
   const bColor = badgeColor ?? a
   return (
@@ -167,7 +168,14 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
       </div>
 
       <div className="p-6 pt-4">
-        {disabled ? (
+        {comingSoon ? (
+          <div
+            className="block text-center text-[13px] font-bold py-2.5 rounded-sm"
+            style={{ background: 'rgba(90,90,122,.1)', color: '#5a5a7a', border: '1px solid rgba(90,90,122,.35)' }}
+          >
+            COMING SOON
+          </div>
+        ) : disabled ? (
           <div
             className="block text-center text-[13px] font-bold py-2.5 rounded-sm"
             style={{ background: 'rgba(56,196,122,.1)', color: C.gr, border: '1px solid rgba(56,196,122,.25)' }}
@@ -318,15 +326,14 @@ export default function PricingPage() {
             perMonth={billing === 'yearly' ? 7.5 : undefined}
             savePercent={billing === 'yearly' ? 37 : undefined}
             desc={t('pricing_scout_desc', lang)}
-            accent={C.pu}
+            accent={'#5a5a7a'}
             highlight={false}
-            badge={t('pricing_scout_badge', lang)}
-            badgeColor={C.pu}
-            cta={t('pricing_scout_cta', lang)}
-            ctaHref={`/api/stripe/checkout?plan=scout&billing=${billing}`}
-            ctaVariant="scout"
-            disabled={plan === 'scout'}
-            onCtaClick={() => handleProCta(`/api/stripe/checkout?plan=scout&billing=${billing}`)}
+            badge={'COMING SOON'}
+            badgeColor={'#5a5a7a'}
+            cta={'COMING SOON'}
+            ctaHref={'#'}
+            ctaVariant="ghost"
+            comingSoon={true}
             contextLine={t('pricing_scout_context', lang)}
             features={[
               t('pricing_scout_f1', lang),
