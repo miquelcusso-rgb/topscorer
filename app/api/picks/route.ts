@@ -1,6 +1,7 @@
-import { auth } from '@clerk/nextjs/server'
+import { auth, clerkClient } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
+import { isPro } from '@/lib/plans'
 
 // GET /api/picks  → list user's recent picks (pending + recently resolved)
 export async function GET() {
@@ -35,11 +36,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'pick_after_kickoff_forbidden' }, { status: 410 })
   }
 
+  // Snapshot the user's plan-based multiplier at pick time (×2 for Pro/Scout)
+  let multiplier = 1
+  try {
+    const clerk = await clerkClient()
+    const user = await clerk.users.getUser(userId)
+    if (isPro(user.publicMetadata)) multiplier = 2
+  } catch { /* default to 1 */ }
+
   const sb = createServerClient()
   const { error } = await sb.from('picks').upsert(
-    { clerk_id: userId, fixture_id, league_id, pick, kickoff, status: 'pending', points: 0 },
+    { clerk_id: userId, fixture_id, league_id, pick, kickoff, status: 'pending', points: 0, multiplier },
     { onConflict: 'clerk_id,fixture_id' },
   )
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, multiplier })
 }

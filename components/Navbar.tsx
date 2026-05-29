@@ -87,6 +87,8 @@ export default function Navbar() {
     { href: lp('/predicciones'),   label: lang === 'es' ? 'Predicciones' : 'Picks' },
     { href: lp('/clasificacion'),  label: lang === 'es' ? 'Ranking' : 'Ranking' },
     { href: lp('/mundial-2026'),   label: t('nav_world_cup', lang) },
+    // Signed-in: account dashboard
+    ...(isSignedIn ? [{ href: lp('/cuenta'), label: lang === 'es' ? 'Mi cuenta' : 'My account' }] : []),
     // Scout-only: API key management
     ...(isScoutUser ? [{ href: lp('/cuenta/api'), label: 'API' }] : []),
   ]

@@ -97,3 +97,98 @@ export async function sendWelcomeEmail({
 </html>`,
   })
 }
+
+// ─── Weekly digest ──────────────────────────────────────────────────────────
+
+export interface WeeklyDigestData {
+  to: string
+  name: string
+  lang: 'es' | 'en'
+  watchlistRows: { player_name: string; club?: string; goals?: number; assists?: number; rating?: number }[]
+  topRumor?: { headline: string; from_club?: string; to_club?: string; likelihood: number; url: string }
+  featuredPoll?: { question: string; url: string; total_votes: number }
+}
+
+export async function sendWeeklyDigest(d: WeeklyDigestData) {
+  const es = d.lang === 'es'
+  const subject = es
+    ? `⚽ Tu resumen TopScorers de la semana`
+    : `⚽ Your TopScorers weekly recap`
+
+  const watchlistHtml = d.watchlistRows.length === 0
+    ? `<p style="color:#5a5c80;font-size:13px;">${es ? 'No tienes jugadores en tu watchlist.' : 'No players on your watchlist yet.'} <a href="https://www.top-scorers.com/${d.lang}/jugadores" style="color:#f0c040">${es ? 'Añade desde aquí' : 'Add from here'}</a>.</p>`
+    : d.watchlistRows.slice(0, 5).map(r => `
+        <tr>
+          <td style="padding:8px 10px;color:#e8e8f8;font-size:13px;">${r.player_name}${r.club ? ` <span style="color:#5a5c80">· ${r.club}</span>` : ''}</td>
+          <td style="padding:8px 10px;color:#f0c040;font-size:13px;text-align:right;">${r.goals ?? 0} G · ${r.assists ?? 0} A</td>
+        </tr>`).join('')
+
+  const rumorHtml = d.topRumor ? `
+    <table cellpadding="0" cellspacing="0" style="width:100%;background:#10111e;border:1px solid #1a1c2e;border-radius:8px;margin:18px 0;">
+      <tr><td style="padding:14px 16px;">
+        <div style="font-size:10px;letter-spacing:2px;color:#00c8b0;text-transform:uppercase;font-weight:700;margin-bottom:6px;">
+          ${es ? 'Rumor caliente' : 'Hot rumour'}
+        </div>
+        <a href="${d.topRumor.url}" style="color:#e8e8f8;font-size:15px;font-weight:700;text-decoration:none;">
+          ${d.topRumor.headline}
+        </a>
+        <div style="color:#5a5c80;font-size:12px;margin-top:4px;">
+          ${d.topRumor.from_club ?? '?'} → ${d.topRumor.to_club ?? '?'} · ${d.topRumor.likelihood}% ${es ? 'probabilidad' : 'likelihood'}
+        </div>
+      </td></tr>
+    </table>` : ''
+
+  const pollHtml = d.featuredPoll ? `
+    <table cellpadding="0" cellspacing="0" style="width:100%;background:#10111e;border:1px solid #f0c04055;border-radius:8px;margin:18px 0;">
+      <tr><td style="padding:14px 16px;">
+        <div style="font-size:10px;letter-spacing:2px;color:#f0c040;text-transform:uppercase;font-weight:700;margin-bottom:6px;">
+          ${es ? 'Vota esta semana' : 'Vote this week'}
+        </div>
+        <a href="${d.featuredPoll.url}" style="color:#e8e8f8;font-size:15px;font-weight:700;text-decoration:none;">
+          ${d.featuredPoll.question}
+        </a>
+        <div style="color:#5a5c80;font-size:12px;margin-top:4px;">
+          ${d.featuredPoll.total_votes} ${es ? 'votos hasta ahora' : 'votes so far'}
+        </div>
+      </td></tr>
+    </table>` : ''
+
+  await getResend().emails.send({
+    from: 'TopScorers <noreply@top-scorers.com>',
+    to: d.to,
+    subject,
+    html: `<!DOCTYPE html><html lang="${d.lang}"><body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,Segoe UI,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:28px 20px;background:#060d18;color:#e8e8f8;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;letter-spacing:3px;color:#f0c040;text-transform:uppercase;">TOPSCORERS</div>
+    </div>
+    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:#e8e8f8;margin:0 0 6px;">
+      ${es ? `Hola ${d.name},` : `Hi ${d.name},`}
+    </h1>
+    <p style="color:#9aa6c8;font-size:14px;line-height:1.55;margin:0 0 22px;">
+      ${es ? 'Lo más importante de la semana en tu fútbol europeo:' : 'This week in your European football:'}
+    </p>
+
+    <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#f0c040;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 10px;">
+      ⭐ ${es ? 'Tu watchlist' : 'Your watchlist'}
+    </h2>
+    <table cellpadding="0" cellspacing="0" style="width:100%;background:#0d0e1c;border:1px solid #1a1c2e;border-radius:8px;">
+      ${watchlistHtml}
+    </table>
+
+    ${rumorHtml}
+    ${pollHtml}
+
+    <div style="text-align:center;margin:28px 0 14px;">
+      <a href="https://www.top-scorers.com/${d.lang}/cuenta" style="background:#f0c040;color:#05060c;padding:10px 22px;border-radius:5px;text-decoration:none;font-weight:700;letter-spacing:0.5px;font-family:'Barlow Condensed',sans-serif;">
+        ${es ? 'Ver mi cuenta' : 'Open my account'}
+      </a>
+    </div>
+    <p style="color:#5a5c80;font-size:11px;text-align:center;line-height:1.6;margin:18px 0 0;">
+      ${es ? '¿No quieres recibir este email?' : 'Don’t want this email?'}
+      <a href="https://www.top-scorers.com/${d.lang}/cuenta" style="color:#5a5c80;">${es ? 'Cambia tus preferencias' : 'Update preferences'}</a>.
+    </p>
+  </div>
+</body></html>`,
+  })
+}

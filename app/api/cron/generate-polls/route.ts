@@ -166,14 +166,18 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: true, closed: closed?.length ?? 0, generated: 0, note: 'pool_exhausted' })
   }
 
+  // Generate with starts_at = now + 48h so Scout sees immediately (-48h early),
+  // Pro 24h later, Free 48h later (= starts_at). ends_at is durationDays AFTER
+  // free-tier go-live.
   const now = new Date()
+  const goLive = new Date(now.getTime() + 48 * 3600_000)
   const rows = picks.map((t, i) => ({
     question_es: t.question_es,
     question_en: t.question_en,
     options: t.options,
     category: t.category,
-    starts_at: now.toISOString(),
-    ends_at: new Date(now.getTime() + t.durationDays * 86400_000).toISOString(),
+    starts_at: goLive.toISOString(),
+    ends_at: new Date(goLive.getTime() + t.durationDays * 86400_000).toISOString(),
     is_featured: i === 0,
     is_active: true,
   }))
