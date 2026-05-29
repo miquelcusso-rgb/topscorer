@@ -46,6 +46,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     twitter: {
       card: 'summary_large_image',
+      site: '@furiosadata',
+      creator: '@furiosadata',
       title,
       description: ogDesc,
       images: [ogImage],
@@ -77,12 +79,14 @@ export const viewport: Viewport = {
 const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'TopScorers',
-  url: 'https://www.top-scorers.com',
+  name: 'Furiosa Studio',
+  url: 'https://furiosadata.com',
   logo: 'https://www.top-scorers.com/logo.png',
   description: 'Estadísticas de fútbol europeo: goleadores, asistentes y ligas en tiempo real.',
   sameAs: [
     'https://www.top-scorers.com',
+    'https://x.com/furiosadata',
+    'https://furiosadata.com',
   ],
 }
 
