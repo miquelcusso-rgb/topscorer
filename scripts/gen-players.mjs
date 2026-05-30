@@ -34,13 +34,42 @@ if (!KEY) {
 const BASE = 'https://v3.football.api-sports.io'
 const SEASON = 2025
 
-// Big leagues only — keep API usage low. 7 leagues × 2 endpoints = 14 calls.
-const LEAGUE_IDS = [140, 39, 78, 135, 61, 94, 203]
+// 30 leagues × 2 endpoints = 60 API calls (well within Pro budget of 7.5k/day).
+// MUST stay in sync with lib/api-football.ts + SMALL_LEAGUE_NAMES sets in
+// app/[lang]/descubrir/DiscubrirClient.tsx and components/PlayerRow.tsx.
+const LEAGUE_IDS = [
+  // Europe 1st div (Big-5 + PT/TR/GR + rest of Europe)
+  140, 39, 78, 135, 61, 94, 203, 197,
+   88, 144, 179, 207, 218, 106, 119, 113, 103,
+  // Europe 2nd divs (Big-5 + PT/TR/GR/NL/SCO)
+   40,  79, 136,  62, 141,  95, 204, 199,  89, 180,
+  // Americas
+  253, 262,  71, 128, 265, 239, 268,
+  // Asia / Oceania
+   98, 292, 169, 188,
+  // Middle East
+  307,
+]
 
-// ─── maps (mirror lib/api-to-players.ts) ──────────────────────────────────────
 const LEAGUE_NAME = {
+  // Europe 1st
   140: 'La Liga', 39: 'Premier League', 78: 'Bundesliga', 135: 'Serie A',
-  61: 'Ligue 1', 94: 'Primeira Liga', 203: 'Sueper Lig', 197: 'Super Liga Grecia',
+   61: 'Ligue 1', 94: 'Primeira Liga', 203: 'Süper Lig', 197: 'Super League',
+   88: 'Eredivisie', 144: 'Belgian Pro League', 179: 'Scottish Premiership',
+  207: 'Swiss Super League', 218: 'Austrian Bundesliga', 106: 'Ekstraklasa',
+  119: 'Superligaen', 113: 'Allsvenskan', 103: 'Eliteserien',
+  // Europe 2nd
+   40: 'Championship', 79: '2. Bundesliga', 136: 'Serie B', 62: 'Ligue 2',
+  141: 'Segunda División', 95: 'Liga Portugal 2', 204: '1. Lig',
+  199: 'Super League 2', 89: 'Eerste Divisie', 180: 'Scottish Championship',
+  // Americas
+  253: 'MLS', 262: 'Liga MX', 71: 'Brasileirão Serie A',
+  128: 'Liga Profesional', 265: 'Primera División (Chile)',
+  239: 'Categoría Primera A', 268: 'Primera División (Uruguay)',
+  // Asia / Oceania
+   98: 'J1 League', 292: 'K League 1', 169: 'Super League (China)', 188: 'A-League',
+  // Middle East
+  307: 'Pro League (Saudi Arabia)',
 }
 const SEASON_MAP = { 2025: '2526', 2024: '2425', 2023: '2324', 2022: '2223', 2021: '2122', 2020: '2021' }
 // API returns "Attacker" / "Midfielder" / "Defender" / "Goalkeeper".
