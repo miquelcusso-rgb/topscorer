@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { isLocale } from '@/lib/i18n'
+import { isLocale, type Lang } from '@/lib/i18n'
 import ResultadosClient from './ResultadosClient'
+import SaasShell from '@/components/saas/SaasShell'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -39,9 +40,16 @@ const breadcrumbJsonLd = {
   ],
 }
 
-export default function ResultadosPage() {
+export default async function ResultadosPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang: rawLang } = await params
+  const lang: Lang = isLocale(rawLang) ? rawLang : 'es'
+  const breadcrumb = lang === 'en' ? ['Results'] : ['Resultados']
   return (
-    <>
+    <SaasShell activeKey="results" breadcrumb={breadcrumb}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
@@ -49,7 +57,7 @@ export default function ResultadosPage() {
       <Suspense fallback={<ResultadosSkeleton />}>
         <ResultadosClient />
       </Suspense>
-    </>
+    </SaasShell>
   )
 }
 

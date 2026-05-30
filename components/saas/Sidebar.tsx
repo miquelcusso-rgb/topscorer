@@ -174,9 +174,9 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
     >
       <div
         style={{
-          padding: '4px 8px 22px',
+          padding: '4px 8px 16px',
           borderBottom: '1px solid var(--ts-border-hot)',
-          marginBottom: 6,
+          marginBottom: 16,
         }}
       >
         <Link href={`/${lang}/v2`} style={{ textDecoration: 'none' }}>
@@ -192,6 +192,7 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
           alignItems: 'center',
           gap: 10,
           padding: '10px',
+          marginTop: 2,
           background: 'var(--ts-card)',
           border: '1px solid var(--ts-border)',
           borderRadius: 8,
@@ -222,7 +223,7 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
           <span style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ts-text)' }}>
             Top-Scorers
           </span>
-          <span style={{ display: 'block', fontSize: 11, color: 'var(--ts-muted)' }}>
+          <span style={{ display: 'block', fontSize: 12, color: 'var(--ts-muted)' }}>
             {labels.planPro}
           </span>
         </span>

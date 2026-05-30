@@ -41,7 +41,7 @@ export default function ValuationCard({
           {title}
         </h3>
       </div>
-      <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginBottom: 12 }}>{source}</div>
+      <div style={{ fontSize: 12, color: 'var(--ts-muted)', marginBottom: 12 }}>{source}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
         <span
           style={{
@@ -55,7 +55,7 @@ export default function ValuationCard({
         >
           {big}
         </span>
-        <span style={{ fontSize: 11, color: 'var(--ts-teal)', fontWeight: 600 }}>{delta}</span>
+        <span style={{ fontSize: 12, color: 'var(--ts-teal)', fontWeight: 600 }}>{delta}</span>
       </div>
       <div
         style={{
@@ -71,7 +71,7 @@ export default function ValuationCard({
         {history.map(h => (
           <div
             key={h.date}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}
           >
             <span
               style={{

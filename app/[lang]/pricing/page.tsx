@@ -6,6 +6,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { getUserPlan } from '@/lib/plans'
 import { useLang } from '@/contexts/LangContext'
 import { t, type Lang, type TKey } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 
 type Billing = 'monthly' | 'yearly'
 
@@ -223,18 +224,19 @@ export default function PricingPage() {
     }
   }
 
+  const breadcrumb = lang === 'en' ? ['Pricing'] : ['Precios']
   return (
-    <div style={{ minHeight: '100vh', background: '#07070f' }}>
-      <main className="max-w-[1100px] mx-auto px-4 py-14">
+    <SaasShell activeKey="stats" breadcrumb={breadcrumb} plan={plan}>
+      <main className="max-w-[1100px] mx-auto px-2 py-4">
 
-        {/* Hero */}
-        <div className="text-center mb-12">
-          <div className="text-[10px] font-bold tracking-[3.5px] uppercase mb-3" style={{ color: C.gd }}>
+        {/* Hero (slimmer — SaasShell provides chrome) */}
+        <div className="text-center mb-8">
+          <div className="text-[10px] font-bold tracking-[3.5px] uppercase mb-2" style={{ color: C.gd }}>
             {t('pricing_eyebrow', lang)}
           </div>
           <h1
-            className="leading-none mb-4"
-            style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(40px, 7vw, 80px)', letterSpacing: 2 }}
+            className="leading-none mb-3"
+            style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(32px, 5vw, 56px)', letterSpacing: 2 }}
           >
             {t('pricing_h1_pre', lang)} <span style={{ color: C.gd }}>{t('pricing_h1_accent', lang)}</span>
           </h1>
@@ -439,6 +441,6 @@ export default function PricingPage() {
         </div>
 
       </main>
-    </div>
+    </SaasShell>
   )
 }

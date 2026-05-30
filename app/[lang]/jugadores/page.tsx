@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import { PLAYERS } from '@/data/players'
 import { enrich } from '@/lib/utils'
-import { isLocale } from '@/lib/i18n'
+import { isLocale, type Lang } from '@/lib/i18n'
 import JugadorCard from './JugadorCard'
+import SaasShell from '@/components/saas/SaasShell'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -31,15 +32,23 @@ const breadcrumbJsonLd = {
   ],
 }
 
-export default function JugadoresPage() {
+export default async function JugadoresPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang: rawLang } = await params
+  const lang: Lang = isLocale(rawLang) ? rawLang : 'es'
   const unique = PLAYERS.filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i)
     .filter(p => p.season === '2526')
     .map(enrich)
     .sort((a, b) => b.val_con - a.val_con)
     .slice(0, 100)
 
+  const breadcrumb = lang === 'en' ? ['Players'] : ['Jugadores']
+
   return (
-    <div className="max-w-[1100px] mx-auto px-5 py-8">
+    <SaasShell activeKey="players" breadcrumb={breadcrumb}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
@@ -47,21 +56,21 @@ export default function JugadoresPage() {
       <h1
         style={{
           fontFamily: "'Barlow Condensed', sans-serif",
-          fontSize: 36,
+          fontSize: 32,
           fontWeight: 800,
-          color: '#eef4ff',
+          color: 'var(--ts-text)',
           textTransform: 'uppercase',
           letterSpacing: 1,
-          marginBottom: 24,
+          margin: 0,
         }}
       >
-        Jugadores
+        {lang === 'en' ? 'Players' : 'Jugadores'}
       </h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {unique.map(p => (
           <JugadorCard key={p.name} player={p} />
         ))}
       </div>
-    </div>
+    </SaasShell>
   )
 }
