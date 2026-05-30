@@ -16,6 +16,14 @@
     {
       "path": "/api/cron/weekly-digest",
       "schedule": "0 9 * * 0"
+    },
+    {
+      "path": "/api/cron/performance-alerts",
+      "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/cron/fantasy-recompute",
+      "schedule": "0 5 * * *"
     }
   ]
 }

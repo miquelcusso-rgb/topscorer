@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>TopScorers · SAAS — referencia de diseño</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #f8f7f3; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  #root { width: 100%; height: 100%; }
+  ::selection { background: rgba(240,192,64,.3); }
+
+  .preview-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 32px;
+  }
+  .preview-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .preview-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,.6);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .preview-header strong { color: #000; font-size: 13px; letter-spacing: -0.005em; text-transform: none; font-weight: 600; }
+  .preview-frame {
+    width: 1440px;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script src="./data.js"></script>
+  <script type="text/babel" src="./shared.jsx"></script>
+  <script type="text/babel" src="./prop-a-saas.jsx"></script>
+
+  <script type="text/babel">
+    function PreviewCard({ title, w, h, children }) {
+      return (
+        <div className="preview-card">
+          <div className="preview-header">
+            <strong>{title}</strong>
+            <span>{w} × {h}</span>
+          </div>
+          <div style={{ width: w, height: h, overflow: 'hidden' }}>
+            {children}
+          </div>
+        </div>
+      );
+    }
+
+    function Preview() {
+      return (
+        <div className="preview-grid">
+          <PreviewCard title="Landing · Modo claro" w={1440} h={1320}>
+            <SHome initialDark={false} initialLang="ES" />
+          </PreviewCard>
+          <PreviewCard title="Perfil de jugador · Modo claro" w={1440} h={1200}>
+            <SPlayer initialDark={false} initialLang="ES" />
+          </PreviewCard>
+          <PreviewCard title="Landing · Modo oscuro" w={1440} h={1320}>
+            <SHome initialDark={true} initialLang="ES" />
+          </PreviewCard>
+          <PreviewCard title="Perfil de jugador · Modo oscuro" w={1440} h={1200}>
+            <SPlayer initialDark={true} initialLang="ES" />
+          </PreviewCard>
+          <PreviewCard title="Landing · EN · Light" w={1440} h={1320}>
+            <SHome initialDark={false} initialLang="EN" />
+          </PreviewCard>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<Preview />);
+  </script>
+</body>
+</html>

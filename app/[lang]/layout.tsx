@@ -123,8 +123,11 @@ export default async function RootLayout({
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          {/* Perf: dropped Bebas Neue (unused per design handoff) and
+              narrowed DM Sans + Barlow weights to those actually rendered.
+              Net: ~70 KB less font payload + 1 less request. */}
           <link
-            href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@500;700&display=swap"
             rel="stylesheet"
           />
           <script

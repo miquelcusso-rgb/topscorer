@@ -107,6 +107,60 @@ export interface WeeklyDigestData {
   watchlistRows: { player_name: string; club?: string; goals?: number; assists?: number; rating?: number }[]
   topRumor?: { headline: string; from_club?: string; to_club?: string; likelihood: number; url: string }
   featuredPoll?: { question: string; url: string; total_votes: number }
+  topPerformer?: { player_name: string; club: string; goals: number; assists: number; rating?: number; url: string }
+}
+
+export interface PerformanceAlertEmail {
+  to: string
+  playerName: string
+  playerSlug: string
+  alertType: 'goal' | 'brace' | 'hat_trick' | 'assist' | 'rating_85'
+  matchInfo: string  // e.g. "Manchester City 3–1 Arsenal · J36"
+  goals?: number
+  assists?: number
+  rating?: number
+  lang?: 'es' | 'en'
+}
+
+export async function sendPerformanceAlert(d: PerformanceAlertEmail) {
+  const es = (d.lang ?? 'es') === 'es'
+  const TYPE_LABEL: Record<PerformanceAlertEmail['alertType'], { es: string; en: string }> = {
+    goal:       { es: 'ha marcado',          en: 'scored a goal' },
+    brace:      { es: 'ha marcado un doblete', en: 'scored a brace' },
+    hat_trick:  { es: '🎩 ¡Hat-trick!',      en: '🎩 Hat-trick!' },
+    assist:     { es: 'ha dado una asistencia', en: 'recorded an assist' },
+    rating_85:  { es: 'ha sacado nota ≥8.5', en: 'rated ≥8.5' },
+  }
+  const label = TYPE_LABEL[d.alertType][es ? 'es' : 'en']
+  const subject = es
+    ? `⚡ ${d.playerName} ${label}`
+    : `⚡ ${d.playerName} ${label}`
+  const playerUrl = `https://www.top-scorers.com/${es ? 'es' : 'en'}/jugadores/${d.playerSlug}`
+
+  await getResend().emails.send({
+    from: 'TopScorers Alerts <noreply@top-scorers.com>',
+    to: d.to,
+    subject,
+    html: `<!DOCTYPE html><html lang="${es ? 'es' : 'en'}"><body style="margin:0;padding:0;background:#060d18;font-family:-apple-system,Segoe UI,sans-serif;color:#e8e8f8;">
+  <div style="max-width:520px;margin:0 auto;padding:28px 22px;">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;color:#f0c040;text-transform:uppercase;">SCOUT · ALERT</div>
+    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:#f0c040;margin:8px 0 4px;letter-spacing:-0.01em;">${d.playerName}</h1>
+    <p style="font-size:18px;color:#e8e8f8;margin:0 0 6px;">${label}</p>
+    <p style="font-size:13px;color:#9aa6c8;margin:0 0 18px;">${d.matchInfo}</p>
+    ${[d.goals != null ? `${es ? 'Goles' : 'Goals'}: <strong style="color:#f0c040;">${d.goals}</strong>` : '',
+       d.assists != null ? `${es ? 'Asistencias' : 'Assists'}: <strong style="color:#3ed6c2;">${d.assists}</strong>` : '',
+       d.rating != null ? `${es ? 'Nota' : 'Rating'}: <strong>${d.rating}</strong>` : '']
+      .filter(Boolean)
+      .join(' &nbsp;·&nbsp; ')}
+    <div style="margin:24px 0;">
+      <a href="${playerUrl}" style="background:#f0c040;color:#060d18;padding:10px 22px;font-weight:700;border-radius:6px;text-decoration:none;font-size:14px;">${es ? 'Ver perfil del jugador' : 'View player profile'} →</a>
+    </div>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:24px 0;" />
+    <p style="font-size:11px;color:#5a5c80;">${es ? 'Recibes esto porque tienes una alerta Scout activa para este jugador. Gestiona alertas en' : 'You receive this because you have an active Scout alert for this player. Manage alerts at'} <a href="https://www.top-scorers.com/${es ? 'es' : 'en'}/cuenta/alerts" style="color:#9aa6c8;">/cuenta/alerts</a>.</p>
+    <p style="font-size:11px;color:#475569;margin-top:8px;">by Furiosa Studio</p>
+  </div>
+</body></html>`,
+  })
 }
 
 export async function sendWeeklyDigest(d: WeeklyDigestData) {
@@ -134,6 +188,25 @@ export async function sendWeeklyDigest(d: WeeklyDigestData) {
         </a>
         <div style="color:#5a5c80;font-size:12px;margin-top:4px;">
           ${d.topRumor.from_club ?? '?'} → ${d.topRumor.to_club ?? '?'} · ${d.topRumor.likelihood}% ${es ? 'probabilidad' : 'likelihood'}
+        </div>
+      </td></tr>
+    </table>` : ''
+
+  const topPerformerHtml = d.topPerformer ? `
+    <table cellpadding="0" cellspacing="0" style="width:100%;background:linear-gradient(135deg,#1a1408 0%,#10111e 100%);border:1px solid #f0c04033;border-radius:8px;margin:18px 0;">
+      <tr><td style="padding:16px 18px;">
+        <div style="font-size:10px;letter-spacing:2px;color:#f0c040;text-transform:uppercase;font-weight:700;margin-bottom:8px;">
+          🏆 ${es ? 'Jugador de la semana' : 'Top performer of the week'}
+        </div>
+        <a href="${d.topPerformer.url}" style="color:#e8e8f8;font-size:20px;font-weight:700;text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px;">
+          ${d.topPerformer.player_name}
+        </a>
+        <div style="color:#9aa6c8;font-size:12px;margin-top:2px;">${d.topPerformer.club}</div>
+        <div style="margin-top:10px;font-size:14px;">
+          <span style="color:#f0c040;font-weight:700;">${d.topPerformer.goals}</span> <span style="color:#5a5c80;font-size:11px;letter-spacing:1px;text-transform:uppercase;">${es ? 'goles' : 'goals'}</span>
+          &nbsp;·&nbsp;
+          <span style="color:#3ed6c2;font-weight:700;">${d.topPerformer.assists}</span> <span style="color:#5a5c80;font-size:11px;letter-spacing:1px;text-transform:uppercase;">${es ? 'asist.' : 'assists'}</span>
+          ${d.topPerformer.rating != null ? `&nbsp;·&nbsp;<span style="color:#e8e8f8;font-weight:700;">${d.topPerformer.rating}</span> <span style="color:#5a5c80;font-size:11px;letter-spacing:1px;text-transform:uppercase;">${es ? 'nota' : 'rating'}</span>` : ''}
         </div>
       </td></tr>
     </table>` : ''
@@ -176,6 +249,7 @@ export async function sendWeeklyDigest(d: WeeklyDigestData) {
       ${watchlistHtml}
     </table>
 
+    ${topPerformerHtml}
     ${rumorHtml}
     ${pollHtml}
 

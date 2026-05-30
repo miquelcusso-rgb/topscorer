@@ -850,7 +850,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Germany",
     "flag": "🇩🇪",
     "position": "MF",
-    "minutes": 2898
+    "minutes": 2898,
+    "photo": "https://media.api-sports.io/football/players/353142.png"
   },
   {
     "name": "Maximilian Wittek",
@@ -992,7 +993,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "tab": "s",
     "nationality": null,
     "position": "FW",
-    "minutes": 2034
+    "minutes": 2034,
+    "photo": "https://media.api-sports.io/football/players/579107.png"
   },
   {
     "name": "Max Caputo",
@@ -1039,7 +1041,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "tab": "s",
     "nationality": null,
     "position": "MF",
-    "minutes": 964
+    "minutes": 964,
+    "photo": "https://media.api-sports.io/football/players/552729.png"
   },
   {
     "name": "Nikolaos Vergos",
@@ -1134,7 +1137,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "tab": "s",
     "nationality": null,
     "position": "FW",
-    "minutes": 1092
+    "minutes": 1092,
+    "photo": "https://media.api-sports.io/football/players/77139.png"
   },
   {
     "name": "Juan Manuel Mata García",
@@ -1197,7 +1201,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "tab": "s",
     "nationality": null,
     "position": "FW",
-    "minutes": 1564
+    "minutes": 1564,
+    "photo": "https://media.api-sports.io/football/players/554580.png"
   },
   {
     "name": "Ibrahim Yalatif Diabate",
@@ -1836,7 +1841,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Bosnia and Herzegovina",
     "flag": "🇧🇦",
     "position": "FW",
-    "minutes": 1913
+    "minutes": 1913,
+    "photo": "https://media.api-sports.io/football/players/395559.png"
   },
   {
     "name": "Nikolai Baden Frederiksen",
@@ -2203,7 +2209,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Serbia",
     "flag": "🇷🇸",
     "position": "MF",
-    "minutes": 1852
+    "minutes": 1852,
+    "photo": "https://media.api-sports.io/football/players/388753.png"
   },
   {
     "name": "Frans Krätzig",
@@ -3846,7 +3853,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Colombia",
     "flag": "🇨🇴",
     "position": "FW",
-    "minutes": 2552
+    "minutes": 2552,
+    "photo": "https://media.api-sports.io/football/players/428991.png"
   },
   {
     "name": "Andrés Steven Rodríguez Ossa",
@@ -4884,7 +4892,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Netherlands",
     "flag": "🇳🇱",
     "position": "MF",
-    "minutes": 2757
+    "minutes": 2757,
+    "photo": "https://media.api-sports.io/football/players/335335.png"
   },
   {
     "name": "Kévin Monzialo Bokolo",
@@ -4978,7 +4987,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "tab": "s",
     "nationality": null,
     "position": "FW",
-    "minutes": 1177
+    "minutes": 1177,
+    "photo": "https://media.api-sports.io/football/players/546701.png"
   },
   {
     "name": "Ferdy Druijf",
@@ -5010,7 +5020,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Netherlands",
     "flag": "🇳🇱",
     "position": "FW",
-    "minutes": 1410
+    "minutes": 1410,
+    "photo": "https://media.api-sports.io/football/players/507860.png"
   },
   {
     "name": "Ichem Ferrah",
@@ -5234,7 +5245,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Netherlands",
     "flag": "🇳🇱",
     "position": "MF",
-    "minutes": 2830
+    "minutes": 2830,
+    "photo": "https://media.api-sports.io/football/players/480306.png"
   },
   {
     "name": "Ilano Silva Timas",
@@ -5330,7 +5342,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Netherlands",
     "flag": "🇳🇱",
     "position": "DF",
-    "minutes": 2182
+    "minutes": 2182,
+    "photo": "https://media.api-sports.io/football/players/138817.png"
   },
   {
     "name": "Oualid Agougil",
@@ -5426,7 +5439,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "France",
     "flag": "🇫🇷",
     "position": "FW",
-    "minutes": 2360
+    "minutes": 2360,
+    "photo": "https://media.api-sports.io/football/players/48563.png"
   },
   {
     "name": "Sebastian Bergier",
@@ -7296,7 +7310,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Brazil",
     "flag": "🇧🇷",
     "position": "MF",
-    "minutes": 2469
+    "minutes": 2469,
+    "photo": "https://media.api-sports.io/football/players/32996.png"
   },
   {
     "name": "Kein López Sato",
@@ -9113,7 +9128,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "tab": "s",
     "nationality": null,
     "position": "FW",
-    "minutes": 396
+    "minutes": 396,
+    "photo": "https://media.api-sports.io/football/players/550936.png"
   },
   {
     "name": "Leonardo Vonić",
@@ -9241,7 +9257,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Portugal",
     "flag": "🇵🇹",
     "position": "MF",
-    "minutes": 589
+    "minutes": 589,
+    "photo": "https://media.api-sports.io/football/players/400513.png"
   },
   {
     "name": "Mohamed Bouzaidi Diouri",
@@ -9321,7 +9338,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Portugal",
     "flag": "🇵🇹",
     "position": "FW",
-    "minutes": 504
+    "minutes": 504,
+    "photo": "https://media.api-sports.io/football/players/400550.png"
   },
   {
     "name": "Miguel Ângelo Marques Pinto Pereira",
@@ -9481,7 +9499,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Portugal",
     "flag": "🇵🇹",
     "position": "MF",
-    "minutes": 741
+    "minutes": 741,
+    "photo": "https://media.api-sports.io/football/players/427378.png"
   },
   {
     "name": "Francisco Augusto Neto Ramos",
@@ -11828,7 +11847,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Denmark",
     "flag": "🇩🇰",
     "position": "MF",
-    "minutes": 2875
+    "minutes": 2875,
+    "photo": "https://media.api-sports.io/football/players/388872.png"
   },
   {
     "name": "Abraham Ayomide Marcus",
@@ -13305,7 +13325,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "England",
     "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     "position": "MF",
-    "minutes": 2869
+    "minutes": 2869,
+    "photo": "https://media.api-sports.io/football/players/278116.png"
   },
   {
     "name": "Erik Benjamin Nygren",
@@ -13480,7 +13501,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "tab": "s",
     "nationality": null,
     "position": "FW",
-    "minutes": 1418
+    "minutes": 1418,
+    "photo": "https://media.api-sports.io/football/players/504749.png"
   },
   {
     "name": "Hyun-Jun Yang",
@@ -13669,7 +13691,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "England",
     "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     "position": "DF",
-    "minutes": 2562
+    "minutes": 2562,
+    "photo": "https://media.api-sports.io/football/players/284367.png"
   },
   {
     "name": "Greg Kiltie",
@@ -13828,7 +13851,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "England",
     "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     "position": "MF",
-    "minutes": 2141
+    "minutes": 2141,
+    "photo": "https://media.api-sports.io/football/players/388510.png"
   },
   {
     "name": "Declan Christopher John",
@@ -13940,7 +13964,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Belgium",
     "flag": "🇧🇪",
     "position": "MF",
-    "minutes": 2859
+    "minutes": 2859,
+    "photo": "https://media.api-sports.io/football/players/183931.png"
   },
   {
     "name": "Carlos Fernández Luna",
@@ -14100,7 +14125,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Guinea",
     "flag": "🇬🇳",
     "position": "FW",
-    "minutes": 2184
+    "minutes": 2184,
+    "photo": "https://media.api-sports.io/football/players/191151.png"
   },
   {
     "name": "David González Ballesteros",
@@ -14148,7 +14174,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Spain",
     "flag": "🇪🇸",
     "position": "FW",
-    "minutes": 1234
+    "minutes": 1234,
+    "photo": "https://media.api-sports.io/football/players/386850.png"
   },
   {
     "name": "Yeremay Hernández Cubas",
@@ -14963,7 +14990,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Italy",
     "flag": "🇮🇹",
     "position": "FW",
-    "minutes": 2930
+    "minutes": 2930,
+    "photo": "https://media.api-sports.io/football/players/56486.png"
   },
   {
     "name": "Gabriele Artistico",
@@ -17447,7 +17475,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Norway",
     "flag": "🇳🇴",
     "position": "MF",
-    "minutes": 2616
+    "minutes": 2616,
+    "photo": "https://media.api-sports.io/football/players/108490.png"
   },
   {
     "name": "Prince Amoako Junior",
@@ -17670,7 +17699,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Ghana",
     "flag": "🇬🇭",
     "position": "MF",
-    "minutes": 2614
+    "minutes": 2614,
+    "photo": "https://media.api-sports.io/football/players/475575.png"
   },
   {
     "name": "Jakob Vestergaard Jessen",
@@ -17876,7 +17906,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "tab": "s",
     "nationality": null,
     "position": "FW",
-    "minutes": 1225
+    "minutes": 1225,
+    "photo": "https://media.api-sports.io/football/players/554145.png"
   },
   {
     "name": "Florian Ayé",
@@ -18068,7 +18099,8 @@ export const GENERATED_PLAYERS: PlayerData[] = [
     "nationality": "Denmark",
     "flag": "🇩🇰",
     "position": "FW",
-    "minutes": 2747
+    "minutes": 2747,
+    "photo": "https://media.api-sports.io/football/players/354754.png"
   },
   {
     "name": "Gaoussou Diakité",
