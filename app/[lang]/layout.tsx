@@ -10,6 +10,7 @@ import { LOCALES, isLocale, type Lang } from '@/lib/i18n'
 import AddToHomeScreen from '@/components/AddToHomeScreen'
 import ServiceWorkerRegistrar from '@/components/ServiceWorkerRegistrar'
 import AppDownloadBanner from '@/components/AppDownloadBanner'
+import ChromeWrapper from '@/components/ChromeWrapper'
 import { GTMScript, GTMNoScript } from '@/components/GoogleTagManager'
 import '../globals.css'
 
@@ -149,9 +150,9 @@ export default async function RootLayout({
           <GTMNoScript />
           <LangProvider defaultLang={locale}>
             <ThemeProvider>
-              <Navbar />
-              {children}
-              <Footer />
+              <ChromeWrapper navbar={<Navbar />} footer={<Footer />}>
+                {children}
+              </ChromeWrapper>
               <AddToHomeScreen />
             </ThemeProvider>
           </LangProvider>
