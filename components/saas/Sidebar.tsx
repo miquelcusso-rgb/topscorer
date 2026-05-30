@@ -31,24 +31,30 @@ interface NavItem {
 }
 
 function Wordmark() {
+  // Canonical brand: logo-ball.png is the official TopScorers mark (also used
+  // by the legacy Navbar). Keep aspect square 34x34 next to the wordmark.
   return (
     <span
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 7,
+        gap: 9,
         fontFamily: 'Barlow Condensed, sans-serif',
-        fontWeight: 700,
+        fontWeight: 800,
         fontSize: 17,
         letterSpacing: '0.04em',
         color: 'var(--ts-text)',
         textTransform: 'uppercase',
       }}
     >
-      <svg width={16} height={16} viewBox="0 0 20 20" fill="none" aria-hidden>
-        <circle cx={10} cy={10} r={9} stroke="var(--ts-primary)" strokeWidth={1.6} />
-        <path d="M5.5 10.5l2.5 2.5L14.5 7" stroke="var(--ts-primary)" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/logo-ball.png"
+        alt="TopScorers"
+        width={28}
+        height={28}
+        style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }}
+      />
       <span>
         TOP<span style={{ color: 'var(--ts-primary)' }}>·SCORERS</span>
       </span>

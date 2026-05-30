@@ -49,8 +49,10 @@ export default function MobileNav({ open, onClose, activeKey, lang }: Props) {
         aria-hidden={!open}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderBottom: '1px solid var(--ts-border)' }}>
-          <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 800, letterSpacing: '0.16em', fontSize: 14, color: 'var(--ts-text)' }}>
-            TOP·SCORERS
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 800, letterSpacing: '0.12em', fontSize: 14, color: 'var(--ts-text)' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-ball.png" alt="" width={26} height={26} style={{ width: 26, height: 26, objectFit: 'contain' }} />
+            <span>TOP·SCORERS</span>
           </span>
           <button
             type="button"

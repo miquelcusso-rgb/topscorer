@@ -27,8 +27,8 @@ export default function KpiCard({ label, value, subline, tone, trend }: KpiCardP
         padding: 16,
       }}
     >
-      <div style={{ fontSize: 12, color: 'var(--ts-muted)' }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
+      <div style={{ fontSize: 12, color: 'var(--ts-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
         <span
           style={{
             fontFamily: 'Barlow Condensed, sans-serif',
@@ -67,6 +67,10 @@ export default function KpiCard({ label, value, subline, tone, trend }: KpiCardP
           display: 'flex',
           alignItems: 'center',
           gap: 6,
+          minWidth: 0,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
         }}
       >
         <span

@@ -71,15 +71,20 @@ export default function MobileTopbar({ activeKey, lang }: Props) {
         <Link
           href={`/${lang}`}
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
             fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 800,
-            letterSpacing: '0.18em',
-            fontSize: 16,
+            letterSpacing: '0.12em',
+            fontSize: 15,
             color: 'var(--ts-text)',
             textDecoration: 'none',
           }}
         >
-          TOP·SCORERS
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-ball.png" alt="" width={28} height={28} style={{ width: 28, height: 28, objectFit: 'contain' }} />
+          <span>TOP·SCORERS</span>
         </Link>
 
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>

@@ -26,7 +26,8 @@ body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
   padding: 0;
 }
 
-html { -webkit-font-smoothing: antialiased; }
+html { -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body { overflow-x: hidden; }
 
 body {
   background-color: #060d18;
@@ -173,8 +174,14 @@ body::before {
 
 /* Show desktop chrome, hide mobile chrome by default */
 .saas-mobile-topbar,
-.saas-mobile-cards { display: none; }
+.saas-mobile-cards { display: none !important; }
 .saas-desktop-table { display: block; }
+
+/* Prevent horizontal overflow at the shell root */
+.saas-shell { max-width: 100vw; overflow-x: clip; }
+.saas-main-content { min-width: 0; }
+.saas-kpi-grid { min-width: 0; }
+.saas-kpi-grid > * { min-width: 0; }
 
 /* Mobile drawer baseline (hidden offscreen until open) */
 .saas-mobile-nav {
@@ -225,10 +232,14 @@ body::before {
   .saas-shell { flex-direction: column !important; }
 
   /* Main padding shrinks */
-  .saas-main-content { padding: 14px !important; gap: 14px !important; }
+  .saas-main-content { padding: 12px !important; gap: 12px !important; }
 
-  /* KPI 2x2 */
-  .saas-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+  /* KPI 2x2, content allowed to shrink */
+  .saas-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .saas-kpi-grid > * { min-width: 0 !important; padding: 12px !important; }
 
   /* Page header stacks */
   .saas-page-header { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
@@ -245,7 +256,13 @@ body::before {
 
   /* Swap table for card list */
   .saas-desktop-table { display: none !important; }
-  .saas-mobile-cards { display: flex !important; flex-direction: column; gap: 8px; }
+  .saas-mobile-cards {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .saas-mobile-cards > * { min-width: 0 !important; }
 
   /* Filter bar collapses to scrollable chip strip + Filters button visible */
   .saas-filter-bar { padding: 10px !important; }
