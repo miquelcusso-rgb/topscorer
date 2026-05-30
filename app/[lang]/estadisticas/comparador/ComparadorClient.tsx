@@ -227,10 +227,11 @@ export default function ComparadorClient() {
   const presetHoverBorder = isLight ? `${C_DARK.gd}44` : `${C_DARK.gd}44`
   const textPreset = isLight ? '#0f1830' : C_DARK.tx
 
-  // Load from URL params on mount
+  // Load from URL params on mount. Accept ?a=/?b= (canonical) and also
+  // ?p1=/?p2= (deep-link from player profile CTA).
   useEffect(() => {
-    const slugA = searchParams.get('a')
-    const slugB = searchParams.get('b')
+    const slugA = searchParams.get('a') ?? searchParams.get('p1')
+    const slugB = searchParams.get('b') ?? searchParams.get('p2')
     if (slugA) {
       const found = ALL_PLAYERS.find(p => slugify(p.name) === slugA)
       if (found) setPlayerA(found)

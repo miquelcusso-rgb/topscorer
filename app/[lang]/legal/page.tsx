@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { isLocale } from '@/lib/i18n'
+import { isLocale, type Lang } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -40,10 +41,17 @@ const C = {
   mu: '#52526e', gd: '#f0c040',
 }
 
-export default function LegalPage() {
+export default async function LegalPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang: rawLang } = await params
+  const lang: Lang = isLocale(rawLang) ? rawLang : 'es'
+  const breadcrumb = lang === 'en' ? ['Legal'] : ['Legal']
   return (
-    <main style={{ minHeight: '100vh', background: C.bg }}>
-      <div className="max-w-[720px] mx-auto px-5 py-14">
+    <SaasShell activeKey="stats" breadcrumb={breadcrumb}>
+      <div className="max-w-[720px] mx-auto px-2 py-4">
 
         <div className="mb-2 text-[10px] font-bold tracking-[3px] uppercase" style={{ color: C.gd, fontFamily: "'Barlow Condensed', sans-serif" }}>
           Aviso legal
@@ -122,6 +130,6 @@ export default function LegalPage() {
           </Link>
         </div>
       </div>
-    </main>
+    </SaasShell>
   )
 }

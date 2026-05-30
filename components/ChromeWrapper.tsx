@@ -17,6 +17,17 @@ const PATTERNS = [
   /^\/(es|en)\/?$/,
   // v2 namespace
   /^\/(es|en)\/v2(\/.*)?$/,
+  // Audit pass 2: pages wrapped in <SaasShell>
+  /^\/(es|en)\/pricing\/?$/,
+  /^\/(es|en)\/cuenta(\/.*)?$/,
+  /^\/(es|en)\/resultados(\/.*)?$/,
+  /^\/(es|en)\/jugadores(\/.*)?$/,
+  /^\/(es|en)\/transferencias(\/.*)?$/,
+  /^\/(es|en)\/competiciones(\/.*)?$/,
+  /^\/(es|en)\/estadisticas\/comparador(\/.*)?$/,
+  /^\/(es|en)\/about\/?$/,
+  /^\/(es|en)\/legal\/?$/,
+  /^\/(es|en)\/privacidad\/?$/,
 ]
 
 export default function ChromeWrapper({

@@ -10,7 +10,8 @@ import {
   LEAGUES_EURO,
   ALL_LEAGUES,
 } from '@/lib/api-football'
-import { isLocale } from '@/lib/i18n'
+import { isLocale, type Lang } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -62,7 +63,14 @@ const itemListJsonLd = {
   })),
 }
 
-export default function CompeticionesPage() {
+export default async function CompeticionesPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang: rawLang } = await params
+  const lang: Lang = isLocale(rawLang) ? rawLang : 'es'
+  const breadcrumb = lang === 'en' ? ['Competitions'] : ['Competiciones']
   const sections = [
     { title: 'Grandes Ligas Europeas',  leagues: LEAGUES },
     { title: 'Otras Ligas Europeas',    leagues: LEAGUES_EUROPE_OTHER },
@@ -73,7 +81,7 @@ export default function CompeticionesPage() {
     { title: 'Competiciones Europeas',  leagues: LEAGUES_EURO },
   ]
   return (
-    <>
+    <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }}
@@ -82,9 +90,8 @@ export default function CompeticionesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
-    <div className="max-w-[1100px] mx-auto px-5 py-8">
-      <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 40, fontWeight: 800, color: 'var(--ts-text)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 32 }}>
-        Competiciones
+      <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 32, fontWeight: 800, color: 'var(--ts-text)', textTransform: 'uppercase', letterSpacing: 1, margin: 0 }}>
+        {lang === 'en' ? 'Competitions' : 'Competiciones'}
       </h1>
       {sections.map(section => (
         <div key={section.title} className="mb-10">
@@ -117,7 +124,6 @@ export default function CompeticionesPage() {
           </div>
         </div>
       ))}
-    </div>
-    </>
+    </SaasShell>
   )
 }

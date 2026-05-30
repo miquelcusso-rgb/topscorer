@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
-import { isLocale } from '@/lib/i18n'
+import { currentUser } from '@clerk/nextjs/server'
+import { isLocale, type Lang } from '@/lib/i18n'
+import { getUserPlan } from '@/lib/plans'
 import CuentaClient from './CuentaClient'
+import SaasShell from '@/components/saas/SaasShell'
 
 const BASE = 'https://www.top-scorers.com'
 
@@ -17,6 +20,19 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   }
 }
 
-export default function CuentaPage() {
-  return <CuentaClient />
+export default async function CuentaPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang: rawLang } = await params
+  const lang: Lang = isLocale(rawLang) ? rawLang : 'es'
+  const user = await currentUser()
+  const plan = getUserPlan(user?.publicMetadata as Record<string, unknown> | undefined)
+  const breadcrumb = lang === 'en' ? ['Account'] : ['Cuenta']
+  return (
+    <SaasShell activeKey="stats" breadcrumb={breadcrumb} plan={plan}>
+      <CuentaClient />
+    </SaasShell>
+  )
 }
