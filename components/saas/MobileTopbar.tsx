@@ -88,7 +88,7 @@ export default function MobileTopbar({ activeKey, lang, primaryCta }: Props) {
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-ball.png" alt="" width={40} height={40} style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <img src="/logo-ball-alpha.png" alt="" width={40} height={40} style={{ width: 40, height: 40, objectFit: 'contain' }} />
           <span>TOP·SCORERS</span>
         </Link>
 
