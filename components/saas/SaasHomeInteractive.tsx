@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import KpiCard from './KpiCard'
@@ -9,25 +9,27 @@ import PlayerCardList from './PlayerCardList'
 
 type LeagueFilterValue = 'big5' | 'big5pt' | 'all'
 
-interface Props {
-  lang: Lang
-  pools: Record<LeagueFilterValue, PlayerData[]>
+// A pre-shaped, MINIMAL view per league filter. We deliberately do NOT pass
+// the full pools (hundreds of rows) from the server to this client component —
+// that large RSC serialization was the cause of the Vercel 500 on /es. We only
+// need the top 12 scorers + the top assist + a count per filter.
+export interface PoolView {
+  topScorers: PlayerData[] // already sorted desc, sliced to 12
+  topAssist: PlayerData | null
+  count: number
 }
 
-// Client component owning the league filter state. Pools are precomputed
-// server-side so we never ship the full 18k-row dataset to the browser.
+interface Props {
+  lang: Lang
+  pools: Record<LeagueFilterValue, PoolView>
+}
+
 export default function SaasHomeInteractive({ lang, pools }: Props) {
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilterValue>('big5')
-  const filteredPool = pools[leagueFilter]
-
-  const players = useMemo(
-    () => [...filteredPool].sort((a, b) => b.goles - a.goles).slice(0, 12),
-    [filteredPool]
-  )
-  const topAssist = useMemo(
-    () => [...filteredPool].sort((a, b) => b.asist - a.asist)[0],
-    [filteredPool]
-  )
+  const view = pools[leagueFilter]
+  const players = view.topScorers
+  const topAssist = view.topAssist
+  const leader = players[0]
 
   const labels =
     lang === 'en'
@@ -64,8 +66,6 @@ export default function SaasHomeInteractive({ lang, pools }: Props) {
     all: lang === 'en' ? 'All leagues' : 'Todas las ligas',
   }
 
-  const leader = players[0]
-
   function cycleLeague() {
     const order: LeagueFilterValue[] = ['big5', 'big5pt', 'all']
     const i = order.indexOf(leagueFilter)
@@ -91,7 +91,7 @@ export default function SaasHomeInteractive({ lang, pools }: Props) {
         />
         <KpiCard
           label={labels.kActive}
-          value={filteredPool.length}
+          value={view.count}
           subline={labels.inScope}
           tone="primary"
           trend={{ delta: '↑ +12', tone: 'teal' }}
@@ -114,7 +114,7 @@ export default function SaasHomeInteractive({ lang, pools }: Props) {
           { key: 'minpj',    label: labels.fMin,      value: '5' },
         ]}
         onFilterClick={key => { if (key === 'league') cycleLeague() }}
-        count={{ current: players.length, total: filteredPool.length }}
+        count={{ current: players.length, total: view.count }}
       />
 
       <div className="saas-desktop-table">

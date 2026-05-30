@@ -2,7 +2,7 @@ import { PLAYERS } from '@/data/players'
 import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import SaasShell from './SaasShell'
-import SaasHomeInteractive from './SaasHomeInteractive'
+import SaasHomeInteractive, { type PoolView } from './SaasHomeInteractive'
 import V2PositionTabs from '@/app/[lang]/v2/position-tabs'
 
 // Big-5 leagues — used by the "Top 5 Europa" filter preset. Matches the
@@ -10,24 +10,28 @@ import V2PositionTabs from '@/app/[lang]/v2/position-tabs'
 const BIG5 = ['La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1'] as const
 const BIG5_PLUS_PT = [...BIG5, 'Primeira Liga'] as const
 
-// Server component that does the heavy data prep (no 18k-row client bundle),
-// then hands the prepared slices to a client component for filter UX.
-//
-// Hardened (2026-05-30) — Vercel preview was hitting 500 on /es with the
-// previous shape. Adding explicit defensive guards + cap on `all` pool so we
-// don't blow the React-serialization budget for the client component.
+// Build a MINIMAL view for one league scope: top 12 scorers + top assist +
+// count. We pass only this to the client component — NOT the hundreds of rows
+// in the pool. Passing large arrays server→client was the cause of the Vercel
+// 500 ("Error running the exported function") on /es.
+function buildView(seasonPool: PlayerData[], filter: (p: PlayerData) => boolean): PoolView {
+  const pool = seasonPool.filter(filter)
+  const topScorers = [...pool].sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0)).slice(0, 12)
+  const topAssist = [...pool].sort((a, b) => (b.asist ?? 0) - (a.asist ?? 0))[0] ?? null
+  return { topScorers, topAssist, count: pool.length }
+}
+
+// Server component. Heavy data prep here; only tiny shaped views cross the
+// server→client boundary.
 export default function SaasHomeBody({ lang }: { lang: Lang }) {
   const seasonPool = (Array.isArray(PLAYERS) ? PLAYERS : []).filter(
     p => p && p.tab === 's' && p.season === '2526'
   )
 
-  // Cap the "all" pool to 200 rows — only the top 12 are shown anyway.
-  // Sorting once here also makes the client side cheaper.
-  const sorted = [...seasonPool].sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0))
-  const pools: Record<'big5' | 'big5pt' | 'all', PlayerData[]> = {
-    big5:  sorted.filter(p => (BIG5 as readonly string[]).includes(p.league)).slice(0, 200),
-    big5pt: sorted.filter(p => (BIG5_PLUS_PT as readonly string[]).includes(p.league)).slice(0, 200),
-    all:    sorted.slice(0, 200),
+  const pools: Record<'big5' | 'big5pt' | 'all', PoolView> = {
+    big5:   buildView(seasonPool, p => (BIG5 as readonly string[]).includes(p.league)),
+    big5pt: buildView(seasonPool, p => (BIG5_PLUS_PT as readonly string[]).includes(p.league)),
+    all:    buildView(seasonPool, () => true),
   }
 
   const labels =
