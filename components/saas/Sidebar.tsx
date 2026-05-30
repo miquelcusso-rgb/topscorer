@@ -151,6 +151,7 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
 
   return (
     <aside
+      className="saas-sidebar"
       style={{
         width: 232,
         flexShrink: 0,
