@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation'
 import { isLocale } from '@/lib/i18n'
 
+// Request-time redirect; prevent Next from trying to prerender.
+export const dynamic = 'force-dynamic'
+
 // Sidebar links to `/[lang]/comparador` but the actual page lives at
 // `/[lang]/estadisticas/comparador`. Keep the user-facing short URL working
 // by redirecting here. Forwards search params so `?p1=slug` survives.

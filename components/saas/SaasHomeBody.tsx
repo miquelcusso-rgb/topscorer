@@ -12,13 +12,22 @@ const BIG5_PLUS_PT = [...BIG5, 'Primeira Liga'] as const
 
 // Server component that does the heavy data prep (no 18k-row client bundle),
 // then hands the prepared slices to a client component for filter UX.
+//
+// Hardened (2026-05-30) — Vercel preview was hitting 500 on /es with the
+// previous shape. Adding explicit defensive guards + cap on `all` pool so we
+// don't blow the React-serialization budget for the client component.
 export default function SaasHomeBody({ lang }: { lang: Lang }) {
-  const seasonPool = PLAYERS.filter(p => p.tab === 's' && p.season === '2526')
+  const seasonPool = (Array.isArray(PLAYERS) ? PLAYERS : []).filter(
+    p => p && p.tab === 's' && p.season === '2526'
+  )
 
+  // Cap the "all" pool to 200 rows — only the top 12 are shown anyway.
+  // Sorting once here also makes the client side cheaper.
+  const sorted = [...seasonPool].sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0))
   const pools: Record<'big5' | 'big5pt' | 'all', PlayerData[]> = {
-    big5: seasonPool.filter(p => (BIG5 as readonly string[]).includes(p.league)),
-    big5pt: seasonPool.filter(p => (BIG5_PLUS_PT as readonly string[]).includes(p.league)),
-    all: seasonPool,
+    big5:  sorted.filter(p => (BIG5 as readonly string[]).includes(p.league)).slice(0, 200),
+    big5pt: sorted.filter(p => (BIG5_PLUS_PT as readonly string[]).includes(p.league)).slice(0, 200),
+    all:    sorted.slice(0, 200),
   }
 
   const labels =

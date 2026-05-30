@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import { isLocale } from '@/lib/i18n'
 
+export const dynamic = 'force-dynamic'
+
 // Legacy/typo URL — redirect `/compare` → `/comparador` so external links and
 // the English mental model both resolve. (audit pass 1)
 export default async function CompareRedirect({
