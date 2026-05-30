@@ -21,6 +21,7 @@ export default function IdentityCard({
   const xg = Math.max(0, player.goles - 1)
   return (
     <div
+      className="saas-identity-card"
       style={{
         background: 'var(--ts-card)',
         border: '1px solid var(--ts-border)',

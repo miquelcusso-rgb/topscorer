@@ -1,9 +1,11 @@
 'use client'
 import type { ReactNode, CSSProperties } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useLang } from '@/contexts/LangContext'
 import { getPalette, cssVars } from '@/lib/palette'
 import Sidebar, { type SidebarActiveKey } from './Sidebar'
 import Topbar, { type PrimaryCta } from './Topbar'
+import MobileTopbar from './MobileTopbar'
 import type { Plan } from '@/types'
 
 interface SaasShellProps {
@@ -22,9 +24,11 @@ export default function SaasShell({
   children,
 }: SaasShellProps) {
   const { theme } = useTheme()
+  const { lang } = useLang()
   const vars = cssVars(getPalette(theme)) as CSSProperties
   return (
     <div
+      className="saas-shell"
       style={{
         ...vars,
         display: 'flex',
@@ -44,8 +48,10 @@ export default function SaasShell({
           background: 'var(--ts-bg)',
         }}
       >
+        <MobileTopbar activeKey={activeKey} lang={lang} />
         <Topbar breadcrumb={breadcrumb} primaryCta={primaryCta} />
         <div
+          className="saas-main-content"
           style={{
             padding: 24,
             display: 'flex',

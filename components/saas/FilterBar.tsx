@@ -34,6 +34,7 @@ export default function FilterBar({
 
   return (
     <div
+      className="saas-filter-bar saas-filter-chips"
       style={{
         display: 'flex',
         alignItems: 'center',

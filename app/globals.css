@@ -26,7 +26,8 @@ body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
   padding: 0;
 }
 
-html { -webkit-font-smoothing: antialiased; }
+html { -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body { overflow-x: hidden; }
 
 body {
   background-color: #060d18;
@@ -164,3 +165,130 @@ body::before {
   animation: bounce-down 0.9s ease-in-out infinite;
   display: inline-block;
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   SaaS shell — responsive rules
+   Desktop ≥1024px is the default in component inline styles. These media
+   queries override for tablet (768–1023) and mobile (<768).
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Show desktop chrome, hide mobile chrome by default */
+.saas-mobile-topbar,
+.saas-mobile-cards { display: none !important; }
+.saas-desktop-table { display: block; }
+
+/* Prevent horizontal overflow at the shell root */
+.saas-shell { max-width: 100vw; overflow-x: clip; }
+.saas-main-content { min-width: 0; }
+.saas-kpi-grid { min-width: 0; }
+.saas-kpi-grid > * { min-width: 0; }
+
+/* Mobile drawer baseline (hidden offscreen until open) */
+.saas-mobile-nav {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 280px;
+  max-width: 84vw;
+  z-index: 60;
+  transform: translateX(-100%);
+  transition: transform 200ms ease;
+  background: var(--ts-sidebar, #f4f1e8);
+  border-right: 1px solid var(--ts-border, rgba(24,18,4,.09));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.saas-mobile-nav[data-open="true"] { transform: translateX(0); }
+.saas-mobile-backdrop {
+  position: fixed; inset: 0; z-index: 55;
+  background: rgba(0,0,0,.45);
+  opacity: 0; pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.saas-mobile-backdrop[data-open="true"] { opacity: 1; pointer-events: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .saas-mobile-nav, .saas-mobile-backdrop { transition: none; }
+}
+
+/* ── Tablet 768–1023 ─────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .saas-sidebar { width: 76px !important; }
+  .saas-sidebar .saas-sidebar-label,
+  .saas-sidebar .saas-sidebar-workspace,
+  .saas-sidebar .saas-sidebar-listas,
+  .saas-sidebar .saas-sidebar-upgrade,
+  .saas-sidebar .saas-sidebar-userrow { display: none !important; }
+  .saas-sidebar .saas-sidebar-menu-item { justify-content: center; padding: 12px 8px !important; }
+  .saas-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ── Mobile <768 ─────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Hide desktop sidebar + topbar; show mobile bar */
+  .saas-sidebar, .saas-topbar { display: none !important; }
+  .saas-mobile-topbar { display: flex !important; }
+
+  /* Shell goes column */
+  .saas-shell { flex-direction: column !important; }
+
+  /* Main padding shrinks */
+  .saas-main-content { padding: 12px !important; gap: 12px !important; }
+
+  /* KPI 2x2, content allowed to shrink */
+  .saas-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .saas-kpi-grid > * { min-width: 0 !important; padding: 12px !important; }
+
+  /* Page header stacks */
+  .saas-page-header { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+
+  /* Position tabs scroll horizontally */
+  .saas-position-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .saas-position-tabs::-webkit-scrollbar { display: none; }
+
+  /* Swap table for card list */
+  .saas-desktop-table { display: none !important; }
+  .saas-mobile-cards {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .saas-mobile-cards > * { min-width: 0 !important; }
+
+  /* Filter bar collapses to scrollable chip strip + Filters button visible */
+  .saas-filter-bar { padding: 10px !important; }
+  .saas-filter-chips {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .saas-filter-chips::-webkit-scrollbar { display: none; }
+
+  /* Player profile: stack 3-col grid */
+  .saas-profile-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
+  .saas-identity-card { grid-template-columns: 1fr !important; gap: 16px !important; padding: 18px !important; }
+  .saas-identity-card .saas-identity-big {
+    border-left: none !important;
+    padding-left: 0 !important;
+    border-top: 1px solid var(--ts-border) !important;
+    padding-top: 14px !important;
+  }
+  .saas-identity-photo { width: 96px !important; height: 96px !important; }
+  .saas-identity-h1 { font-size: 28px !important; }
+  .saas-identity-bignum { font-size: 64px !important; }
+
+  /* Touch target floor */
+  .saas-tap-target { min-height: 44px; min-width: 44px; }
+}
+

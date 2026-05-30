@@ -32,7 +32,7 @@ export default function V2PositionTabs({ lang, active: activeProp, onChange }: P
   ]
 
   return (
-    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+    <div className="saas-position-tabs" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
       {tabs.map(tab => {
         const isActive = tab.id === active
         return (
