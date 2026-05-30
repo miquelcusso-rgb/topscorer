@@ -142,17 +142,6 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
               </div>
             </div>
 
-            {/* Descripción derecha — always on dark hero bg */}
-            <p className="hidden md:block shrink-0" style={{
-              fontSize: 12.5, color: heroMidText, lineHeight: 1.6,
-              borderLeft: 'rgba(100,120,160,.45) solid 2px', paddingLeft: 14,
-              maxWidth: 240, marginTop: 4,
-            }}>
-              {lang === 'es'
-                ? <>Las 5 grandes ligas + Portugal,<br />Turquía y Grecia. Estadísticas<br />actualizadas en tiempo real.</>
-                : <>Top 5 leagues + Portugal,<br />Turkey and Greece. Stats<br />updated in real time.</>
-              }
-            </p>
           </div>
 
           {/* Tab bar — flush with bottom border */}
@@ -170,15 +159,16 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
                     letterSpacing: '2px',
                     fontWeight: 700,
                     textTransform: 'uppercase' as const,
-                    color: active ? t.color : '#4a5878',
+                    // Hero bg is always slate-dark; inactive needs enough contrast on it
+                    color: active ? t.color : '#9aa6c8',
                     background: 'transparent',
                     border: 'none',
                     borderBottom: active ? `2px solid ${t.color}` : '2px solid transparent',
                     padding: '9px 18px',
                     marginBottom: -1,
                   }}
-                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#8898b8' }}
-                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#4a5878' }}
+                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#dde6f5' }}
+                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#9aa6c8' }}
                 >
                   {t.label}
                 </button>

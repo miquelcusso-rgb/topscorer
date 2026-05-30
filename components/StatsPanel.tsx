@@ -45,13 +45,26 @@ const DEFAULT_ASSIST: PanelState = { ...DEFAULT, sort: 'asist' }
 
 interface Props { tab: Tab; initialPlayers?: PlayerData[] }
 
+// Full season history goes back to 2010/11. Older seasons (without static data
+// loaded) fetch live from API-Football on demand and cache for 1h via
+// unstable_cache. With Plan B+, ALL seasons are free.
 const SEASONS: { id: Season; label: string; live?: boolean; proOnly?: boolean }[] = [
   { id: '2526', label: '25/26', live: true },
   { id: '2425', label: '24/25' },
-  { id: '2324', label: '23/24', proOnly: true },
-  { id: '2223', label: '22/23', proOnly: true },
-  { id: '2122', label: '21/22', proOnly: true },
-  { id: '2021', label: '20/21', proOnly: true },
+  { id: '2324', label: '23/24' },
+  { id: '2223', label: '22/23' },
+  { id: '2122', label: '21/22' },
+  { id: '2021', label: '20/21' },
+  { id: '1920', label: '19/20' },
+  { id: '1819', label: '18/19' },
+  { id: '1718', label: '17/18' },
+  { id: '1617', label: '16/17' },
+  { id: '1516', label: '15/16' },
+  { id: '1415', label: '14/15' },
+  { id: '1314', label: '13/14' },
+  { id: '1213', label: '12/13' },
+  { id: '1112', label: '11/12' },
+  { id: '1011', label: '10/11' },
 ]
 
 const AGES = [
@@ -434,20 +447,34 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
         {/* Fila 1: filtros — Main groups row */}
         <div className="flex flex-wrap items-start gap-x-5 gap-y-3 px-4 pt-3.5 pb-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,.05)' }}>
           <FilterGroup label={t('filter_season', lang)}>
-            {SEASONS.map(s => {
-              const locked = s.proOnly && !proUser
-              return (
-                <Pill key={s.id} active={st.season === s.id} color="gd" locked={locked} isLight={isLight}
-                  onClick={() => {
-                    if (locked) { window.location.href = '/pricing'; return }
-                    update({ season: s.id, pinned: {} })
-                  }}
-                >
-                  {s.live && <span className="inline-block w-1 h-1 rounded-full" style={{ background: '#38c47a', boxShadow: '0 0 3px #38c47a' }} />}
-                  {s.label}
-                </Pill>
-              )
-            })}
+            {/* Dropdown — supports 16 seasons (25/26 down to 10/11) cleanly */}
+            <select
+              value={st.season}
+              onChange={e => update({ season: e.target.value as Season, pinned: {} })}
+              style={{
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                background: isLight
+                  ? "rgba(240,192,64,.10) url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%23c8a830' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>\") no-repeat right 10px center / 10px"
+                  : "rgba(240,192,64,.10) url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%23f0c040' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>\") no-repeat right 10px center / 10px",
+                border: `1px solid ${isLight ? 'rgba(200,168,48,.35)' : 'rgba(240,192,64,.4)'}`,
+                borderRadius: 4,
+                color: isLight ? '#7a5c00' : '#f0c040',
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5,
+                textTransform: 'uppercase',
+                padding: '5px 28px 5px 12px',
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+              aria-label={t('filter_season', lang)}
+            >
+              {SEASONS.map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.label}{s.live ? ' · LIVE' : ''}
+                </option>
+              ))}
+            </select>
           </FilterGroup>
 
           <FilterGroup label={t('filter_league', lang)}>

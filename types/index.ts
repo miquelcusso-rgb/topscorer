@@ -1,4 +1,7 @@
-export type Season = '2526' | '2425' | '2324' | '2223' | '2122' | '2021'
+export type Season =
+  | '2526' | '2425' | '2324' | '2223' | '2122' | '2021'
+  | '1920' | '1819' | '1718' | '1617' | '1516' | '1415'
+  | '1314' | '1213' | '1112' | '1011'
 export type Tab = 's' | 'a'
 export type SrcType = 'live' | 'srch' | 'est'
 export type Position = 'FW' | 'MF' | 'DF' | 'GK'
