@@ -4,6 +4,7 @@ import SaasShell from './SaasShell'
 import KpiCard from './KpiCard'
 import FilterBar from './FilterBar'
 import PlayerTable from './PlayerTable'
+import PlayerCardList from './PlayerCardList'
 import V2PositionTabs from '@/app/[lang]/v2/position-tabs'
 
 // Server component — renders the SaaS landing body. Used by both the
@@ -49,6 +50,7 @@ export default function SaasHomeBody({ lang }: { lang: Lang }) {
       primaryCta={{ label: labels.cta, href: `/${lang}/watchlist` }}
     >
       <div
+        className="saas-page-header"
         style={{
           display: 'flex',
           alignItems: 'flex-end',
@@ -77,7 +79,7 @@ export default function SaasHomeBody({ lang }: { lang: Lang }) {
         <V2PositionTabs lang={lang} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+      <div className="saas-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
         <KpiCard
           label={labels.kLeaderGoals}
           value={leader?.goles ?? 0}
@@ -119,7 +121,10 @@ export default function SaasHomeBody({ lang }: { lang: Lang }) {
         count={{ current: players.length, total: PLAYERS.length }}
       />
 
-      <PlayerTable players={players} lang={lang} tab="goals" sortBy="goals" sortDir="desc" />
+      <div className="saas-desktop-table">
+        <PlayerTable players={players} lang={lang} tab="goals" sortBy="goals" sortDir="desc" />
+      </div>
+      <PlayerCardList players={players} lang={lang} />
     </SaasShell>
   )
 }

@@ -22,6 +22,7 @@ export default function Topbar({
 }: TopbarProps) {
   return (
     <header
+      className="saas-topbar"
       style={{
         height: 60,
         padding: '0 24px',

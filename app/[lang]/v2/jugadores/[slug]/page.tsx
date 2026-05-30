@@ -84,7 +84,7 @@ export default async function V2PlayerPage({
         liveText={`Jugando · ${player.club.slice(0, 3).toUpperCase()} 2-1 ARS · 78'`}
       />
       <ProfileTabs />
-      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr 320px', gap: 18 }}>
+      <div className="saas-profile-grid" style={{ display: 'grid', gridTemplateColumns: '380px 1fr 320px', gap: 18 }}>
         <RadarCard
           title={labels.perf}
           subtitle={labels.vsTop}
