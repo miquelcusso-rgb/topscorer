@@ -48,7 +48,7 @@ export default function SaasShell({
           background: 'var(--ts-bg)',
         }}
       >
-        <MobileTopbar activeKey={activeKey} lang={lang} />
+        <MobileTopbar activeKey={activeKey} lang={lang} primaryCta={primaryCta} />
         <Topbar breadcrumb={breadcrumb} primaryCta={primaryCta} />
         <div
           className="saas-main-content"

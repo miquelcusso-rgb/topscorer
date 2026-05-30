@@ -78,6 +78,7 @@ export default function TransferenciasClient() {
   const { theme } = useTheme()
   const isLight = theme === 'light'
   const [selectedLeague, setSelectedLeague] = useState('La Liga')
+  const [selectedClub, setSelectedClub] = useState<string>('all')
   const [transfers, setTransfers] = useState<Transfer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -90,12 +91,21 @@ export default function TransferenciasClient() {
   useEffect(() => {
     setLoading(true)
     setError(false)
+    setSelectedClub('all') // reset club filter when changing league
     fetch(`/api/football/transfers?league=${encodeURIComponent(selectedLeague)}`)
       .then(r => r.json())
       .then(d => { if (d.ok) setTransfers(d.data); else setError(true) })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [selectedLeague])
+
+  // Distinct clubs in the visible league (audit pass 1: club filter row)
+  const clubs = Array.from(
+    new Set(transfers.flatMap(t => [t.teams.in.name, t.teams.out.name]))
+  ).sort()
+  const visibleTransfers = selectedClub === 'all'
+    ? transfers
+    : transfers.filter(t => t.teams.in.name === selectedClub || t.teams.out.name === selectedClub)
 
   return (
     <div className="max-w-[1100px] mx-auto px-5 py-8">
@@ -114,14 +124,14 @@ export default function TransferenciasClient() {
       </p>
 
       {/* League tabs */}
-      <div className="flex gap-2 flex-wrap mb-6">
+      <div className="flex gap-2 flex-wrap mb-3">
         {LEAGUES.map(league => (
           <button
             key={league}
             onClick={() => setSelectedLeague(league)}
             className="cursor-pointer transition-all duration-150 rounded px-3 py-1.5"
             style={{
-              fontSize: 12, fontWeight: 700,
+              fontSize: 13, fontWeight: 700,
               fontFamily: "'Barlow Condensed', sans-serif",
               letterSpacing: '1px', textTransform: 'uppercase',
               background: selectedLeague === league ? tabActiveBg : tabInactiveBg,
@@ -133,6 +143,29 @@ export default function TransferenciasClient() {
           </button>
         ))}
       </div>
+
+      {/* Club filter (audit pass 1) */}
+      {clubs.length > 1 && (
+        <div className="mb-6" style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <label htmlFor="club-filter" style={{ fontSize: 12, color: textMuted, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            Club:
+          </label>
+          <select
+            id="club-filter"
+            value={selectedClub}
+            onChange={e => setSelectedClub(e.target.value)}
+            style={{
+              fontSize: 13, padding: '6px 10px',
+              background: tabInactiveBg, color: textPrimary,
+              border: '1px solid rgba(255,255,255,.10)', borderRadius: 6,
+              fontFamily: 'inherit',
+            }}
+          >
+            <option value="all">Todos los clubes</option>
+            {clubs.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+      )}
 
       {/* Transfer list */}
       {loading ? (
@@ -149,13 +182,13 @@ export default function TransferenciasClient() {
         <div className="py-10 text-center" style={{ color: textMuted, fontSize: 14 }}>
           No se pudieron cargar las transferencias. Inténtalo de nuevo.
         </div>
-      ) : transfers.length === 0 ? (
+      ) : visibleTransfers.length === 0 ? (
         <div className="py-10 text-center" style={{ color: textMuted, fontSize: 14 }}>
           No hay transferencias recientes para esta liga.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {transfers.map((t, i) => <TransferCard key={i} t={t} isLight={isLight} />)}
+          {visibleTransfers.map((t, i) => <TransferCard key={i} t={t} isLight={isLight} />)}
         </div>
       )}
     </div>

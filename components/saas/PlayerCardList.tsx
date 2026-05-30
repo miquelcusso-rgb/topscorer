@@ -5,6 +5,7 @@ import type { PlayerData } from '@/types'
 import Avatar from './Avatar'
 import LeagueChip from './LeagueChip'
 import { slugify } from '@/lib/slugify'
+import { shortName } from '@/lib/player-name'
 
 interface Props {
   players: PlayerData[]
@@ -71,7 +72,7 @@ export default function PlayerCardList({ players, lang = 'es' }: Props) {
                   textOverflow: 'ellipsis',
                 }}
               >
-                {player.name}
+                {shortName(player)}
               </div>
               <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 2, display: 'flex', gap: 6, alignItems: 'center' }}>
                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{player.club}</span>

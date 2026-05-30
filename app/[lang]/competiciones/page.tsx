@@ -83,12 +83,12 @@ export default function CompeticionesPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
     <div className="max-w-[1100px] mx-auto px-5 py-8">
-      <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 40, fontWeight: 800, color: '#eef4ff', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 32 }}>
+      <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 40, fontWeight: 800, color: 'var(--ts-text)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 32 }}>
         Competiciones
       </h1>
       {sections.map(section => (
         <div key={section.title} className="mb-10">
-          <h2 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#6878a0', fontFamily: "'Barlow Condensed', sans-serif", marginBottom: 12 }}>
+          <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--ts-muted)', fontFamily: "'Barlow Condensed', sans-serif", marginBottom: 12 }}>
             {section.title}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -96,7 +96,7 @@ export default function CompeticionesPage() {
               <Link key={league.id} href={`/?liga=${league.short}`} style={{ textDecoration: 'none' }}>
                 <div
                   className="rounded-lg p-4 flex items-center gap-3 transition-all duration-150"
-                  style={{ background: 'rgba(255,255,255,.04)', border: `1px solid ${league.color}22`, cursor: 'pointer' }}
+                  style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', cursor: 'pointer' }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -107,8 +107,9 @@ export default function CompeticionesPage() {
                     style={{ borderRadius: 3 }}
                   />
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#dde8ff' }}>{league.name}</div>
-                    <div style={{ fontSize: 10, color: '#6878a0' }}>{league.country}</div>
+                    {/* Fix audit pass 1: was grey-on-grey muted color, now `var(--ts-text)` */}
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ts-text)' }}>{league.name}</div>
+                    <div style={{ fontSize: 11, color: 'var(--ts-muted)' }}>{league.country}</div>
                   </div>
                 </div>
               </Link>
