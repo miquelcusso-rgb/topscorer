@@ -12,17 +12,24 @@ import { positionLabel } from '@/lib/position'
 import AdSlot from '@/components/AdSlot'
 
 // Leagues that are "less visible" — hidden gem multiplier
+// Used by the Talent Radar to apply a multiplier to performers in lower-exposure
+// leagues (×1.4 boost). Mirror this list in PlayerRow.tsx if you edit it.
 const SMALL_LEAGUE_NAMES = new Set([
-  'Championship',
-  '2. Bundesliga',
-  'Serie B',
-  'Ligue 2',
-  'Segunda División',
-  'Liga Portugal 2',
-  '1. Lig',
-  'Primeira Liga',
-  'Sueper Lig',
-  'Super Liga Grecia',
+  // European 2nd divisions
+  'Championship', '2. Bundesliga', 'Serie B', 'Ligue 2', 'Segunda División',
+  'Liga Portugal 2', '1. Lig', 'Super League 2', 'Eerste Divisie',
+  // European 1st divisions outside the Big-5
+  'Primeira Liga', 'Süper Lig', 'Super League',
+  'Eredivisie', 'Pro League', 'Premiership', 'Bundesliga (Austria)',
+  'Ekstraklasa', 'Superligaen', 'Allsvenskan', 'Eliteserien',
+  'Super League (Switzerland)',
+  // Rest of the world
+  'MLS', 'Liga MX', 'Brasileirão Serie A', 'Liga Profesional',
+  'Primera División (Chile)', 'Categoría Primera A', 'Primera División (Uruguay)',
+  'J1 League', 'K League 1', 'Super League (China)', 'A-League',
+  'Pro League (Saudi Arabia)',
+  // Legacy spellings kept for safety (typos in static data)
+  'Sueper Lig', 'Super Liga Grecia',
 ])
 
 function calculateDiscoveryScore(player: EnrichedPlayer): number {
@@ -494,8 +501,8 @@ export default function DiscubrirClient({ players }: Props) {
                   </div>
                   <p style={{ fontSize: 13, color: textMuted, marginBottom: 18, lineHeight: 1.6, maxWidth: 420, margin: '0 auto 18px' }}>
                     {lang === 'es'
-                      ? 'El Radar de Talentos completo es una función Pro. Descubre joyas ocultas en 8 ligas con nuestro algoritmo de rendimiento.'
-                      : 'The full Talent Radar is a Pro feature. Discover hidden gems across 8 leagues with our performance algorithm.'}
+                      ? 'El Radar de Talentos completo es una función Pro. Descubre joyas ocultas en 30+ ligas globales con nuestro algoritmo de rendimiento.'
+                      : 'The full Talent Radar is a Pro feature. Discover hidden gems across 30+ leagues worldwide with our performance algorithm.'}
                   </p>
                   <Link
                     href="/pricing"

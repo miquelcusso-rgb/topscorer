@@ -1,19 +1,42 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 import type { ApiStandingEntry, ApiFixture, LeagueMeta } from '@/lib/api-football'
+import {
+  LEAGUES as L_TOP,
+  LEAGUES_EUROPE_OTHER as L_EUOTHER,
+  LEAGUES_2 as L_SECOND,
+  LEAGUES_AMERICAS as L_AMERICAS,
+  LEAGUES_ASIA_OCEANIA as L_ASIA,
+  LEAGUES_MIDDLE_EAST as L_ME,
+} from '@/lib/api-football'
 import AdSlot from '@/components/AdSlot'
 
-const LEAGUES: LeagueMeta[] = [
-  { id: 140, name: 'La Liga',        country: 'Spain',    short: 'ESP', color: '#ee3124', flag: '🇪🇸' },
-  { id:  39, name: 'Premier League', country: 'England',  short: 'ENG', color: '#3d195b', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-  { id:  78, name: 'Bundesliga',     country: 'Germany',  short: 'GER', color: '#d20515', flag: '🇩🇪' },
-  { id: 135, name: 'Serie A',        country: 'Italy',    short: 'ITA', color: '#024494', flag: '🇮🇹' },
-  { id:  61, name: 'Ligue 1',        country: 'France',   short: 'FRA', color: '#003087', flag: '🇫🇷' },
-  { id:  94, name: 'Primeira Liga',  country: 'Portugal', short: 'PRT', color: '#006600', flag: '🇵🇹' },
-  { id: 203, name: 'Süper Lig',      country: 'Turkey',   short: 'TUR', color: '#e30a17', flag: '🇹🇷' },
-  { id: 197, name: 'Super League',   country: 'Greece',   short: 'GRE', color: '#0d5eaf', flag: '🇬🇷' },
+// Flag emojis per ISO/short code, used by every section below.
+const FLAG: Record<string, string> = {
+  ESP:'🇪🇸', ENG:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', GER:'🇩🇪', ITA:'🇮🇹', FRA:'🇫🇷', PRT:'🇵🇹', TUR:'🇹🇷', GRE:'🇬🇷',
+  NED:'🇳🇱', BEL:'🇧🇪', SCO:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', SUI:'🇨🇭', AUT:'🇦🇹', POL:'🇵🇱', DEN:'🇩🇰', SWE:'🇸🇪', NOR:'🇳🇴',
+  ENG2:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', GER2:'🇩🇪', ITA2:'🇮🇹', FRA2:'🇫🇷', ESP2:'🇪🇸', PRT2:'🇵🇹', TUR2:'🇹🇷', GRE2:'🇬🇷', NED2:'🇳🇱', SCO2:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  USA:'🇺🇸', MEX:'🇲🇽', BRA:'🇧🇷', ARG:'🇦🇷', CHI:'🇨🇱', COL:'🇨🇴', URU:'🇺🇾',
+  JPN:'🇯🇵', KOR:'🇰🇷', CHN:'🇨🇳', AUS:'🇦🇺',
+  KSA:'🇸🇦',
+}
+const withFlag = (l: LeagueMeta): LeagueMeta => ({ ...l, flag: FLAG[l.short] ?? '🏳️' })
+const LEAGUES         = L_TOP.map(withFlag)
+const LEAGUES_EUOTHER = L_EUOTHER.map(withFlag)
+const LEAGUES_SECOND  = L_SECOND.map(withFlag)
+const LEAGUES_AM      = L_AMERICAS.map(withFlag)
+const LEAGUES_AS      = L_ASIA.map(withFlag)
+const LEAGUES_MED     = L_ME.map(withFlag)
+
+// Grouped extra leagues exposed via the "Más ligas ▾" dropdown.
+const EXTRA_GROUPS: { label: string; leagues: LeagueMeta[] }[] = [
+  { label: 'Otras Europa', leagues: LEAGUES_EUOTHER },
+  { label: '2ª División',  leagues: LEAGUES_SECOND },
+  { label: 'Américas',     leagues: LEAGUES_AM },
+  { label: 'Asia / Oceanía', leagues: LEAGUES_AS },
+  { label: 'Oriente Medio',  leagues: LEAGUES_MED },
 ]
 
 function formatDate(iso: string) {
@@ -262,6 +285,105 @@ function LeagueSection({ league, activeTab, isLight }: { league: LeagueMeta; act
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
+// "Más ligas ▾" — dropdown grouped by region (2ª, Américas, Asia, etc.)
+function MoreLeaguesDropdown({
+  groups, activeLeague, onSelect, isLight, textDim, headerBorder,
+}: {
+  groups: { label: string; leagues: LeagueMeta[] }[]
+  activeLeague: LeagueMeta
+  onSelect: (l: LeagueMeta) => void
+  isLight: boolean
+  textDim: string
+  headerBorder: string
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    function handler(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const isExtra = groups.some(g => g.leagues.some(l => l.id === activeLeague.id))
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex flex-col items-center gap-0.5 cursor-pointer transition-all duration-150 shrink-0 py-2 px-3"
+        style={{
+          color: isExtra ? activeLeague.color : textDim,
+          background: 'transparent', border: 'none',
+          borderBottom: isExtra ? `2px solid ${activeLeague.color}` : '2px solid transparent',
+          marginBottom: -1,
+        }}
+      >
+        <span style={{ fontSize: 16, lineHeight: 1, height: 22, display: 'flex', alignItems: 'center' }}>🌐</span>
+        <span style={{ fontSize: 9, letterSpacing: 1, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, textTransform: 'uppercase' }}>
+          Más ▾
+        </span>
+      </button>
+      {open && (
+        <div
+          className="absolute top-full right-0 z-50 mt-1 rounded-md shadow-2xl"
+          style={{
+            background: isLight ? '#ffffff' : '#0d0e1c',
+            border: `1px solid ${headerBorder}`,
+            minWidth: 280,
+            maxHeight: 460,
+            overflowY: 'auto',
+          }}
+        >
+          {groups.map(g => (
+            <div key={g.label}>
+              <div
+                style={{
+                  padding: '8px 14px 4px',
+                  fontSize: 10,
+                  letterSpacing: 1.5,
+                  textTransform: 'uppercase',
+                  color: isLight ? '#5060a0' : '#5a5c80',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                }}
+              >
+                {g.label}
+              </div>
+              <div className="grid grid-cols-2 gap-0">
+                {g.leagues.map(l => {
+                  const active = activeLeague.id === l.id
+                  return (
+                    <button
+                      key={l.id}
+                      onClick={() => { onSelect(l); setOpen(false) }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        padding: '7px 12px',
+                        background: active ? `${l.color}1f` : 'transparent',
+                        border: 'none',
+                        color: active ? l.color : (isLight ? '#0f1830' : '#c8c8e0'),
+                        fontSize: 12,
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                      }}
+                      onMouseEnter={e => { if (!active) e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.04)' }}
+                      onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
+                    >
+                      <span style={{ fontSize: 14 }}>{l.flag ?? '🏳️'}</span>
+                      <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600 }}>{l.short}</span>
+                      <span style={{ fontSize: 11, opacity: 0.7, marginLeft: 'auto' }}>{l.country}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function ResultadosClient() {
   const [activeLeague, setActiveLeague] = useState(LEAGUES[0])
   const [activeTab, setActiveTab] = useState<'standings' | 'fixtures'>('standings')
@@ -337,6 +459,16 @@ export default function ResultadosClient() {
                 </button>
               )
             })}
+
+            {/* "Más ligas" dropdown — 2ª divisiones + ligas globales */}
+            <MoreLeaguesDropdown
+              groups={EXTRA_GROUPS}
+              activeLeague={activeLeague}
+              onSelect={setActiveLeague}
+              isLight={isLight}
+              textDim={textDim}
+              headerBorder={headerBorder}
+            />
           </div>
         </div>
       </div>

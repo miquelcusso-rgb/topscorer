@@ -81,7 +81,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   const { lang: rawLang } = await params
   const lang = isLocale(rawLang) ? rawLang : 'es'
   const faqJsonLd = buildFaq(lang)
-  // Fetch all 8 leagues, both tabs, in parallel
+  // Fetch the 8 European headline leagues (both tabs) in parallel for the home cross-table
   let initialPlayers: PlayerData[] = []
   try {
     const season = 2025

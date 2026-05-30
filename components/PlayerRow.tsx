@@ -58,7 +58,15 @@ export default function PlayerRow({
   const posText = positionShort(player)
 
   // ─── Hidden Gem Sello ──────────────────────────────────────────────────────
-  const SMALL_LEAGUES = new Set(['Championship','2. Bundesliga','Serie B','Ligue 2','Segunda División','Liga Portugal 2','1. Lig','Primeira Liga','Süper Lig','Super League Grecia'])
+  // Mirrors SMALL_LEAGUE_NAMES in /descubrir/DiscubrirClient.tsx — keep in sync.
+  const SMALL_LEAGUES = new Set([
+    'Championship','2. Bundesliga','Serie B','Ligue 2','Segunda División','Liga Portugal 2','1. Lig','Super League 2','Eerste Divisie',
+    'Primeira Liga','Süper Lig','Super League','Eredivisie','Pro League','Premiership','Bundesliga (Austria)',
+    'Ekstraklasa','Superligaen','Allsvenskan','Eliteserien','Super League (Switzerland)',
+    'MLS','Liga MX','Brasileirão Serie A','Liga Profesional','Primera División (Chile)','Categoría Primera A','Primera División (Uruguay)',
+    'J1 League','K League 1','Super League (China)','A-League','Pro League (Saudi Arabia)',
+    'Sueper Lig','Super League Grecia',
+  ])
   const rowScore = player.pj > 0
     ? ((player.goles / (player.pj * 0.9)) * 3 + (player.asist / (player.pj * 0.9)) * 2)
       * (SMALL_LEAGUES.has(player.league) ? 1.4 : 1)

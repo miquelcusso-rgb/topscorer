@@ -1,6 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { LEAGUES, LEAGUES_2, LEAGUES_EURO } from '@/lib/api-football'
+import {
+  LEAGUES,
+  LEAGUES_EUROPE_OTHER,
+  LEAGUES_2,
+  LEAGUES_AMERICAS,
+  LEAGUES_ASIA_OCEANIA,
+  LEAGUES_MIDDLE_EAST,
+  LEAGUES_EURO,
+  ALL_LEAGUES,
+} from '@/lib/api-football'
 import { isLocale } from '@/lib/i18n'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -8,9 +17,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/competiciones'
   return {
-    title: 'Competiciones de Fútbol — La Liga, Premier, Bundesliga | TopScorers',
-    description: 'Estadísticas de La Liga, Premier League, Bundesliga, Serie A, Ligue 1, Champions League y más. Clasificaciones, goleadores y resultados en tiempo real.',
-    keywords: ['la liga', 'premier league', 'bundesliga', 'serie a', 'champions league', 'europa league', 'ligas futbol europeo'],
+    title: 'Competiciones de Fútbol — 30+ ligas globales | TopScorers',
+    description: 'Estadísticas de 30+ ligas: Big-5, segundas divisiones, MLS, Saudi Pro League, Brasileirão, Liga MX, J1, K1 y más. Clasificaciones y goleadores en tiempo real.',
+    keywords: ['la liga', 'premier league', 'bundesliga', 'serie a', 'mls', 'saudi pro league', 'brasileirão', 'liga mx', 'j1 league', 'champions league', 'segunda división', 'championship'],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -45,7 +54,7 @@ const itemListJsonLd = {
   '@type': 'ItemList',
   name: 'Competiciones de Fútbol Europeo',
   url: 'https://www.top-scorers.com/competiciones',
-  itemListElement: [...LEAGUES, ...LEAGUES_EURO].map((league, index) => ({
+  itemListElement: ALL_LEAGUES.map((league, index) => ({
     '@type': 'ListItem',
     position: index + 1,
     name: league.name,
@@ -55,9 +64,13 @@ const itemListJsonLd = {
 
 export default function CompeticionesPage() {
   const sections = [
-    { title: 'Grandes Ligas',          leagues: LEAGUES },
-    { title: 'Segunda División',       leagues: LEAGUES_2 },
-    { title: 'Competiciones Europeas', leagues: LEAGUES_EURO },
+    { title: 'Grandes Ligas Europeas',  leagues: LEAGUES },
+    { title: 'Otras Ligas Europeas',    leagues: LEAGUES_EUROPE_OTHER },
+    { title: 'Segundas Divisiones',     leagues: LEAGUES_2 },
+    { title: 'Américas',                leagues: LEAGUES_AMERICAS },
+    { title: 'Asia y Oceanía',          leagues: LEAGUES_ASIA_OCEANIA },
+    { title: 'Oriente Medio',           leagues: LEAGUES_MIDDLE_EAST },
+    { title: 'Competiciones Europeas',  leagues: LEAGUES_EURO },
   ]
   return (
     <>

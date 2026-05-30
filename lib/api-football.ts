@@ -21,6 +21,19 @@ export interface LeagueMeta {
   flag?: string
 }
 
+/**
+ * League registry. Slugs (`short` lowercased) are stable URL keys for
+ * /competiciones/[slug]. Colors are flag-derived where possible.
+ *
+ * Coverage tiers:
+ *  - LEAGUES                 : European top division "headline" set (Big-5 + PT/TR/GR)
+ *  - LEAGUES_EUROPE_OTHER    : rest of Europe top division
+ *  - LEAGUES_2               : European second divisions (Big-5 + PT/TR/GR/NL/BE/SCO)
+ *  - LEAGUES_AMERICAS        : USA + Latin America top divisions
+ *  - LEAGUES_ASIA_OCEANIA    : Asia / Oceania top divisions
+ *  - LEAGUES_MIDDLE_EAST     : Middle East top divisions
+ *  - LEAGUES_EURO            : European club competitions (UCL / UEL / UECL)
+ */
 export const LEAGUES: LeagueMeta[] = [
   { id: 140, name: 'La Liga',        country: 'Spain',    short: 'ESP', color: '#ee3124' },
   { id:  39, name: 'Premier League', country: 'England',  short: 'ENG', color: '#3d195b' },
@@ -32,14 +45,50 @@ export const LEAGUES: LeagueMeta[] = [
   { id: 197, name: 'Super League',   country: 'Greece',   short: 'GRE', color: '#0d5eaf' },
 ]
 
+export const LEAGUES_EUROPE_OTHER: LeagueMeta[] = [
+  { id:  88, name: 'Eredivisie',         country: 'Netherlands', short: 'NED', color: '#ff7900' },
+  { id: 144, name: 'Pro League',         country: 'Belgium',     short: 'BEL', color: '#ed2939' },
+  { id: 179, name: 'Premiership',        country: 'Scotland',    short: 'SCO', color: '#005eb8' },
+  { id: 207, name: 'Super League',       country: 'Switzerland', short: 'SUI', color: '#d52b1e' },
+  { id: 218, name: 'Bundesliga',         country: 'Austria',     short: 'AUT', color: '#ef3340' },
+  { id: 106, name: 'Ekstraklasa',        country: 'Poland',      short: 'POL', color: '#dc143c' },
+  { id: 119, name: 'Superligaen',        country: 'Denmark',     short: 'DEN', color: '#c8102e' },
+  { id: 113, name: 'Allsvenskan',        country: 'Sweden',      short: 'SWE', color: '#006aa7' },
+  { id: 103, name: 'Eliteserien',        country: 'Norway',      short: 'NOR', color: '#ba0c2f' },
+]
+
 export const LEAGUES_2: LeagueMeta[] = [
-  { id:  40, name: 'Championship',     country: 'England',  short: 'ENG2', color: '#3d195b' },
-  { id:  79, name: '2. Bundesliga',    country: 'Germany',  short: 'GER2', color: '#d20515' },
-  { id: 136, name: 'Serie B',          country: 'Italy',    short: 'ITA2', color: '#024494' },
-  { id:  62, name: 'Ligue 2',          country: 'France',   short: 'FRA2', color: '#003087' },
-  { id: 141, name: 'Segunda División', country: 'Spain',    short: 'ESP2', color: '#ee3124' },
-  { id:  95, name: 'Liga Portugal 2',  country: 'Portugal', short: 'PRT2', color: '#006600' },
-  { id: 204, name: '1. Lig',           country: 'Turkey',   short: 'TUR2', color: '#e30a17' },
+  { id:  40, name: 'Championship',     country: 'England',     short: 'ENG2', color: '#3d195b' },
+  { id:  79, name: '2. Bundesliga',    country: 'Germany',     short: 'GER2', color: '#d20515' },
+  { id: 136, name: 'Serie B',          country: 'Italy',       short: 'ITA2', color: '#024494' },
+  { id:  62, name: 'Ligue 2',          country: 'France',      short: 'FRA2', color: '#003087' },
+  { id: 141, name: 'Segunda División', country: 'Spain',       short: 'ESP2', color: '#ee3124' },
+  { id:  95, name: 'Liga Portugal 2',  country: 'Portugal',    short: 'PRT2', color: '#006600' },
+  { id: 204, name: '1. Lig',           country: 'Turkey',      short: 'TUR2', color: '#e30a17' },
+  { id: 199, name: 'Super League 2',   country: 'Greece',      short: 'GRE2', color: '#0d5eaf' },
+  { id:  89, name: 'Eerste Divisie',   country: 'Netherlands', short: 'NED2', color: '#ff7900' },
+  { id: 180, name: 'Championship',     country: 'Scotland',    short: 'SCO2', color: '#005eb8' },
+]
+
+export const LEAGUES_AMERICAS: LeagueMeta[] = [
+  { id: 253, name: 'MLS',                  country: 'USA',       short: 'USA', color: '#b22234' },
+  { id: 262, name: 'Liga MX',              country: 'Mexico',    short: 'MEX', color: '#006847' },
+  { id:  71, name: 'Brasileirão Serie A',  country: 'Brazil',    short: 'BRA', color: '#009b3a' },
+  { id: 128, name: 'Liga Profesional',     country: 'Argentina', short: 'ARG', color: '#74acdf' },
+  { id: 265, name: 'Primera División',     country: 'Chile',     short: 'CHI', color: '#d52b1e' },
+  { id: 239, name: 'Categoría Primera A',  country: 'Colombia',  short: 'COL', color: '#fcd116' },
+  { id: 268, name: 'Primera División',     country: 'Uruguay',   short: 'URU', color: '#74acdf' },
+]
+
+export const LEAGUES_ASIA_OCEANIA: LeagueMeta[] = [
+  { id:  98, name: 'J1 League',           country: 'Japan',       short: 'JPN', color: '#bc002d' },
+  { id: 292, name: 'K League 1',          country: 'South Korea', short: 'KOR', color: '#c4001b' },
+  { id: 169, name: 'Super League',        country: 'China',       short: 'CHN', color: '#de2910' },
+  { id: 188, name: 'A-League',            country: 'Australia',   short: 'AUS', color: '#00843d' },
+]
+
+export const LEAGUES_MIDDLE_EAST: LeagueMeta[] = [
+  { id: 307, name: 'Pro League',          country: 'Saudi Arabia', short: 'KSA', color: '#006c35' },
 ]
 
 export const LEAGUES_EURO: LeagueMeta[] = [
@@ -48,7 +97,15 @@ export const LEAGUES_EURO: LeagueMeta[] = [
   { id: 848, name: 'Conference League', country: 'Europe', short: 'UECL', color: '#38c47a' },
 ]
 
-export const ALL_LEAGUES = [...LEAGUES, ...LEAGUES_2, ...LEAGUES_EURO]
+export const ALL_LEAGUES = [
+  ...LEAGUES,
+  ...LEAGUES_EUROPE_OTHER,
+  ...LEAGUES_2,
+  ...LEAGUES_AMERICAS,
+  ...LEAGUES_ASIA_OCEANIA,
+  ...LEAGUES_MIDDLE_EAST,
+  ...LEAGUES_EURO,
+]
 
 export const WORLD_CUP: LeagueMeta = {
   id: 1,

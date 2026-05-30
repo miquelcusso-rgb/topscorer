@@ -30,7 +30,7 @@ export const T = {
   hero_europe:     { es: 'Europa',       en: 'Europe' },
   hero_season:     { es: 'Temporada 2025/26', en: 'Season 2025/26' },
   hero_realtime:   { es: 'Tiempo real',  en: 'Real time' },
-  hero_leagues:    { es: '8 ligas activas', en: '8 active leagues' },
+  hero_leagues:    { es: '30+ ligas globales', en: '30+ leagues worldwide' },
   hero_desc:       { es: 'Las 5 grandes ligas + Portugal,\nTurquía y Grecia. Estadísticas\nactualizadas en tiempo real.', en: 'Top 5 leagues + Portugal,\nTurkey and Greece. Stats\nupdated in real time.' },
 
   // Tab labels
@@ -221,7 +221,7 @@ export const T = {
   pricing_cmp_saved_comp:     { es: 'Comparaciones guardadas', en: 'Saved comparisons' },
   pricing_cmp_early_access:   { es: 'Acceso anticipado a polls/picks', en: 'Early access to polls/picks' },
   pricing_cmp_pickem_mult:    { es: 'Multiplicador en pickem', en: 'Pickem multiplier' },
-  pricing_cmp_cross_league:   { es: 'Ranking cross-liga (8 ligas)', en: 'Cross-league ranking (8 leagues)' },
+  pricing_cmp_cross_league:   { es: 'Ranking cross-liga (30+ ligas globales)', en: 'Cross-league ranking (30+ leagues worldwide)' },
 
   // Comparison cell values
   pricing_val_top10:    { es: 'Top 10', en: 'Top 10' },
