@@ -1,5 +1,6 @@
 import type { PlayerData } from '@/types'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
+import { shortName, fullNameIfDifferent } from '@/lib/player-name'
 
 interface IdentityCardProps {
   player: PlayerData
@@ -74,7 +75,7 @@ export default function IdentityCard({
         </div>
         <h1
           style={{
-            margin: '8px 0 4px',
+            margin: '8px 0 2px',
             fontFamily: 'DM Sans, sans-serif',
             fontSize: 36,
             fontWeight: 700,
@@ -83,8 +84,20 @@ export default function IdentityCard({
             lineHeight: 1.05,
           }}
         >
-          {player.name}
+          {shortName(player)}
         </h1>
+        {fullNameIfDifferent(player) && (
+          <div
+            style={{
+              fontSize: 12,
+              color: 'var(--ts-muted)',
+              fontStyle: 'italic',
+              marginBottom: 4,
+            }}
+          >
+            {fullNameIfDifferent(player)}
+          </div>
+        )}
         <div
           style={{
             display: 'flex',

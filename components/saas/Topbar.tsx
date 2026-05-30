@@ -7,7 +7,22 @@ export interface PrimaryCta {
   label: string
   href?: string
   onClick?: () => void
+  /** If `'share'`, renders an icon-only square button (works on player profile,
+   * mirrored to MobileTopbar so it's always visible). */
+  icon?: 'share'
 }
+
+function ShareIcon() {
+  return (
+    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
+    </svg>
+  )
+}
+
+export { ShareIcon }
 
 interface TopbarProps {
   breadcrumb: string[]
@@ -91,30 +106,24 @@ export default function Topbar({
       <LangTogglePill />
       <ThemeTogglePill />
 
-      {primaryCta && (
-        primaryCta.href ? (
-          <Link
-            href={primaryCta.href}
-            style={{
-              padding: '7px 12px',
-              background: 'var(--ts-primary)',
-              color: 'var(--ts-bg)',
-              borderRadius: 6,
-              fontSize: 12,
-              fontWeight: 600,
-              textDecoration: 'none',
+      {primaryCta && (() => {
+        const isIcon = primaryCta.icon === 'share'
+        const base = isIcon
+          ? {
+              padding: 0,
+              width: 36,
+              height: 36,
+              background: 'var(--ts-card2)',
+              color: 'var(--ts-text)',
+              border: '1px solid var(--ts-border)',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            {primaryCta.label}
-          </Link>
-        ) : (
-          <button
-            type="button"
-            onClick={primaryCta.onClick}
-            style={{
+              justifyContent: 'center',
+            }
+          : {
               padding: '7px 12px',
               background: 'var(--ts-primary)',
               color: 'var(--ts-bg)',
@@ -127,12 +136,19 @@ export default function Topbar({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-            }}
-          >
-            {primaryCta.label}
+              textDecoration: 'none',
+            }
+        const inner = isIcon ? <ShareIcon /> : primaryCta.label
+        return primaryCta.href ? (
+          <Link href={primaryCta.href} aria-label={isIcon ? primaryCta.label : undefined} style={base}>
+            {inner}
+          </Link>
+        ) : (
+          <button type="button" onClick={primaryCta.onClick} aria-label={isIcon ? primaryCta.label : undefined} style={base}>
+            {inner}
           </button>
         )
-      )}
+      })()}
     </header>
   )
 }

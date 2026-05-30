@@ -1,5 +1,6 @@
 import type { PlayerData } from '@/types'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
+import { shortName } from '@/lib/player-name'
 
 interface HoverCardProps {
   player: PlayerData
@@ -66,9 +67,9 @@ export default function HoverCard({ player, mode = 'light', position = 'right' }
               letterSpacing: '-0.005em',
             }}
           >
-            {player.name}
+            {shortName(player)}
           </div>
-          <div style={{ fontSize: 10, opacity: 0.85, letterSpacing: '0.04em' }}>
+          <div style={{ fontSize: 11, opacity: 0.85, letterSpacing: '0.04em' }}>
             {player.club} {player.position ? `· ${player.position}` : ''}
           </div>
         </div>

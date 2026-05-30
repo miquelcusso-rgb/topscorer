@@ -6,16 +6,21 @@ import MobileNav from './MobileNav'
 import ThemeTogglePill from './ThemeTogglePill'
 import LangTogglePill from './LangTogglePill'
 import type { SidebarActiveKey } from './Sidebar'
+import type { PrimaryCta } from './Topbar'
+import { ShareIcon } from './Topbar'
 
 // Visible only on <768px (CSS in globals.css). Hamburger opens MobileNav
-// drawer with the same nav items as the desktop Sidebar.
+// drawer with the same nav items as the desktop Sidebar. Mirrors the
+// desktop Topbar's `primaryCta` when it's an icon (e.g. Share) so the
+// action is always reachable on mobile.
 
 interface Props {
   activeKey: SidebarActiveKey
   lang: 'es' | 'en'
+  primaryCta?: PrimaryCta
 }
 
-export default function MobileTopbar({ activeKey, lang }: Props) {
+export default function MobileTopbar({ activeKey, lang, primaryCta }: Props) {
   const [open, setOpen] = useState(false)
 
   // Body scroll lock when drawer open
@@ -73,23 +78,52 @@ export default function MobileTopbar({ activeKey, lang }: Props) {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 10,
             fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 800,
-            letterSpacing: '0.12em',
-            fontSize: 15,
+            letterSpacing: '0.10em',
+            fontSize: 20,
             color: 'var(--ts-text)',
             textDecoration: 'none',
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-ball.png" alt="" width={28} height={28} style={{ width: 28, height: 28, objectFit: 'contain' }} />
+          <img src="/logo-ball-alpha.png" alt="" width={40} height={40} style={{ width: 40, height: 40, objectFit: 'contain' }} />
           <span>TOP·SCORERS</span>
         </Link>
 
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <LangTogglePill />
           <ThemeTogglePill />
+          {primaryCta?.icon === 'share' && (
+            primaryCta.href ? (
+              <Link
+                href={primaryCta.href}
+                aria-label={primaryCta.label}
+                style={{
+                  width: 36, height: 36, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'var(--ts-card2)', color: 'var(--ts-text)',
+                  border: '1px solid var(--ts-border)', borderRadius: 8, textDecoration: 'none',
+                }}
+              >
+                <ShareIcon />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                aria-label={primaryCta.label}
+                onClick={primaryCta.onClick}
+                style={{
+                  width: 36, height: 36, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'var(--ts-card2)', color: 'var(--ts-text)',
+                  border: '1px solid var(--ts-border)', borderRadius: 8, cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                <ShareIcon />
+              </button>
+            )
+          )}
         </div>
       </header>
 

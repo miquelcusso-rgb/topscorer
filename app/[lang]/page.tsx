@@ -45,7 +45,11 @@ const jsonLd = {
   },
 }
 
-export const revalidate = 3600
+// Fully static — the home reads only the static PLAYERS dataset, so it never
+// needs runtime regeneration. force-static removes the ISR serverless function
+// for /es entirely (which was crashing at module init on Vercel → 500), and
+// serves pure CDN HTML. Regenerated on each deploy.
+export const dynamic = 'force-static'
 
 function buildFaq(lang: string) {
   const entries =

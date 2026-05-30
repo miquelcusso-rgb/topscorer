@@ -54,7 +54,7 @@ export default async function V2PlayerPage({
     lang === 'en'
       ? {
           breadcrumb: ['Players', player.club, player.name],
-          cta: '↗ Share',
+          cta: 'Share',
           perf: 'Performance profile',
           vsTop: 'vs. Top-5 Europe forwards',
           matchTitle: 'Stats per matchday',
@@ -64,7 +64,7 @@ export default async function V2PlayerPage({
         }
       : {
           breadcrumb: ['Jugadores', player.club, player.name],
-          cta: '↗ Compartir',
+          cta: 'Compartir',
           perf: 'Perfil de rendimiento',
           vsTop: 'vs. delanteros Top-5 Europa',
           matchTitle: 'Estadísticas por jornada',
@@ -77,13 +77,16 @@ export default async function V2PlayerPage({
     <SaasShell
       activeKey="players"
       breadcrumb={labels.breadcrumb}
-      primaryCta={{ label: labels.cta }}
+      primaryCta={{ label: labels.cta, icon: 'share' }}
     >
       <IdentityCard
         player={player}
         liveText={`Jugando · ${player.club.slice(0, 3).toUpperCase()} 2-1 ARS · 78'`}
       />
-      <ProfileTabs />
+      <ProfileTabs
+        compareHref={`/${lang}/estadisticas/comparador?p1=${slug}`}
+        compareLabel={lang === 'en' ? '↗ Compare this player' : '↗ Comparar este jugador'}
+      />
       <div className="saas-profile-grid" style={{ display: 'grid', gridTemplateColumns: '380px 1fr 320px', gap: 18 }}>
         <RadarCard
           title={labels.perf}
@@ -110,11 +113,13 @@ export default async function V2PlayerPage({
             subtitle={labels.matchSub}
             rows={SAMPLE_MATCHES}
           />
-          <SeasonTable
-            title={labels.seasonTitle}
-            subtitle={labels.seasonSub}
-            rows={SAMPLE_SEASONS}
-          />
+          <div id="seasons" style={{ scrollMarginTop: 80 }}>
+            <SeasonTable
+              title={labels.seasonTitle}
+              subtitle={labels.seasonSub}
+              rows={SAMPLE_SEASONS}
+            />
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -133,12 +138,13 @@ export default async function V2PlayerPage({
             big={player.marketValue ?? '€180M'}
             delta="↑ +€20M (3m)"
             history={[
-              { date: 'May 26', value: 180, label: '€180M', width: 100 },
-              { date: 'Feb 26', value: 160, label: '€160M', width: 89 },
-              { date: 'Sep 25', value: 180, label: '€180M', width: 100 },
-              { date: 'May 25', value: 200, label: '€200M', width: 111 },
-              { date: 'Sep 24', value: 180, label: '€180M', width: 100 },
-              { date: 'Sep 23', value: 170, label: '€170M', width: 94 },
+              { date: '2026', value: 180, label: '€180M', width: 90 },
+              { date: '2025', value: 200, label: '€200M', width: 100 },
+              { date: '2024', value: 180, label: '€180M', width: 90 },
+              { date: '2023', value: 170, label: '€170M', width: 85 },
+              { date: '2022', value: 145, label: '€145M', width: 72 },
+              { date: '2021', value: 100, label: '€100M', width: 50 },
+              { date: '2020', value: 60,  label: '€60M',  width: 30 },
             ]}
           />
           <NationalTeamCard

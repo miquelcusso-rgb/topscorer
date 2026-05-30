@@ -6,6 +6,7 @@ import Avatar from './Avatar'
 import LeagueChip from './LeagueChip'
 import Sparkline from './Sparkline'
 import { slugify } from '@/lib/slugify'
+import { shortName } from '@/lib/player-name'
 
 export type TableTab = 'goals' | 'ast' | 'pj' | 'xg'
 export type SortDir = 'asc' | 'desc'
@@ -182,7 +183,7 @@ export default function PlayerTable({
                   letterSpacing: '-0.01em',
                 }}
               >
-                {player.name}
+                {shortName(player)}
               </div>
               <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 2 }}>
                 {player.flag ? `${player.flag} ` : ''}

@@ -57,11 +57,21 @@ export default function ValuationCard({
         </span>
         <span style={{ fontSize: 11, color: 'var(--ts-teal)', fontWeight: 600 }}>{delta}</span>
       </div>
-      <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 5 }}>
+      <div
+        style={{
+          marginTop: 14,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 5,
+          maxHeight: 220,
+          overflowY: 'auto',
+          paddingRight: 4,
+        }}
+      >
         {history.map(h => (
           <div
             key={h.date}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}
           >
             <span
               style={{

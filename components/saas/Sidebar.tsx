@@ -5,6 +5,7 @@ import { useLang } from '@/contexts/LangContext'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
 import { useTheme } from '@/contexts/ThemeContext'
 import type { Plan } from '@/types'
+import LockedPill from './LockedPill'
 
 export type SidebarActiveKey =
   | 'stats'
@@ -32,16 +33,16 @@ interface NavItem {
 
 function Wordmark() {
   // Canonical brand: logo-ball.png is the official TopScorers mark (also used
-  // by the legacy Navbar). Keep aspect square 34x34 next to the wordmark.
+  // by the legacy Navbar). 2x bigger after audit pass 1.
   return (
     <span
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 9,
+        gap: 12,
         fontFamily: 'Barlow Condensed, sans-serif',
         fontWeight: 800,
-        fontSize: 17,
+        fontSize: 23,
         letterSpacing: '0.04em',
         color: 'var(--ts-text)',
         textTransform: 'uppercase',
@@ -49,11 +50,11 @@ function Wordmark() {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/logo-ball.png"
+        src="/logo-ball-alpha.png"
         alt="TopScorers"
-        width={28}
-        height={28}
-        style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }}
+        width={40}
+        height={40}
+        style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }}
       />
       <span>
         TOP<span style={{ color: 'var(--ts-primary)' }}>·SCORERS</span>
@@ -171,7 +172,13 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
         color: 'var(--ts-text)',
       }}
     >
-      <div style={{ padding: '0 8px 18px' }}>
+      <div
+        style={{
+          padding: '4px 8px 22px',
+          borderBottom: '1px solid var(--ts-border-hot)',
+          marginBottom: 6,
+        }}
+      >
         <Link href={`/${lang}/v2`} style={{ textDecoration: 'none' }}>
           <Wordmark />
         </Link>
@@ -272,6 +279,55 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
           item={{ id: 'lists', icon: '📁', label: labels.f2, href: `/${lang}/watchlist` }}
           active={false}
         />
+
+        {/* Scout tools — gated. Items disabled with line-through + SCOUT pill
+            for non-scout plans. (audit pass 1, item 12) */}
+        <div
+          style={{
+            padding: '14px 10px 6px',
+            fontSize: 10,
+            color: 'var(--ts-faint)',
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            fontWeight: 600,
+          }}
+        >
+          {lang === 'en' ? 'Scout Tools' : 'Herramientas Scout'}
+        </div>
+        {(
+          [
+            { label: lang === 'en' ? 'Performance Alerts' : 'Alertas de rendimiento', href: `/${lang}/cuenta/alerts`, icon: '🔔' },
+            { label: lang === 'en' ? 'Public API' : 'API pública',                    href: `/${lang}/cuenta/api`,    icon: '🔌' },
+            { label: lang === 'en' ? 'CSV Export' : 'Exportar CSV',                   href: `/${lang}/cuenta/export`, icon: '⬇' },
+          ] as const
+        ).map(tool => {
+          const unlocked = plan === 'scout'
+          const inner = (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%' }}>
+              <span style={{ width: 16, fontSize: 14, opacity: 0.85 }}>{tool.icon}</span>
+              <span style={{ flex: 1, textDecoration: unlocked ? 'none' : 'line-through' }}>{tool.label}</span>
+              <LockedPill tone="scout" size="xs" />
+            </span>
+          )
+          const baseStyle = {
+            display: 'flex',
+            alignItems: 'center',
+            padding: '8px 10px',
+            borderRadius: 6,
+            fontSize: 13,
+            fontWeight: 500,
+            color: unlocked ? 'var(--ts-text)' : 'var(--ts-faint)',
+            textDecoration: 'none',
+            cursor: unlocked ? 'pointer' : 'not-allowed',
+            pointerEvents: unlocked ? 'auto' : 'none',
+            opacity: unlocked ? 1 : 0.7,
+          } as const
+          return unlocked ? (
+            <Link key={tool.href} href={tool.href} style={baseStyle}>{inner}</Link>
+          ) : (
+            <div key={tool.href} style={baseStyle} aria-disabled="true">{inner}</div>
+          )
+        })}
       </nav>
 
       <div style={{ flex: 1 }} />
