@@ -1,5 +1,6 @@
 import type { PlayerData } from '@/types'
 import { GENERATED_PLAYERS } from './players-generated'
+import { HISTORICAL_PLAYERS } from './players-historical'
 
 export const EXT: Record<string, Partial<PlayerData>> = {
   'Harry Kane':            { nationality:'Inglés',     flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', position:'FW', marketValue:'€70M',  releaseClause:null,    contractUntil:'2027', elo:2185, fantasyPoints:248, fantasyPrice:12.5 },
@@ -265,4 +266,16 @@ const GENERATED: PlayerData[] = GENERATED_PLAYERS
     return true
   })
 
-export const PLAYERS: PlayerData[] = [...CURATED, ...GENERATED]
+// Historical (10/11 → 19/20) merged AFTER curated+generated. Curated entries
+// take precedence when (name,season) collides because of the dedup above.
+export const PLAYERS: PlayerData[] = [
+  ...CURATED,
+  ...GENERATED,
+  ...HISTORICAL_PLAYERS.filter(h => {
+    // Skip if a current entry already exists for this (name,season)
+    const k = `${h.name}|${h.season}`
+    if (seen.has(k)) return false
+    seen.add(k)
+    return true
+  }),
+]

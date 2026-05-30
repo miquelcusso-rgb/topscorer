@@ -45,6 +45,14 @@ export async function GET(req: NextRequest) {
     playerIndex.set(`${p.name}::${p.season}`, { goals: p.goles, assists: p.asist, club: p.club })
   }
 
+  // Top performer of the week: current-season leader by composite score
+  // (goals + 0.7 * assists, tiebreak rating). Same player for every recipient
+  // so we compute once.
+  const currentSeasonForwards = PLAYERS.filter(p => p.season === '2526' && p.tab === 's')
+  const topPerformer = currentSeasonForwards
+    .map(p => ({ p, score: p.goles + p.asist * 0.7 + (p.rating ?? 0) * 0.05 }))
+    .sort((a, b) => b.score - a.score)[0]?.p
+
   let sent = 0
   let failed = 0
   for (const sub of subs) {
@@ -87,6 +95,14 @@ export async function GET(req: NextRequest) {
           question: (lang === 'es' ? pollRow.question_es : pollRow.question_en),
           url: `https://www.top-scorers.com/${lang}/encuestas/${pollRow.id}`,
           total_votes: pollRow.total_votes ?? 0,
+        } : undefined,
+        topPerformer: topPerformer ? {
+          player_name: topPerformer.name,
+          club: topPerformer.club,
+          goals: topPerformer.goles,
+          assists: topPerformer.asist,
+          rating: topPerformer.rating,
+          url: `https://www.top-scorers.com/${lang}/jugadores/${topPerformer.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`,
         } : undefined,
       })
 
