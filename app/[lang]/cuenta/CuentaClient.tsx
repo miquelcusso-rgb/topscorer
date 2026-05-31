@@ -79,15 +79,15 @@ export default function CuentaClient() {
 
   if (isLoaded && !user) {
     return (
-      <main style={{ background: bg, minHeight: '100vh', padding: '80px 20px', textAlign: 'center' }}>
+      <div style={{ background: bg, padding: '40px 20px', textAlign: 'center', borderRadius: 12 }}>
         <p style={{ color: text2, marginBottom: 16 }}>{es ? 'Inicia sesión para ver tu cuenta.' : 'Sign in to view your account.'}</p>
         <Link href={`/${lang}/sign-in`} style={{ background: '#f0c040', color: '#05060c', padding: '8px 18px', borderRadius: 5, fontWeight: 700, textDecoration: 'none' }}>
           {es ? 'Entrar' : 'Sign in'}
         </Link>
-      </main>
+      </div>
     )
   }
-  if (!isLoaded || !badge) return <main style={{ background: bg, minHeight: '100vh', padding: 40, textAlign: 'center', color: muted }}>{es ? 'Cargando…' : 'Loading…'}</main>
+  if (!isLoaded || !badge) return <div style={{ background: bg, padding: 40, textAlign: 'center', color: muted, borderRadius: 12 }}>{es ? 'Cargando…' : 'Loading…'}</div>
 
   const plan = (user!.publicMetadata?.plan as string) ?? 'free'
 
@@ -106,8 +106,8 @@ export default function CuentaClient() {
   )
 
   return (
-    <main style={{ background: bg, minHeight: '100vh' }}>
-      <div style={{ maxWidth: 880, margin: '0 auto', padding: '36px 20px 80px' }}>
+    <div style={{ background: bg }}>
+      <div style={{ maxWidth: 880, margin: '0 auto', padding: '8px 0 40px' }}>
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: '#f0c040', textTransform: 'uppercase', marginBottom: 8 }}>
           {es ? 'Tu cuenta' : 'Your account'}
         </div>
@@ -278,6 +278,6 @@ export default function CuentaClient() {
           )}
         </div>
       </div>
-    </main>
+    </div>
   )
 }

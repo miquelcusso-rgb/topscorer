@@ -45,7 +45,7 @@ export default function NationalTeamCard({ title, stats, footer }: NationalTeamC
             >
               {s.value}
             </div>
-            <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 3 }}>{s.label}</div>
+            <div style={{ fontSize: 12, color: 'var(--ts-muted)', marginTop: 3 }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -54,7 +54,7 @@ export default function NationalTeamCard({ title, stats, footer }: NationalTeamC
           marginTop: 12,
           paddingTop: 12,
           borderTop: '1px solid var(--ts-divider)',
-          fontSize: 11,
+          fontSize: 12,
           color: 'var(--ts-muted)',
         }}
       >

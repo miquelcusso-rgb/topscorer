@@ -55,7 +55,7 @@ export default function ContractCard({
               borderBottom: '1px solid var(--ts-hairline)',
             }}
           >
-            <span style={{ color: 'var(--ts-muted)', fontSize: 12 }}>{k}</span>
+            <span style={{ color: 'var(--ts-muted)', fontSize: 13 }}>{k}</span>
             <span style={{ color: 'var(--ts-text)', fontWeight: 500, textAlign: 'right' }}>
               {v}
             </span>

@@ -1,8 +1,11 @@
 import { notFound } from 'next/navigation'
+import { currentUser } from '@clerk/nextjs/server'
 import { isLocale, type Lang } from '@/lib/i18n'
 import { PLAYERS } from '@/data/players'
 import { slugify } from '@/lib/slugify'
+import { getUserPlan } from '@/lib/plans'
 import SaasShell from '@/components/saas/SaasShell'
+import LockedSection from '@/components/saas/LockedSection'
 import IdentityCard from '@/components/player/IdentityCard'
 import ProfileTabs from '@/components/player/ProfileTabs'
 import RadarCard from '@/components/player/RadarCard'
@@ -43,6 +46,9 @@ export default async function V2PlayerPage({
   const { lang: rawLang, slug } = await params
   if (!isLocale(rawLang)) notFound()
   const lang: Lang = rawLang
+
+  const user = await currentUser()
+  const userPlan = getUserPlan(user?.publicMetadata as Record<string, unknown> | undefined)
 
   const player =
     PLAYERS.find(p => slugify(p.name) === slug) ??
@@ -88,24 +94,26 @@ export default async function V2PlayerPage({
         compareLabel={lang === 'en' ? '↗ Compare this player' : '↗ Comparar este jugador'}
       />
       <div className="saas-profile-grid" style={{ display: 'grid', gridTemplateColumns: '380px 1fr 320px', gap: 18 }}>
-        <RadarCard
-          title={labels.perf}
-          subtitle={labels.vsTop}
-          axes={[
-            { label: 'Goles',      value: player.goles, pct: 95 },
-            { label: 'xG',         value: (player.goles - 1).toFixed(1), pct: 92 },
-            { label: 'Disparos',   value: player.shotsTotal ?? 90, pct: 88 },
-            { label: 'Conversión', value: '23%', pct: 86 },
-            { label: 'Asist.',     value: player.asist, pct: 42 },
-            { label: 'H-T',        value: 3, pct: 80 },
-          ]}
-          stats={[
-            { value: 7, label: 'Racha', tone: 'primary' },
-            { value: 3, label: 'H-T' },
-            { value: '23%', label: 'Conv.', tone: 'teal' },
-            { value: 99, label: 'M/G' },
-          ]}
-        />
+        <LockedSection requiredPlan="pro" userPlan={userPlan}>
+          <RadarCard
+            title={labels.perf}
+            subtitle={labels.vsTop}
+            axes={[
+              { label: 'Goles',      value: player.goles, pct: 95 },
+              { label: 'xG',         value: (player.goles - 1).toFixed(1), pct: 92 },
+              { label: 'Disparos',   value: player.shotsTotal ?? 90, pct: 88 },
+              { label: 'Conversión', value: '23%', pct: 86 },
+              { label: 'Asist.',     value: player.asist, pct: 42 },
+              { label: 'H-T',        value: 3, pct: 80 },
+            ]}
+            stats={[
+              { value: 7, label: 'Racha', tone: 'primary' },
+              { value: 3, label: 'H-T' },
+              { value: '23%', label: 'Conv.', tone: 'teal' },
+              { value: 99, label: 'M/G' },
+            ]}
+          />
+        </LockedSection>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <MatchTable
@@ -114,11 +122,23 @@ export default async function V2PlayerPage({
             rows={SAMPLE_MATCHES}
           />
           <div id="seasons" style={{ scrollMarginTop: 80 }}>
+            {/* Current season is free; historical seasons gated to PRO. */}
             <SeasonTable
               title={labels.seasonTitle}
               subtitle={labels.seasonSub}
-              rows={SAMPLE_SEASONS}
+              rows={SAMPLE_SEASONS.filter(r => r.current)}
             />
+            {SAMPLE_SEASONS.some(r => !r.current) && (
+              <div style={{ marginTop: 14 }}>
+                <LockedSection requiredPlan="pro" userPlan={userPlan}>
+                  <SeasonTable
+                    title={lang === 'en' ? 'Career history' : 'Carrera completa'}
+                    subtitle={lang === 'en' ? 'All past seasons' : 'Todas las temporadas anteriores'}
+                    rows={SAMPLE_SEASONS.filter(r => !r.current)}
+                  />
+                </LockedSection>
+              </div>
+            )}
           </div>
         </div>
 

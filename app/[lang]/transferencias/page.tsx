@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import { isLocale } from '@/lib/i18n'
+import { isLocale, type Lang } from '@/lib/i18n'
 import TransferenciasClient from './TransferenciasClient'
+import SaasShell from '@/components/saas/SaasShell'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -29,14 +30,21 @@ const breadcrumbJsonLd = {
   ],
 }
 
-export default function TransferenciasPage() {
+export default async function TransferenciasPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang: rawLang } = await params
+  const lang: Lang = isLocale(rawLang) ? rawLang : 'es'
+  const breadcrumb = lang === 'en' ? ['Transfers'] : ['Transferencias']
   return (
-    <>
+    <SaasShell activeKey="transfers" breadcrumb={breadcrumb}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <TransferenciasClient />
-    </>
+    </SaasShell>
   )
 }

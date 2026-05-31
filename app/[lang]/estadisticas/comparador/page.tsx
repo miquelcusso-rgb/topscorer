@@ -1,7 +1,8 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { isLocale } from '@/lib/i18n'
+import { isLocale, type Lang } from '@/lib/i18n'
 import ComparadorClient from './ComparadorClient'
+import SaasShell from '@/components/saas/SaasShell'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -21,14 +22,23 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   }
 }
 
-export default function ComparadorPage() {
+export default async function ComparadorPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang: rawLang } = await params
+  const lang: Lang = isLocale(rawLang) ? rawLang : 'es'
+  const breadcrumb = lang === 'en' ? ['Statistics', 'Comparator'] : ['Estadísticas', 'Comparador']
   return (
-    <Suspense fallback={
-      <div style={{ minHeight: '100vh', background: '#07070f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: '#5a5a7a', fontSize: 14 }}>Cargando comparador…</span>
-      </div>
-    }>
-      <ComparadorClient />
-    </Suspense>
+    <SaasShell activeKey="compare" breadcrumb={breadcrumb}>
+      <Suspense fallback={
+        <div style={{ padding: 40, textAlign: 'center' }}>
+          <span style={{ color: 'var(--ts-muted)', fontSize: 14 }}>Cargando comparador…</span>
+        </div>
+      }>
+        <ComparadorClient />
+      </Suspense>
+    </SaasShell>
   )
 }
