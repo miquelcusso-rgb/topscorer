@@ -81,7 +81,7 @@ export default function PositionTable({ players, tab, lang = 'es' }: Props) {
   const last5Label = lang === 'en' ? 'Last 5 · avg' : 'Últimos 5 · media'
 
   // grid: rank · avatar · player(1fr) · club · [cols...] · last5
-  const colTemplate = `40px 44px 1.4fr 120px ${cols.map(() => '64px').join(' ')} 180px`
+  const colTemplate = `34px 40px minmax(140px,1.4fr) 110px ${cols.map(() => 'minmax(52px,1fr)').join(' ')} 170px`
 
   if (players.length === 0) {
     return (

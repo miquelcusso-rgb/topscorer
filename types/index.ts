@@ -56,6 +56,11 @@ export interface PlayerData {
   yellowCards?: number
   redCards?: number
   penaltiesScored?: number
+  // Real per-season stats backfilled from API-Football /topscorers payload
+  interceptions?: number
+  duelsTotal?: number
+  goalsConceded?: number
+  saves?: number
 }
 
 export interface EnrichedPlayer extends PlayerData {

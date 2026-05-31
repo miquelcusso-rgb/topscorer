@@ -20,6 +20,12 @@ function trim(p: PlayerData): PlayerData {
     pj: p.pj, goles: p.goles, asist: p.asist, season: p.season,
     src: p.src, tab: p.tab, position: p.position, flag: p.flag,
     photo: p.photo, minutes: p.minutes, nationality: p.nationality,
+    // real advanced stats (needed by per-position columns + last-5)
+    rating: p.rating, shotsTotal: p.shotsTotal, shotsOn: p.shotsOn,
+    passes: p.passes, keyPasses: p.keyPasses, passAccuracy: p.passAccuracy,
+    tacklesTotal: p.tacklesTotal, interceptions: p.interceptions,
+    duelsWon: p.duelsWon, duelsTotal: p.duelsTotal,
+    saves: p.saves, goalsConceded: p.goalsConceded,
   }
 }
 

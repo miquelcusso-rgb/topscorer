@@ -9,34 +9,28 @@ import LockedSection from '@/components/saas/LockedSection'
 import IdentityCard from '@/components/player/IdentityCard'
 import ProfileTabs from '@/components/player/ProfileTabs'
 import RadarCard from '@/components/player/RadarCard'
-import MatchTable, { type MatchRow } from '@/components/player/MatchTable'
-import SeasonTable, { type SeasonRow } from '@/components/player/SeasonTable'
-import ContractCard from '@/components/player/ContractCard'
-import ValuationCard from '@/components/player/ValuationCard'
-import NationalTeamCard from '@/components/player/NationalTeamCard'
 
-const SAMPLE_MATCHES: MatchRow[] = [
-  { j: 36, vs: 'Arsenal',     ha: 'H', hs: 2, as: 1, min: 78, g: 1, a: 0, sht: 4, xg: 0.8, r: 8.4, live: true },
-  { j: 35, vs: 'Newcastle',   ha: 'A', hs: 0, as: 4, min: 90, g: 2, a: 1, sht: 5, xg: 1.6, r: 9.1 },
-  { j: 34, vs: 'Liverpool',   ha: 'H', hs: 1, as: 1, min: 90, g: 1, a: 0, sht: 3, xg: 0.9, r: 7.8 },
-  { j: 33, vs: 'Aston Villa', ha: 'A', hs: 1, as: 3, min: 88, g: 0, a: 1, sht: 2, xg: 0.4, r: 7.2 },
-  { j: 32, vs: 'Chelsea',     ha: 'H', hs: 2, as: 2, min: 90, g: 1, a: 0, sht: 4, xg: 1.1, r: 7.9 },
-  { j: 31, vs: 'Brighton',    ha: 'A', hs: 0, as: 5, min: 82, g: 2, a: 0, sht: 6, xg: 1.8, r: 8.7 },
-  { j: 30, vs: 'West Ham',    ha: 'H', hs: 1, as: 0, min: 90, g: 1, a: 0, sht: 3, xg: 0.7, r: 7.6 },
-  { j: 29, vs: 'Tottenham',   ha: 'A', hs: 1, as: 2, min: 90, g: 0, a: 1, sht: 2, xg: 0.5, r: 7.1 },
-  { j: 28, vs: 'Brentford',   ha: 'H', hs: 3, as: 0, min: 85, g: 3, a: 0, sht: 7, xg: 2.3, r: 9.4 },
-  { j: 27, vs: 'Fulham',      ha: 'A', hs: 1, as: 1, min: 90, g: 1, a: 1, sht: 4, xg: 1.2, r: 8.2 },
-]
-
-const SAMPLE_SEASONS: SeasonRow[] = [
-  { s: '25/26', club: 'Man City', league: 'Premier', pj: 32, g: 28, a: 6, min: 2780, trophies: '◯', current: true },
-  { s: '24/25', club: 'Man City', league: 'Premier', pj: 35, g: 31, a: 7, min: 3050, trophies: '🏆 PL' },
-  { s: '23/24', club: 'Man City', league: 'Premier', pj: 38, g: 36, a: 8, min: 3320, trophies: '🏆 PL · UCL' },
-  { s: '22/23', club: 'Man City', league: 'Premier', pj: 35, g: 36, a: 8, min: 3050, trophies: '🏆 PL · UCL · FA' },
-  { s: '21/22', club: 'Dortmund', league: 'Bundes.', pj: 24, g: 22, a: 7, min: 1980, trophies: '◯' },
-  { s: '20/21', club: 'Dortmund', league: 'Bundes.', pj: 28, g: 27, a: 4, min: 2400, trophies: '🏆 Pokal' },
-  { s: '19/20', club: 'Dortmund', league: 'Bundes.', pj: 18, g: 13, a: 1, min: 1180, trophies: '◯' },
-]
+type Tone = 'primary' | 'teal' | 'text'
+function StatGroup({ title, items }: { title: string; items: Array<[string, string | number, Tone]> }) {
+  const color = (t: Tone) => t === 'primary' ? 'var(--ts-primary)' : t === 'teal' ? 'var(--ts-teal)' : 'var(--ts-text)'
+  return (
+    <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, padding: 18 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 12 }}>
+        {title}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+        {items.map(([label, value, tone], i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 26, lineHeight: 1, color: color(tone), fontVariantNumeric: 'tabular-nums' }}>
+              {value}
+            </span>
+            <span style={{ fontSize: 11, color: 'var(--ts-muted)' }}>{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default async function V2PlayerPage({
   params,
@@ -79,16 +73,33 @@ export default async function V2PlayerPage({
           seasonSub: 'Carrera completa · 7 temporadas · 226 partidos',
         }
 
+  // Real performance radar derived from the player's season stats.
+  const clampPct = (v: number) => Math.max(8, Math.min(100, Math.round(v)))
+  const shots = player.shotsTotal ?? 0
+  const conv = shots ? Math.round(((player.goles ?? 0) / shots) * 100) : 0
+  const onTarget = shots ? Math.round(((player.shotsOn ?? 0) / shots) * 100) : 0
+  const radarAxes = [
+    { label: 'Goles',      value: player.goles ?? 0, pct: clampPct(((player.goles ?? 0) / 36) * 100) },
+    { label: 'Asist.',     value: player.asist ?? 0, pct: clampPct(((player.asist ?? 0) / 22) * 100) },
+    { label: 'Tiros',      value: shots, pct: clampPct((shots / 130) * 100) },
+    { label: '% Puerta',   value: `${onTarget}%`, pct: clampPct(onTarget) },
+    { label: 'Conversión', value: `${conv}%`, pct: clampPct(conv * 3) },
+    { label: 'P. clave',   value: player.keyPasses ?? 0, pct: clampPct(((player.keyPasses ?? 0) / 100) * 100) },
+  ]
+  const radarStats = [
+    { value: player.rating != null ? player.rating.toFixed(2) : '—', label: lang === 'en' ? 'Rating' : 'Nota', tone: 'primary' as const },
+    { value: player.keyPasses ?? '—', label: lang === 'en' ? 'Key P.' : 'P. clave' },
+    { value: `${conv}%`, label: 'Conv.', tone: 'teal' as const },
+    { value: player.passAccuracy != null ? `${player.passAccuracy}%` : '—', label: lang === 'en' ? 'Pass %' : 'Pase %' },
+  ]
+
   return (
     <SaasShell
       activeKey="players"
       breadcrumb={labels.breadcrumb}
       primaryCta={{ label: labels.cta, icon: 'share' }}
     >
-      <IdentityCard
-        player={player}
-        liveText={`Jugando · ${player.club.slice(0, 3).toUpperCase()} 2-1 ARS · 78'`}
-      />
+      <IdentityCard player={player} />
       <ProfileTabs
         compareHref={`/${lang}/estadisticas/comparador?p1=${slug}`}
         compareLabel={lang === 'en' ? '↗ Compare this player' : '↗ Comparar este jugador'}
@@ -98,85 +109,56 @@ export default async function V2PlayerPage({
           <RadarCard
             title={labels.perf}
             subtitle={labels.vsTop}
-            axes={[
-              { label: 'Goles',      value: player.goles, pct: 95 },
-              { label: 'xG',         value: (player.goles - 1).toFixed(1), pct: 92 },
-              { label: 'Disparos',   value: player.shotsTotal ?? 90, pct: 88 },
-              { label: 'Conversión', value: '23%', pct: 86 },
-              { label: 'Asist.',     value: player.asist, pct: 42 },
-              { label: 'H-T',        value: 3, pct: 80 },
-            ]}
-            stats={[
-              { value: 7, label: 'Racha', tone: 'primary' },
-              { value: 3, label: 'H-T' },
-              { value: '23%', label: 'Conv.', tone: 'teal' },
-              { value: 99, label: 'M/G' },
-            ]}
+            axes={radarAxes}
+            stats={radarStats}
           />
         </LockedSection>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <MatchTable
-            title={labels.matchTitle}
-            subtitle={labels.matchSub}
-            rows={SAMPLE_MATCHES}
-          />
-          <div id="seasons" style={{ scrollMarginTop: 80 }}>
-            {/* Current season is free; historical seasons gated to PRO. */}
-            <SeasonTable
-              title={labels.seasonTitle}
-              subtitle={labels.seasonSub}
-              rows={SAMPLE_SEASONS.filter(r => r.current)}
-            />
-            {SAMPLE_SEASONS.some(r => !r.current) && (
-              <div style={{ marginTop: 14 }}>
-                <LockedSection requiredPlan="pro" userPlan={userPlan}>
-                  <SeasonTable
-                    title={lang === 'en' ? 'Career history' : 'Carrera completa'}
-                    subtitle={lang === 'en' ? 'All past seasons' : 'Todas las temporadas anteriores'}
-                    rows={SAMPLE_SEASONS.filter(r => !r.current)}
-                  />
-                </LockedSection>
-              </div>
-            )}
-          </div>
+        <div id="seasons" style={{ display: 'flex', flexDirection: 'column', gap: 18, scrollMarginTop: 80 }}>
+          <StatGroup title={lang === 'en' ? 'Attack' : 'Ataque'} items={[
+            [lang === 'en' ? 'Goals' : 'Goles', player.goles ?? 0, 'primary'],
+            [lang === 'en' ? 'Shots' : 'Tiros', player.shotsTotal ?? '—', 'text'],
+            [lang === 'en' ? 'On target' : 'A puerta', player.shotsOn ?? '—', 'text'],
+            [lang === 'en' ? 'Conversion' : 'Conversión', `${conv}%`, 'teal'],
+          ]} />
+          <StatGroup title={lang === 'en' ? 'Creation' : 'Creación'} items={[
+            [lang === 'en' ? 'Assists' : 'Asist.', player.asist ?? 0, 'teal'],
+            [lang === 'en' ? 'Key passes' : 'Pases clave', player.keyPasses ?? '—', 'primary'],
+            [lang === 'en' ? 'Passes' : 'Pases', player.passes ?? '—', 'text'],
+            [lang === 'en' ? 'Pass %' : '% Acierto', player.passAccuracy != null ? `${player.passAccuracy}%` : '—', 'text'],
+          ]} />
+          <StatGroup title={lang === 'en' ? 'Defending' : 'Defensa'} items={[
+            [lang === 'en' ? 'Tackles' : 'Entradas', player.tacklesTotal ?? '—', 'teal'],
+            [lang === 'en' ? 'Interceptions' : 'Intercep.', player.interceptions ?? '—', 'text'],
+            [lang === 'en' ? 'Duels won' : 'Duelos gan.', player.duelsWon ?? '—', 'text'],
+            [lang === 'en' ? 'Duel %' : '% Duelos', player.duelsTotal ? `${Math.round((player.duelsWon ?? 0) / player.duelsTotal * 100)}%` : '—', 'text'],
+          ]} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <ContractCard
-            rows={[
-              ['Club', player.club],
-              ['Desde', 'Jun 2022'],
-              ['Hasta', player.contractUntil ?? 'Jun 2027'],
-              ['Tiempo restante', '1 año 1 mes'],
-              ['Cláusula', player.releaseClause ?? '—'],
-              ['Salario anual', '€20M brutos'],
-              ['Agente', 'Rafaela Pimenta'],
-            ]}
-          />
-          <ValuationCard
-            big={player.marketValue ?? '€180M'}
-            delta="↑ +€20M (3m)"
-            history={[
-              { date: '2026', value: 180, label: '€180M', width: 90 },
-              { date: '2025', value: 200, label: '€200M', width: 100 },
-              { date: '2024', value: 180, label: '€180M', width: 90 },
-              { date: '2023', value: 170, label: '€170M', width: 85 },
-              { date: '2022', value: 145, label: '€145M', width: 72 },
-              { date: '2021', value: 100, label: '€100M', width: 50 },
-              { date: '2020', value: 60,  label: '€60M',  width: 30 },
-            ]}
-          />
-          <NationalTeamCard
-            title={`Selección ${player.flag ?? ''}`}
-            stats={[
-              { value: 37, label: 'Partidos' },
-              { value: 33, label: 'Goles', tone: 'primary' },
-              { value: 5, label: 'Asist.', tone: 'teal' },
-              { value: 'Capitán', label: 'Rol' },
-            ]}
-            footer="Debut: 5 sep 2019 vs Malta · Próx.: Mundial 2026"
-          />
+          <StatGroup title={lang === 'en' ? 'General' : 'General'} items={[
+            [lang === 'en' ? 'Apps' : 'PJ', player.pj ?? 0, 'text'],
+            [lang === 'en' ? 'Minutes' : 'Minutos', player.minutes ?? '—', 'text'],
+            [lang === 'en' ? 'Rating' : 'Nota', player.rating != null ? player.rating.toFixed(2) : '—', 'primary'],
+            [lang === 'en' ? 'Age' : 'Edad', player.age ?? '—', 'text'],
+          ]} />
+          <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, padding: 18 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 12 }}>
+              {lang === 'en' ? 'Profile' : 'Ficha'}
+            </div>
+            {[
+              [lang === 'en' ? 'Club' : 'Club', player.club],
+              [lang === 'en' ? 'League' : 'Liga', player.league],
+              [lang === 'en' ? 'Position' : 'Posición', player.position ?? '—'],
+              [lang === 'en' ? 'Nationality' : 'Nacionalidad', `${player.flag ?? ''} ${player.nationality ?? '—'}`.trim()],
+              ...(player.marketValue ? [[lang === 'en' ? 'Market value' : 'Valor mercado', player.marketValue]] : []),
+            ].map(([k, v], idx) => (
+              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '8px 0', borderBottom: '1px solid var(--ts-hairline)', fontSize: 13 }}>
+                <span style={{ color: 'var(--ts-muted)' }}>{k}</span>
+                <span style={{ color: 'var(--ts-text)', fontWeight: 500, textAlign: 'right' }}>{v}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </SaasShell>
