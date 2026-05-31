@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 import PrediccionesClient from './PrediccionesClient'
 
 const BASE = 'https://www.top-scorers.com'
@@ -34,6 +35,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   }
 }
 
-export default function PrediccionesPage() {
-  return <PrediccionesClient />
+export default async function PrediccionesPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const breadcrumb = lang === 'en' ? ['Community', 'Predictions'] : ['Comunidad', 'Predicciones']
+  return (
+    <SaasShell activeKey="stats" breadcrumb={breadcrumb}>
+      <PrediccionesClient />
+    </SaasShell>
+  )
 }

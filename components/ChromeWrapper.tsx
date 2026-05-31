@@ -28,6 +28,18 @@ const PATTERNS = [
   /^\/(es|en)\/about\/?$/,
   /^\/(es|en)\/legal\/?$/,
   /^\/(es|en)\/privacidad\/?$/,
+  // Audit pass 3: SaaS-wrapped content pages
+  /^\/(es|en)\/rumores(\/.*)?$/,
+  /^\/(es|en)\/encuestas(\/.*)?$/,
+  /^\/(es|en)\/predicciones(\/.*)?$/,
+  /^\/(es|en)\/mundial-2026(\/.*)?$/,
+  /^\/(es|en)\/clasificacion(\/.*)?$/,
+  /^\/(es|en)\/descubrir(\/.*)?$/,
+  /^\/(es|en)\/wiki(\/.*)?$/,
+  /^\/(es|en)\/bota-de-oro(\/.*)?$/,
+  /^\/(es|en)\/centrocampistas(\/.*)?$/,
+  /^\/(es|en)\/maximos-goleadores-europa(\/.*)?$/,
+  /^\/(es|en)\/goleadores-[a-z0-9-]+(\/.*)?$/,
 ]
 
 export default function ChromeWrapper({
