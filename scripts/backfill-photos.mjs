@@ -1,31 +1,23 @@
 /**
- * backfill-photos.mjs
+ * backfill-photos.mjs  (v2 — robust name matching)
  *
- * Backfill `player.photo` URLs from API-Football v3 for every player in
- * data/players-generated.ts (and optionally data/players.ts).
+ * Backfill `player.photo` URLs from API-Football v3 into data/players-generated.ts.
  *
- * Strategy:
- *  - One API call per league × season: GET /players/topscorers (already lists
- *    photo URLs for the leaders, free of charge in the same response as goals).
- *    For deeper coverage we also page through GET /players?league=X&season=Y
- *    pages 1..N.
- *  - Build a Map<normalizedName, photoUrl>.
- *  - Rewrite data/players-generated.ts entries: insert `photo: '<url>'` if
- *    missing.
- *
- * Quota budget: 30 leagues × ~3 pages of /players = ~90 calls. Well within Pro
- * 7.5k/day. Add --dry to preview without writing.
+ * The dataset stores FULL names ("Jonathan Michael Burkardt") while API
+ * /topscorers returns abbreviated `player.name` ("J. Burkardt"), so exact
+ * name match fails. This version builds several indices from the API
+ * (firstname+lastname, raw name, lastname+team, unique lastname) and matches
+ * each dataset row by full name → lastname+club → unique lastname.
  *
  * Run:
- *   node scripts/backfill-photos.mjs --dry         # preview only
- *   node scripts/backfill-photos.mjs               # write changes
- *   node scripts/backfill-photos.mjs --league=140  # restrict to 1 league
+ *   node scripts/backfill-photos.mjs --dry
+ *   node scripts/backfill-photos.mjs
+ *   node scripts/backfill-photos.mjs --league=140
  */
 
 import { readFileSync, writeFileSync } from 'fs'
 import { setTimeout as sleep } from 'timers/promises'
 
-// ─── env ─────────────────────────────────────────────────────────────────────
 function loadEnv(path) {
   try {
     for (const line of readFileSync(path, 'utf8').split('\n')) {
@@ -44,19 +36,21 @@ const SEASON = 2025
 const DRY    = process.argv.includes('--dry')
 const LEAGUE_FILTER = process.argv.find(a => a.startsWith('--league='))?.split('=')[1]
 
-// Same league list as gen-players.mjs (keep in sync).
-const LEAGUE_IDS_FULL = [
-  140, 39, 78, 135, 61, 94, 203, 197,
-   88, 144, 179, 207, 218, 106, 119, 113, 103,
-   40,  79, 136,  62, 141,  95, 204, 199,  89, 180,
-  253, 262,  71, 128, 265, 239, 268,
-   98, 292, 169, 188,
-  307,
+// Prioritise Top-5 + Portugal/Turkey/Greece/NL (most user-facing). Page deeper
+// on these. Other leagues get the cheap topscorers/topassists coverage.
+const PRIORITY = [140, 39, 78, 135, 61, 94, 203, 197, 88]
+const SECONDARY = [
+  144, 179, 207, 218, 106, 119, 113, 103,
+  40, 79, 136, 62, 141, 95, 204, 199, 89, 180,
+  253, 262, 71, 128, 265, 239, 268, 98, 292, 169, 188, 307,
 ]
-const LEAGUE_IDS = LEAGUE_FILTER ? [Number(LEAGUE_FILTER)] : LEAGUE_IDS_FULL
+const LEAGUE_IDS = LEAGUE_FILTER
+  ? [Number(LEAGUE_FILTER)]
+  : [...PRIORITY, ...SECONDARY]
 
-const normalize = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+const norm = s => (s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
   .replace(/[^a-z0-9]+/g, ' ').trim()
+const lastWord = s => { const w = norm(s).split(' ').filter(Boolean); return w[w.length - 1] ?? '' }
 
 async function fetchJson(path) {
   const r = await fetch(BASE + path, { headers: { 'x-apisports-key': KEY } })
@@ -64,71 +58,84 @@ async function fetchJson(path) {
   return r.json()
 }
 
-async function getPhotosForLeague(leagueId) {
-  const photos = new Map()
-  let calls = 0
+// Global indices
+const byFull = new Map()        // "firstname lastname" -> photo
+const byName = new Map()        // raw api name -> photo
+const byLastTeam = new Map()    // "lastname|team" -> photo
+const byLast = new Map()        // lastname -> photo  (value null if ambiguous)
 
-  // (a) Top scorers + top assists give us photos for leaders cheaply.
-  for (const endpoint of ['topscorers', 'topassists']) {
-    const j = await fetchJson(`/players/${endpoint}?league=${leagueId}&season=${SEASON}`)
-    calls++
-    for (const r of j.response ?? []) {
-      const p = r.player
-      if (p?.name && p?.photo) photos.set(normalize(p.name), p.photo)
-    }
-    await sleep(800)
+function ingest(record) {
+  const p = record.player
+  if (!p?.photo) return
+  const team = record.statistics?.[0]?.team?.name
+  const full = norm(`${p.firstname ?? ''} ${p.lastname ?? ''}`)
+  const nm = norm(p.name)
+  const last = norm(p.lastname) || lastWord(p.name)
+  if (full) byFull.set(full, p.photo)
+  if (nm) byName.set(nm, p.photo)
+  if (last && team) byLastTeam.set(`${last}|${norm(team)}`, p.photo)
+  if (last) {
+    if (byLast.has(last) && byLast.get(last) !== p.photo) byLast.set(last, null) // ambiguous
+    else if (!byLast.has(last)) byLast.set(last, p.photo)
   }
-
-  // (b) Page through /players for broader coverage (3 pages = top 60 per league).
-  for (let page = 1; page <= 3; page++) {
-    const j = await fetchJson(`/players?league=${leagueId}&season=${SEASON}&page=${page}`)
-    calls++
-    for (const r of j.response ?? []) {
-      const p = r.player
-      if (p?.name && p?.photo) photos.set(normalize(p.name), p.photo)
-    }
-    if (!j.paging || page >= (j.paging.total ?? 1)) break
-    await sleep(800)
-  }
-
-  return { photos, calls }
 }
 
-// ─── main ────────────────────────────────────────────────────────────────────
-const ALL_PHOTOS = new Map()
 let totalCalls = 0
 for (const lid of LEAGUE_IDS) {
+  let calls = 0
   try {
-    const { photos, calls } = await getPhotosForLeague(lid)
+    for (const ep of ['topscorers', 'topassists']) {
+      const j = await fetchJson(`/players/${ep}?league=${lid}&season=${SEASON}`)
+      calls++
+      ;(j.response ?? []).forEach(ingest)
+      await sleep(700)
+    }
+    // deeper paging for priority leagues
+    const pages = PRIORITY.includes(lid) ? 6 : 2
+    for (let page = 1; page <= pages; page++) {
+      const j = await fetchJson(`/players?league=${lid}&season=${SEASON}&page=${page}`)
+      calls++
+      ;(j.response ?? []).forEach(ingest)
+      if (!j.paging || page >= (j.paging.total ?? 1)) break
+      await sleep(700)
+    }
     totalCalls += calls
-    for (const [k, v] of photos) ALL_PHOTOS.set(k, v)
-    console.log(`league ${lid}: +${photos.size} photos (${calls} calls)`)
+    console.log(`league ${lid}: ${calls} calls`)
   } catch (e) {
     console.error(`league ${lid}: ${e.message}`)
   }
 }
-console.log(`\nFetched ${ALL_PHOTOS.size} unique player photos in ${totalCalls} API calls.\n`)
+console.log(`\nIndexed: ${byFull.size} full, ${byName.size} name, ${byLastTeam.size} last+team, ${byLast.size} last. ${totalCalls} calls.\n`)
+
+function findPhoto(name, club) {
+  const nFull = norm(name)
+  const last = lastWord(name)
+  const nClub = norm(club)
+  return (
+    byFull.get(nFull) ||
+    byName.get(nFull) ||
+    byLastTeam.get(`${last}|${nClub}`) ||
+    (byLast.get(last) || undefined) ||
+    undefined
+  )
+}
 
 // ─── patch generated file ────────────────────────────────────────────────────
 const path = 'data/players-generated.ts'
 let src = readFileSync(path, 'utf8')
-const before = src
 
-let patched = 0
-// Match a player object block: `{ "name": "...", ... }` with double-quoted keys.
+let patched = 0, already = 0, missed = 0
 src = src.replace(/\{\s*"name":\s*"([^"]+)"[\s\S]*?\n  \}/g, (block, name) => {
-  if (/"photo":\s*"/.test(block)) return block
-  const url = ALL_PHOTOS.get(normalize(name))
-  if (!url) return block
+  if (/"photo":\s*"/.test(block)) { already++; return block }
+  const clubMatch = block.match(/"club":\s*"([^"]*)"/)
+  const club = clubMatch ? clubMatch[1] : ''
+  const url = findPhoto(name, club)
+  if (!url) { missed++; return block }
   patched++
-  // Insert photo before the closing brace, keeping JSON valid.
   return block.replace(/\n  \}$/, `,\n    "photo": ${JSON.stringify(url)}\n  }`)
 })
 
-console.log(`Patched ${patched} player entries.`)
-if (DRY) {
-  console.log('--dry: no write. Diff lines:', (src.match(/photo: '/g) ?? []).length - (before.match(/photo: '/g) ?? []).length)
-  process.exit(0)
-}
+console.log(`Patched ${patched} · already had ${already} · missed ${missed}`)
+if (DRY) { console.log('--dry: no write.'); process.exit(0) }
 writeFileSync(path, src)
 console.log(`Wrote ${path}.`)
