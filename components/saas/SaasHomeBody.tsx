@@ -2,90 +2,86 @@ import { PLAYERS } from '@/data/players'
 import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import SaasShell from './SaasShell'
-import SaasHomeInteractive, { type PoolView } from './SaasHomeInteractive'
-import V2PositionTabs from '@/app/[lang]/v2/position-tabs'
+import SaasHomeInteractive from './SaasHomeInteractive'
+import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
 
-// Big-5 leagues — used by the "Top 5 Europa" filter preset. Matches the
-// league strings stored on PLAYERS entries.
-const BIG5 = ['La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1'] as const
-const BIG5_PLUS_PT = [...BIG5, 'Primeira Liga'] as const
-
-// Build a MINIMAL view for one league scope: top 12 scorers + top assist +
-// count. We pass only this to the client component — NOT the hundreds of rows
-// in the pool. Passing large arrays server→client was the cause of the Vercel
-// 500 ("Error running the exported function") on /es.
-function buildView(seasonPool: PlayerData[], filter: (p: PlayerData) => boolean): PoolView {
-  const pool = seasonPool.filter(filter)
-  const topScorers = [...pool].sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0)).slice(0, 12)
-  const topAssist = [...pool].sort((a, b) => (b.asist ?? 0) - (a.asist ?? 0))[0] ?? null
-  return { topScorers, topAssist, count: pool.length }
+interface HeadingOverride {
+  breadcrumb: string[]
+  h1: string
+  sub: string
 }
 
-// Server component. Heavy data prep here; only tiny shaped views cross the
-// server→client boundary.
-export default function SaasHomeBody({ lang }: { lang: Lang }) {
-  const seasonPool = (Array.isArray(PLAYERS) ? PLAYERS : []).filter(
-    p => p && p.tab === 's' && p.season === '2526'
-  )
-
-  const pools: Record<'big5' | 'big5pt' | 'all', PoolView> = {
-    big5:   buildView(seasonPool, p => (BIG5 as readonly string[]).includes(p.league)),
-    big5pt: buildView(seasonPool, p => (BIG5_PLUS_PT as readonly string[]).includes(p.league)),
-    all:    buildView(seasonPool, () => true),
+// Minimal fields shipped to the client (avoids the large RSC payload that
+// previously crashed /es on Vercel). Rich stats are mostly empty in the dataset
+// anyway, so a trimmed object keeps the payload small.
+function trim(p: PlayerData): PlayerData {
+  return {
+    name: p.name, club: p.club, league: p.league, age: p.age,
+    pj: p.pj, goles: p.goles, asist: p.asist, season: p.season,
+    src: p.src, tab: p.tab, position: p.position, flag: p.flag,
+    photo: p.photo, minutes: p.minutes, nationality: p.nationality,
   }
+}
 
-  const labels =
+// Per-position pools: top 30 of each position across ALL leagues, sorted by
+// that position's key metric. The client filters by league + shows top 12.
+function buildPositionPools(season: PlayerData[]): Record<PositionTabId, PlayerData[]> {
+  const tabs: PositionTabId[] = ['fw', 'ast', 'mf', 'df', 'gk']
+  const out = {} as Record<PositionTabId, PlayerData[]>
+  for (const tab of tabs) {
+    const pool = season
+      .filter(POSITION_FILTER[tab])
+      .sort((a, b) => sortValue(tab, b) - sortValue(tab, a))
+      .slice(0, 30)
+      .map(trim)
+    out[tab] = pool
+  }
+  return out
+}
+
+export default function SaasHomeBody({
+  lang,
+  defaultPos,
+  heading,
+}: {
+  lang: Lang
+  defaultPos?: PositionTabId
+  heading?: HeadingOverride
+}) {
+  const season = (Array.isArray(PLAYERS) ? PLAYERS : []).filter(
+    p => p && p.season === '2526'
+  )
+  const positionPools = buildPositionPools(season)
+
+  const cta = lang === 'en' ? '+ New list' : '+ Crear lista'
+  const labels = heading ?? (
     lang === 'en'
       ? {
-          breadcrumb: ['Statistics', 'Scorers'],
-          cta: '+ New list',
-          h1: 'Top scorers · Europe top leagues',
-          sub: 'Season 25/26 · MD36',
+          breadcrumb: ['Statistics', 'Players'],
+          h1: 'Player rankings · Europe top leagues',
+          sub: 'Season 25/26 · MD36 · by position',
         }
       : {
-          breadcrumb: ['Estadísticas', 'Goleadores'],
-          cta: '+ Crear lista',
-          h1: 'Top scorers · Europe top leagues',
-          sub: 'Temporada 25/26 · J36',
+          breadcrumb: ['Estadísticas', 'Jugadores'],
+          h1: 'Rankings por jugador · Top ligas de Europa',
+          sub: 'Temporada 25/26 · J36 · por posición',
         }
+  )
 
   return (
     <SaasShell
       activeKey="stats"
       breadcrumb={labels.breadcrumb}
-      primaryCta={{ label: labels.cta, href: `/${lang}/watchlist` }}
+      primaryCta={{ label: cta, href: `/${lang}/watchlist` }}
     >
-      <div
-        className="saas-page-header"
-        style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          gap: 24,
-          flexWrap: 'wrap',
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              margin: 0,
-              fontFamily: 'DM Sans, sans-serif',
-              fontSize: 24,
-              fontWeight: 700,
-              letterSpacing: '-0.012em',
-              color: 'var(--ts-text)',
-            }}
-          >
-            {labels.h1}
-          </h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--ts-muted)' }}>
-            {labels.sub}
-          </p>
-        </div>
-        <V2PositionTabs lang={lang} />
+      <div className="saas-page-header" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <h1 style={{ margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, letterSpacing: '-0.012em', color: 'var(--ts-text)' }}>
+          {labels.h1}
+        </h1>
+        <p style={{ margin: 0, fontSize: 13, color: 'var(--ts-muted)' }}>{labels.sub}</p>
       </div>
 
-      <SaasHomeInteractive lang={lang} pools={pools} />
+      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} />
     </SaasShell>
   )
 }

@@ -1,126 +1,143 @@
 'use client'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import KpiCard from './KpiCard'
 import FilterBar from './FilterBar'
-import PlayerTable from './PlayerTable'
-import PlayerCardList from './PlayerCardList'
+import PositionTable from './PositionTable'
+import { type PositionTabId, TAB_LABELS, TAB_ACCENT } from '@/lib/position-stats'
 
 type LeagueFilterValue = 'big5' | 'big5pt' | 'all'
 
-// A pre-shaped, MINIMAL view per league filter. We deliberately do NOT pass
-// the full pools (hundreds of rows) from the server to this client component —
-// that large RSC serialization was the cause of the Vercel 500 on /es. We only
-// need the top 12 scorers + the top assist + a count per filter.
-export interface PoolView {
-  topScorers: PlayerData[] // already sorted desc, sliced to 12
-  topAssist: PlayerData | null
-  count: number
+const BIG5 = ['La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1']
+const BIG5_PT = [...BIG5, 'Primeira Liga']
+
+const POS_ICON: Record<PositionTabId, string> = {
+  fw: '⚽', ast: '🅰', mf: '⇄', df: '🛡', gk: '🧤',
 }
+const POS_ORDER: PositionTabId[] = ['fw', 'ast', 'mf', 'df', 'gk']
 
 interface Props {
   lang: Lang
-  pools: Record<LeagueFilterValue, PoolView>
+  positionPools: Record<PositionTabId, PlayerData[]>
+  defaultPos?: PositionTabId
 }
 
-export default function SaasHomeInteractive({ lang, pools }: Props) {
-  const [leagueFilter, setLeagueFilter] = useState<LeagueFilterValue>('big5')
-  const view = pools[leagueFilter]
-  const players = view.topScorers
-  const topAssist = view.topAssist
+export default function SaasHomeInteractive({ lang, positionPools, defaultPos }: Props) {
+  const [pos, setPos] = useState<PositionTabId>(defaultPos ?? 'fw')
+  const [league, setLeague] = useState<LeagueFilterValue>('big5')
+
+  const leagueMatch = useMemo(() => {
+    if (league === 'big5') return (p: PlayerData) => BIG5.includes(p.league)
+    if (league === 'big5pt') return (p: PlayerData) => BIG5_PT.includes(p.league)
+    return () => true
+  }, [league])
+
+  const pool = positionPools[pos] ?? []
+  const filtered = useMemo(() => pool.filter(leagueMatch), [pool, leagueMatch])
+  const players = filtered.slice(0, 12)
   const leader = players[0]
+  const accent = TAB_ACCENT[pos]
 
-  const labels =
-    lang === 'en'
-      ? {
-          kLeaderGoals: 'Leader · Goals',
-          kAssists: 'Top assists',
-          kActive: 'Active scorers',
-          kThisRound: 'Goals this round',
-          fLeague: 'League',
-          fSeason: 'Season',
-          fPosition: 'Position',
-          fAge: 'Age',
-          fMin: 'Min. games',
-          posAll: 'All',
-          inScope: 'In scope',
-        }
-      : {
-          kLeaderGoals: 'Líder · Goles',
-          kAssists: 'Asistencias top',
-          kActive: 'Goleadores activos',
-          kThisRound: 'Goles en la jornada',
-          fLeague: 'Liga',
-          fSeason: 'Temporada',
-          fPosition: 'Posición',
-          fAge: 'Edad',
-          fMin: 'Min. partidos',
-          posAll: 'Todas',
-          inScope: 'En el filtro',
-        }
+  const t = lang === 'en'
+    ? { season: 'Season', position: 'Position', age: 'Age', minpj: 'Min. games', league: 'League',
+        leader: 'Leader', topAssist: 'Top assist', avgAge: 'Avg age' }
+    : { season: 'Temporada', position: 'Posición', age: 'Edad', minpj: 'Min. partidos', league: 'Liga',
+        leader: 'Líder', topAssist: 'Asist. top', avgAge: 'Edad media' }
 
-  const leagueLabelMap: Record<LeagueFilterValue, string> = {
-    big5: lang === 'en' ? 'Top 5 Europe' : 'Top 5 Europa',
-    big5pt: lang === 'en' ? 'Top 5 + Portugal' : 'Top 5 + Portugal',
-    all: lang === 'en' ? 'All leagues' : 'Todas las ligas',
-  }
+  const posLabel = TAB_LABELS[lang === 'en' ? 'en' : 'es'][pos]
+  const leagueLabel = league === 'big5' ? (lang === 'en' ? 'Top 5 Europe' : 'Top 5 Europa')
+    : league === 'big5pt' ? 'Top 5 + Portugal'
+    : (lang === 'en' ? 'All leagues' : 'Todas las ligas')
+
+  const topAssist = [...filtered].sort((a, b) => (b.asist ?? 0) - (a.asist ?? 0))[0]
+  const avgAge = filtered.length
+    ? Math.round(filtered.reduce((s, p) => s + (p.age ?? 0), 0) / filtered.length)
+    : 0
+  const leaderMetric = pos === 'ast' ? (leader?.asist ?? 0)
+    : pos === 'df' || pos === 'gk' ? (leader?.pj ?? 0)
+    : (leader?.goles ?? 0)
+  const leaderMetricLabel = pos === 'ast' ? (lang === 'en' ? 'assists' : 'asist.')
+    : pos === 'df' || pos === 'gk' ? (lang === 'en' ? 'apps' : 'PJ')
+    : (lang === 'en' ? 'goals' : 'goles')
 
   function cycleLeague() {
     const order: LeagueFilterValue[] = ['big5', 'big5pt', 'all']
-    const i = order.indexOf(leagueFilter)
-    setLeagueFilter(order[(i + 1) % order.length])
+    setLeague(order[(order.indexOf(league) + 1) % order.length])
   }
 
   return (
     <>
+      {/* Position tabs (controlled) */}
+      <div className="saas-position-tabs" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {POS_ORDER.map(id => {
+          const isActive = id === pos
+          const a = TAB_ACCENT[id]
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setPos(id)}
+              style={{
+                padding: '7px 14px', borderRadius: 6, fontSize: 13, fontWeight: isActive ? 600 : 500,
+                background: isActive ? `var(--ts-${a}-soft)` : 'transparent',
+                color: isActive ? `var(--ts-${a})` : 'var(--ts-text)',
+                border: `1px solid ${isActive ? 'var(--ts-border-hot)' : 'var(--ts-border)'}`,
+                cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6,
+              }}
+            >
+              <span style={{ fontSize: 13, opacity: isActive ? 1 : 0.7 }}>{POS_ICON[id]}</span>
+              {TAB_LABELS[lang === 'en' ? 'en' : 'es'][id]}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* KPIs */}
       <div className="saas-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
         <KpiCard
-          label={labels.kLeaderGoals}
-          value={leader?.goles ?? 0}
-          subline={leader ? `${leader.name} · ${leader.club}` : ''}
-          tone="primary"
-          trend={{ delta: '↑ +3', tone: 'teal' }}
+          label={`${t.leader} · ${posLabel}`}
+          value={leaderMetric}
+          subline={leader ? `${leader.name} · ${leader.club}` : '—'}
+          tone={accent}
+          trend={{ delta: leaderMetricLabel, tone: accent }}
         />
         <KpiCard
-          label={labels.kAssists}
+          label={t.topAssist}
           value={topAssist?.asist ?? 0}
-          subline={topAssist ? `${topAssist.name} · ${topAssist.club}` : ''}
+          subline={topAssist ? `${topAssist.name} · ${topAssist.club}` : '—'}
           tone="teal"
           trend={{ delta: '↑ +1', tone: 'teal' }}
         />
         <KpiCard
-          label={labels.kActive}
-          value={view.count}
-          subline={labels.inScope}
+          label={lang === 'en' ? 'In scope' : 'En el filtro'}
+          value={filtered.length}
+          subline={`${posLabel} · ${leagueLabel}`}
           tone="primary"
-          trend={{ delta: '↑ +12', tone: 'teal' }}
+          trend={{ delta: leagueLabel, tone: 'primary' }}
         />
         <KpiCard
-          label={labels.kThisRound}
-          value={86}
-          subline="J36 · Top 5"
+          label={t.avgAge}
+          value={avgAge || '—'}
+          subline={posLabel}
           tone="teal"
-          trend={{ delta: lang === 'en' ? 'Avg: 71' : 'Promedio: 71', tone: 'primary' }}
+          trend={{ delta: lang === 'en' ? 'years' : 'años', tone: 'primary' }}
         />
       </div>
 
       <FilterBar
         filters={[
-          { key: 'league',   label: labels.fLeague,   value: leagueLabelMap[leagueFilter], active: true },
-          { key: 'season',   label: labels.fSeason,   value: '25/26' },
-          { key: 'position', label: labels.fPosition, value: labels.posAll },
-          { key: 'age',      label: labels.fAge,      value: '18–40' },
-          { key: 'minpj',    label: labels.fMin,      value: '5' },
+          { key: 'league',   label: t.league,   value: leagueLabel, active: true },
+          { key: 'season',   label: t.season,   value: '25/26' },
+          { key: 'position', label: t.position, value: posLabel },
+          { key: 'age',      label: t.age,      value: '16–40' },
+          { key: 'minpj',    label: t.minpj,    value: '3' },
         ]}
         onFilterClick={key => { if (key === 'league') cycleLeague() }}
-        count={{ current: players.length, total: view.count }}
+        count={{ current: players.length, total: filtered.length }}
       />
 
-      <div className="saas-desktop-table">
-        <PlayerTable players={players} lang={lang} tab="goals" sortBy="goals" sortDir="desc" />
-      </div>
-      <PlayerCardList players={players} lang={lang} />
+      <PositionTable players={players} tab={pos} lang={lang === 'en' ? 'en' : 'es'} />
     </>
   )
 }
