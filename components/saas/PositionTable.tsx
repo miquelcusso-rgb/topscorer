@@ -117,7 +117,7 @@ export default function PositionTable({ players, tab, lang = 'es' }: Props) {
           return (
             <Link
               key={slug + i}
-              href={`/${lang}/v2/jugadores/${slug}`}
+              href={`/${lang}/jugadores/${slug}`}
               style={{
                 display: 'grid', gridTemplateColumns: colTemplate, gap: 12, padding: '10px 16px', alignItems: 'center',
                 borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit',
@@ -164,7 +164,7 @@ export default function PositionTable({ players, tab, lang = 'es' }: Props) {
           return (
             <Link
               key={slug + i}
-              href={`/${lang}/v2/jugadores/${slug}`}
+              href={`/${lang}/jugadores/${slug}`}
               style={{
                 display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
                 background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10,

@@ -138,7 +138,7 @@ export default function PlayerTable({
         const xgDelta = Math.round((player.goles - xg) * 10) / 10
         const form = syntheticForm(player)
         const slug = slugify(player.name)
-        const href = hrefBuilder ? hrefBuilder(player) : `/${lang}/v2/jugadores/${slug}`
+        const href = hrefBuilder ? hrefBuilder(player) : `/${lang}/jugadores/${slug}`
         const hovered = hoveredRow === slug
         return (
           <Link

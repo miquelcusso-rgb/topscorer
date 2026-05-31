@@ -1,13 +1,16 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { currentUser } from '@clerk/nextjs/server'
 import { PLAYERS } from '@/data/players'
-import { enrich } from '@/lib/utils'
 import { slugify } from '@/lib/slugify'
-import { searchPlayer, getPlayerDetails } from '@/lib/api-football'
-import type { ApiPlayerDetail } from '@/lib/api-football'
-import PlayerPageClient from './PlayerPageClient'
+import { isLocale } from '@/lib/i18n'
+import { getUserPlan } from '@/lib/plans'
+import PlayerProfile from '@/components/player/PlayerProfile'
 
-export const revalidate = 3600
+// Reads only the static dataset (real season stats) + Clerk user (for Pro
+// gating) — no live per-player API call. Dynamic because of currentUser(),
+// same as the rest of the authed pages. Payload is a single small player
+// object (the /es 500 was a large-array serialization issue, fixed).
 
 export async function generateStaticParams() {
   return PLAYERS
@@ -51,30 +54,18 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   }
 }
 
-export default async function PlayerPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
+export default async function PlayerPage({ params }: { params: Promise<{ lang: string; slug: string }> }) {
+  const { lang: rawLang, slug } = await params
+  const lang = isLocale(rawLang) ? rawLang : 'es'
 
   const staticPlayers = PLAYERS.filter(p => slugify(p.name) === slug)
   if (!staticPlayers.length) notFound()
 
-  const basePlayer = staticPlayers[0]
-  const enriched = enrich(basePlayer)
+  // Prefer the current-season entry for the headline profile.
+  const basePlayer = staticPlayers.find(p => p.season === '2526') ?? staticPlayers[0]
 
-  let liveStats = null
-  let playerDetails: ApiPlayerDetail | null = null
-
-  try {
-    const results = await searchPlayer(basePlayer.name)
-    if (results.length > 0) {
-      liveStats = results[0]
-      const apiId = results[0].player.id
-      playerDetails = await getPlayerDetails(apiId, 2025)
-    }
-  } catch {
-    // fall back to static data
-  }
-
-  const allSeasons = PLAYERS.filter(p => slugify(p.name) === slug).map(enrich)
+  const user = await currentUser()
+  const userPlan = getUserPlan(user?.publicMetadata as Record<string, unknown> | undefined)
 
   const personJsonLd = {
     '@context': 'https://schema.org',
@@ -105,12 +96,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
-      <PlayerPageClient
-        player={enriched}
-        liveStats={liveStats}
-        allSeasons={allSeasons}
-        playerDetails={playerDetails}
-      />
+      <PlayerProfile player={basePlayer} lang={lang} slug={slug} userPlan={userPlan} />
     </>
   )
 }

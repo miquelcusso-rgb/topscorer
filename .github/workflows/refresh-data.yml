@@ -1,0 +1,50 @@
+name: Refresh player dataset
+
+# Weekly automated refresh of the static player dataset from API-Football.
+# Keeps the robust 0-runtime-cost static approach (data/players-generated.ts)
+# while getting fresh data — regenerate + commit + push → Vercel auto-deploys.
+#
+# Cost: ~68 API-Football calls/week (budget is 7,500/day).
+#
+# REQUIRED SETUP (one-time): add the repo secret
+#   Settings → Secrets and variables → Actions → New repository secret
+#     name:  API_FOOTBALL_KEY
+#     value: <the same key from .env.local>
+
+on:
+  schedule:
+    - cron: '17 5 * * 1' # Mondays 05:17 UTC
+  workflow_dispatch: {}   # allow manual run from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Regenerate dataset (players + advanced stats + photos)
+        env:
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: node scripts/gen-players.mjs
+
+      - name: Commit & push if changed
+        run: |
+          if git diff --quiet -- data/players-generated.ts; then
+            echo "No data changes this week."
+            exit 0
+          fi
+          git config user.name  "furiosa-data-bot"
+          git config user.email "noreply@top-scorers.com"
+          git add data/players-generated.ts
+          git commit -m "chore(data): weekly auto-refresh of player dataset"
+          git push

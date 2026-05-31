@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import { useLang } from '@/contexts/LangContext'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
@@ -116,33 +117,61 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
   const { theme } = useTheme()
   const { user, isLoaded } = useUser()
 
-  const labels = lang === 'en'
+  const pathname = usePathname() ?? ''
+  const en = lang === 'en'
+
+  const L = en
     ? {
-        menu: 'Menu', lists: 'Lists',
-        stats: 'Statistics', leagues: 'Competitions', players: 'Players',
-        compare: 'Compare', transfers: 'Transfers', results: 'Results',
-        watchlist: 'My watchlist', f1: 'U-22 prospects', f2: 'Historic top scorers',
-        upgradeTitle: 'API access + full data',
-        upgradeCta: 'Upgrade plan',
-        planPro: 'Pro plan · €6/mo',
+        gStats: 'Statistics', gComp: 'Competitions', gMarket: 'Market & Community', lists: 'Lists',
+        players: 'Players', compare: 'Compare', boot: 'Golden Boot',
+        leagues: 'Leagues', standings: 'Standings', results: 'Results', wc: 'World Cup 2026',
+        transfers: 'Transfers', polls: 'Polls', predictions: 'Predictions', fantasy: 'Fantasy',
+        watchlist: 'My watchlist',
+        upgradeTitle: 'API access + full data', upgradeCta: 'Upgrade plan', planPro: 'Pro plan · €6/mo',
       }
     : {
-        menu: 'Menu', lists: 'Listas',
-        stats: 'Estadísticas', leagues: 'Competiciones', players: 'Jugadores',
-        compare: 'Comparador', transfers: 'Transferencias', results: 'Resultados',
-        watchlist: 'Mi watchlist', f1: 'Sub-22 promesas', f2: 'Pichichi histórico',
-        upgradeTitle: 'Acceso API + datos completos',
-        upgradeCta: 'Actualizar plan',
-        planPro: 'Plan Pro · €6/mes',
+        gStats: 'Estadísticas', gComp: 'Competiciones', gMarket: 'Mercado y Comunidad', lists: 'Listas',
+        players: 'Jugadores', compare: 'Comparador', boot: 'Bota de Oro',
+        leagues: 'Ligas', standings: 'Clasificación', results: 'Resultados', wc: 'Mundial 2026',
+        transfers: 'Transferencias', polls: 'Encuestas', predictions: 'Predicciones', fantasy: 'Fantasy',
+        watchlist: 'Mi watchlist',
+        upgradeTitle: 'Acceso API + datos completos', upgradeCta: 'Actualizar plan', planPro: 'Plan Pro · €6/mes',
       }
 
-  const items: NavItem[] = [
-    { id: 'stats',     icon: '📊', label: labels.stats,     count: '384', href: `/${lang}/v2` },
-    { id: 'leagues',   icon: '🏆', label: labels.leagues,   count: '12',  href: `/${lang}/competiciones` },
-    { id: 'players',   icon: '👤', label: labels.players,                 href: `/${lang}/jugadores` },
-    { id: 'compare',   icon: '⚖',  label: labels.compare,                 href: `/${lang}/comparador` },
-    { id: 'transfers', icon: '↔',  label: labels.transfers, count: '24',  href: `/${lang}/transferencias` },
-    { id: 'results',   icon: '⚽', label: labels.results,   live: 3,      href: `/${lang}/resultados` },
+  // Active detection by exact path (home) or prefix (sub-routes).
+  const isActive = (href: string) => {
+    const home = `/${lang}`
+    if (href === home) return pathname === home || pathname === `${home}/`
+    return pathname === href || pathname.startsWith(href + '/')
+  }
+
+  const groups: Array<{ label: string; items: NavItem[] }> = [
+    {
+      label: L.gStats,
+      items: [
+        { id: 'players', icon: '👤', label: L.players,  href: `/${lang}` },
+        { id: 'compare', icon: '⚖',  label: L.compare,  href: `/${lang}/comparador` },
+        { id: 'stats',   icon: '🥇', label: L.boot,     href: `/${lang}/bota-de-oro` },
+      ],
+    },
+    {
+      label: L.gComp,
+      items: [
+        { id: 'leagues', icon: '🏆', label: L.leagues,   count: '30+', href: `/${lang}/competiciones` },
+        { id: 'leagues', icon: '📋', label: L.standings,              href: `/${lang}/clasificacion` },
+        { id: 'results', icon: '⚽', label: L.results,    live: 3,     href: `/${lang}/resultados` },
+        { id: 'leagues', icon: '🌍', label: L.wc,                      href: `/${lang}/mundial-2026` },
+      ],
+    },
+    {
+      label: L.gMarket,
+      items: [
+        { id: 'transfers', icon: '↔', label: L.transfers, count: '24', href: `/${lang}/transferencias` },
+        { id: 'stats',     icon: '🗳', label: L.polls,                  href: `/${lang}/encuestas` },
+        { id: 'stats',     icon: '🔮', label: L.predictions,           href: `/${lang}/predicciones` },
+        { id: 'stats',     icon: '🎮', label: L.fantasy,               href: `/${lang}/fantasy` },
+      ],
+    },
   ]
 
   const displayName = isLoaded && user
@@ -179,7 +208,7 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
           marginBottom: 16,
         }}
       >
-        <Link href={`/${lang}/v2`} style={{ textDecoration: 'none' }}>
+        <Link href={`/${lang}`} style={{ textDecoration: 'none' }}>
           <Wordmark />
         </Link>
       </div>
@@ -224,7 +253,7 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
             Top-Scorers
           </span>
           <span style={{ display: 'block', fontSize: 12, color: 'var(--ts-muted)' }}>
-            {labels.planPro}
+            {L.planPro}
           </span>
         </span>
         <svg width={10} height={10} viewBox="0 0 10 10" fill="none" stroke="var(--ts-muted)" strokeWidth={1.5} aria-hidden>
@@ -234,20 +263,24 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
 
       {/* nav */}
       <nav style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <div
-          style={{
-            padding: '6px 10px',
-            fontSize: 10,
-            color: 'var(--ts-faint)',
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            fontWeight: 600,
-          }}
-        >
-          {labels.menu}
-        </div>
-        {items.map(it => (
-          <MenuRow key={it.id} item={it} active={it.id === activeKey} />
+        {groups.map(group => (
+          <div key={group.label} style={{ display: 'contents' }}>
+            <div
+              style={{
+                padding: '14px 10px 6px',
+                fontSize: 10,
+                color: 'var(--ts-faint)',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                fontWeight: 600,
+              }}
+            >
+              {group.label}
+            </div>
+            {group.items.map((it, i) => (
+              <MenuRow key={`${it.label}-${i}`} item={it} active={isActive(it.href)} />
+            ))}
+          </div>
         ))}
 
         <div
@@ -260,25 +293,11 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
             fontWeight: 600,
           }}
         >
-          {labels.lists}
+          {L.lists}
         </div>
         <MenuRow
-          item={{
-            id: 'watchlist',
-            icon: '⭐',
-            label: labels.watchlist,
-            count: '8',
-            href: `/${lang}/watchlist`,
-          }}
-          active={activeKey === 'watchlist'}
-        />
-        <MenuRow
-          item={{ id: 'lists', icon: '📁', label: labels.f1, count: '24', href: `/${lang}/watchlist` }}
-          active={false}
-        />
-        <MenuRow
-          item={{ id: 'lists', icon: '📁', label: labels.f2, href: `/${lang}/watchlist` }}
-          active={false}
+          item={{ id: 'watchlist', icon: '⭐', label: L.watchlist, count: '8', href: `/${lang}/watchlist` }}
+          active={isActive(`/${lang}/watchlist`)}
         />
 
         {/* Scout tools — gated. Items disabled with line-through + SCOUT pill
@@ -369,7 +388,7 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
               lineHeight: 1.3,
             }}
           >
-            {labels.upgradeTitle} · <span style={{ color: 'var(--ts-primary)' }}>€18/mes</span>
+            {L.upgradeTitle} · <span style={{ color: 'var(--ts-primary)' }}>€18/mes</span>
           </div>
           <Link
             href={`/${lang}/pricing`}
@@ -387,7 +406,7 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
               textDecoration: 'none',
             }}
           >
-            {labels.upgradeCta}
+            {L.upgradeCta}
           </Link>
         </div>
       )}

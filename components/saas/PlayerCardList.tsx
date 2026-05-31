@@ -33,7 +33,7 @@ export default function PlayerCardList({ players, lang = 'es' }: Props) {
         return (
           <Link
             key={slug + i}
-            href={`/${lang}/v2/jugadores/${slug}`}
+            href={`/${lang}/jugadores/${slug}`}
             style={{
               display: 'flex',
               alignItems: 'center',
