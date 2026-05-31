@@ -31,7 +31,9 @@ export async function GET(req: NextRequest) {
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${appUrl}/?checkout=success`,
+    // Carry plan/billing + the Stripe session id back so the success page can
+    // fire the GA4 `purchase` event with value, currency and transaction_id.
+    success_url: `${appUrl}/?checkout=success&plan=${plan}&billing=${billing}&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:  `${appUrl}/pricing?checkout=cancelled`,
     metadata: { userId, plan },
     allow_promotion_codes: true,

@@ -7,6 +7,7 @@ import { getUserPlan } from '@/lib/plans'
 import { useLang } from '@/contexts/LangContext'
 import { t, type Lang, type TKey } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
+import { track } from '@/lib/analytics'
 
 type Billing = 'monthly' | 'yearly'
 
@@ -217,6 +218,14 @@ export default function PricingPage() {
   const plan = getUserPlan(user?.publicMetadata as Record<string, unknown>)
 
   function handleProCta(ctaHref: string) {
+    // GA4 conversion: fire begin_checkout just before leaving for Stripe.
+    // Works for both Pro and Scout (plan/billing read from the CTA href).
+    const params = new URLSearchParams(ctaHref.split('?')[1] ?? '')
+    track('begin_checkout', {
+      plan: params.get('plan') ?? undefined,
+      billing: params.get('billing') ?? undefined,
+    })
+
     if (!user) {
       clerk.openSignIn({ forceRedirectUrl: ctaHref })
     } else {

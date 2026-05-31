@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import { useLang } from '@/contexts/LangContext'
 import { t } from '@/lib/i18n'
+import { track } from '@/lib/analytics'
 
 // Clubs agrupados por liga
 const CLUBS_BY_LEAGUE: Record<string, { name: string; logo: number }[]> = {
@@ -76,6 +77,18 @@ export default function OnboardingPage() {
   const filtered = search.trim().length > 1
     ? ALL_CLUBS.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
     : null
+
+  // GA4 conversion: this page is the Clerk AFTER_SIGN_UP_URL, so reaching it
+  // means the user just completed registration. Fire sign_up exactly once per
+  // user — guard with localStorage so a re-render or a later revisit to
+  // /onboarding never double-counts.
+  useEffect(() => {
+    if (!isLoaded || !user) return
+    const key = `ts_signup_tracked_${user.id}`
+    if (localStorage.getItem(key)) return
+    track('sign_up', { method: 'clerk' })
+    localStorage.setItem(key, '1')
+  }, [isLoaded, user])
 
   async function handleSave() {
     if (!user || !selected) return
