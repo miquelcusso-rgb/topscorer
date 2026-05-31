@@ -15,7 +15,9 @@ const BIG5_PT = [...BIG5, 'Primeira Liga']
 const POS_ICON: Record<PositionTabId, string> = {
   fw: '⚽', ast: '🅰', mf: '⇄', df: '🛡', gk: '🧤',
 }
-const POS_ORDER: PositionTabId[] = ['fw', 'ast', 'mf', 'df', 'gk']
+// Porteros (gk) removed — the topscorers/topassists feed barely lists keepers,
+// so the GK ranking would be too sparse to be useful.
+const POS_ORDER: PositionTabId[] = ['fw', 'ast', 'mf', 'df']
 
 interface Props {
   lang: Lang
