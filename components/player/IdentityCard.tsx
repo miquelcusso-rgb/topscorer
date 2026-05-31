@@ -35,6 +35,7 @@ export default function IdentityCard({
       }}
     >
       <div
+        className="saas-identity-photo"
         style={{
           width: 140,
           height: 140,
@@ -51,7 +52,16 @@ export default function IdentityCard({
           overflow: 'hidden',
         }}
       >
-        {initials}
+        {player.photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={player.photo}
+            alt={shortName(player)}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          initials
+        )}
       </div>
 
       <div>
