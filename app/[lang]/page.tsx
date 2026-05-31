@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import SaasHomeBody from '@/components/saas/SaasHomeBody'
+import PurchaseTracker from '@/components/analytics/PurchaseTracker'
 import { isLocale, type Lang } from '@/lib/i18n'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -93,6 +94,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}
       />
+      <PurchaseTracker />
       <SaasHomeBody lang={lang} />
     </>
   )
