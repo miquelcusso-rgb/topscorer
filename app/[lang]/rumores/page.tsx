@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 import RumoresClient from './RumoresClient'
 
 const BASE = 'https://www.top-scorers.com'
@@ -48,13 +49,15 @@ export default async function RumoresPage({ params }: { params: Promise<{ lang: 
     ],
   }
 
+  const breadcrumb = lang === 'en' ? ['Transfers', 'Rumours'] : ['Transferencias', 'Rumores']
+
   return (
-    <>
+    <SaasShell activeKey="transfers" breadcrumb={breadcrumb}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <RumoresClient />
-    </>
+    </SaasShell>
   )
 }

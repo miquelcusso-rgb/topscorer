@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 import WikiClient from './WikiClient'
 
 const BASE = 'https://www.top-scorers.com'
@@ -50,12 +51,12 @@ export default async function WikiPage({ params }: { params: Promise<{ lang: str
   }
 
   return (
-    <>
+    <SaasShell activeKey="stats" breadcrumb={['Wiki']}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <WikiClient />
-    </>
+    </SaasShell>
   )
 }

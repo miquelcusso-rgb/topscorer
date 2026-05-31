@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -130,7 +131,7 @@ const headingStyle = {
 
 export default function GoleadoresSerieAPage() {
   return (
-    <>
+    <SaasShell activeKey="leagues" breadcrumb={['Competiciones', 'Goleadores Serie A']}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }} />
@@ -180,7 +181,7 @@ export default function GoleadoresSerieAPage() {
               </tbody>
             </table>
           </div>
-          <p style={{ marginTop: 10, color: '#475569', fontSize: 12 }}>
+          <p style={{ marginTop: 10, color: '#475569', fontSize: 13 }}>
             Datos actualizados. Fuente: API-Football (Rapid API). Ver{' '}
             <Link href="/" style={{ color: '#f0c040', textDecoration: 'none' }}>estadísticas en tiempo real →</Link>
           </p>
@@ -266,6 +267,6 @@ export default function GoleadoresSerieAPage() {
         </section>
 
       </div>
-    </>
+    </SaasShell>
   )
 }

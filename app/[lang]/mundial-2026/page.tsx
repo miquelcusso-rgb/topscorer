@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 import Mundial2026Client from './Mundial2026Client'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -55,9 +56,12 @@ const breadcrumbJsonLd = {
   ],
 }
 
-export default function Mundial2026Page() {
+export default async function Mundial2026Page({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const breadcrumb = lang === 'en' ? ['Competitions', 'World Cup 2026'] : ['Competiciones', 'Mundial 2026']
   return (
-    <>
+    <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
@@ -67,6 +71,6 @@ export default function Mundial2026Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <Mundial2026Client />
-    </>
+    </SaasShell>
   )
 }

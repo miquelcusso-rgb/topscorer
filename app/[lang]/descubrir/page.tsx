@@ -4,6 +4,7 @@ import { transformApiPlayer } from '@/lib/api-to-players'
 import { enrich } from '@/lib/utils'
 import type { EnrichedPlayer } from '@/types'
 import { isLocale } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 import DiscubrirClient from './DiscubrirClient'
 
 export const revalidate = 3600
@@ -36,7 +37,10 @@ const breadcrumbJsonLd = {
   ],
 }
 
-export default async function DescubrirPage() {
+export default async function DescubrirPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const breadcrumb = lang === 'en' ? ['Players', 'Discover'] : ['Jugadores', 'Descubrir']
   const allLeagues = [...LEAGUES, ...LEAGUES_2]
   let players: EnrichedPlayer[] = []
 
@@ -75,12 +79,12 @@ export default async function DescubrirPage() {
   }
 
   return (
-    <>
+    <SaasShell activeKey="players" breadcrumb={breadcrumb}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <DiscubrirClient players={players} />
-    </>
+    </SaasShell>
   )
 }

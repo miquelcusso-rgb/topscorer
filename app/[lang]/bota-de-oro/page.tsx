@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -129,7 +130,7 @@ const headingStyle = {
 
 export default function BotaDeOroPage() {
   return (
-    <>
+    <SaasShell activeKey="stats" breadcrumb={['Estadísticas', 'Bota de Oro']}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }} />
@@ -196,7 +197,7 @@ export default function BotaDeOroPage() {
                     <td style={{ padding: '10px 12px', textAlign: 'center', color: p.pos <= 3 ? '#f0c040' : '#475569', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{p.pos}</td>
                     <td style={{ padding: '10px 12px', color: '#e2e8f0', fontWeight: 600 }}>
                       {p.name}
-                      <span style={{ display: 'block', color: '#64748b', fontWeight: 400, fontSize: 12 }}>{p.club}</span>
+                      <span style={{ display: 'block', color: '#64748b', fontWeight: 400, fontSize: 13 }}>{p.club}</span>
                     </td>
                     <td style={{ padding: '10px 12px', color: '#64748b' }}>{p.league}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontFamily: 'monospace' }}>{p.goles}</td>
@@ -207,7 +208,7 @@ export default function BotaDeOroPage() {
               </tbody>
             </table>
           </div>
-          <p style={{ marginTop: 10, color: '#475569', fontSize: 12 }}>
+          <p style={{ marginTop: 10, color: '#475569', fontSize: 13 }}>
             Puntos = goles en liga × coeficiente. Datos actualizados, fuente: API-Football. Ver el{' '}
             <Link href="/maximos-goleadores-europa" style={{ color: '#f0c040', textDecoration: 'none' }}>ranking de goleadores de Europa →</Link>
           </p>
@@ -278,6 +279,6 @@ export default function BotaDeOroPage() {
         </section>
 
       </div>
-    </>
+    </SaasShell>
   )
 }

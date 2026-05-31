@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
+import SaasShell from '@/components/saas/SaasShell'
 import ClasificacionClient from './ClasificacionClient'
 
 const BASE = 'https://www.top-scorers.com'
@@ -34,6 +35,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   }
 }
 
-export default function ClasificacionPage() {
-  return <ClasificacionClient />
+export default async function ClasificacionPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang: raw } = await params
+  const lang = isLocale(raw) ? raw : 'es'
+  const breadcrumb = lang === 'en' ? ['Competitions', 'Leaderboard'] : ['Competiciones', 'Clasificación']
+  return (
+    <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
+      <ClasificacionClient />
+    </SaasShell>
+  )
 }
