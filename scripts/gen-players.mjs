@@ -167,6 +167,37 @@ function transform(res, tab) {
   const pos = POS_MAP[stat.games.position]
   if (pos) out.position = pos
   if (typeof stat.games.minutes === 'number') out.minutes = stat.games.minutes
+
+  // Real photo (API-Football CDN)
+  if (res.player.photo) out.photo = res.player.photo
+
+  // Real advanced stats — available in the /topscorers & /topassists payloads.
+  const num = v => (typeof v === 'number' ? v : null)
+  const shots = stat.shots ?? {}
+  const passes = stat.passes ?? {}
+  const tackles = stat.tackles ?? {}
+  const duels = stat.duels ?? {}
+  const dribbles = stat.dribbles ?? {}
+  const goals = stat.goals ?? {}
+  const cards = stat.cards ?? {}
+
+  if (num(shots.total) != null) out.shotsTotal = shots.total
+  if (num(shots.on) != null) out.shotsOn = shots.on
+  if (num(passes.total) != null) out.passes = passes.total
+  if (num(passes.key) != null) out.keyPasses = passes.key
+  if (num(passes.accuracy) != null) out.passAccuracy = passes.accuracy
+  if (num(tackles.total) != null) out.tacklesTotal = tackles.total
+  if (num(tackles.interceptions) != null) out.interceptions = tackles.interceptions
+  if (num(duels.total) != null) out.duelsTotal = duels.total
+  if (num(duels.won) != null) out.duelsWon = duels.won
+  if (num(dribbles.success) != null) out.dribblesSuccess = dribbles.success
+  if (num(goals.conceded) != null) out.goalsConceded = goals.conceded
+  if (num(goals.saves) != null) out.saves = goals.saves
+  if (num(cards.yellow) != null) out.yellowCards = cards.yellow
+  if (num(cards.red) != null) out.redCards = cards.red
+  const rating = parseFloat(stat.games?.rating)
+  if (!Number.isNaN(rating)) out.rating = Math.round(rating * 100) / 100
+
   return out
 }
 
