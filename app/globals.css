@@ -292,3 +292,8 @@ body::before {
   .saas-tap-target { min-height: 44px; min-width: 44px; }
 }
 
+
+/* Matchday standouts — 2×2 on tablet/mobile */
+@media (max-width: 1023px) {
+  .saas-standouts-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+}

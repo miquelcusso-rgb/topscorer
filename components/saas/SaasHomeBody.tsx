@@ -5,6 +5,7 @@ import SaasShell from './SaasShell'
 import SaasHomeInteractive from './SaasHomeInteractive'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
 import { computeHomeInsights } from '@/lib/home-insights'
+import { getTopRumor } from '@/lib/home-rumor'
 
 interface HeadingOverride {
   breadcrumb: string[]
@@ -60,7 +61,7 @@ function buildPositionPools(season: PlayerData[]): Record<PositionTabId, PlayerD
   return out
 }
 
-export default function SaasHomeBody({
+export default async function SaasHomeBody({
   lang,
   defaultPos,
   heading,
@@ -73,8 +74,11 @@ export default function SaasHomeBody({
     p => p && p.season === '2526'
   )
   const positionPools = buildPositionPools(season)
-  // Small derived payload (1 hot striker + ≤2 insight lines) — tiny + serializable.
+  // Small derived payload (hot striker + insights + standouts) — tiny + serializable.
   const insights = computeHomeInsights(season)
+  // Editorial "rumor del día" — fetched at build (home is force-static); fully
+  // defensive (null on any error), so it never breaks the build.
+  const rumor = await getTopRumor(lang === 'en' ? 'en' : 'es')
 
   const cta = lang === 'en' ? '+ New list' : '+ Crear lista'
   const labels = heading ?? (
@@ -104,7 +108,7 @@ export default function SaasHomeBody({
         <p style={{ margin: 0, fontSize: 13, color: 'var(--ts-muted)' }}>{labels.sub}</p>
       </div>
 
-      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} />
+      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumor={rumor} />
     </SaasShell>
   )
 }

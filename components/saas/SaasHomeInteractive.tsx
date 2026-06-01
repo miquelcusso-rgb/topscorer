@@ -6,8 +6,10 @@ import KpiCard from './KpiCard'
 import FilterBar from './FilterBar'
 import PositionTable from './PositionTable'
 import HotStrikerCard from './HotStrikerCard'
+import MatchdayStandouts from './MatchdayStandouts'
 import { type PositionTabId, TAB_LABELS, TAB_ACCENT } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
+import type { HomeRumor } from '@/lib/home-rumor'
 
 type LeagueFilterValue = 'big5' | 'big5pt' | 'all'
 
@@ -26,9 +28,10 @@ interface Props {
   positionPools: Record<PositionTabId, PlayerData[]>
   defaultPos?: PositionTabId
   insights?: HomeInsights
+  rumor?: HomeRumor | null
 }
 
-export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights }: Props) {
+export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumor }: Props) {
   const [pos, setPos] = useState<PositionTabId>(defaultPos ?? 'fw')
   const [league, setLeague] = useState<LeagueFilterValue>('big5')
   const [insightDismissed, setInsightDismissed] = useState(false)
@@ -98,6 +101,11 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
           )
         })}
       </div>
+
+      {/* Editorial: matchday standouts + hot rumour (real data) */}
+      {insights && (insights.standouts.length > 0 || rumor) && (
+        <MatchdayStandouts standouts={insights.standouts} rumor={rumor} lang={lang === 'en' ? 'en' : 'es'} />
+      )}
 
       {/* Hot striker + auto-insight banner (real derived data) */}
       {insights?.hot && <HotStrikerCard hot={insights.hot} lang={lang === 'en' ? 'en' : 'es'} />}

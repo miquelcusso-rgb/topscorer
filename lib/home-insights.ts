@@ -1,5 +1,6 @@
 import type { PlayerData } from '@/types'
 import { iig, leagueCoef } from './iig'
+import { slugify } from './slugify'
 
 // Small, serializable payloads computed server-side from the real PLAYERS
 // dataset and passed to the client (1-3 players only — keeps RSC payload tiny,
@@ -23,9 +24,25 @@ export interface HomeInsight {
   en: string
 }
 
+// "Jugones de la jornada" — a few editorial standouts, each a real leader.
+export interface Standout {
+  key: 'scorer' | 'assister' | 'rating' | 'iig'
+  labelEs: string
+  labelEn: string
+  name: string
+  club: string
+  flag?: string
+  photo?: string
+  slug: string
+  stat: string        // headline value, e.g. "33" or "8.6"
+  statLabelEs: string
+  statLabelEn: string
+}
+
 export interface HomeInsights {
   hot: HotStriker | null
   lines: HomeInsight[]
+  standouts: Standout[]
 }
 
 const num1 = (v: number) => (Math.round(v * 10) / 10).toString().replace('.', ',')
@@ -89,5 +106,27 @@ export function computeHomeInsights(season: PlayerData[]): HomeInsights {
     })
   }
 
-  return { hot, lines }
+  // "Jugones de la jornada" — real leaders across categories.
+  const standouts: Standout[] = []
+  const sd = (
+    key: Standout['key'], labelEs: string, labelEn: string,
+    p: PlayerData | undefined, stat: string, statLabelEs: string, statLabelEn: string,
+  ) => {
+    if (!p) return
+    standouts.push({
+      key, labelEs, labelEn, name: p.name, club: p.club, flag: p.flag,
+      photo: p.photo, slug: slugify(p.name), stat, statLabelEs, statLabelEn,
+    })
+  }
+  const byGoals = [...season].filter(p => p.tab === 's').sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0))[0]
+  const byAssist = [...season].sort((a, b) => (b.asist ?? 0) - (a.asist ?? 0))[0]
+  const byRating = [...season].filter(p => (p.pj ?? 0) >= 10 && typeof p.rating === 'number')
+    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))[0]
+  const byIig = [...forwards].sort((a, b) => iig(b) - iig(a))[0]
+  sd('scorer', 'Máximo goleador', 'Top scorer', byGoals, `${byGoals?.goles ?? 0}`, 'goles', 'goals')
+  sd('assister', 'Más asistencias', 'Top assister', byAssist, `${byAssist?.asist ?? 0}`, 'asistencias', 'assists')
+  sd('rating', 'Mejor nota', 'Best rating', byRating, byRating?.rating != null ? byRating.rating.toFixed(2) : '—', 'media', 'avg rating')
+  sd('iig', 'Líder IIG', 'IIG leader', byIig, byIig ? num1(iig(byIig)) : '—', 'IIG', 'IIG')
+
+  return { hot, lines, standouts }
 }
