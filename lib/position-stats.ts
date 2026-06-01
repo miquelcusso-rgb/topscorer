@@ -1,5 +1,5 @@
 import type { PlayerData } from '@/types'
-import { iig } from './iig'
+import { iig, leagueCoef } from './iig'
 
 export type PositionTabId = 'fw' | 'ast' | 'mf' | 'df' | 'gk'
 
@@ -69,6 +69,14 @@ export interface PosColumn {
   value: (p: PlayerData) => string | number
   accent?: boolean
   tone?: 'primary' | 'teal' | 'muted' | 'text'
+  /** Special render: 'last5' draws the Últimos-5 rating strip instead of a value. */
+  kind?: 'last5'
+}
+
+// Rating weighted by league difficulty coefficient ("valoración con coeficiente").
+function ratingCoef(p: PlayerData): string {
+  if (p.rating == null) return '—'
+  return (p.rating * leagueCoef(p.league)).toFixed(2)
 }
 
 const n = (v?: number) => v ?? 0
@@ -83,15 +91,19 @@ function ratio(a?: number, b?: number, dec = 2): string {
 }
 
 export const COLUMNS_FOR: Record<PositionTabId, PosColumn[]> = {
-  // Delanteros: finishing volume + efficiency
+  // Delanteros (página principal de goleadores) — column order per spec:
+  // Edad · PJ · Goles · Asist · G/PJ · A/PJ · Últimos 5 · Nota · Nota·Coef · IIG
   fw: [
-    { key: 'goles', label: 'Goles',   value: p => n(p.goles), accent: true, tone: 'primary' },
-    { key: 'sht',   label: 'Tiros',   value: p => dash(p.shotsTotal), tone: 'muted' },
-    { key: 'sot',   label: '% Puerta', value: p => pct(p.shotsOn, p.shotsTotal), tone: 'text' },
-    { key: 'conv',  label: 'Conv.',   value: p => pct(p.goles, p.shotsTotal), tone: 'teal' },
-    { key: 'asist', label: 'Asist.',  value: p => n(p.asist), tone: 'teal' },
-    { key: 'rt',    label: 'Nota',    value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
-    { key: 'iig',   label: 'IIG',     value: p => iig(p).toFixed(1), accent: true, tone: 'primary' },
+    { key: 'age',   label: 'Edad',     value: p => dash(p.age), tone: 'muted' },
+    { key: 'pj',    label: 'PJ',       value: p => n(p.pj), tone: 'muted' },
+    { key: 'goles', label: 'Goles',    value: p => n(p.goles), accent: true, tone: 'primary' },
+    { key: 'asist', label: 'Asist.',   value: p => n(p.asist), tone: 'teal' },
+    { key: 'gpj',   label: 'G/PJ',     value: p => ratio(p.goles, p.pj), tone: 'text' },
+    { key: 'apj',   label: 'A/PJ',     value: p => ratio(p.asist, p.pj), tone: 'text' },
+    { key: 'last5', label: 'Últimos 5', value: () => '', kind: 'last5' },
+    { key: 'rt',    label: 'Nota',     value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
+    { key: 'rtc',   label: 'Nota·Coef', value: ratingCoef, tone: 'teal' },
+    { key: 'iig',   label: 'IIG',      value: p => iig(p).toFixed(1), accent: true, tone: 'primary' },
   ],
   // Asistentes: creation
   ast: [
@@ -99,6 +111,7 @@ export const COLUMNS_FOR: Record<PositionTabId, PosColumn[]> = {
     { key: 'kp',    label: 'P. clave', value: p => dash(p.keyPasses), tone: 'primary' },
     { key: 'pas',   label: 'Pases',    value: p => dash(p.passes), tone: 'muted' },
     { key: 'pacc',  label: '% Acier.', value: p => (p.passAccuracy != null ? p.passAccuracy + '%' : '—'), tone: 'text' },
+    { key: 'last5', label: 'Últimos 5', value: () => '', kind: 'last5' },
     { key: 'rt',    label: 'Nota',     value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
   ],
   // Centrocampistas: playmaking + volume + contribution
@@ -108,6 +121,7 @@ export const COLUMNS_FOR: Record<PositionTabId, PosColumn[]> = {
     { key: 'pacc',  label: '% Acier.', value: p => (p.passAccuracy != null ? p.passAccuracy + '%' : '—'), tone: 'text' },
     { key: 'ga',    label: 'G+A',      value: p => n(p.goles) + n(p.asist), tone: 'teal' },
     { key: 'rec',   label: 'Recup.',   value: p => dash(p.interceptions), tone: 'muted' },
+    { key: 'last5', label: 'Últimos 5', value: () => '', kind: 'last5' },
     { key: 'rt',    label: 'Nota',     value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
   ],
   // Defensas: defensive actions
@@ -116,6 +130,7 @@ export const COLUMNS_FOR: Record<PositionTabId, PosColumn[]> = {
     { key: 'int',   label: 'Intercep.', value: p => dash(p.interceptions), tone: 'primary' },
     { key: 'dw',    label: 'Duelos G.', value: p => dash(p.duelsWon), tone: 'muted' },
     { key: 'dwp',   label: '% Duelos', value: p => pct(p.duelsWon, p.duelsTotal), tone: 'text' },
+    { key: 'last5', label: 'Últimos 5', value: () => '', kind: 'last5' },
     { key: 'rt',    label: 'Nota',     value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
   ],
   // Porteros: shot-stopping (sparse in this dataset — topscorers rarely lists GKs)
@@ -123,6 +138,7 @@ export const COLUMNS_FOR: Record<PositionTabId, PosColumn[]> = {
     { key: 'pj',    label: 'PJ',       value: p => n(p.pj), accent: true, tone: 'text' },
     { key: 'sav',   label: 'Paradas',  value: p => dash(p.saves), tone: 'primary' },
     { key: 'gc',    label: 'G. enc.',  value: p => dash(p.goalsConceded), tone: 'muted' },
+    { key: 'last5', label: 'Últimos 5', value: () => '', kind: 'last5' },
     { key: 'rt',    label: 'Nota',     value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
   ],
 }

@@ -82,8 +82,8 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort 
   const accent = TAB_ACCENT[tab]
   const last5Label = lang === 'en' ? 'Last 5 · avg' : 'Últimos 5 · media'
 
-  // grid: rank · avatar · player(1fr) · club · [cols...] · last5
-  const colTemplate = `34px 40px minmax(140px,1.4fr) 110px ${cols.map(() => 'minmax(52px,1fr)').join(' ')} 170px`
+  // grid: rank · avatar · player(1fr) · club · [cols...] (last5 is a wide col)
+  const colTemplate = `34px 40px minmax(130px,1.3fr) 96px ${cols.map(c => c.kind === 'last5' ? 'minmax(150px,1.5fr)' : 'minmax(44px,0.75fr)').join(' ')}`
 
   if (players.length === 0) {
     return (
@@ -99,7 +99,7 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort 
   return (
     <>
       {/* Desktop table */}
-      <div className="saas-desktop-table" style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, overflow: 'hidden' }}>
+      <div className="saas-desktop-table" style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, overflowX: 'auto' }}>
         <div style={{
           display: 'grid', gridTemplateColumns: colTemplate, gap: 12, padding: '12px 16px', alignItems: 'center',
           background: 'var(--ts-card2)', borderBottom: '1px solid var(--ts-border)',
@@ -110,23 +110,23 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort 
           <span>{lang === 'en' ? 'Player' : 'Jugador'}</span>
           <span>{lang === 'en' ? 'Team' : 'Equipo'}</span>
           {cols.map(c => {
+            const sortable = onSort && c.kind !== 'last5'
             const isSorted = sort?.key === c.key
             return (
               <span
                 key={c.key}
-                onClick={onSort ? () => onSort(c.key) : undefined}
+                onClick={sortable ? () => onSort!(c.key) : undefined}
                 style={{
                   textAlign: 'right',
-                  cursor: onSort ? 'pointer' : 'default',
+                  cursor: sortable ? 'pointer' : 'default',
                   color: isSorted ? `var(--ts-${accent})` : undefined,
                   userSelect: 'none',
                 }}
               >
-                {c.label}{isSorted ? (sort!.dir === -1 ? ' ↓' : ' ↑') : ''}
+                {c.kind === 'last5' ? last5Label : c.label}{isSorted ? (sort!.dir === -1 ? ' ↓' : ' ↑') : ''}
               </span>
             )
           })}
-          <span style={{ textAlign: 'right' }}>{last5Label}</span>
         </div>
 
         {players.map((p, i) => {
@@ -158,15 +158,18 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort 
                 <div style={{ marginTop: 2 }}><LeagueChip code={code(p.league)} /></div>
               </div>
               {cols.map(c => (
-                <span key={c.key} style={{
-                  textAlign: 'right', fontVariantNumeric: 'tabular-nums',
-                  fontSize: c.accent ? 15 : 14, fontWeight: c.accent ? 700 : 500,
-                  color: toneColor(c.tone), fontFamily: c.accent ? 'Barlow Condensed, sans-serif' : 'inherit',
-                }}>
-                  {c.value(p)}
-                </span>
+                c.kind === 'last5'
+                  ? <Last5Strip key={c.key} player={p} lang={lang} />
+                  : (
+                    <span key={c.key} style={{
+                      textAlign: 'right', fontVariantNumeric: 'tabular-nums',
+                      fontSize: c.accent ? 15 : 14, fontWeight: c.accent ? 700 : 500,
+                      color: toneColor(c.tone), fontFamily: c.accent ? 'Barlow Condensed, sans-serif' : 'inherit',
+                    }}>
+                      {c.value(p)}
+                    </span>
+                  )
               ))}
-              <Last5Strip player={p} lang={lang} />
             </Link>
           )
         })}
@@ -178,7 +181,7 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort 
           const rank = i + 1
           const slug = slugify(p.name)
           const { avg } = last5Ratings(p)
-          const primaryCol = cols[0]
+          const primaryCol = cols.find(c => c.accent && c.kind !== 'last5') ?? cols.find(c => c.kind !== 'last5') ?? cols[0]
           return (
             <Link
               key={slug + i}

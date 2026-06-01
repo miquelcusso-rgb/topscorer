@@ -10,7 +10,7 @@ import MatchdayStandouts from './MatchdayStandouts'
 import { type PositionTabId, TAB_LABELS, TAB_ACCENT } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
-import { iig } from '@/lib/iig'
+import { iig, leagueCoef } from '@/lib/iig'
 
 type LeagueFilterValue = 'big5' | 'big5pt' | 'all'
 
@@ -58,8 +58,11 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
   // pool's default order when no sort is active.
   const SORT_ACCESSOR: Record<string, (p: PlayerData) => number> = {
     goles: p => p.goles ?? 0, asist: p => p.asist ?? 0, pj: p => p.pj ?? 0,
+    age: p => p.age ?? 0,
+    gpj: p => (p.pj ? (p.goles ?? 0) / p.pj : 0), apj: p => (p.pj ? (p.asist ?? 0) / p.pj : 0),
     sht: p => p.shotsTotal ?? 0, sot: p => (p.shotsTotal ? (p.shotsOn ?? 0) / p.shotsTotal : 0),
     conv: p => (p.shotsTotal ? (p.goles ?? 0) / p.shotsTotal : 0), rt: p => p.rating ?? 0,
+    rtc: p => (p.rating ?? 0) * leagueCoef(p.league),
     iig: p => iig(p), kp: p => p.keyPasses ?? 0, pas: p => p.passes ?? 0,
     pacc: p => p.passAccuracy ?? 0, ga: p => (p.goles ?? 0) + (p.asist ?? 0),
     rec: p => p.interceptions ?? 0, tkl: p => p.tacklesTotal ?? 0, int: p => p.interceptions ?? 0,
