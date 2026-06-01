@@ -46,11 +46,8 @@ export default function Topbar({
         flexShrink: 0,
       }}
     >
-      {/* Inner content capped + centered to match the body width on wide screens */}
       <div style={{
         height: '100%',
-        maxWidth: 1480,
-        marginInline: 'auto',
         padding: '0 24px',
         display: 'flex',
         alignItems: 'center',

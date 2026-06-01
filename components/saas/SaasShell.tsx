@@ -36,6 +36,11 @@ export default function SaasShell({
         background: 'var(--ts-bg)',
         color: 'var(--ts-text)',
         fontFamily: 'DM Sans, sans-serif',
+        // Wide-screen: center the WHOLE app (sidebar + body) as one block, so
+        // the left gutter sits to the left of the sidebar too.
+        width: '100%',
+        maxWidth: 1750,
+        marginInline: 'auto',
       }}
     >
       <Sidebar activeKey={activeKey} plan={plan} />
@@ -58,12 +63,7 @@ export default function SaasShell({
             flexDirection: 'column',
             gap: 20,
             flex: 1,
-            // Wide-screen: cap content width + center so very large windows
-            // keep clean left/right gutters instead of stretching edge-to-edge.
-            width: '100%',
-            maxWidth: 1480,
-            marginInline: 'auto',
-            boxSizing: 'border-box',
+            minWidth: 0,
           }}
         >
           {children}
