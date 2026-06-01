@@ -12,6 +12,7 @@ import {
 } from '@/lib/api-football'
 import { isLocale, type Lang } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
+import RelatedLinks from '@/components/RelatedLinks'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -124,6 +125,10 @@ export default async function CompeticionesPage({
           </div>
         </div>
       ))}
+      <RelatedLinks
+        title={lang === 'en' ? 'Top scorer rankings' : 'Rankings de goleadores'}
+        exclude={['/competiciones']}
+      />
     </SaasShell>
   )
 }

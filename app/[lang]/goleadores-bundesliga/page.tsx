@@ -249,6 +249,7 @@ export default function GoleadoresBundesligaPage() {
               { href: '/goleadores-serie-a', label: 'Goleadores Serie A' },
               { href: '/goleadores-ligue-1', label: 'Goleadores Ligue 1' },
               { href: '/bota-de-oro', label: 'Bota de Oro' },
+              { href: '/records', label: 'Records y líderes' },
               { href: '/', label: 'Goleadores en tiempo real' },
               { href: '/competiciones', label: 'Todas las ligas' },
             ].map(({ href, label }) => (

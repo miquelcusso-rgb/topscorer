@@ -37,6 +37,7 @@ const PATTERNS = [
   /^\/(es|en)\/descubrir(\/.*)?$/,
   /^\/(es|en)\/wiki(\/.*)?$/,
   /^\/(es|en)\/bota-de-oro(\/.*)?$/,
+  /^\/(es|en)\/records(\/.*)?$/,
   /^\/(es|en)\/centrocampistas(\/.*)?$/,
   /^\/(es|en)\/maximos-goleadores-europa(\/.*)?$/,
   /^\/(es|en)\/goleadores-[a-z0-9-]+(\/.*)?$/,

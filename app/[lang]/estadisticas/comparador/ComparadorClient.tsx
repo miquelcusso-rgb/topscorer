@@ -12,6 +12,7 @@ import { PLAYERS } from '@/data/players'
 import { enrich } from '@/lib/utils'
 import { slugify } from '@/lib/slugify'
 import type { EnrichedPlayer } from '@/types'
+import VersusCard from './VersusCard'
 
 const PlayerRadar = dynamic(() => import('@/components/PlayerRadar'), { ssr: false })
 
@@ -347,6 +348,9 @@ export default function ComparadorClient() {
         {/* Comparison sections — shown when both selected */}
         {bothSelected && (
           <>
+            {/* Head-to-head VERSUS card (real metrics + shareable) */}
+            <VersusCard a={playerA} b={playerB} es={lang === 'es'} />
+
             {/* Radar charts */}
             <div style={{ display: 'flex', gap: 20, marginBottom: 32, flexWrap: 'wrap' as const }}>
               <div style={{ flex: 1, minWidth: 280, background: cardBg, border: `1px solid ${accentA}33`, borderRadius: 8, padding: 20 }}>

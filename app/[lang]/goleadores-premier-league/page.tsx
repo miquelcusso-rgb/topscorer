@@ -251,6 +251,7 @@ export default function GoleadoresPremierLeaguePage() {
               { href: '/goleadores-bundesliga', label: 'Goleadores Bundesliga' },
               { href: '/goleadores-ligue-1', label: 'Goleadores Ligue 1' },
               { href: '/bota-de-oro', label: 'Bota de Oro' },
+              { href: '/records', label: 'Records y líderes' },
               { href: '/competiciones/eng', label: 'Premier League en directo' },
               { href: '/', label: 'Top 25 en tiempo real' },
             ].map(({ href, label }) => (

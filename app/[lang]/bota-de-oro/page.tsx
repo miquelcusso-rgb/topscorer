@@ -351,6 +351,7 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
               { href: '/goleadores-serie-a', label: 'Goleadores Serie A' },
               { href: '/goleadores-bundesliga', label: 'Goleadores Bundesliga' },
               { href: '/goleadores-ligue-1', label: 'Goleadores Ligue 1' },
+              { href: '/records', label: 'Records y líderes' },
               { href: '/', label: 'Top 25 en tiempo real' },
               { href: '/competiciones', label: 'Todas las ligas' },
             ].map(({ href, label }) => (
