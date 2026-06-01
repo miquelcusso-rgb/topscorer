@@ -40,16 +40,23 @@ export default function Topbar({
       className="saas-topbar"
       style={{
         height: 60,
-        padding: '0 24px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
         borderBottom: '1px solid var(--ts-border)',
         background: 'var(--ts-surface)',
         fontFamily: 'DM Sans, sans-serif',
         flexShrink: 0,
       }}
     >
+      {/* Inner content capped + centered to match the body width on wide screens */}
+      <div style={{
+        height: '100%',
+        maxWidth: 1480,
+        marginInline: 'auto',
+        padding: '0 24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        boxSizing: 'border-box',
+      }}>
       <span style={{ fontSize: 13, color: 'var(--ts-muted)' }}>
         {breadcrumb.map((part, i) => {
           const last = i === breadcrumb.length - 1
@@ -149,6 +156,7 @@ export default function Topbar({
           </button>
         )
       })()}
+      </div>
     </header>
   )
 }
