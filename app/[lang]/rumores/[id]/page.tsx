@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
 import { createServerClient } from '@/lib/supabase'
+import SaasShell from '@/components/saas/SaasShell'
 import RumorDetailClient from './RumorDetailClient'
 
 const BASE = 'https://www.top-scorers.com'
@@ -41,6 +42,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 export default async function RumorPage({ params }: { params: Promise<{ lang: string; id: string }> }) {
-  const { id } = await params
-  return <RumorDetailClient id={id} />
+  const { lang: raw, id } = await params
+  const en = (isLocale(raw) ? raw : 'es') === 'en'
+  const breadcrumb = en ? ['Transfers', 'Rumours'] : ['Transferencias', 'Rumores']
+  return (
+    <SaasShell activeKey="transfers" breadcrumb={breadcrumb}>
+      <RumorDetailClient id={id} />
+    </SaasShell>
+  )
 }

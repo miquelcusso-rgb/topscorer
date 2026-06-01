@@ -137,64 +137,64 @@ export default function GoleadoresBundesligaPage() {
       <div className="max-w-[900px] mx-auto px-5 py-10">
 
         {/* Breadcrumb */}
-        <nav className="text-xs text-gray-500 mb-6 flex gap-1.5 items-center">
-          <Link href="/" className="hover:text-gray-300 transition-colors">TopScorers</Link>
+        <nav className="text-xs mb-6 flex gap-1.5 items-center" style={{ color: 'var(--ts-faint)' }}>
+          <Link href="/" style={{ color: 'var(--ts-muted)', textDecoration: 'none' }}>TopScorers</Link>
           <span>›</span>
-          <span className="text-gray-400">Goleadores Bundesliga</span>
+          <span style={{ color: 'var(--ts-muted)' }}>Goleadores Bundesliga</span>
         </nav>
 
         {/* H1 */}
-        <h1 style={{ ...headingStyle, fontSize: 38, color: '#eef4ff', marginBottom: 8 }}>
+        <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
           Goleadores Bundesliga 2025/26
         </h1>
-        <p style={{ color: '#94a3b8', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
-          Ranking actualizado de los máximos anotadores de la <strong style={{ color: '#e2e8f0' }}>Bundesliga</strong>, con goles, partidos jugados y media por encuentro. La carrera por la <strong style={{ color: '#e2e8f0' }}>Torjägerkanone</strong> y el histórico de ganadores de las últimas temporadas.
+        <p style={{ color: 'var(--ts-muted)', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
+          Ranking actualizado de los máximos anotadores de la <strong style={{ color: 'var(--ts-text)' }}>Bundesliga</strong>, con goles, partidos jugados y media por encuentro. La carrera por la <strong style={{ color: 'var(--ts-text)' }}>Torjägerkanone</strong> y el histórico de ganadores de las últimas temporadas.
         </p>
 
         {/* Current season table */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#f0c040', marginBottom: 16 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 16 }}>
             Clasificación — {CURRENT_SEASON.label}
           </h2>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #1e293b' }}>
+                <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
                   {['#', 'Jugador', 'Club', 'PJ', 'Goles', 'Media'].map(col => (
-                    <th key={col} style={{ padding: '8px 12px', textAlign: col === '#' || col === 'PJ' || col === 'Goles' || col === 'Media' ? 'center' : 'left', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
+                    <th key={col} style={{ padding: '8px 12px', textAlign: col === '#' || col === 'PJ' || col === 'Goles' || col === 'Media' ? 'center' : 'left', color: 'var(--ts-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {CURRENT_SEASON.players.map((p) => (
-                  <tr key={p.name} id={`pos-${p.pos}`} style={{ borderBottom: '1px solid #0f172a', transition: 'background 0.15s' }} className="hover:bg-white/5">
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: p.pos <= 3 ? '#f0c040' : '#475569', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{p.pos}</td>
-                    <td style={{ padding: '10px 12px', color: '#e2e8f0', fontWeight: 600 }}>{p.name}</td>
-                    <td style={{ padding: '10px 12px', color: '#64748b' }}>{p.club}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontFamily: 'monospace' }}>{p.pj}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#f0c040', fontWeight: 700, fontFamily: 'monospace', fontSize: 15 }}>{p.goles}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontFamily: 'monospace' }}>{(p.goles / p.pj).toFixed(2)}</td>
+                  <tr key={p.name} id={`pos-${p.pos}`} style={{ borderBottom: '1px solid var(--ts-divider)', transition: 'background 0.15s' }} className="hover:bg-white/5">
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: p.pos <= 3 ? 'var(--ts-primary)' : 'var(--ts-faint)', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{p.pos}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--ts-text)', fontWeight: 600 }}>{p.name}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--ts-muted)' }}>{p.club}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-muted)', fontFamily: 'monospace' }}>{p.pj}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'monospace', fontSize: 15 }}>{p.goles}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-muted)', fontFamily: 'monospace' }}>{(p.goles / p.pj).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p style={{ marginTop: 10, color: '#475569', fontSize: 13 }}>
+          <p style={{ marginTop: 10, color: 'var(--ts-faint)', fontSize: 13 }}>
             Datos actualizados. Fuente: API-Football (Rapid API). Ver{' '}
-            <Link href="/" style={{ color: '#f0c040', textDecoration: 'none' }}>estadísticas en tiempo real →</Link>
+            <Link href="/" style={{ color: 'var(--ts-primary)', textDecoration: 'none' }}>estadísticas en tiempo real →</Link>
           </p>
         </section>
 
         {/* Explanatory content — important for SEO */}
-        <section style={{ marginBottom: 40, color: '#94a3b8', lineHeight: 1.75, fontSize: 15 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 14 }}>
+        <section style={{ marginBottom: 40, color: 'var(--ts-muted)', lineHeight: 1.75, fontSize: 15 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 14 }}>
             Bundesliga 2025/26: análisis de la tabla de goleadores
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La temporada 2025/26 de la <strong style={{ color: '#e2e8f0' }}>Bundesliga</strong> está marcada por la exhibición goleadora de <strong style={{ color: '#e2e8f0' }}>Harry Kane</strong>, que con 33 goles aventaja en quince dianas al segundo clasificado. El delantero del <strong style={{ color: '#e2e8f0' }}>Bayern de Múnich</strong> apunta a su tercera Torjägerkanone consecutiva y amenaza el mítico récord de 41 goles de Lewandowski.
+            La temporada 2025/26 de la <strong style={{ color: 'var(--ts-text)' }}>Bundesliga</strong> está marcada por la exhibición goleadora de <strong style={{ color: 'var(--ts-text)' }}>Harry Kane</strong>, que con 33 goles aventaja en quince dianas al segundo clasificado. El delantero del <strong style={{ color: 'var(--ts-text)' }}>Bayern de Múnich</strong> apunta a su tercera Torjägerkanone consecutiva y amenaza el mítico récord de 41 goles de Lewandowski.
           </p>
           <p style={{ marginBottom: 12 }}>
-            Por detrás, <strong style={{ color: '#e2e8f0' }}>Deniz Undav</strong> (Stuttgart) firma una gran campaña con 18 tantos y <strong style={{ color: '#e2e8f0' }}>Patrik Schick</strong> mantiene al Leverkusen en la pelea europea con 16. El Bayern coloca hasta tres futbolistas en el top, con Luis Díaz y Michael Olise sumándose a la fiesta ofensiva muniquesa.
+            Por detrás, <strong style={{ color: 'var(--ts-text)' }}>Deniz Undav</strong> (Stuttgart) firma una gran campaña con 18 tantos y <strong style={{ color: 'var(--ts-text)' }}>Patrik Schick</strong> mantiene al Leverkusen en la pelea europea con 16. El Bayern coloca hasta tres futbolistas en el top, con Luis Díaz y Michael Olise sumándose a la fiesta ofensiva muniquesa.
           </p>
           <p>
             La Bundesliga sigue siendo la liga más prolífica de Europa en goles por partido, y la dependencia goleadora del campeón alemán respecto a Kane es uno de los grandes relatos de la temporada.
@@ -203,16 +203,16 @@ export default function GoleadoresBundesligaPage() {
 
         {/* Historical Torjägerkanone */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 16 }}>
             Histórico Torjägerkanone — Últimas Temporadas
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {HISTORICAL.map((h) => (
-              <div key={h.season} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
-                <span style={{ color: '#475569', fontFamily: 'monospace', fontSize: 13, width: 60, flexShrink: 0 }}>{h.season}</span>
-                <span style={{ color: '#e2e8f0', fontWeight: 600, flex: 1 }}>{h.winner}</span>
-                <span style={{ color: '#64748b', fontSize: 13 }}>{h.club}</span>
-                <span style={{ color: '#f0c040', fontWeight: 700, fontFamily: 'monospace', width: 50, textAlign: 'right' }}>{h.goles}G</span>
+              <div key={h.season} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', background: 'var(--ts-card2)', borderRadius: 10, border: '1px solid var(--ts-border)' }}>
+                <span style={{ color: 'var(--ts-faint)', fontFamily: 'monospace', fontSize: 13, width: 60, flexShrink: 0 }}>{h.season}</span>
+                <span style={{ color: 'var(--ts-text)', fontWeight: 600, flex: 1 }}>{h.winner}</span>
+                <span style={{ color: 'var(--ts-muted)', fontSize: 13 }}>{h.club}</span>
+                <span style={{ color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'monospace', width: 50, textAlign: 'right' }}>{h.goles}G</span>
               </div>
             ))}
           </div>
@@ -220,25 +220,25 @@ export default function GoleadoresBundesligaPage() {
 
         {/* FAQ */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 16 }}>
             Preguntas Frecuentes sobre Goleadores de la Bundesliga
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {FAQS.map(({ q, a }) => (
-              <details key={q} style={{ borderBottom: '1px solid #1e293b', padding: '14px 0' }}>
-                <summary style={{ color: '#e2e8f0', fontWeight: 600, cursor: 'pointer', fontSize: 15, listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <details key={q} style={{ borderBottom: '1px solid var(--ts-border)', padding: '14px 0' }}>
+                <summary style={{ color: 'var(--ts-text)', fontWeight: 600, cursor: 'pointer', fontSize: 15, listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   {q}
-                  <span style={{ color: '#f0c040', fontSize: 18, fontWeight: 400, flexShrink: 0, marginLeft: 12 }}>+</span>
+                  <span style={{ color: 'var(--ts-primary)', fontSize: 18, fontWeight: 400, flexShrink: 0, marginLeft: 12 }}>+</span>
                 </summary>
-                <p style={{ color: '#94a3b8', marginTop: 10, lineHeight: 1.7, fontSize: 14 }}>{a}</p>
+                <p style={{ color: 'var(--ts-muted)', marginTop: 10, lineHeight: 1.7, fontSize: 14 }}>{a}</p>
               </details>
             ))}
           </div>
         </section>
 
         {/* Internal links */}
-        <section style={{ padding: '20px 24px', background: 'rgba(240,192,64,0.06)', borderRadius: 12, border: '1px solid rgba(240,192,64,0.15)' }}>
-          <h3 style={{ ...headingStyle, fontSize: 16, color: '#f0c040', marginBottom: 12 }}>
+        <section style={{ padding: '20px 24px', background: 'var(--ts-primary-soft)', borderRadius: 12, border: '1px solid var(--ts-border-hot)' }}>
+          <h3 style={{ ...headingStyle, fontSize: 16, color: 'var(--ts-primary)', marginBottom: 12 }}>
             Más estadísticas en TopScorers
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -256,7 +256,7 @@ export default function GoleadoresBundesligaPage() {
               <Link
                 key={href}
                 href={href}
-                style={{ color: '#f0c040', textDecoration: 'none', fontSize: 13, padding: '6px 14px', background: 'rgba(240,192,64,0.1)', borderRadius: 20, border: '1px solid rgba(240,192,64,0.2)', transition: 'background 0.15s' }}
+                style={{ color: 'var(--ts-primary)', textDecoration: 'none', fontSize: 13, padding: '6px 14px', background: 'var(--ts-primary-soft)', borderRadius: 20, border: '1px solid var(--ts-border-hot)', transition: 'background 0.15s' }}
                 className="hover:bg-yellow-400/20"
               >
                 {label}

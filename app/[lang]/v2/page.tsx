@@ -54,7 +54,7 @@ export default async function V2Page({
     <SaasShell
       activeKey="stats"
       breadcrumb={labels.breadcrumb}
-      primaryCta={{ label: labels.cta, href: `/${lang}/watchlist` }}
+      primaryCta={{ label: labels.cta, href: `/${lang}/cuenta` }}
     >
       <div
         style={{

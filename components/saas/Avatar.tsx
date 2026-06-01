@@ -25,6 +25,10 @@ export default function Avatar({ name, size = 36, photo }: AvatarProps) {
         width={size}
         height={size}
         loading="lazy"
+        // Allow canvas / html-to-image export without tainting when the CDN
+        // serves permissive CORS headers (API-Football does). Falls back to
+        // tinted initials on load error.
+        crossOrigin="anonymous"
         onError={() => setBroken(true)}
         style={{
           width: size,

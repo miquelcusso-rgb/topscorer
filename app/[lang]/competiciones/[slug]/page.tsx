@@ -8,6 +8,7 @@ import {
   getTopScorers,
   getTopAssists,
 } from '@/lib/api-football'
+import SaasShell from '@/components/saas/SaasShell'
 import CompeticionClient from './CompeticionClient'
 
 export const revalidate = 1800
@@ -83,7 +84,7 @@ export default async function CompeticionPage({ params }: { params: Promise<{ sl
   }
 
   return (
-    <>
+    <SaasShell activeKey="leagues" breadcrumb={['Competiciones', league.name]}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(sportsOrgJsonLd).replace(/</g, '\\u003c') }}
@@ -100,6 +101,6 @@ export default async function CompeticionPage({ params }: { params: Promise<{ sl
         scorers={scorers}
         assists={assists}
       />
-    </>
+    </SaasShell>
   )
 }

@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { createServerClient } from '@/lib/supabase'
 import { PLAYERS } from '@/data/players'
 import { slugify } from '@/lib/slugify'
+import SaasShell from '@/components/saas/SaasShell'
 import FantasyTeamEditor from './FantasyTeamEditor'
 
 type Props = { params: Promise<{ lang: string }> }
@@ -27,12 +28,15 @@ export default async function FantasyTeamPage({ params }: Props) {
     .slice(0, 200)
     .map(p => ({ slug: slugify(p.name), name: p.name, club: p.club, league: p.league, goals: p.goles, assists: p.asist }))
 
+  const es = lang === 'es'
   return (
-    <FantasyTeamEditor
-      lang={lang}
-      initialTeamName={existing?.team_name ?? ''}
-      initialPicks={(existing?.fantasy_team_picks as unknown as Array<{ player_slug: string; player_name: string; slot: number; captain: boolean }>) ?? []}
-      eligible={eligible}
-    />
+    <SaasShell activeKey="stats" breadcrumb={es ? ['Estadísticas', 'Fantasy', 'Mi equipo'] : ['Statistics', 'Fantasy', 'My team']}>
+      <FantasyTeamEditor
+        lang={lang}
+        initialTeamName={existing?.team_name ?? ''}
+        initialPicks={(existing?.fantasy_team_picks as unknown as Array<{ player_slug: string; player_name: string; slot: number; captain: boolean }>) ?? []}
+        eligible={eligible}
+      />
+    </SaasShell>
   )
 }

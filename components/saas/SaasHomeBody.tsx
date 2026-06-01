@@ -30,18 +30,32 @@ function trim(p: PlayerData): PlayerData {
   }
 }
 
-// Per-position pools: top 30 of each position across ALL leagues, sorted by
-// that position's key metric. The client filters by league + shows top 12.
+const BIG5_LEAGUES = ['La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1']
+const PT = 'Primeira Liga'
+
+// Per-position pools. The home league filter cycles Big-5 → Big-5+PT → All, so
+// each scope must have ≥12 rows. We therefore guarantee representation by
+// taking the top of EACH scope (not a single global top-N where weaker-league
+// high-scorers like Messi/MLS would crowd out the Big-5). Deduped, trimmed.
 function buildPositionPools(season: PlayerData[]): Record<PositionTabId, PlayerData[]> {
   const tabs: PositionTabId[] = ['fw', 'ast', 'mf', 'df', 'gk']
   const out = {} as Record<PositionTabId, PlayerData[]>
   for (const tab of tabs) {
-    const pool = season
+    const all = season
       .filter(POSITION_FILTER[tab])
       .sort((a, b) => sortValue(tab, b) - sortValue(tab, a))
-      .slice(0, 30)
-      .map(trim)
-    out[tab] = pool
+    const big5 = all.filter(p => BIG5_LEAGUES.includes(p.league)).slice(0, 20)
+    const pt = all.filter(p => p.league === PT).slice(0, 6)
+    const rest = all.slice(0, 20) // global top (covers "All leagues" scope)
+    const seen = new Set<string>()
+    const merged: PlayerData[] = []
+    for (const p of [...big5, ...pt, ...rest]) {
+      const k = `${p.name}|${p.club}`
+      if (seen.has(k)) continue
+      seen.add(k)
+      merged.push(trim(p))
+    }
+    out[tab] = merged
   }
   return out
 }
@@ -81,7 +95,7 @@ export default function SaasHomeBody({
     <SaasShell
       activeKey="stats"
       breadcrumb={labels.breadcrumb}
-      primaryCta={{ label: cta, href: `/${lang}/watchlist` }}
+      primaryCta={{ label: cta, href: `/${lang}/cuenta` }}
     >
       <div className="saas-page-header" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         <h1 style={{ margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, letterSpacing: '-0.012em', color: 'var(--ts-text)' }}>

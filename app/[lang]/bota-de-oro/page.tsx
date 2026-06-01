@@ -178,27 +178,27 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
       <div className="max-w-[900px] mx-auto px-5 py-10">
 
         {/* Breadcrumb */}
-        <nav className="text-xs text-gray-500 mb-6 flex gap-1.5 items-center">
-          <Link href="/" className="hover:text-gray-300 transition-colors">TopScorers</Link>
+        <nav className="text-xs mb-6 flex gap-1.5 items-center" style={{ color: 'var(--ts-faint)' }}>
+          <Link href="/" style={{ color: 'var(--ts-muted)', textDecoration: 'none' }}>TopScorers</Link>
           <span>›</span>
-          <span className="text-gray-400">Bota de Oro</span>
+          <span style={{ color: 'var(--ts-muted)' }}>Bota de Oro</span>
         </nav>
 
         {/* H1 */}
-        <h1 style={{ ...headingStyle, fontSize: 38, color: '#eef4ff', marginBottom: 8 }}>
+        <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
           Bota de Oro 2025/26
         </h1>
-        <p style={{ color: '#94a3b8', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
-          La <strong style={{ color: '#e2e8f0' }}>Bota de Oro</strong> (European Golden Shoe) premia al máximo goleador de Europa ponderando los goles por la dificultad de cada liga. Aquí tienes cómo se calcula, los candidatos de la temporada y el histórico de ganadores.
+        <p style={{ color: 'var(--ts-muted)', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
+          La <strong style={{ color: 'var(--ts-text)' }}>Bota de Oro</strong> (European Golden Shoe) premia al máximo goleador de Europa ponderando los goles por la dificultad de cada liga. Aquí tienes cómo se calcula, los candidatos de la temporada y el histórico de ganadores.
         </p>
 
         {/* How it works */}
-        <section style={{ marginBottom: 40, color: '#94a3b8', lineHeight: 1.75, fontSize: 15 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 14 }}>
+        <section style={{ marginBottom: 40, color: 'var(--ts-muted)', lineHeight: 1.75, fontSize: 15 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 14 }}>
             Cómo se calcula la Bota de Oro
           </h2>
           <p style={{ marginBottom: 12 }}>
-            Cada gol marcado en liga se multiplica por un <strong style={{ color: '#e2e8f0' }}>coeficiente</strong> según el nivel del campeonato en el ranking UEFA. Gana la Bota de Oro quien sume más puntos al final de la temporada.
+            Cada gol marcado en liga se multiplica por un <strong style={{ color: 'var(--ts-text)' }}>coeficiente</strong> según el nivel del campeonato en el ranking UEFA. Gana la Bota de Oro quien sume más puntos al final de la temporada.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 8 }}>
             {[
@@ -206,51 +206,51 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
               { coef: '×1,5', desc: 'Ligas situadas entre los puestos 6 y 21 del ranking UEFA' },
               { coef: '×1', desc: 'Resto de ligas europeas' },
             ].map(({ coef, desc }) => (
-              <div key={coef} style={{ flex: '1 1 240px', padding: '14px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
-                <span style={{ color: '#f0c040', fontWeight: 800, fontFamily: 'monospace', fontSize: 20 }}>{coef}</span>
-                <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 6, lineHeight: 1.5 }}>{desc}</p>
+              <div key={coef} style={{ flex: '1 1 240px', padding: '14px 16px', background: 'var(--ts-card2)', borderRadius: 10, border: '1px solid var(--ts-border)' }}>
+                <span style={{ color: 'var(--ts-primary)', fontWeight: 800, fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 20 }}>{coef}</span>
+                <p style={{ color: 'var(--ts-muted)', fontSize: 13, marginTop: 6, lineHeight: 1.5 }}>{desc}</p>
               </div>
             ))}
           </div>
-          <p style={{ color: '#475569', fontSize: 13 }}>
+          <p style={{ color: 'var(--ts-faint)', fontSize: 13 }}>
             Ejemplo: 30 goles en La Liga equivalen a 60 puntos (×2), mientras que 30 goles en una liga de coeficiente ×1 valen solo 30 puntos.
           </p>
         </section>
 
         {/* Contenders table */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#f0c040', marginBottom: 16 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 16 }}>
             Candidatos a la Bota de Oro — {CONTENDERS.label}
           </h2>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #1e293b' }}>
+                <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
                   {['#', 'Jugador', 'Liga', 'Goles', 'Coef.', 'Puntos'].map(col => (
-                    <th key={col} style={{ padding: '8px 12px', textAlign: col === 'Jugador' || col === 'Liga' ? 'left' : 'center', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
+                    <th key={col} style={{ padding: '8px 12px', textAlign: col === 'Jugador' || col === 'Liga' ? 'left' : 'center', color: 'var(--ts-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {CONTENDERS.players.map((p) => (
-                  <tr key={p.name} id={`pos-${p.pos}`} style={{ borderBottom: '1px solid #0f172a', transition: 'background 0.15s' }} className="hover:bg-white/5">
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: p.pos <= 3 ? '#f0c040' : '#475569', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{p.pos}</td>
-                    <td style={{ padding: '10px 12px', color: '#e2e8f0', fontWeight: 600 }}>
+                  <tr key={p.name} id={`pos-${p.pos}`} style={{ borderBottom: '1px solid var(--ts-divider)', transition: 'background 0.15s' }} className="hover:bg-white/5">
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: p.pos <= 3 ? 'var(--ts-primary)' : 'var(--ts-faint)', fontWeight: 700, fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 13 }}>{p.pos}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--ts-text)', fontWeight: 600 }}>
                       {p.name}
-                      <span style={{ display: 'block', color: '#64748b', fontWeight: 400, fontSize: 13 }}>{p.club}</span>
+                      <span style={{ display: 'block', color: 'var(--ts-muted)', fontWeight: 400, fontSize: 13 }}>{p.club}</span>
                     </td>
-                    <td style={{ padding: '10px 12px', color: '#64748b' }}>{p.league}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontFamily: 'monospace' }}>{p.goles}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontFamily: 'monospace' }}>×{p.coef}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#f0c040', fontWeight: 700, fontFamily: 'monospace', fontSize: 15 }}>{p.goles * p.coef}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--ts-muted)' }}>{p.league}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-text)', fontFamily: 'JetBrains Mono, ui-monospace, monospace' }}>{p.goles}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-muted)', fontFamily: 'JetBrains Mono, ui-monospace, monospace' }}>×{p.coef}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 15 }}>{p.goles * p.coef}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p style={{ marginTop: 10, color: '#475569', fontSize: 13 }}>
+          <p style={{ marginTop: 10, color: 'var(--ts-faint)', fontSize: 13 }}>
             Puntos = goles en liga × coeficiente. Datos actualizados, fuente: API-Football. Ver el{' '}
-            <Link href="/maximos-goleadores-europa" style={{ color: '#f0c040', textDecoration: 'none' }}>ranking de goleadores de Europa →</Link>
+            <Link href="/maximos-goleadores-europa" style={{ color: 'var(--ts-primary)', textDecoration: 'none' }}>ranking de goleadores de Europa →</Link>
           </p>
         </section>
 
@@ -304,17 +304,17 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
 
         {/* Historical winners */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 16 }}>
             Ganadores de la Bota de Oro — Últimas temporadas
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {HISTORICAL.map((h) => (
-              <div key={h.season} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
-                <span style={{ color: '#475569', fontFamily: 'monospace', fontSize: 13, width: 60, flexShrink: 0 }}>{h.season}</span>
-                <span style={{ color: '#e2e8f0', fontWeight: 600, flex: 1 }}>{h.winner}</span>
-                <span style={{ color: '#64748b', fontSize: 13 }}>{h.club}</span>
-                <span style={{ color: '#94a3b8', fontSize: 13, fontFamily: 'monospace', width: 56, textAlign: 'right' }}>{h.goles}G</span>
-                <span style={{ color: '#f0c040', fontWeight: 700, fontFamily: 'monospace', width: 56, textAlign: 'right' }}>{h.pts} pts</span>
+              <div key={h.season} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', background: 'var(--ts-card2)', borderRadius: 10, border: '1px solid var(--ts-border)' }}>
+                <span style={{ color: 'var(--ts-faint)', fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 13, width: 60, flexShrink: 0 }}>{h.season}</span>
+                <span style={{ color: 'var(--ts-text)', fontWeight: 600, flex: 1 }}>{h.winner}</span>
+                <span style={{ color: 'var(--ts-muted)', fontSize: 13 }}>{h.club}</span>
+                <span style={{ color: 'var(--ts-muted)', fontSize: 13, fontFamily: 'JetBrains Mono, ui-monospace, monospace', width: 56, textAlign: 'right' }}>{h.goles}G</span>
+                <span style={{ color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'JetBrains Mono, ui-monospace, monospace', width: 56, textAlign: 'right' }}>{h.pts} pts</span>
               </div>
             ))}
           </div>
@@ -322,25 +322,25 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
 
         {/* FAQ */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 16 }}>
             Preguntas frecuentes sobre la Bota de Oro
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {FAQS.map(({ q, a }) => (
-              <details key={q} style={{ borderBottom: '1px solid #1e293b', padding: '14px 0' }}>
-                <summary style={{ color: '#e2e8f0', fontWeight: 600, cursor: 'pointer', fontSize: 15, listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <details key={q} style={{ borderBottom: '1px solid var(--ts-border)', padding: '14px 0' }}>
+                <summary style={{ color: 'var(--ts-text)', fontWeight: 600, cursor: 'pointer', fontSize: 15, listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   {q}
-                  <span style={{ color: '#f0c040', fontSize: 18, fontWeight: 400, flexShrink: 0, marginLeft: 12 }}>+</span>
+                  <span style={{ color: 'var(--ts-primary)', fontSize: 18, fontWeight: 400, flexShrink: 0, marginLeft: 12 }}>+</span>
                 </summary>
-                <p style={{ color: '#94a3b8', marginTop: 10, lineHeight: 1.7, fontSize: 14 }}>{a}</p>
+                <p style={{ color: 'var(--ts-muted)', marginTop: 10, lineHeight: 1.7, fontSize: 14 }}>{a}</p>
               </details>
             ))}
           </div>
         </section>
 
         {/* Internal links */}
-        <section style={{ padding: '20px 24px', background: 'rgba(240,192,64,0.06)', borderRadius: 12, border: '1px solid rgba(240,192,64,0.15)' }}>
-          <h3 style={{ ...headingStyle, fontSize: 16, color: '#f0c040', marginBottom: 12 }}>
+        <section style={{ padding: '20px 24px', background: 'var(--ts-primary-soft)', borderRadius: 12, border: '1px solid var(--ts-border-hot)' }}>
+          <h3 style={{ ...headingStyle, fontSize: 16, color: 'var(--ts-primary)', marginBottom: 12 }}>
             Más rankings de goleadores
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -358,7 +358,7 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
               <Link
                 key={href}
                 href={href}
-                style={{ color: '#f0c040', textDecoration: 'none', fontSize: 13, padding: '6px 14px', background: 'rgba(240,192,64,0.1)', borderRadius: 20, border: '1px solid rgba(240,192,64,0.2)', transition: 'background 0.15s' }}
+                style={{ color: 'var(--ts-primary)', textDecoration: 'none', fontSize: 13, padding: '6px 14px', background: 'var(--ts-primary-soft)', borderRadius: 20, border: '1px solid var(--ts-border-hot)', transition: 'background 0.15s' }}
                 className="hover:bg-yellow-400/20"
               >
                 {label}

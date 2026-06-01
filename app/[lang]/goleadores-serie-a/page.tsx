@@ -139,64 +139,64 @@ export default function GoleadoresSerieAPage() {
       <div className="max-w-[900px] mx-auto px-5 py-10">
 
         {/* Breadcrumb */}
-        <nav className="text-xs text-gray-500 mb-6 flex gap-1.5 items-center">
-          <Link href="/" className="hover:text-gray-300 transition-colors">TopScorers</Link>
+        <nav className="text-xs mb-6 flex gap-1.5 items-center" style={{ color: 'var(--ts-faint)' }}>
+          <Link href="/" style={{ color: 'var(--ts-muted)', textDecoration: 'none' }}>TopScorers</Link>
           <span>›</span>
-          <span className="text-gray-400">Goleadores Serie A</span>
+          <span style={{ color: 'var(--ts-muted)' }}>Goleadores Serie A</span>
         </nav>
 
         {/* H1 */}
-        <h1 style={{ ...headingStyle, fontSize: 38, color: '#eef4ff', marginBottom: 8 }}>
+        <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
           Goleadores Serie A 2025/26
         </h1>
-        <p style={{ color: '#94a3b8', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
-          Ranking actualizado de los máximos anotadores de la <strong style={{ color: '#e2e8f0' }}>Serie A</strong>, con goles, partidos jugados y media por encuentro. La carrera por el <strong style={{ color: '#e2e8f0' }}>Capocannoniere</strong> y el histórico de ganadores de las últimas temporadas.
+        <p style={{ color: 'var(--ts-muted)', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
+          Ranking actualizado de los máximos anotadores de la <strong style={{ color: 'var(--ts-text)' }}>Serie A</strong>, con goles, partidos jugados y media por encuentro. La carrera por el <strong style={{ color: 'var(--ts-text)' }}>Capocannoniere</strong> y el histórico de ganadores de las últimas temporadas.
         </p>
 
         {/* Current season table */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#f0c040', marginBottom: 16 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 16 }}>
             Clasificación — {CURRENT_SEASON.label}
           </h2>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #1e293b' }}>
+                <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
                   {['#', 'Jugador', 'Club', 'PJ', 'Goles', 'Media'].map(col => (
-                    <th key={col} style={{ padding: '8px 12px', textAlign: col === '#' || col === 'PJ' || col === 'Goles' || col === 'Media' ? 'center' : 'left', color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
+                    <th key={col} style={{ padding: '8px 12px', textAlign: col === '#' || col === 'PJ' || col === 'Goles' || col === 'Media' ? 'center' : 'left', color: 'var(--ts-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {CURRENT_SEASON.players.map((p) => (
-                  <tr key={p.name} id={`pos-${p.pos}`} style={{ borderBottom: '1px solid #0f172a', transition: 'background 0.15s' }} className="hover:bg-white/5">
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: p.pos <= 3 ? '#f0c040' : '#475569', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{p.pos}</td>
-                    <td style={{ padding: '10px 12px', color: '#e2e8f0', fontWeight: 600 }}>{p.name}</td>
-                    <td style={{ padding: '10px 12px', color: '#64748b' }}>{p.club}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontFamily: 'monospace' }}>{p.pj}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#f0c040', fontWeight: 700, fontFamily: 'monospace', fontSize: 15 }}>{p.goles}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontFamily: 'monospace' }}>{(p.goles / p.pj).toFixed(2)}</td>
+                  <tr key={p.name} id={`pos-${p.pos}`} style={{ borderBottom: '1px solid var(--ts-divider)', transition: 'background 0.15s' }} className="hover:bg-white/5">
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: p.pos <= 3 ? 'var(--ts-primary)' : 'var(--ts-faint)', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{p.pos}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--ts-text)', fontWeight: 600 }}>{p.name}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--ts-muted)' }}>{p.club}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-muted)', fontFamily: 'monospace' }}>{p.pj}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'monospace', fontSize: 15 }}>{p.goles}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-muted)', fontFamily: 'monospace' }}>{(p.goles / p.pj).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p style={{ marginTop: 10, color: '#475569', fontSize: 13 }}>
+          <p style={{ marginTop: 10, color: 'var(--ts-faint)', fontSize: 13 }}>
             Datos actualizados. Fuente: API-Football (Rapid API). Ver{' '}
-            <Link href="/" style={{ color: '#f0c040', textDecoration: 'none' }}>estadísticas en tiempo real →</Link>
+            <Link href="/" style={{ color: 'var(--ts-primary)', textDecoration: 'none' }}>estadísticas en tiempo real →</Link>
           </p>
         </section>
 
         {/* Explanatory content — important for SEO */}
-        <section style={{ marginBottom: 40, color: '#94a3b8', lineHeight: 1.75, fontSize: 15 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 14 }}>
+        <section style={{ marginBottom: 40, color: 'var(--ts-muted)', lineHeight: 1.75, fontSize: 15 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 14 }}>
             Serie A 2025/26: análisis de la tabla de goleadores
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La temporada 2025/26 de la <strong style={{ color: '#e2e8f0' }}>Serie A</strong> mantiene el sello del fútbol italiano: equilibrio defensivo y una lucha por el Capocannoniere muy repartida. <strong style={{ color: '#e2e8f0' }}>Lautaro Martínez</strong> lidera la tabla con 16 goles y aspira a repetir el título de máximo goleador que ya conquistó en la 2023/24, impulsando el ataque de un <strong style={{ color: '#e2e8f0' }}>Inter de Milán</strong> que pelea por el Scudetto.
+            La temporada 2025/26 de la <strong style={{ color: 'var(--ts-text)' }}>Serie A</strong> mantiene el sello del fútbol italiano: equilibrio defensivo y una lucha por el Capocannoniere muy repartida. <strong style={{ color: 'var(--ts-text)' }}>Lautaro Martínez</strong> lidera la tabla con 16 goles y aspira a repetir el título de máximo goleador que ya conquistó en la 2023/24, impulsando el ataque de un <strong style={{ color: 'var(--ts-text)' }}>Inter de Milán</strong> que pelea por el Scudetto.
           </p>
           <p style={{ marginBottom: 12 }}>
-            Su compañero <strong style={{ color: '#e2e8f0' }}>Marcus Thuram</strong> y el delantero de la <strong style={{ color: '#e2e8f0' }}>Juventus</strong> <strong style={{ color: '#e2e8f0' }}>Dušan Vlahović</strong> comparten la segunda posición con 12 tantos, mientras que <strong style={{ color: '#e2e8f0' }}>Moise Kean</strong> confirma su resurgir en la Fiorentina. El AC Milan aporta dos nombres al top con Christian Pulisic y Rafael Leão.
+            Su compañero <strong style={{ color: 'var(--ts-text)' }}>Marcus Thuram</strong> y el delantero de la <strong style={{ color: 'var(--ts-text)' }}>Juventus</strong> <strong style={{ color: 'var(--ts-text)' }}>Dušan Vlahović</strong> comparten la segunda posición con 12 tantos, mientras que <strong style={{ color: 'var(--ts-text)' }}>Moise Kean</strong> confirma su resurgir en la Fiorentina. El AC Milan aporta dos nombres al top con Christian Pulisic y Rafael Leão.
           </p>
           <p>
             A diferencia de otras grandes ligas, la Serie A reparte los goles entre más equipos: del primer al octavo clasificado median apenas 7 dianas, reflejo de una competición donde el gol es un bien escaso y muy disputado.
@@ -205,16 +205,16 @@ export default function GoleadoresSerieAPage() {
 
         {/* Historical Capocannoniere */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 16 }}>
             Histórico Capocannoniere — Últimas Temporadas
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {HISTORICAL.map((h) => (
-              <div key={h.season} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
-                <span style={{ color: '#475569', fontFamily: 'monospace', fontSize: 13, width: 60, flexShrink: 0 }}>{h.season}</span>
-                <span style={{ color: '#e2e8f0', fontWeight: 600, flex: 1 }}>{h.winner}</span>
-                <span style={{ color: '#64748b', fontSize: 13 }}>{h.club}</span>
-                <span style={{ color: '#f0c040', fontWeight: 700, fontFamily: 'monospace', width: 50, textAlign: 'right' }}>{h.goles}G</span>
+              <div key={h.season} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', background: 'var(--ts-card2)', borderRadius: 10, border: '1px solid var(--ts-border)' }}>
+                <span style={{ color: 'var(--ts-faint)', fontFamily: 'monospace', fontSize: 13, width: 60, flexShrink: 0 }}>{h.season}</span>
+                <span style={{ color: 'var(--ts-text)', fontWeight: 600, flex: 1 }}>{h.winner}</span>
+                <span style={{ color: 'var(--ts-muted)', fontSize: 13 }}>{h.club}</span>
+                <span style={{ color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'monospace', width: 50, textAlign: 'right' }}>{h.goles}G</span>
               </div>
             ))}
           </div>
@@ -222,25 +222,25 @@ export default function GoleadoresSerieAPage() {
 
         {/* FAQ */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: '#e2e8f0', marginBottom: 16 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 16 }}>
             Preguntas Frecuentes sobre Goleadores de la Serie A
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {FAQS.map(({ q, a }) => (
-              <details key={q} style={{ borderBottom: '1px solid #1e293b', padding: '14px 0' }}>
-                <summary style={{ color: '#e2e8f0', fontWeight: 600, cursor: 'pointer', fontSize: 15, listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <details key={q} style={{ borderBottom: '1px solid var(--ts-border)', padding: '14px 0' }}>
+                <summary style={{ color: 'var(--ts-text)', fontWeight: 600, cursor: 'pointer', fontSize: 15, listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   {q}
-                  <span style={{ color: '#f0c040', fontSize: 18, fontWeight: 400, flexShrink: 0, marginLeft: 12 }}>+</span>
+                  <span style={{ color: 'var(--ts-primary)', fontSize: 18, fontWeight: 400, flexShrink: 0, marginLeft: 12 }}>+</span>
                 </summary>
-                <p style={{ color: '#94a3b8', marginTop: 10, lineHeight: 1.7, fontSize: 14 }}>{a}</p>
+                <p style={{ color: 'var(--ts-muted)', marginTop: 10, lineHeight: 1.7, fontSize: 14 }}>{a}</p>
               </details>
             ))}
           </div>
         </section>
 
         {/* Internal links */}
-        <section style={{ padding: '20px 24px', background: 'rgba(240,192,64,0.06)', borderRadius: 12, border: '1px solid rgba(240,192,64,0.15)' }}>
-          <h3 style={{ ...headingStyle, fontSize: 16, color: '#f0c040', marginBottom: 12 }}>
+        <section style={{ padding: '20px 24px', background: 'var(--ts-primary-soft)', borderRadius: 12, border: '1px solid var(--ts-border-hot)' }}>
+          <h3 style={{ ...headingStyle, fontSize: 16, color: 'var(--ts-primary)', marginBottom: 12 }}>
             Más estadísticas en TopScorers
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -258,7 +258,7 @@ export default function GoleadoresSerieAPage() {
               <Link
                 key={href}
                 href={href}
-                style={{ color: '#f0c040', textDecoration: 'none', fontSize: 13, padding: '6px 14px', background: 'rgba(240,192,64,0.1)', borderRadius: 20, border: '1px solid rgba(240,192,64,0.2)', transition: 'background 0.15s' }}
+                style={{ color: 'var(--ts-primary)', textDecoration: 'none', fontSize: 13, padding: '6px 14px', background: 'var(--ts-primary-soft)', borderRadius: 20, border: '1px solid var(--ts-border-hot)', transition: 'background 0.15s' }}
                 className="hover:bg-yellow-400/20"
               >
                 {label}

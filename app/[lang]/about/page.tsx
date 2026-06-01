@@ -37,9 +37,17 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   }
 }
 
+// Palette tokens — resolved at render from CSS custom properties so the page
+// reads correctly in BOTH light and dark mode.
 const C = {
-  bg: '#07070f', sf: '#0c0d1a', bd: '#151626', tx: '#d8d8ec',
-  mu: '#52526e', gd: '#f0c040', tl: '#00c8b0', gr: '#38c47a',
+  bg: 'var(--ts-bg)',
+  sf: 'var(--ts-card)',
+  bd: 'var(--ts-border)',
+  tx: 'var(--ts-text)',
+  mu: 'var(--ts-muted)',
+  gd: 'var(--ts-primary)',
+  tl: 'var(--ts-teal)',
+  gr: 'var(--ts-teal)',
 }
 
 export default async function AboutPage({
@@ -84,7 +92,7 @@ export default async function AboutPage({
                 <span
                   key={l}
                   className="text-[11px] font-semibold px-2.5 py-1 rounded-sm"
-                  style={{ color: C.tl, background: 'rgba(0,200,176,.08)', border: '1px solid rgba(0,200,176,.2)' }}
+                  style={{ color: C.tl, background: 'var(--ts-teal-soft)', border: '1px solid var(--ts-border-hot)' }}
                 >
                   {l}
                 </span>
@@ -108,7 +116,7 @@ export default async function AboutPage({
             <div className="p-4 rounded-sm" style={{ background: C.sf, border: `1px solid ${C.bd}` }}>
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-sm" style={{ color: C.gd, background: 'rgba(240,192,64,.1)', border: '1px solid rgba(240,192,64,.2)', fontFamily: "'Barlow Condensed', sans-serif" }}>Val.</span>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-sm" style={{ color: C.gd, background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)', fontFamily: "'Barlow Condensed', sans-serif" }}>Val.</span>
                   <span className="text-[12px]" style={{ color: C.tx }}>Goles × 2 + Asistencias</span>
                   <span className="text-[11px]" style={{ color: C.mu }}>— métrica base sin ajuste de liga</span>
                 </div>

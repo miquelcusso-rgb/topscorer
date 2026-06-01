@@ -41,6 +41,13 @@ const PATTERNS = [
   /^\/(es|en)\/centrocampistas(\/.*)?$/,
   /^\/(es|en)\/maximos-goleadores-europa(\/.*)?$/,
   /^\/(es|en)\/goleadores-[a-z0-9-]+(\/.*)?$/,
+  // Audit pass 4: SaaS-wrapped content pages
+  /^\/(es|en)\/fantasy(\/.*)?$/,
+  /^\/(es|en)\/embed-docs(\/.*)?$/,
+  /^\/(es|en)\/brackets(\/.*)?$/,
+  // Full-bleed embedded docs viewer (Stoplight Elements ships its own
+  // chrome/sidebar) — render bare, no legacy navbar/footer.
+  /^\/(es|en)\/api-docs(\/.*)?$/,
 ]
 
 export default function ChromeWrapper({

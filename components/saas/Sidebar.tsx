@@ -296,8 +296,8 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
           {L.lists}
         </div>
         <MenuRow
-          item={{ id: 'watchlist', icon: '⭐', label: L.watchlist, count: '8', href: `/${lang}/watchlist` }}
-          active={isActive(`/${lang}/watchlist`)}
+          item={{ id: 'watchlist', icon: '⭐', label: L.watchlist, href: `/${lang}/cuenta` }}
+          active={isActive(`/${lang}/cuenta`)}
         />
 
         {/* Scout tools — gated. Items disabled with line-through + SCOUT pill

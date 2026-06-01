@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
 import { createServerClient } from '@/lib/supabase'
+import SaasShell from '@/components/saas/SaasShell'
 import EncuestaDetailClient from './EncuestaDetailClient'
 
 const BASE = 'https://www.top-scorers.com'
@@ -37,6 +38,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 export default async function EncuestaPage({ params }: { params: Promise<{ lang: string; id: string }> }) {
-  const { id } = await params
-  return <EncuestaDetailClient id={id} />
+  const { lang: raw, id } = await params
+  const en = (isLocale(raw) ? raw : 'es') === 'en'
+  const breadcrumb = en ? ['Community', 'Polls'] : ['Comunidad', 'Encuestas']
+  return (
+    <SaasShell activeKey="stats" breadcrumb={breadcrumb}>
+      <EncuestaDetailClient id={id} />
+    </SaasShell>
+  )
 }
