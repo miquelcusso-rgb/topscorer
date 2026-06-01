@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { GTMScript, GTMNoScript } from '@/components/GoogleTagManager'
 
 export const metadata: Metadata = {
   title: '404 — Page not found · TopScorers',
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <html lang="es">
+      <head><GTMScript /></head>
       <body style={{ margin: 0, fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif" }}>
+    <GTMNoScript />
     <main
       style={{
         margin: 0,
