@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { PLAYERS } from '@/data/players'
 import { slugify } from '@/lib/slugify'
-import { ALL_LEAGUES } from '@/lib/api-football'
+import { allLeagueSlugs } from '@/lib/league-data'
 import { LOCALES } from '@/lib/i18n'
 
 const BASE = 'https://www.top-scorers.com'
@@ -64,8 +64,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticUrls = staticPaths.flatMap(([p, f, pr]) => localized(p, f, pr))
 
-  const competicionUrls = ALL_LEAGUES.flatMap(l =>
-    localized(`/competiciones/${l.short.toLowerCase()}`, 'weekly', 0.8),
+  const competicionUrls = allLeagueSlugs().flatMap(slug =>
+    localized(`/competiciones/${slug}`, 'weekly', 0.8),
   )
 
   const playerUrls = PLAYERS

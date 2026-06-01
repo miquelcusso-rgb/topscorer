@@ -177,14 +177,7 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
 
       <div className="max-w-[900px] mx-auto px-5 py-10">
 
-        {/* Breadcrumb */}
-        <nav className="text-xs mb-6 flex gap-1.5 items-center" style={{ color: 'var(--ts-faint)' }}>
-          <Link href="/" style={{ color: 'var(--ts-muted)', textDecoration: 'none' }}>TopScorers</Link>
-          <span>›</span>
-          <span style={{ color: 'var(--ts-muted)' }}>Bota de Oro</span>
-        </nav>
-
-        {/* H1 */}
+        {/* H1 (breadcrumb is already shown in the SaaS topbar) */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
           Bota de Oro 2025/26
         </h1>

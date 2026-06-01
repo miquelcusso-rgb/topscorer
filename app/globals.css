@@ -26,7 +26,7 @@ body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
   padding: 0;
 }
 
-html { -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+html { -webkit-font-smoothing: antialiased; overflow-x: hidden; font-size: 17px; }
 body { overflow-x: hidden; }
 
 body {
@@ -69,16 +69,18 @@ body::before {
 }
 
 /* ── Light mode ──────────────────────────────────────────────────────────── */
+/* Cream/neutral light bg to match the SaaS palette (--ts-bg #f8f7f3), not the
+   old bluish slate. Keeps the whole site on one warm-neutral light look. */
 [data-theme="light"] body {
-  background-color: #edf1f8 !important;
-  color: #0f1830 !important;
+  background-color: #f8f7f3 !important;
+  color: #1c1608 !important;
 }
 
 [data-theme="light"] body::before {
   background:
-    radial-gradient(ellipse 80% 55% at 65% -8%,  rgba(0,180,160,.05) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 0%   50%,  rgba(220,170,0,.04) 0%, transparent 50%),
-    radial-gradient(ellipse 55% 45% at 100% 95%,  rgba(20,80,200,.03) 0%, transparent 55%) !important;
+    radial-gradient(ellipse 80% 55% at 65% -8%,  rgba(168,118,26,.05) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 0%   50%,  rgba(10,110,95,.035) 0%, transparent 50%),
+    radial-gradient(ellipse 55% 45% at 100% 95%,  rgba(168,118,26,.03) 0%, transparent 55%) !important;
 }
 
 /* Navbar */

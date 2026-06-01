@@ -6,6 +6,7 @@ import Avatar from '@/components/saas/Avatar'
 import { iig } from '@/lib/iig'
 import { shortName } from '@/lib/player-name'
 import { slugify } from '@/lib/slugify'
+import { clubLogo } from '@/lib/club-logos'
 import type { EnrichedPlayer } from '@/types'
 
 // Head-to-head VERSUS card. Side-by-side, real-metric comparison with a small
@@ -69,6 +70,7 @@ const COLOR_A = 'var(--ts-primary)'
 const COLOR_B = 'var(--ts-teal)'
 
 function PlayerHead({ p, color }: { p: EnrichedPlayer; color: string }) {
+  const logo = clubLogo(p.club)
   return (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, textAlign: 'center' }}>
       <Avatar name={p.name} photo={p.photo} size={64} />
@@ -79,7 +81,13 @@ function PlayerHead({ p, color }: { p: EnrichedPlayer; color: string }) {
         }}>
           {p.flag ? `${p.flag} ` : ''}{shortName(p)}
         </div>
-        <div style={{ fontSize: 12, color: 'var(--ts-muted)', marginTop: 3 }}>{p.club}</div>
+        <div style={{ fontSize: 12, color: 'var(--ts-muted)', marginTop: 3, display: 'flex', gap: 5, alignItems: 'center', justifyContent: 'center' }}>
+          {logo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt="" width={18} height={18} crossOrigin="anonymous" loading="lazy" style={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }} />
+          )}
+          <span>{p.club}</span>
+        </div>
       </div>
     </div>
   )

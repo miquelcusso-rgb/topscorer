@@ -73,9 +73,11 @@ interface Props {
   players: PlayerData[]
   tab: PositionTabId
   lang?: 'es' | 'en'
+  sort?: { key: string; dir: 1 | -1 } | null
+  onSort?: (key: string) => void
 }
 
-export default function PositionTable({ players, tab, lang = 'es' }: Props) {
+export default function PositionTable({ players, tab, lang = 'es', sort, onSort }: Props) {
   const cols = COLUMNS_FOR[tab]
   const accent = TAB_ACCENT[tab]
   const last5Label = lang === 'en' ? 'Last 5 · avg' : 'Últimos 5 · media'
@@ -107,7 +109,23 @@ export default function PositionTable({ players, tab, lang = 'es' }: Props) {
           <span />
           <span>{lang === 'en' ? 'Player' : 'Jugador'}</span>
           <span>{lang === 'en' ? 'Team' : 'Equipo'}</span>
-          {cols.map(c => <span key={c.key} style={{ textAlign: 'right' }}>{c.label}</span>)}
+          {cols.map(c => {
+            const isSorted = sort?.key === c.key
+            return (
+              <span
+                key={c.key}
+                onClick={onSort ? () => onSort(c.key) : undefined}
+                style={{
+                  textAlign: 'right',
+                  cursor: onSort ? 'pointer' : 'default',
+                  color: isSorted ? `var(--ts-${accent})` : undefined,
+                  userSelect: 'none',
+                }}
+              >
+                {c.label}{isSorted ? (sort!.dir === -1 ? ' ↓' : ' ↑') : ''}
+              </span>
+            )
+          })}
           <span style={{ textAlign: 'right' }}>{last5Label}</span>
         </div>
 

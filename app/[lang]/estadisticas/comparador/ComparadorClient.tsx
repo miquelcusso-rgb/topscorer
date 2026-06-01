@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
 import { useUser } from '@clerk/nextjs'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
@@ -11,10 +10,30 @@ import { isPro } from '@/lib/plans'
 import { PLAYERS } from '@/data/players'
 import { enrich } from '@/lib/utils'
 import { slugify } from '@/lib/slugify'
-import type { EnrichedPlayer } from '@/types'
+import { iig } from '@/lib/iig'
+import { clubLogo } from '@/lib/club-logos'
+import Avatar from '@/components/saas/Avatar'
+import ComparisonRadar, { type ComparisonAxis } from '@/components/player/ComparisonRadar'
+import type { EnrichedPlayer, Position } from '@/types'
 import VersusCard from './VersusCard'
 
-const PlayerRadar = dynamic(() => import('@/components/PlayerRadar'), { ssr: false })
+// Small club crest next to a club name. Omitted gracefully when no logo URL.
+function ClubLogo({ club, size = 18 }: { club: string; size?: number }) {
+  const src = clubLogo(club)
+  if (!src) return null
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt=""
+      width={size}
+      height={size}
+      crossOrigin="anonymous"
+      loading="lazy"
+      style={{ width: size, height: size, objectFit: 'contain', flexShrink: 0 }}
+    />
+  )
+}
 
 const C_DARK = {
   gd: '#f0c040', pu: '#a060ff', te: '#00c8b0', bl: '#4090ff', or: '#e05a30',
@@ -47,6 +66,88 @@ const PRESETS = [
   { a: 'Mohamed Salah', b: 'Bukayo Saka'      },
   { a: 'Lamine Yamal',  b: 'Florian Wirtz'   },
 ]
+
+// ── Stat-set definitions for the comparison radar ────────────────────────────
+// Each axis pulls a REAL numeric value from a player (metric) and renders a
+// display string (format). aPct/bPct are computed later as val / max(a,b,1).
+type StatSetId = 'fw' | 'mf' | 'df' | 'transfer'
+
+interface AxisDef {
+  label: string
+  // real numeric value used for normalization (higher = better, all axes)
+  metric: (p: EnrichedPlayer) => number
+  // display value
+  format: (p: EnrichedPlayer) => string | number
+}
+
+const n0 = (v?: number) => v ?? 0
+function pctOf(a?: number, b?: number): number {
+  if (!a || !b) return 0
+  return Math.round((a / b) * 1000) / 10
+}
+function keyPassesOf(p: EnrichedPlayer): number {
+  return p.keyPasses ?? p.passesKey ?? 0
+}
+// Parse "€120M" / "€80m" → millions as a number for relative comparison.
+function marketValueM(p: EnrichedPlayer): number {
+  if (!p.marketValue) return 0
+  const m = p.marketValue.match(/([\d.]+)\s*([mMkK])?/)
+  if (!m) return 0
+  const num = parseFloat(m[1])
+  if (Number.isNaN(num)) return 0
+  const unit = (m[2] ?? '').toLowerCase()
+  return unit === 'k' ? num / 1000 : num
+}
+
+const STAT_SETS: Record<StatSetId, AxisDef[]> = {
+  // Delantero — finishing volume + efficiency
+  fw: [
+    { label: 'Goles',    metric: p => n0(p.goles),                         format: p => n0(p.goles) },
+    { label: 'Tiros',    metric: p => n0(p.shotsTotal),                    format: p => p.shotsTotal ?? '—' },
+    { label: '% Puerta', metric: p => pctOf(p.shotsOn, p.shotsTotal),      format: p => { const v = pctOf(p.shotsOn, p.shotsTotal); return v ? `${v}%` : '—' } },
+    { label: 'Conv.',    metric: p => pctOf(p.goles, p.shotsTotal),        format: p => { const v = pctOf(p.goles, p.shotsTotal); return v ? `${v}%` : '—' } },
+    { label: 'Asist.',   metric: p => n0(p.asist),                         format: p => n0(p.asist) },
+    { label: 'IIG',      metric: p => iig(p),                              format: p => iig(p).toFixed(1) },
+  ],
+  // Centrocampista — playmaking + volume + contribution
+  mf: [
+    { label: 'P. clave', metric: p => keyPassesOf(p),                      format: p => keyPassesOf(p) || '—' },
+    { label: 'Pases',    metric: p => n0(p.passes),                        format: p => p.passes ?? '—' },
+    { label: '% Acier.', metric: p => n0(p.passAccuracy),                  format: p => (p.passAccuracy != null ? `${p.passAccuracy}%` : '—') },
+    { label: 'Asist.',   metric: p => n0(p.asist),                         format: p => n0(p.asist) },
+    { label: 'G+A',      metric: p => n0(p.goles) + n0(p.asist),           format: p => n0(p.goles) + n0(p.asist) },
+    { label: 'Recup.',   metric: p => n0(p.interceptions),                 format: p => p.interceptions ?? '—' },
+  ],
+  // Defensa — defensive actions
+  df: [
+    { label: 'Entradas', metric: p => n0(p.tacklesTotal),                  format: p => p.tacklesTotal ?? '—' },
+    { label: 'Intercep.', metric: p => n0(p.interceptions),                format: p => p.interceptions ?? '—' },
+    { label: 'Duelos G.', metric: p => n0(p.duelsWon),                     format: p => p.duelsWon ?? '—' },
+    { label: '% Duelos', metric: p => pctOf(p.duelsWon, p.duelsTotal),     format: p => { const v = pctOf(p.duelsWon, p.duelsTotal); return v ? `${v}%` : '—' } },
+    { label: 'Nota',     metric: p => n0(p.rating),                        format: p => (p.rating != null ? p.rating.toFixed(2) : '—') },
+  ],
+  // Transfer info — age, market value, minutes, PJ (value-style comparison)
+  transfer: [
+    { label: 'Edad',     metric: p => n0(p.age),                           format: p => n0(p.age) },
+    { label: 'Valor',    metric: p => marketValueM(p),                     format: p => p.marketValue ?? '—' },
+    { label: 'Minutos',  metric: p => n0(p.minutes),                       format: p => p.minutes ?? '—' },
+    { label: 'PJ',       metric: p => n0(p.pj),                            format: p => n0(p.pj) },
+  ],
+}
+
+const STAT_SET_LABELS: Record<'es' | 'en', Record<StatSetId, string>> = {
+  es: { fw: 'Delantero', mf: 'Centrocampista', df: 'Defensa', transfer: 'Transfer info' },
+  en: { fw: 'Forward', mf: 'Midfielder', df: 'Defender', transfer: 'Transfer info' },
+}
+
+const STAT_SET_ORDER: StatSetId[] = ['fw', 'mf', 'df', 'transfer']
+
+function defaultSetForPosition(pos?: Position): StatSetId {
+  if (pos === 'MF') return 'mf'
+  if (pos === 'DF') return 'df'
+  // FW, GK and unknown → Delantero
+  return 'fw'
+}
 
 interface PlayerSelectorProps {
   label: string
@@ -125,7 +226,10 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
               >
                 {p.flag && <span>{p.flag}</span>}
                 <span style={{ fontWeight: 600 }}>{p.name}</span>
-                <span style={{ fontSize: 11, color: textMuted, marginLeft: 'auto' }}>{p.club}</span>
+                <span style={{ fontSize: 11, color: textMuted, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <ClubLogo club={p.club} size={14} />
+                  {p.club}
+                </span>
                 {p.position && (
                   <span style={{ fontSize: 10, fontWeight: 700, color: posAccent(p.position), background: `${posAccent(p.position)}22`, padding: '2px 5px', borderRadius: 3 }}>
                     {p.position}
@@ -150,18 +254,18 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
               color: textMuted, cursor: 'pointer', fontSize: 14, lineHeight: 1,
             }}
           >✕</button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {selected.flag && <span style={{ fontSize: 22 }}>{selected.flag}</span>}
-            <div>
-              <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 20, fontWeight: 700, color: textMain, letterSpacing: 0.3 }}>
-                {selected.name}
-              </div>
-              <div style={{ fontSize: 11, color: textMuted, display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
-                <span>{selected.club}</span>
-                {selected.position && (
-                  <span style={{ fontWeight: 700, color: accent }}>{selected.position}</span>
-                )}
-              </div>
+          {/* Photo on top, then name, then club row */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, textAlign: 'center' }}>
+            <Avatar name={selected.name} photo={selected.photo} size={72} />
+            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 21, fontWeight: 700, color: textMain, letterSpacing: 0.3, lineHeight: 1.1 }}>
+              {selected.flag ? `${selected.flag} ` : ''}{selected.name}
+            </div>
+            <div style={{ fontSize: 12, color: textMuted, display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center' }}>
+              <ClubLogo club={selected.club} />
+              <span>{selected.club}</span>
+              {selected.position && (
+                <span style={{ fontWeight: 700, color: accent }}>{selected.position}</span>
+              )}
             </div>
           </div>
         </div>
@@ -217,6 +321,10 @@ export default function ComparadorClient() {
 
   const [playerA, setPlayerA] = useState<EnrichedPlayer | null>(null)
   const [playerB, setPlayerB] = useState<EnrichedPlayer | null>(null)
+  // Stat set driving the comparison radar. Defaults to player A's position;
+  // user touching the selector locks their choice (won't auto-flip after that).
+  const [statSet, setStatSet] = useState<StatSetId>('fw')
+  const [statSetTouched, setStatSetTouched] = useState(false)
 
   const pageBg = isLight ? '#edf1f8' : '#07070f'
   const textMuted = isLight ? '#5060a0' : C_DARK.mu
@@ -242,6 +350,13 @@ export default function ComparadorClient() {
       if (found) setPlayerB(found)
     }
   }, [searchParams])
+
+  // Default the stat-set selector to player A's position — until the user
+  // manually picks one (then we respect their choice).
+  useEffect(() => {
+    if (statSetTouched || !playerA) return
+    setStatSet(defaultSetForPosition(playerA.position))
+  }, [playerA, statSetTouched])
 
   // Update URL when players change
   function selectA(p: EnrichedPlayer | null) {
@@ -275,8 +390,31 @@ export default function ComparadorClient() {
   const accentB = posAccent(playerB?.position)
   const bothSelected = !!playerA && !!playerB
 
+  // Radar uses brand palette (gold A / teal B) regardless of position so the
+  // overlap reads cleanly. accentA/accentB stay for the per-player selector cards.
+  const RADAR_A = 'var(--ts-primary)'
+  const RADAR_B = 'var(--ts-teal)'
+
+  // Build relative/proportional axes for the chosen stat set. Each axis is
+  // normalized by the MAX of the two players on that axis → leader hits 100%.
+  const radarAxes: ComparisonAxis[] = useMemo(() => {
+    if (!playerA || !playerB) return []
+    return STAT_SETS[statSet].map(def => {
+      const aVal = def.metric(playerA)
+      const bVal = def.metric(playerB)
+      const max = Math.max(aVal, bVal, 1)
+      return {
+        label: def.label,
+        aVal: def.format(playerA),
+        bVal: def.format(playerB),
+        aPct: (aVal / max) * 100,
+        bPct: (bVal / max) * 100,
+      }
+    })
+  }, [playerA, playerB, statSet])
+
   // Note: comparator is now free (was Pro-only). proUser kept for future Pro perks.
-  void proUser; void es
+  void proUser
 
   return (
     <div style={{ minHeight: '100vh', background: pageBg, paddingBottom: 80 }}>
@@ -351,20 +489,65 @@ export default function ComparadorClient() {
             {/* Head-to-head VERSUS card (real metrics + shareable) */}
             <VersusCard a={playerA} b={playerB} es={lang === 'es'} />
 
-            {/* Radar charts */}
-            <div style={{ display: 'flex', gap: 20, marginBottom: 32, flexWrap: 'wrap' as const }}>
-              <div style={{ flex: 1, minWidth: 280, background: cardBg, border: `1px solid ${accentA}33`, borderRadius: 8, padding: 20 }}>
-                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, fontWeight: 700, color: accentA, marginBottom: 12, letterSpacing: 1 }}>
-                  {playerA.flag} {playerA.name}
+            {/* Overlapping comparison radar + stat-set selector */}
+            <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 8, padding: 20, marginBottom: 32 }}>
+              {/* Segmented control */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+                <div style={{
+                  display: 'inline-flex', flexWrap: 'wrap' as const, justifyContent: 'center',
+                  gap: 4, padding: 4, borderRadius: 999,
+                  background: presetBg, border: `1px solid ${presetBorder}`,
+                }}>
+                  {STAT_SET_ORDER.map(id => {
+                    const active = statSet === id
+                    return (
+                      <button
+                        key={id}
+                        onClick={() => { setStatSet(id); setStatSetTouched(true) }}
+                        style={{
+                          background: active ? C_DARK.gd : 'transparent',
+                          color: active ? '#1c1608' : textMuted,
+                          border: 'none', cursor: 'pointer',
+                          padding: '6px 14px', borderRadius: 999,
+                          fontFamily: "'Barlow Condensed', sans-serif",
+                          fontSize: 13, fontWeight: 700, letterSpacing: 0.4,
+                          textTransform: 'uppercase' as const,
+                          transition: 'all 150ms ease',
+                        }}
+                      >
+                        {STAT_SET_LABELS[es ? 'es' : 'en'][id]}
+                      </button>
+                    )
+                  })}
                 </div>
-                <PlayerRadar player={playerA} color={accentA} />
               </div>
-              <div style={{ flex: 1, minWidth: 280, background: cardBg, border: `1px solid ${accentB}33`, borderRadius: 8, padding: 20 }}>
-                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, fontWeight: 700, color: accentB, marginBottom: 12, letterSpacing: 1 }}>
-                  {playerB.flag} {playerB.name}
+
+              {statSet === 'transfer' ? (
+                /* Transfer info — clean key-value comparison table */
+                <div style={{ maxWidth: 520, margin: '0 auto' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0 12px', borderBottom: `1px solid ${cardBorder}` }}>
+                    <span style={{ flex: 1, textAlign: 'right' as const, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 15, color: RADAR_A }}>{playerA.name}</span>
+                    <span style={{ width: 120, textAlign: 'center' as const, fontSize: 11, color: textMuted }}> </span>
+                    <span style={{ flex: 1, textAlign: 'left' as const, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 15, color: RADAR_B }}>{playerB.name}</span>
+                  </div>
+                  {radarAxes.map(ax => (
+                    <div key={ax.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: `1px solid ${cardBorder}` }}>
+                      <span style={{ flex: 1, textAlign: 'right' as const, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 17, color: textPreset }}>{ax.aVal}</span>
+                      <span style={{ width: 120, textAlign: 'center' as const, fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' as const, color: textMuted, fontFamily: "'Barlow Condensed', sans-serif" }}>{ax.label}</span>
+                      <span style={{ flex: 1, textAlign: 'left' as const, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 17, color: textPreset }}>{ax.bVal}</span>
+                    </div>
+                  ))}
                 </div>
-                <PlayerRadar player={playerB} color={accentB} />
-              </div>
+              ) : (
+                <ComparisonRadar
+                  axes={radarAxes}
+                  colorA={RADAR_A}
+                  colorB={RADAR_B}
+                  labelA={playerA.name}
+                  labelB={playerB.name}
+                  size={360}
+                />
+              )}
             </div>
 
             {/* Stats comparison table */}

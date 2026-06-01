@@ -10,6 +10,7 @@ import MatchdayStandouts from './MatchdayStandouts'
 import { type PositionTabId, TAB_LABELS, TAB_ACCENT } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
+import { iig } from '@/lib/iig'
 
 type LeagueFilterValue = 'big5' | 'big5pt' | 'all'
 
@@ -34,6 +35,9 @@ interface Props {
 export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumor }: Props) {
   const [pos, setPos] = useState<PositionTabId>(defaultPos ?? 'fw')
   const [league, setLeague] = useState<LeagueFilterValue>('big5')
+  const [ageBand, setAgeBand] = useState<'all' | 'u23' | 'u21'>('all')
+  const [minPj, setMinPj] = useState<number>(3)
+  const [sort, setSort] = useState<{ key: string; dir: 1 | -1 } | null>(null)
   const [insightDismissed, setInsightDismissed] = useState(false)
 
   const leagueMatch = useMemo(() => {
@@ -43,8 +47,30 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
   }, [league])
 
   const pool = positionPools[pos] ?? []
-  const filtered = useMemo(() => pool.filter(leagueMatch), [pool, leagueMatch])
-  const players = filtered.slice(0, 12)
+  const filtered = useMemo(() => {
+    const ageMax = ageBand === 'u21' ? 21 : ageBand === 'u23' ? 23 : 99
+    return pool.filter(p =>
+      leagueMatch(p) && (p.age ?? 0) <= ageMax && (p.pj ?? 0) >= minPj
+    )
+  }, [pool, leagueMatch, ageBand, minPj])
+
+  // Optional column sort (clicking a PositionTable header). Falls back to the
+  // pool's default order when no sort is active.
+  const SORT_ACCESSOR: Record<string, (p: PlayerData) => number> = {
+    goles: p => p.goles ?? 0, asist: p => p.asist ?? 0, pj: p => p.pj ?? 0,
+    sht: p => p.shotsTotal ?? 0, sot: p => (p.shotsTotal ? (p.shotsOn ?? 0) / p.shotsTotal : 0),
+    conv: p => (p.shotsTotal ? (p.goles ?? 0) / p.shotsTotal : 0), rt: p => p.rating ?? 0,
+    iig: p => iig(p), kp: p => p.keyPasses ?? 0, pas: p => p.passes ?? 0,
+    pacc: p => p.passAccuracy ?? 0, ga: p => (p.goles ?? 0) + (p.asist ?? 0),
+    rec: p => p.interceptions ?? 0, tkl: p => p.tacklesTotal ?? 0, int: p => p.interceptions ?? 0,
+    dw: p => p.duelsWon ?? 0, dwp: p => (p.duelsTotal ? (p.duelsWon ?? 0) / p.duelsTotal : 0),
+  }
+  const sorted = useMemo(() => {
+    if (!sort || !SORT_ACCESSOR[sort.key]) return filtered
+    const acc = SORT_ACCESSOR[sort.key]
+    return [...filtered].sort((a, b) => (acc(b) - acc(a)) * sort.dir)
+  }, [filtered, sort])
+  const players = sorted.slice(0, 12)
   const leader = players[0]
   const accent = TAB_ACCENT[pos]
 
@@ -185,17 +211,28 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
 
       <FilterBar
         filters={[
-          { key: 'league',   label: t.league,   value: leagueLabel, active: true },
+          { key: 'league',   label: t.league,   value: leagueLabel, active: league !== 'big5' },
           { key: 'season',   label: t.season,   value: '25/26' },
           { key: 'position', label: t.position, value: posLabel },
-          { key: 'age',      label: t.age,      value: '16–40' },
-          { key: 'minpj',    label: t.minpj,    value: '3' },
+          { key: 'age',      label: t.age,      value: ageBand === 'u21' ? 'Sub-21' : ageBand === 'u23' ? 'Sub-23' : (lang === 'en' ? 'All' : 'Todas'), active: ageBand !== 'all' },
+          { key: 'minpj',    label: t.minpj,    value: `${minPj}+`, active: minPj > 3 },
         ]}
-        onFilterClick={key => { if (key === 'league') cycleLeague() }}
+        onFilterClick={key => {
+          if (key === 'league') cycleLeague()
+          else if (key === 'position') setPos(POS_ORDER[(POS_ORDER.indexOf(pos) + 1) % POS_ORDER.length])
+          else if (key === 'age') setAgeBand(b => (b === 'all' ? 'u23' : b === 'u23' ? 'u21' : 'all'))
+          else if (key === 'minpj') setMinPj(v => (v === 3 ? 5 : v === 5 ? 10 : 3))
+        }}
         count={{ current: players.length, total: filtered.length }}
       />
 
-      <PositionTable players={players} tab={pos} lang={lang === 'en' ? 'en' : 'es'} />
+      <PositionTable
+        players={players}
+        tab={pos}
+        lang={lang === 'en' ? 'en' : 'es'}
+        sort={sort}
+        onSort={key => setSort(s => (s && s.key === key ? { key, dir: (s.dir * -1) as 1 | -1 } : { key, dir: -1 }))}
+      />
     </>
   )
 }

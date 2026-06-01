@@ -11,6 +11,7 @@ import {
   ALL_LEAGUES,
 } from '@/lib/api-football'
 import { isLocale, type Lang } from '@/lib/i18n'
+import { leagueSlug } from '@/lib/league-data'
 import SaasShell from '@/components/saas/SaasShell'
 import RelatedLinks from '@/components/RelatedLinks'
 
@@ -60,7 +61,7 @@ const itemListJsonLd = {
     '@type': 'ListItem',
     position: index + 1,
     name: league.name,
-    url: `https://www.top-scorers.com/competiciones/${league.short.toLowerCase()}`,
+    url: `https://www.top-scorers.com/competiciones/${leagueSlug(league)}`,
   })),
 }
 
@@ -101,7 +102,7 @@ export default async function CompeticionesPage({
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {section.leagues.map(league => (
-              <Link key={league.id} href={`/?liga=${league.short}`} style={{ textDecoration: 'none' }}>
+              <Link key={league.id} href={`/${lang}/competiciones/${leagueSlug(league)}`} style={{ textDecoration: 'none' }}>
                 <div
                   className="rounded-lg p-4 flex items-center gap-3 transition-all duration-150"
                   style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', cursor: 'pointer' }}

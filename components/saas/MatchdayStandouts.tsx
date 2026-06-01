@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import Avatar from './Avatar'
+import { clubLogo } from '@/lib/club-logos'
 import type { Standout } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
 
@@ -56,12 +57,26 @@ export default function MatchdayStandouts({ standouts, rumor, lang }: Props) {
             borderRadius: 12, textDecoration: 'none', color: 'inherit',
           }}
         >
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)', flexShrink: 0 }}>
-            {lang === 'en' ? '🔥 Hot rumour' : '🔥 Rumor del día'}
+          {/* Player photo (real) — falls back to tinted initials */}
+          {rumor.playerName && (
+            <span style={{ flexShrink: 0 }}>
+              <Avatar name={rumor.playerName} size={36} photo={rumor.playerPhoto ?? undefined} />
+            </span>
+          )}
+          <span style={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)' }}>
+              {lang === 'en' ? '🔥 Hot rumour' : '🔥 Rumor del día'}
+            </span>
+            <span style={{ fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {rumor.headline}
+            </span>
           </span>
-          <span style={{ flex: 1, minWidth: 0, fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {rumor.headline}
-          </span>
+          {/* Destination club crest */}
+          {rumor.toClub && clubLogo(rumor.toClub) && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={clubLogo(rumor.toClub)} alt={rumor.toClub} width={22} height={22}
+              style={{ width: 22, height: 22, objectFit: 'contain', flexShrink: 0 }} />
+          )}
           {rumor.likelihood != null && (
             <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 700, color: 'var(--ts-primary)', fontVariantNumeric: 'tabular-nums' }}>
               {rumor.likelihood}%
