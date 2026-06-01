@@ -247,6 +247,19 @@ export const getNextFixtures = unstable_cache(
   { revalidate: 3600, tags: ['api-football'] } // 1 h — upcoming fixtures may shift
 )
 
+// Whole-season fixtures (every round/matchday). One API call; grouped by
+// `league.round` on the client for the round-by-round view.
+export const getAllFixtures = unstable_cache(
+  async (leagueId: number, season: number = 2025): Promise<ApiFixture[]> => {
+    const data = await apiFetch<ApiFixture[]>(
+      `/fixtures?league=${leagueId}&season=${season}`
+    )
+    return data.response ?? []
+  },
+  ['api-football-all-fixtures'],
+  { revalidate: 21600, tags: ['api-football'] } // 6 h
+)
+
 // ─── Extended player detail type ─────────────────────────────────────────────
 
 export interface ApiPlayerDetail {

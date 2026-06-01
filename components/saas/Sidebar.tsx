@@ -43,7 +43,7 @@ function Wordmark() {
         gap: 12,
         fontFamily: 'Barlow Condensed, sans-serif',
         fontWeight: 800,
-        fontSize: 23,
+        fontSize: 25,
         letterSpacing: '0.04em',
         color: 'var(--ts-text)',
         textTransform: 'uppercase',
@@ -53,9 +53,9 @@ function Wordmark() {
       <img
         src="/logo-ball-alpha.png"
         alt="TopScorers"
-        width={40}
-        height={40}
-        style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }}
+        width={52}
+        height={52}
+        style={{ width: 52, height: 52, objectFit: 'contain', flexShrink: 0 }}
       />
       <span>
         TOP<span style={{ color: 'var(--ts-primary)' }}>·SCORERS</span>

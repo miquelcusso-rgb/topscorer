@@ -61,62 +61,88 @@ const VENUES = [
   { city: 'Monterrey', stadium: 'Estadio BBVA', country: 'Mexico', capacity: '53,500', final: false },
 ]
 
-const START_DATE = new Date('2026-06-11T00:00:00Z')
-const END_DATE = new Date('2026-07-19T00:00:00Z')
-
-function getDaysUntilStart() {
-  const now = new Date()
-  if (now >= END_DATE) return -2
-  if (now >= START_DATE) return -1 // already started
-  return Math.ceil((START_DATE.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-}
+// Opening match: 11 Jun 2026, 19:00 local (Estadio Azteca, CDMX = UTC-6 → 01:00 UTC Jun 12).
+const KICKOFF = new Date('2026-06-12T01:00:00Z')
+const END_DATE = new Date('2026-07-19T23:59:00Z')
 
 const t = (lang: 'es' | 'en', es: string, en: string) => (lang === 'en' ? en : es)
 
-// ─── Countdown component ──────────────────────────────────────────────────────
+// ─── Live countdown to the opening match (days · hours · minutes · seconds) ────
+
+interface TimeLeft { d: number; h: number; m: number; s: number }
+function diffNow(): TimeLeft | 'live' | 'done' {
+  const now = Date.now()
+  if (now >= END_DATE.getTime()) return 'done'
+  if (now >= KICKOFF.getTime()) return 'live'
+  let ms = KICKOFF.getTime() - now
+  const d = Math.floor(ms / 86_400_000); ms -= d * 86_400_000
+  const h = Math.floor(ms / 3_600_000); ms -= h * 3_600_000
+  const m = Math.floor(ms / 60_000); ms -= m * 60_000
+  const s = Math.floor(ms / 1000)
+  return { d, h, m, s }
+}
 
 function Countdown({ lang }: { lang: 'es' | 'en' }) {
-  const days = getDaysUntilStart()
+  // Mount-guarded so SSR (static build) and first client render match — we render
+  // a neutral placeholder until the effect runs on the client.
+  const [tl, setTl] = useState<TimeLeft | 'live' | 'done' | null>(null)
+  useEffect(() => {
+    setTl(diffNow())
+    const id = setInterval(() => setTl(diffNow()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
-  if (days === -2) {
+  if (tl === null) {
+    return <div style={{ height: 96 }} aria-hidden />
+  }
+
+  if (tl === 'done') {
     return (
       <div style={{ textAlign: 'center', padding: '16px 0' }}>
-        <span style={{ fontSize: 13, color: 'var(--ts-primary)' }}>
+        <span style={{ fontSize: 14, color: 'var(--ts-primary)' }}>
           {t(lang, 'El Mundial 2026 ha concluido', 'World Cup 2026 has concluded')}
         </span>
       </div>
     )
   }
 
-  if (days === -1) {
+  if (tl === 'live') {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', padding: '12px 0' }}>
-        <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--ts-teal)', boxShadow: '0 0 7px var(--ts-teal)' }} />
-        <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ts-teal)', fontFamily: "'Barlow Condensed', sans-serif" }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', padding: '16px 0' }}>
+        <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: '50%', background: 'var(--ts-teal)', boxShadow: '0 0 8px var(--ts-teal)' }} />
+        <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ts-teal)', fontFamily: "'Barlow Condensed', sans-serif" }}>
           {t(lang, 'En curso', 'Live now')}
         </span>
       </div>
     )
   }
 
+  const units: { v: number; es: string; en: string }[] = [
+    { v: tl.d, es: 'días', en: 'days' },
+    { v: tl.h, es: 'horas', en: 'hours' },
+    { v: tl.m, es: 'min', en: 'min' },
+    { v: tl.s, es: 'seg', en: 'sec' },
+  ]
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center', padding: '12px 0' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 40, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>
-          {days}
-        </div>
-        <div style={{ fontSize: 9, letterSpacing: 2, textTransform: 'uppercase', marginTop: 4, color: 'var(--ts-muted)' }}>
-          {t(lang, 'días', 'days')}
-        </div>
+    <div style={{ padding: '14px 0 6px' }}>
+      <div style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ts-faint)', marginBottom: 10, textAlign: 'center' }}>
+        {t(lang, 'Comienza en — 11 jun 2026 · Estadio Azteca', 'Kicks off in — Jun 11, 2026 · Estadio Azteca')}
       </div>
-      <div style={{ fontSize: 11, color: 'var(--ts-faint)' }}>{t(lang, 'hasta el', 'until')}</div>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ts-text)', fontFamily: "'Barlow Condensed', sans-serif" }}>
-          11 Jun 2026
-        </div>
-        <div style={{ fontSize: 9, letterSpacing: 2, textTransform: 'uppercase', marginTop: 4, color: 'var(--ts-muted)' }}>
-          {t(lang, 'Copa del Mundo', 'World Cup')}
-        </div>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+        {units.map(u => (
+          <div key={u.en} style={{
+            minWidth: 66, padding: '10px 12px', borderRadius: 10, textAlign: 'center',
+            background: 'var(--ts-card)', border: '1px solid var(--ts-border)',
+          }}>
+            <div style={{ fontSize: 34, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>
+              {String(u.v).padStart(2, '0')}
+            </div>
+            <div style={{ fontSize: 9, letterSpacing: 2, textTransform: 'uppercase', marginTop: 5, color: 'var(--ts-muted)' }}>
+              {t(lang, u.es, u.en)}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -235,7 +261,7 @@ function LiveDataPanel({ lang }: { lang: 'es' | 'en' }) {
 
 export default function Mundial2026Client() {
   const { lang } = useLang()
-  const [view, setView] = useState<'overview' | 'groups' | 'venues' | 'live'>('overview')
+  const [view, setView] = useState<'overview' | 'groups' | 'calendar' | 'venues' | 'live'>('overview')
 
   return (
     <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh' }}>
@@ -254,14 +280,32 @@ export default function Mundial2026Client() {
               </span>
             </div>
 
-            <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 38, fontWeight: 700, color: 'var(--ts-primary)', letterSpacing: 1, lineHeight: 1 }}>
+            <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(44px, 8vw, 64px)', fontWeight: 800, color: 'var(--ts-primary)', letterSpacing: 1, lineHeight: 0.95 }}>
               {t(lang, 'MUNDIAL 2026', 'WORLD CUP 2026')}
             </h1>
-            <p style={{ marginTop: 4, fontSize: 13, color: 'var(--ts-muted)' }}>
+            <p style={{ marginTop: 6, fontSize: 14, color: 'var(--ts-muted)' }}>
               {t(lang, '48 selecciones · 16 sedes · 104 partidos · 11 jun – 19 jul 2026', '48 teams · 16 venues · 104 matches · Jun 11 – Jul 19, 2026')}
             </p>
 
             <Countdown lang={lang} />
+
+            {/* Calendar shortcut button */}
+            <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 4 }}>
+              <button
+                type="button"
+                onClick={() => setView('calendar')}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 16px', borderRadius: 8,
+                  background: 'var(--ts-primary)', color: 'var(--ts-bg)', border: 'none', cursor: 'pointer',
+                  fontSize: 12, fontWeight: 700, letterSpacing: 0.5, fontFamily: 'inherit',
+                }}
+              >
+                <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
+                  <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
+                </svg>
+                {t(lang, 'Ver calendario completo', 'See full calendar')}
+              </button>
+            </div>
           </div>
 
           {/* Nav tabs */}
@@ -269,6 +313,7 @@ export default function Mundial2026Client() {
             {([
               { id: 'overview', es: 'Resumen', en: 'Overview' },
               { id: 'groups', es: 'Grupos', en: 'Groups' },
+              { id: 'calendar', es: 'Calendario', en: 'Calendar' },
               { id: 'venues', es: 'Sedes', en: 'Venues' },
               { id: 'live', es: 'En vivo', en: 'Live' },
             ] as const).map(tab => {
@@ -294,8 +339,9 @@ export default function Mundial2026Client() {
       {/* Content */}
       <div style={{ background: 'var(--ts-bg)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px 80px' }}>
-          {view === 'overview' && <OverviewPanel lang={lang} />}
+          {view === 'overview' && <OverviewPanel lang={lang} onGoGroups={() => setView('groups')} onGoCalendar={() => setView('calendar')} />}
           {view === 'groups' && <GroupsPanel lang={lang} />}
+          {view === 'calendar' && <CalendarPanel lang={lang} />}
           {view === 'venues' && <VenuesPanel lang={lang} />}
           {view === 'live' && <LiveDataPanel lang={lang} />}
         </div>
@@ -306,7 +352,7 @@ export default function Mundial2026Client() {
 
 // ─── Overview panel ───────────────────────────────────────────────────────────
 
-function OverviewPanel({ lang }: { lang: 'es' | 'en' }) {
+function OverviewPanel({ lang, onGoGroups, onGoCalendar }: { lang: 'es' | 'en'; onGoGroups: () => void; onGoCalendar: () => void }) {
   const stats = [
     { label: t(lang, 'Selecciones', 'Teams'), value: '48', desc: t(lang, 'Primer mundial con 48 equipos', 'First 48-team World Cup') },
     { label: t(lang, 'Grupos', 'Groups'), value: '12', desc: t(lang, 'Grupos de 4 — top 2 + mejores 8 terceros', 'Groups of 4 — top 2 + best 8 thirds') },
@@ -356,22 +402,37 @@ function OverviewPanel({ lang }: { lang: 'es' | 'en' }) {
           {t(lang, 'Formato del torneo', 'Tournament format')}
         </div>
         <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, flexWrap: 'wrap' }}>
-          {phases.map((p, i) => (
-            <div key={p.phase} style={{ display: 'flex', alignItems: 'center' }}>
-              {i > 0 && (
-                <span style={{ color: 'var(--ts-primary)', fontSize: 16, padding: '0 6px', flexShrink: 0 }}>›</span>
-              )}
-              <div style={{
-                minWidth: 96, padding: '12px 14px', borderRadius: 10, textAlign: 'center',
-                background: i === phases.length - 1 ? 'var(--ts-primary-soft)' : 'var(--ts-card2)',
-                border: `1px solid ${i === phases.length - 1 ? 'var(--ts-border-hot)' : 'var(--ts-border)'}`,
-              }}>
-                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 20, lineHeight: 1, color: i === phases.length - 1 ? 'var(--ts-primary)' : 'var(--ts-text)' }}>{p.teams}</div>
-                <div style={{ fontSize: 11, fontWeight: 600, marginTop: 4, color: 'var(--ts-text)' }}>{p.phase}</div>
-                <div style={{ fontSize: 9, marginTop: 2, color: 'var(--ts-muted)' }}>{p.detail}</div>
+          {phases.map((p, i) => {
+            const isGroups = i === 0
+            const onClick = isGroups ? onGoGroups : onGoCalendar
+            return (
+              <div key={p.phase} style={{ display: 'flex', alignItems: 'center' }}>
+                {i > 0 && (
+                  <span style={{ color: 'var(--ts-primary)', fontSize: 16, padding: '0 6px', flexShrink: 0 }}>›</span>
+                )}
+                <button
+                  type="button"
+                  onClick={onClick}
+                  title={isGroups ? t(lang, 'Ver los 12 grupos', 'See the 12 groups') : t(lang, 'Ver calendario', 'See calendar')}
+                  style={{
+                    minWidth: 96, padding: '12px 14px', borderRadius: 10, textAlign: 'center', cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    background: i === phases.length - 1 ? 'var(--ts-primary-soft)' : 'var(--ts-card2)',
+                    border: `1px solid ${i === phases.length - 1 ? 'var(--ts-border-hot)' : 'var(--ts-border)'}`,
+                    transition: 'border-color .15s, transform .15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--ts-primary)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = i === phases.length - 1 ? 'var(--ts-border-hot)' : 'var(--ts-border)' }}
+                >
+                  <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 20, lineHeight: 1, color: i === phases.length - 1 ? 'var(--ts-primary)' : 'var(--ts-text)' }}>{p.teams}</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, marginTop: 4, color: 'var(--ts-text)' }}>{p.phase}</div>
+                  <div style={{ fontSize: 9, marginTop: 2, color: isGroups ? 'var(--ts-primary)' : 'var(--ts-muted)' }}>
+                    {isGroups ? t(lang, 'Ver grupos →', 'See groups →') : p.detail}
+                  </div>
+                </button>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -435,6 +496,63 @@ function GroupsPanel({ lang }: { lang: 'es' | 'en' }) {
       </div>
       <p style={{ fontSize: 10, marginTop: 8, color: 'var(--ts-faint)' }}>
         {t(lang, '* Se actualizarán tras el sorteo oficial.', '* Will update after the official draw.')}
+      </p>
+    </div>
+  )
+}
+
+// ─── Calendar panel ───────────────────────────────────────────────────────────
+// Official FIFA-announced phase schedule for the 2026 World Cup. Individual
+// match-by-match fixtures depend on the December 2025 draw; we show the
+// confirmed phase windows + key milestones (real, public dates).
+
+const WC_SCHEDULE: { es: string; en: string; dates_es: string; dates_en: string; note_es?: string; note_en?: string; highlight?: boolean }[] = [
+  { es: 'Partido inaugural', en: 'Opening match', dates_es: '11 jun 2026', dates_en: 'Jun 11, 2026', note_es: 'Estadio Azteca, Ciudad de México', note_en: 'Estadio Azteca, Mexico City', highlight: true },
+  { es: 'Fase de grupos', en: 'Group stage', dates_es: '11 – 27 jun 2026', dates_en: 'Jun 11 – 27, 2026', note_es: '12 grupos × 4 · 72 partidos', note_en: '12 groups × 4 · 72 matches' },
+  { es: 'Dieciseisavos (R32)', en: 'Round of 32', dates_es: '28 jun – 3 jul 2026', dates_en: 'Jun 28 – Jul 3, 2026' },
+  { es: 'Octavos (R16)', en: 'Round of 16', dates_es: '4 – 7 jul 2026', dates_en: 'Jul 4 – 7, 2026' },
+  { es: 'Cuartos de final', en: 'Quarter-finals', dates_es: '9 – 11 jul 2026', dates_en: 'Jul 9 – 11, 2026' },
+  { es: 'Semifinales', en: 'Semi-finals', dates_es: '14 – 15 jul 2026', dates_en: 'Jul 14 – 15, 2026' },
+  { es: 'Tercer puesto', en: 'Third place', dates_es: '18 jul 2026', dates_en: 'Jul 18, 2026' },
+  { es: 'FINAL', en: 'FINAL', dates_es: '19 jul 2026', dates_en: 'Jul 19, 2026', note_es: 'MetLife Stadium, Nueva York/Nueva Jersey', note_en: 'MetLife Stadium, New York/New Jersey', highlight: true },
+]
+
+function CalendarPanel({ lang }: { lang: 'es' | 'en' }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <p style={{ fontSize: 12, color: 'var(--ts-muted)', lineHeight: 1.6 }}>
+        {t(
+          lang,
+          'Calendario oficial de fases del Mundial 2026. Los enfrentamientos partido a partido se confirmarán tras el sorteo; aquí están las ventanas y fechas clave ya cuadradas por la FIFA.',
+          'Official 2026 World Cup phase calendar. Match-by-match fixtures are confirmed after the draw; below are the FIFA-confirmed windows and key dates.',
+        )}
+      </p>
+      <div style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
+        {WC_SCHEDULE.map((row, i) => (
+          <div
+            key={row.en}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
+              borderBottom: i < WC_SCHEDULE.length - 1 ? '1px solid var(--ts-divider)' : 'none',
+              background: row.highlight ? 'var(--ts-primary-soft)' : 'transparent',
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: row.highlight ? 'var(--ts-primary)' : 'var(--ts-text)', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                {t(lang, row.es, row.en)}
+              </div>
+              {(row.note_es || row.note_en) && (
+                <div style={{ fontSize: 11, marginTop: 2, color: 'var(--ts-muted)' }}>{t(lang, row.note_es ?? '', row.note_en ?? '')}</div>
+              )}
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums', flexShrink: 0, textAlign: 'right' }}>
+              {t(lang, row.dates_es, row.dates_en)}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p style={{ fontSize: 10, color: 'var(--ts-faint)' }}>
+        {t(lang, '* Fechas oficiales FIFA. Los cruces concretos se publican tras el sorteo.', '* Official FIFA dates. Exact match-ups are published after the draw.')}
       </p>
     </div>
   )

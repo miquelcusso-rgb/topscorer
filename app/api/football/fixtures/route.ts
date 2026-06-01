@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getFixtures, getNextFixtures } from '@/lib/api-football'
+import { getFixtures, getNextFixtures, getAllFixtures } from '@/lib/api-football'
 
 export const revalidate = 1800
 
@@ -9,11 +9,14 @@ export async function GET(request: NextRequest) {
   const season = Number(searchParams.get('season') ?? '2025')
   const last = Number(searchParams.get('last') ?? '10')
   const next = searchParams.get('next')
+  const all = searchParams.get('all')
 
   try {
-    const data = next
-      ? await getNextFixtures(league, season, Number(next))
-      : await getFixtures(league, season, last)
+    const data = all
+      ? await getAllFixtures(league, season)
+      : next
+        ? await getNextFixtures(league, season, Number(next))
+        : await getFixtures(league, season, last)
     return Response.json({ ok: true, data })
   } catch (err) {
     return Response.json({ ok: false, error: String(err) }, { status: 500 })

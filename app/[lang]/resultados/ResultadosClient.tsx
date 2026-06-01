@@ -283,6 +283,110 @@ function LeagueSection({ league, activeTab, isLight }: { league: LeagueMeta; act
   )
 }
 
+// ─── Round-by-round view (jornada a jornada) ───────────────────────────────────
+
+// Extract a sortable number from an API-Football round string like
+// "Regular Season - 12" → 12. Non-numbered rounds sort last.
+function roundNumber(round: string): number {
+  const m = round.match(/(\d+)\s*$/)
+  return m ? Number(m[1]) : 9999
+}
+function roundShortLabel(round: string): string {
+  const m = round.match(/(\d+)\s*$/)
+  return m ? `J${m[1]}` : round
+}
+
+function RoundsView({ league, isLight }: { league: LeagueMeta; isLight: boolean }) {
+  const [fixtures, setFixtures] = useState<ApiFixture[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [round, setRound] = useState<string | null>(null)
+
+  const textDim = isLight ? '#8898c0' : '#3a3b52'
+  const textMuted = isLight ? '#5060a0' : '#52526e'
+  const textMain = isLight ? '#0f1830' : '#c8c8e0'
+  const ctrlBorder = isLight ? '#c8d0e8' : '#151626'
+
+  useEffect(() => {
+    setLoading(true); setError(false); setRound(null)
+    fetch(`/api/football/fixtures?league=${league.id}&season=2025&all=1`)
+      .then(r => r.json())
+      .then(j => { if (j.ok) setFixtures(j.data); else setError(true) })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false))
+  }, [league.id])
+
+  // Ordered list of distinct rounds.
+  const rounds = Array.from(new Set(fixtures.map(f => f.league.round)))
+    .sort((a, b) => roundNumber(a) - roundNumber(b))
+
+  // Default round: the latest one that already has a finished match (the most
+  // recent "current" matchday); fall back to the last round overall.
+  const finished = (s: string) => ['FT', 'AET', 'PEN'].includes(s)
+  const defaultRound = (() => {
+    const playedRounds = rounds.filter(r => fixtures.some(f => f.league.round === r && finished(f.fixture.status.short)))
+    return playedRounds.length ? playedRounds[playedRounds.length - 1] : (rounds[0] ?? null)
+  })()
+  const current = round ?? defaultRound
+  const idx = current ? rounds.indexOf(current) : -1
+  const roundFixtures = fixtures
+    .filter(f => f.league.round === current)
+    .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime())
+
+  if (loading) return <div className="py-12 text-center text-[12px]" style={{ color: textDim }}>Cargando jornadas…</div>
+  if (error) return <div className="py-10 text-center text-[12px]" style={{ color: textDim }}>Error al cargar los partidos.</div>
+  if (!rounds.length) return <div className="py-10 text-center text-[12px]" style={{ color: textDim }}>Sin jornadas disponibles.</div>
+
+  return (
+    <div>
+      {/* Round selector: prev · dropdown · next */}
+      <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: `1px solid ${ctrlBorder}` }}>
+        <button
+          onClick={() => idx > 0 && setRound(rounds[idx - 1])}
+          disabled={idx <= 0}
+          aria-label="Jornada anterior"
+          className="cursor-pointer"
+          style={{ background: 'transparent', border: `1px solid ${ctrlBorder}`, borderRadius: 6, color: idx <= 0 ? textDim : league.color, width: 30, height: 30, fontSize: 16, lineHeight: 1, opacity: idx <= 0 ? 0.4 : 1 }}
+        >‹</button>
+
+        <select
+          value={current ?? ''}
+          onChange={e => setRound(e.target.value)}
+          className="cursor-pointer"
+          style={{
+            flex: 1, maxWidth: 240, padding: '6px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+            background: isLight ? '#ffffff' : '#0d0e1c', color: textMain,
+            border: `1px solid ${ctrlBorder}`, fontFamily: "'DM Sans', sans-serif",
+          }}
+        >
+          {rounds.map(r => (
+            <option key={r} value={r}>{roundShortLabel(r)} · {r}</option>
+          ))}
+        </select>
+
+        <button
+          onClick={() => idx < rounds.length - 1 && setRound(rounds[idx + 1])}
+          disabled={idx >= rounds.length - 1}
+          aria-label="Jornada siguiente"
+          className="cursor-pointer"
+          style={{ background: 'transparent', border: `1px solid ${ctrlBorder}`, borderRadius: 6, color: idx >= rounds.length - 1 ? textDim : league.color, width: 30, height: 30, fontSize: 16, lineHeight: 1, opacity: idx >= rounds.length - 1 ? 0.4 : 1 }}
+        >›</button>
+
+        <span className="ml-auto text-[10px] tabular-nums" style={{ color: textMuted }}>
+          {idx + 1} / {rounds.length}
+        </span>
+      </div>
+
+      {/* Round fixtures */}
+      {roundFixtures.length === 0 ? (
+        <div className="py-10 text-center text-[12px]" style={{ color: textDim }}>Sin partidos en esta jornada.</div>
+      ) : (
+        roundFixtures.map(f => <FixtureRow key={f.fixture.id} fixture={f} isLight={isLight} />)
+      )}
+    </div>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 // "Más ligas ▾" — dropdown grouped by region (2ª, Américas, Asia, etc.)
@@ -386,7 +490,7 @@ function MoreLeaguesDropdown({
 
 export default function ResultadosClient() {
   const [activeLeague, setActiveLeague] = useState(LEAGUES[0])
-  const [activeTab, setActiveTab] = useState<'standings' | 'fixtures'>('standings')
+  const [activeTab, setActiveTab] = useState<'standings' | 'fixtures' | 'rounds'>('standings')
   const { theme } = useTheme()
   const isLight = theme === 'light'
 
@@ -477,23 +581,27 @@ export default function ResultadosClient() {
       <div className="w-full" style={{ background: pageBg }}>
         <div className="max-w-[1100px] mx-auto px-5 py-5 pb-20">
 
-          {/* Sub-tabs: Standings vs Fixtures */}
+          {/* Sub-tabs: Standings · Last matches · Round-by-round */}
           <div className="flex gap-2 mb-5">
-            {(['standings', 'fixtures'] as const).map(t => (
+            {([
+              { id: 'standings', label: 'Clasificación' },
+              { id: 'fixtures', label: 'Últimos partidos' },
+              { id: 'rounds', label: 'Jornada a jornada' },
+            ] as const).map(t => (
               <button
-                key={t}
-                onClick={() => setActiveTab(t)}
+                key={t.id}
+                onClick={() => setActiveTab(t.id)}
                 className="cursor-pointer transition-all duration-150 text-[11px] font-bold uppercase tracking-[1.5px] px-4 py-1.5 rounded-sm"
                 style={{
                   fontFamily: "'Barlow Condensed', sans-serif",
-                  background: activeTab === t ? activeLeague.color : 'transparent',
-                  color: activeTab === t ? (isLight ? '#ffffff' : '#05060c') : textMuted,
-                  border: `1px solid ${activeTab === t ? activeLeague.color : headerBorder}`,
+                  background: activeTab === t.id ? activeLeague.color : 'transparent',
+                  color: activeTab === t.id ? (isLight ? '#ffffff' : '#05060c') : textMuted,
+                  border: `1px solid ${activeTab === t.id ? activeLeague.color : headerBorder}`,
                 }}
-                onMouseEnter={e => { if (activeTab !== t) { e.currentTarget.style.borderColor = isLight ? '#8898c0' : '#3a3b52'; e.currentTarget.style.color = isLight ? '#0f1830' : '#c8c8e0' } }}
-                onMouseLeave={e => { if (activeTab !== t) { e.currentTarget.style.borderColor = headerBorder; e.currentTarget.style.color = textMuted } }}
+                onMouseEnter={e => { if (activeTab !== t.id) { e.currentTarget.style.borderColor = isLight ? '#8898c0' : '#3a3b52'; e.currentTarget.style.color = isLight ? '#0f1830' : '#c8c8e0' } }}
+                onMouseLeave={e => { if (activeTab !== t.id) { e.currentTarget.style.borderColor = headerBorder; e.currentTarget.style.color = textMuted } }}
               >
-                {t === 'standings' ? 'Clasificación' : 'Últimos partidos'}
+                {t.label}
               </button>
             ))}
           </div>
@@ -533,7 +641,9 @@ export default function ResultadosClient() {
               </div>
             </div>
 
-            <LeagueSection league={activeLeague} activeTab={activeTab} isLight={isLight} />
+            {activeTab === 'rounds'
+              ? <RoundsView league={activeLeague} isLight={isLight} />
+              : <LeagueSection league={activeLeague} activeTab={activeTab} isLight={isLight} />}
 
             {/* Ad below standings, before fixtures */}
             <AdSlot slot="5544332211" format="horizontal" className="px-4 py-3" />

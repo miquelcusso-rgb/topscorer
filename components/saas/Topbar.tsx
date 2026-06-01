@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import LangTogglePill from './LangTogglePill'
 import ThemeTogglePill from './ThemeTogglePill'
+import TopSearch from './TopSearch'
 
 export interface PrimaryCta {
   label: string
@@ -70,41 +71,7 @@ export default function Topbar({
         })}
       </span>
 
-      <div
-        style={{
-          flex: 1,
-          maxWidth: 380,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '7px 12px',
-          background: 'var(--ts-card2)',
-          border: '1px solid var(--ts-border)',
-          borderRadius: 8,
-          fontSize: 13,
-          color: 'var(--ts-muted)',
-        }}
-      >
-        <svg width={14} height={14} viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth={1.4} aria-hidden>
-          <circle cx={6} cy={6} r={4.5} />
-          <path d="M12.5 12.5l-3-3" />
-        </svg>
-        <span>{searchPlaceholder}</span>
-        <kbd
-          style={{
-            marginLeft: 'auto',
-            fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-            fontSize: 10,
-            padding: '1px 5px',
-            background: 'var(--ts-surface)',
-            borderRadius: 3,
-            color: 'var(--ts-faint)',
-            border: '1px solid var(--ts-border)',
-          }}
-        >
-          ⌘K
-        </kbd>
-      </div>
+      <TopSearch placeholder={searchPlaceholder} />
 
       <div style={{ flex: 1 }} />
       <LangTogglePill />
