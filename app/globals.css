@@ -158,6 +158,49 @@ body::before {
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: #c8d0e0; }
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #a8b4cc; }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Light-mode page-background fix (cream parity)
+   ──────────────────────────────────────────────────────────────────────────
+   Comparador, Encuestas, Predicciones, Resultados and Clasificación each paint
+   their OWN full-bleed page background via an inline style on the client-
+   component root (e.g. `background:'#f4f6ff'` / `'#edf1f8'`, gradient
+   `#dde5f4→#edf1f8`). Those bluish slate tints sit on top of the cream
+   `--ts-bg (#f8f7f3)` that SaasShell already paints, so these routes looked
+   bluish-gray while Fantasy/Transfers (whose client roots paint NO page bg and
+   simply let the cream `--ts-bg` show through) looked correct.
+
+   Fix: neutralise those inline bluish page backgrounds to transparent so the
+   cream SaasShell `--ts-bg` shows through, matching Fantasy/Transfers. Scoped
+   to `.saas-main-content` so it can only affect the SaaS content area — the
+   home page and player pages are NOT inside SaasShell and are untouched.
+   A bare CSS `!important` overrides the components' inline `background` (which
+   carries no `!important`). DARK MODE IS UNAFFECTED: every rule is gated on
+   `[data-theme="light"]`.
+
+   No-op (already transparent) on Fantasy (root <main>) and Transfers (root
+   <div>), so they stay exactly as they are. */
+
+/* Direct page-wrapper of the affected clients:
+   - Predicciones / Clasificación / Encuestas  → root <main> with inline bg
+   - Comparador                                 → root <div> with inline bg
+   - Resultados                                 → root <main.min-h-screen> (its
+     bluish bg lives on nested .w-full children, handled below) */
+[data-theme="light"] .saas-main-content > main,
+[data-theme="light"] .saas-main-content > div {
+  background: transparent !important;
+}
+
+/* Resultados: header band uses a bluish gradient and the content band uses a
+   bluish flat fill on nested `.w-full` wrappers. Soften the header to a barely
+   warm cream wash (keeps a subtle separation) and make the content band let
+   the cream `--ts-bg` show through. */
+[data-theme="light"] .saas-main-content > main.min-h-screen > .w-full {
+  background: transparent !important;
+}
+[data-theme="light"] .saas-main-content > main.min-h-screen > .w-full:first-of-type {
+  background: linear-gradient(180deg, rgba(244,242,235,.9), rgba(248,247,243,0)) !important;
+}
+
 /* Theme toggle arrow hint */
 @keyframes bounce-down {
   0%, 100% { transform: translateY(0); }

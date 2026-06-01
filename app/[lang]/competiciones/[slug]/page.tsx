@@ -121,6 +121,7 @@ export default async function CompeticionPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(sportsOrgJsonLd).replace(/</g, '\\u003c') }} />
       <LeagueClient
         lang={lang}
+        league={league}
         leagueName={league.name}
         leagueCountry={league.country}
         leagueId={league.id}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
+import Avatar from '@/components/saas/Avatar'
 
 const LEAGUES = ['La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1']
 
@@ -31,15 +32,8 @@ function TransferCard({ t, isLight }: { t: Transfer; isLight: boolean }) {
       className="rounded-lg p-3 flex items-center gap-3"
       style={{ background: cardBg, border: `1px solid ${cardBorder}` }}
     >
-      {/* Player photo */}
-      <img
-        src={t.player.photo}
-        alt={t.player.name}
-        width={36}
-        height={36}
-        style={{ borderRadius: '50%', flexShrink: 0, background: '#1a1b2e' }}
-        onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-      />
+      {/* Player photo (real photo if available, else tinted initials) */}
+      <Avatar name={t.player.name} photo={t.player.photo || undefined} size={36} />
       {/* Player + teams */}
       <div className="flex-1 min-w-0">
         <div

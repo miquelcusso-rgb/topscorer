@@ -7,8 +7,37 @@ function normalizeClub(s: string): string {
   return (s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 }
 
+/**
+ * Strips a reserve / B-team / age-group suffix so a derived squad name
+ * ("Genk 2", "Real Madrid B", "Ajax II", "PSV U21", "Barcelona (R)") always
+ * resolves to the MAIN team's crest. Pure: returns the trimmed base name.
+ * Idempotent and safe \u2014 only strips a *trailing* reserve marker, never a
+ * leading/embedded number that is part of the real club name (e.g. "Mainz 05",
+ * "Schalke 04", "Paris FC", "1. FC K\u00f6ln" \u2192 handled by normalizeClub's own keys).
+ */
+function stripReserveSuffix(normalized: string): string {
+  // Trailing reserve markers, in order. Each is a whole trailing token.
+  //  - "2" / "ii" / "b"        \u2192 reserve / B team
+  //  - "u21" / "u 21" / "u19"\u2026 \u2192 age-group team
+  //  - "r"                     \u2192 "(R)" reserve marker after punctuation strip
+  const reserve = normalized.replace(
+    /\s+(?:ii|iii|b|r|2|3|u\s?\d{1,2})$/,
+    '',
+  ).trim()
+  return reserve
+}
+
 /** Returns the API-Football crest URL for a club name, or undefined. */
 export function clubLogo(club?: string): string | undefined {
   if (!club) return undefined
-  return CLUB_LOGOS[normalizeClub(club)]
+  const norm = normalizeClub(club)
+  // 1. Exact match against the canonical map (covers real names that legitimately
+  //    end in a number, e.g. "mainz 05", "fc basel 1893", "sarpsborg 08 ff").
+  const direct = CLUB_LOGOS[norm]
+  if (direct) return direct
+  // 2. No direct hit \u2192 it may be a reserve / derived squad ("Genk 2"). Strip the
+  //    trailing reserve suffix and retry against the MAIN team's crest.
+  const base = stripReserveSuffix(norm)
+  if (base && base !== norm) return CLUB_LOGOS[base]
+  return undefined
 }

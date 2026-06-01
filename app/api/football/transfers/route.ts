@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { getTransfersByTeam } from '@/lib/api-football'
+import { photoForName } from '@/lib/player-name'
 
 export const revalidate = 3600
 
@@ -24,7 +25,15 @@ export async function GET(req: NextRequest) {
     const transfers = results
       .flat()
       .flatMap(t => t.transfers.map(tr => ({
-        player: t.player,
+        // Backfill the player photo from the static PLAYERS dataset whenever the
+        // API-Football /transfers feed returns an empty/missing photo (it often
+        // does). Matched case/diacritic-insensitively by name. Falls through to
+        // the feed value (or '') when the player isn't in our dataset — the UI
+        // then renders an Avatar initials fallback.
+        player: {
+          ...t.player,
+          photo: t.player.photo || photoForName(t.player.name) || '',
+        },
         ...tr,
       })))
       .filter(t => t.date.startsWith(String(currentYear)) || t.date.startsWith(String(currentYear - 1)))

@@ -8,10 +8,19 @@ import RelatedLinks, { type RelatedLink } from '@/components/RelatedLinks'
 import { slugify } from '@/lib/slugify'
 import { iig } from '@/lib/iig'
 import { clubLogo } from '@/lib/club-logos'
-import { leaguesWithData } from '@/lib/league-data'
+import {
+  leaguesWithData,
+  topScorersForLeague,
+  topAssistersForLeague,
+  youngProspectsForLeague,
+  clubsRankedForLeague,
+  type ClubRankRow,
+} from '@/lib/league-data'
+import type { LeagueMeta } from '@/lib/api-football'
 
 interface Props {
   lang: 'es' | 'en'
+  league: LeagueMeta
   leagueName: string
   leagueCountry: string
   leagueId: number
@@ -20,6 +29,8 @@ interface Props {
   leagueSlug: string
   players: PlayerData[]
 }
+
+type TabKey = 'resumen' | 'goleadores' | 'asistentes' | 'jovenes'
 
 const headingStyle = {
   fontFamily: "'Barlow Condensed', sans-serif",
@@ -44,6 +55,92 @@ function ClubCrest({ club }: { club: string }) {
       loading="lazy"
       style={{ objectFit: 'contain', flexShrink: 0, borderRadius: 2 }}
     />
+  )
+}
+
+// ── Segmented control (view switcher) ────────────────────────────────────────
+function SegmentedControl({
+  tabs, active, onChange,
+}: {
+  tabs: { key: TabKey; label: string }[]
+  active: TabKey
+  onChange: (k: TabKey) => void
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label="league views"
+      style={{
+        display: 'flex', flexWrap: 'wrap', gap: 4, padding: 4,
+        background: 'var(--ts-card2)', border: '1px solid var(--ts-border)',
+        borderRadius: 12,
+      }}
+    >
+      {tabs.map(tab => {
+        const on = tab.key === active
+        return (
+          <button
+            key={tab.key}
+            role="tab"
+            aria-selected={on}
+            onClick={() => onChange(tab.key)}
+            style={{
+              flex: '1 1 auto', minWidth: 96, cursor: 'pointer',
+              padding: '8px 14px', borderRadius: 9, border: 'none',
+              background: on ? 'var(--ts-primary)' : 'transparent',
+              color: on ? '#1a1400' : 'var(--ts-muted)',
+              fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 800,
+              fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.6,
+              transition: 'background 120ms ease, color 120ms ease',
+            }}
+          >
+            {tab.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Clubs ranking (derived from real attacking output — NOT a standings) ──────
+function ClubsTable({ lang, rows, accentColor }: { lang: 'es' | 'en'; rows: ClubRankRow[]; accentColor: string }) {
+  const colTemplate = '30px minmax(120px,1fr) 46px 46px 44px'
+  const header = ['#', t(lang, 'Club', 'Club'), t(lang, 'Gol', 'G'), t(lang, 'Asi', 'A'), t(lang, 'Jug', 'Pl')]
+  return (
+    <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, overflow: 'hidden' }}>
+      <div style={{
+        display: 'grid', gridTemplateColumns: colTemplate, gap: 8, padding: '10px 14px', alignItems: 'center',
+        background: 'var(--ts-card2)', borderBottom: '1px solid var(--ts-border)',
+        fontSize: 10, color: 'var(--ts-muted)', letterSpacing: '0.06em', fontWeight: 700, textTransform: 'uppercase',
+      }}>
+        {header.map((h, i) => (
+          <span key={i} style={{ textAlign: i >= 2 ? 'right' : 'left' }}>{h}</span>
+        ))}
+      </div>
+      {rows.map((row, i) => {
+        const rank = i + 1
+        return (
+          <div
+            key={row.club}
+            style={{
+              display: 'grid', gridTemplateColumns: colTemplate, gap: 8, padding: '9px 14px', alignItems: 'center',
+              borderBottom: '1px solid var(--ts-divider)',
+            }}
+          >
+            <span style={{ fontSize: 12, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: rank <= 3 ? accentColor : 'var(--ts-muted)' }}>
+              {String(rank).padStart(2, '0')}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
+              <ClubCrest club={row.club} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.club}</span>
+            </div>
+            <span style={{ textAlign: 'right', fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums' }}>{row.goals}</span>
+            <span style={{ textAlign: 'right', fontSize: 13, color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>{row.assists}</span>
+            <span style={{ textAlign: 'right', fontSize: 13, color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>{row.players}</span>
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
@@ -207,9 +304,10 @@ function LeaderCard({
 }
 
 export default function LeagueClient({
-  lang, leagueName, leagueCountry, leagueId, leagueColor, leagueFlag, leagueSlug, players,
+  lang, league, leagueName, leagueCountry, leagueId, leagueColor, leagueFlag, leagueSlug, players,
 }: Props) {
   const [showAllScorers, setShowAllScorers] = useState(false)
+  const [tab, setTab] = useState<TabKey>('resumen')
 
   const scorers = useMemo(
     () => [...players].sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0) || iig(b) - iig(a)),
@@ -219,6 +317,11 @@ export default function LeagueClient({
     () => [...players].sort((a, b) => (b.asist ?? 0) - (a.asist ?? 0)).filter(p => (p.asist ?? 0) > 0).slice(0, 8),
     [players],
   )
+  // Real-data-only derived views.
+  const summaryScorers = useMemo(() => topScorersForLeague(league, 8), [league])
+  const summaryAssisters = useMemo(() => topAssistersForLeague(league, 8), [league])
+  const clubsRanked = useMemo(() => clubsRankedForLeague(league, 10), [league])
+  const youngsters = useMemo(() => youngProspectsForLeague(league, 21, 12), [league])
   const mvp = useMemo(() => {
     const eligible = players.filter(p => (p.pj ?? 0) >= 10)
     const pool = eligible.length ? eligible : players
@@ -249,6 +352,14 @@ export default function LeagueClient({
   ]
 
   const empty = players.length === 0
+
+  // Tabs are gated on real data: "Jóvenes" only appears if U21 players exist.
+  const tabs: { key: TabKey; label: string }[] = [
+    { key: 'resumen', label: t(lang, 'Resumen', 'Overview') },
+    { key: 'goleadores', label: t(lang, 'Goleadores', 'Scorers') },
+    ...(assisters.length > 0 ? [{ key: 'asistentes' as const, label: t(lang, 'Asistentes', 'Assisters') }] : []),
+    ...(youngsters.length > 0 ? [{ key: 'jovenes' as const, label: t(lang, 'Jóvenes promesas', 'Young guns') }] : []),
+  ]
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28, maxWidth: 1000 }}>
@@ -298,33 +409,110 @@ export default function LeagueClient({
         </div>
       ) : (
         <>
-          {/* ── MVP ── */}
-          {mvp && <MvpCard lang={lang} player={mvp} />}
+          {/* ── View switcher ── */}
+          <SegmentedControl tabs={tabs} active={tab} onChange={setTab} />
 
-          {/* ── Pichichi / Top scorers ── */}
-          <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <h2 style={{ ...headingStyle, fontSize: 20, color: 'var(--ts-primary)' }}>
-                {t(lang, 'Pichichi · Máximos goleadores', 'Top scorers')}
-              </h2>
-              {scorers.length > 12 && (
-                <button
-                  onClick={() => setShowAllScorers(v => !v)}
-                  style={{
-                    background: 'transparent', border: '1px solid var(--ts-border)', borderRadius: 8,
-                    color: 'var(--ts-muted)', fontSize: 11, fontWeight: 600, padding: '4px 10px',
-                    cursor: 'pointer', textTransform: 'uppercase', letterSpacing: 0.5,
-                  }}
-                >
-                  {showAllScorers ? t(lang, 'Ver menos', 'Show less') : t(lang, 'Ver top 20', 'Show top 20')}
-                </button>
+          {/* ════════════ RESUMEN ════════════ */}
+          {tab === 'resumen' && (
+            <>
+              {/* MVP */}
+              {mvp && <MvpCard lang={lang} player={mvp} />}
+
+              {/* Clubs ranking (left) + scorers/assisters (right) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, alignItems: 'start' }}>
+                {/* Clubs ranking — honestly NOT a standings table */}
+                <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <h2 style={{ ...headingStyle, fontSize: 18, color: 'var(--ts-text)' }}>
+                    {t(lang, 'Clasificación de clubes', 'Club ranking')}
+                  </h2>
+                  <p style={{ fontSize: 11, color: 'var(--ts-muted)', lineHeight: 1.5, margin: 0 }}>
+                    {t(
+                      lang,
+                      'Clubes ordenados por la producción ofensiva real de sus jugadores rastreados (goles y asistencias sumados). No es la clasificación oficial por puntos.',
+                      'Clubs ranked by the real attacking output of their tracked players (goals + assists). This is not the official points standings.',
+                    )}
+                  </p>
+                  <ClubsTable lang={lang} rows={clubsRanked} accentColor={leagueColor} />
+                </section>
+
+                {/* Top scorers + top assisters stacked */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <h2 style={{ ...headingStyle, fontSize: 18, color: 'var(--ts-primary)' }}>
+                      {t(lang, 'Máximos goleadores', 'Top scorers')}
+                    </h2>
+                    <StatTable lang={lang} players={summaryScorers} metric="goles" accent="primary" />
+                  </section>
+                  {summaryAssisters.length > 0 && (
+                    <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <h2 style={{ ...headingStyle, fontSize: 18, color: 'var(--ts-teal)' }}>
+                        {t(lang, 'Top asistentes', 'Top assisters')}
+                      </h2>
+                      <StatTable lang={lang} players={summaryAssisters} metric="asist" accent="teal" />
+                    </section>
+                  )}
+                </div>
+              </div>
+
+              {/* Position leaders (only if real position-stat data exists) */}
+              {(bestMf || bestDf) && (
+                <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <h2 style={{ ...headingStyle, fontSize: 18, color: 'var(--ts-text)' }}>
+                    {t(lang, 'Líderes por posición', 'Position leaders')}
+                  </h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
+                    {bestMf && (
+                      <LeaderCard
+                        lang={lang}
+                        label={t(lang, 'Mejor centrocampista', 'Best midfielder')}
+                        player={bestMf}
+                        statLabel={t(lang, 'P. clave', 'Key passes')}
+                        statValue={bestMf.keyPasses ?? 0}
+                        accent="primary"
+                      />
+                    )}
+                    {bestDf && (
+                      <LeaderCard
+                        lang={lang}
+                        label={t(lang, 'Mejor defensa', 'Best defender')}
+                        player={bestDf}
+                        statLabel={t(lang, 'Entradas', 'Tackles')}
+                        statValue={bestDf.tacklesTotal ?? 0}
+                        accent="teal"
+                      />
+                    )}
+                  </div>
+                </section>
               )}
-            </div>
-            <StatTable lang={lang} players={topScorers} metric="goles" accent="primary" />
-          </section>
+            </>
+          )}
 
-          {/* ── Top assisters ── */}
-          {assisters.length > 0 && (
+          {/* ════════════ GOLEADORES ════════════ */}
+          {tab === 'goleadores' && (
+            <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                <h2 style={{ ...headingStyle, fontSize: 20, color: 'var(--ts-primary)' }}>
+                  {t(lang, 'Pichichi · Máximos goleadores', 'Top scorers')}
+                </h2>
+                {scorers.length > 12 && (
+                  <button
+                    onClick={() => setShowAllScorers(v => !v)}
+                    style={{
+                      background: 'transparent', border: '1px solid var(--ts-border)', borderRadius: 8,
+                      color: 'var(--ts-muted)', fontSize: 11, fontWeight: 600, padding: '4px 10px',
+                      cursor: 'pointer', textTransform: 'uppercase', letterSpacing: 0.5,
+                    }}
+                  >
+                    {showAllScorers ? t(lang, 'Ver menos', 'Show less') : t(lang, 'Ver top 20', 'Show top 20')}
+                  </button>
+                )}
+              </div>
+              <StatTable lang={lang} players={topScorers} metric="goles" accent="primary" />
+            </section>
+          )}
+
+          {/* ════════════ ASISTENTES ════════════ */}
+          {tab === 'asistentes' && assisters.length > 0 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <h2 style={{ ...headingStyle, fontSize: 20, color: 'var(--ts-teal)' }}>
                 {t(lang, 'Top asistentes', 'Top assisters')}
@@ -333,34 +521,20 @@ export default function LeagueClient({
             </section>
           )}
 
-          {/* ── Position leaders ── */}
-          {(bestMf || bestDf) && (
+          {/* ════════════ JÓVENES PROMESAS (U21) ════════════ */}
+          {tab === 'jovenes' && youngsters.length > 0 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <h2 style={{ ...headingStyle, fontSize: 20, color: 'var(--ts-text)' }}>
-                {t(lang, 'Líderes por posición', 'Position leaders')}
+              <h2 style={{ ...headingStyle, fontSize: 20, color: 'var(--ts-primary)' }}>
+                {t(lang, 'Jóvenes promesas · Sub-21', 'Young guns · U21')}
               </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
-                {bestMf && (
-                  <LeaderCard
-                    lang={lang}
-                    label={t(lang, 'Mejor centrocampista', 'Best midfielder')}
-                    player={bestMf}
-                    statLabel={t(lang, 'P. clave', 'Key passes')}
-                    statValue={bestMf.keyPasses ?? 0}
-                    accent="primary"
-                  />
+              <p style={{ fontSize: 12, color: 'var(--ts-muted)', lineHeight: 1.5, margin: 0 }}>
+                {t(
+                  lang,
+                  'Jugadores de 21 años o menos ordenados por contribución de goles + asistencias.',
+                  'Players aged 21 or under, ranked by goal + assist contribution.',
                 )}
-                {bestDf && (
-                  <LeaderCard
-                    lang={lang}
-                    label={t(lang, 'Mejor defensa', 'Best defender')}
-                    player={bestDf}
-                    statLabel={t(lang, 'Entradas', 'Tackles')}
-                    statValue={bestDf.tacklesTotal ?? 0}
-                    accent="teal"
-                  />
-                )}
-              </div>
+              </p>
+              <StatTable lang={lang} players={youngsters} metric="goles" accent="primary" />
             </section>
           )}
         </>

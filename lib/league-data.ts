@@ -2,6 +2,7 @@ import type { PlayerData } from '@/types'
 import { ALL_LEAGUES, type LeagueMeta } from '@/lib/api-football'
 import { PLAYERS } from '@/data/players'
 import { slugify } from '@/lib/slugify'
+import { iig } from '@/lib/iig'
 
 /**
  * League detail pages live at /[lang]/competiciones/[slug] where slug =
@@ -101,6 +102,107 @@ export function playersForLeague(league: LeagueMeta, season: PlayerData['season'
       seen.add(p.name)
       return true
     })
+}
+
+/**
+ * Top scorers of a league, sorted by real goals (IIG breaks ties).
+ * `limit` defaults to 8 to fit the side-by-side league summary.
+ */
+export function topScorersForLeague(
+  league: LeagueMeta,
+  limit = 8,
+  season: PlayerData['season'] = '2526',
+): PlayerData[] {
+  return [...playersForLeague(league, season)]
+    .sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0) || iig(b) - iig(a))
+    .slice(0, limit)
+}
+
+/**
+ * Top assisters of a league, sorted by real assists. Players with 0 assists
+ * are excluded so we never pad the list with non-creators.
+ */
+export function topAssistersForLeague(
+  league: LeagueMeta,
+  limit = 8,
+  season: PlayerData['season'] = '2526',
+): PlayerData[] {
+  return [...playersForLeague(league, season)]
+    .filter(p => (p.asist ?? 0) > 0)
+    .sort((a, b) => (b.asist ?? 0) - (a.asist ?? 0) || (b.goles ?? 0) - (a.goles ?? 0))
+    .slice(0, limit)
+}
+
+/**
+ * Young prospects (U21) of a league, sorted by goal+assist contribution.
+ * Uses the real `age` field (present on every row). Returns [] when none.
+ */
+export function youngProspectsForLeague(
+  league: LeagueMeta,
+  maxAge = 21,
+  limit = 8,
+  season: PlayerData['season'] = '2526',
+): PlayerData[] {
+  return [...playersForLeague(league, season)]
+    .filter(p => typeof p.age === 'number' && p.age <= maxAge)
+    .sort(
+      (a, b) =>
+        ((b.goles ?? 0) + (b.asist ?? 0)) - ((a.goles ?? 0) + (a.asist ?? 0)) ||
+        iig(b) - iig(a),
+    )
+    .slice(0, limit)
+}
+
+/**
+ * A club "row" derived honestly from the players we ship for a league.
+ *
+ * IMPORTANT — the static dataset has NO league table data: no points, no
+ * W-D-L, no matches played as a team. What we DO have are real per-player
+ * goals/assists. So this is NOT a standings table; it is a clubs ranking by
+ * the aggregate attacking output of the league's tracked players. Fields are
+ * limited to what is real (goals, assists, players counted, top scorer).
+ */
+export interface ClubRankRow {
+  club: string
+  goals: number
+  assists: number
+  /** How many of this club's players appear in our league dataset. */
+  players: number
+  /** This club's most prolific tracked scorer (for the crest + name). */
+  topScorer: PlayerData
+}
+
+/**
+ * Clubs of a league ranked by aggregate goals of their tracked players
+ * (assists break ties). Honest "attacking output" ranking, NOT a standings.
+ */
+export function clubsRankedForLeague(
+  league: LeagueMeta,
+  limit = 10,
+  season: PlayerData['season'] = '2526',
+): ClubRankRow[] {
+  const byClub = new Map<string, ClubRankRow>()
+  for (const p of playersForLeague(league, season)) {
+    const club = p.club
+    const row = byClub.get(club)
+    if (!row) {
+      byClub.set(club, {
+        club,
+        goals: p.goles ?? 0,
+        assists: p.asist ?? 0,
+        players: 1,
+        topScorer: p,
+      })
+    } else {
+      row.goals += p.goles ?? 0
+      row.assists += p.asist ?? 0
+      row.players += 1
+      if ((p.goles ?? 0) > (row.topScorer.goles ?? 0)) row.topScorer = p
+    }
+  }
+  return Array.from(byClub.values())
+    .sort((a, b) => b.goals - a.goals || b.assists - a.assists || b.players - a.players)
+    .slice(0, limit)
 }
 
 /** Leagues that actually have players in the dataset (for cross-links). */

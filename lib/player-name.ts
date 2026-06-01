@@ -4,6 +4,7 @@
 // otherwise falls back to the short name. (audit pass 1)
 
 import type { PlayerData } from '@/types'
+import { PLAYERS } from '@/data/players'
 
 // Known full names for headliner players. Add more as needed.
 const KNOWN_FULL_NAMES: Record<string, string> = {
@@ -77,4 +78,46 @@ export function fullNameIfDifferent(player: NameInput): string | null {
   const s = shortName(player)
   const f = fullName(player)
   return f && f !== s ? f : null
+}
+
+// ─── Photo lookup by name (case/diacritic-insensitive) ───────────────────────
+
+/** Case + diacritic-insensitive normalization for name matching. */
+function normName(s: string): string {
+  return (s ?? '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[.'’-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+// Built once: normalized player name → photo URL. Only players that actually
+// carry a photo are indexed. Both the raw name and its known short/full
+// aliases are keyed so an external feed using either form still matches.
+let PHOTO_INDEX: Map<string, string> | null = null
+function photoIndex(): Map<string, string> {
+  if (PHOTO_INDEX) return PHOTO_INDEX
+  const idx = new Map<string, string>()
+  for (const p of PLAYERS) {
+    if (!p.photo) continue
+    const keys = new Set([p.name, shortName(p), fullName(p)].map(normName))
+    for (const k of keys) {
+      if (k && !idx.has(k)) idx.set(k, p.photo)
+    }
+  }
+  PHOTO_INDEX = idx
+  return idx
+}
+
+/**
+ * Finds a player photo URL by name from the static PLAYERS dataset, matching
+ * case/diacritic-insensitively (and against known short/full-name aliases).
+ * Returns undefined if no dataset player with a photo matches. Pure aside from
+ * a lazily-built, memoized index.
+ */
+export function photoForName(name?: string | null): string | undefined {
+  if (!name) return undefined
+  return photoIndex().get(normName(name))
 }
