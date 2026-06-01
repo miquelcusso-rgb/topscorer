@@ -1,4 +1,5 @@
 import type { PlayerData } from '@/types'
+import { iig } from './iig'
 
 export type PositionTabId = 'fw' | 'ast' | 'mf' | 'df' | 'gk'
 
@@ -90,6 +91,7 @@ export const COLUMNS_FOR: Record<PositionTabId, PosColumn[]> = {
     { key: 'conv',  label: 'Conv.',   value: p => pct(p.goles, p.shotsTotal), tone: 'teal' },
     { key: 'asist', label: 'Asist.',  value: p => n(p.asist), tone: 'teal' },
     { key: 'rt',    label: 'Nota',    value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
+    { key: 'iig',   label: 'IIG',     value: p => iig(p).toFixed(1), accent: true, tone: 'primary' },
   ],
   // Asistentes: creation
   ast: [

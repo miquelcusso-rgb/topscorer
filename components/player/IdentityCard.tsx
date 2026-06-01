@@ -8,6 +8,8 @@ interface IdentityCardProps {
   goldenBootLabel?: string
   goalsLabel?: string
   liveText?: string
+  /** Gold IIG pill shown next to the badge row (e.g. "IIG 38.4"). */
+  iigBadge?: { value: number; title?: string }
 }
 
 export default function IdentityCard({
@@ -16,10 +18,10 @@ export default function IdentityCard({
   goldenBootLabel = '#1 · Bota de Oro 25/26',
   goalsLabel = 'Goles 25/26',
   liveText,
+  iigBadge,
 }: IdentityCardProps) {
   const tint = avatarTintFor(player.name, mode)
   const initials = initialsOf(player.name)
-  const xg = Math.max(0, player.goles - 1)
   return (
     <div
       className="saas-identity-card"
@@ -65,23 +67,45 @@ export default function IdentityCard({
       </div>
 
       <div>
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '3px 8px',
-            background: 'var(--ts-primary-soft)',
-            color: 'var(--ts-primary)',
-            borderRadius: 999,
-            fontSize: 11,
-            fontWeight: 600,
-          }}
-        >
-          <svg width={11} height={11} viewBox="0 0 11 11" fill="currentColor" aria-hidden>
-            <path d="M5.5 1L7 4l3 .4-2.2 2 .5 3-2.8-1.5L2.7 9.4l.5-3L1 4.4 4 4z" />
-          </svg>
-          {goldenBootLabel}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '3px 8px',
+              background: 'var(--ts-primary-soft)',
+              color: 'var(--ts-primary)',
+              borderRadius: 999,
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            <svg width={11} height={11} viewBox="0 0 11 11" fill="currentColor" aria-hidden>
+              <path d="M5.5 1L7 4l3 .4-2.2 2 .5 3-2.8-1.5L2.7 9.4l.5-3L1 4.4 4 4z" />
+            </svg>
+            {goldenBootLabel}
+          </div>
+          {iigBadge && (
+            <div
+              title={iigBadge.title}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '3px 9px',
+                background: 'var(--ts-primary)',
+                color: 'var(--ts-bg)',
+                borderRadius: 999,
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.02em',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              IIG {iigBadge.value.toFixed(1)}
+            </div>
+          )}
         </div>
         <h1
           style={{
@@ -204,10 +228,10 @@ export default function IdentityCard({
             <strong style={{ color: 'var(--ts-teal)', fontSize: 18 }}>{player.asist}</strong> AST
           </span>
           <span>
-            <strong style={{ color: 'var(--ts-text)', fontSize: 18 }}>{xg.toFixed(1)}</strong> xG
+            <strong style={{ color: 'var(--ts-text)', fontSize: 18 }}>{player.shotsTotal ?? '—'}</strong> Tiros
           </span>
           <span>
-            <strong style={{ color: 'var(--ts-teal)', fontSize: 18 }}>+1.6</strong> vs xG
+            <strong style={{ color: 'var(--ts-teal)', fontSize: 18 }}>{player.rating != null ? player.rating.toFixed(2) : '—'}</strong> Nota
           </span>
         </div>
       </div>

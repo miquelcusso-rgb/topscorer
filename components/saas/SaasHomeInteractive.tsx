@@ -5,7 +5,9 @@ import type { PlayerData } from '@/types'
 import KpiCard from './KpiCard'
 import FilterBar from './FilterBar'
 import PositionTable from './PositionTable'
+import HotStrikerCard from './HotStrikerCard'
 import { type PositionTabId, TAB_LABELS, TAB_ACCENT } from '@/lib/position-stats'
+import type { HomeInsights } from '@/lib/home-insights'
 
 type LeagueFilterValue = 'big5' | 'big5pt' | 'all'
 
@@ -23,11 +25,13 @@ interface Props {
   lang: Lang
   positionPools: Record<PositionTabId, PlayerData[]>
   defaultPos?: PositionTabId
+  insights?: HomeInsights
 }
 
-export default function SaasHomeInteractive({ lang, positionPools, defaultPos }: Props) {
+export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights }: Props) {
   const [pos, setPos] = useState<PositionTabId>(defaultPos ?? 'fw')
   const [league, setLeague] = useState<LeagueFilterValue>('big5')
+  const [insightDismissed, setInsightDismissed] = useState(false)
 
   const leagueMatch = useMemo(() => {
     if (league === 'big5') return (p: PlayerData) => BIG5.includes(p.league)
@@ -94,6 +98,50 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos }:
           )
         })}
       </div>
+
+      {/* Hot striker + auto-insight banner (real derived data) */}
+      {insights?.hot && <HotStrikerCard hot={insights.hot} lang={lang === 'en' ? 'en' : 'es'} />}
+
+      {insights && insights.lines.length > 0 && !insightDismissed && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 12,
+            padding: '12px 14px',
+            background: 'var(--ts-teal-soft)',
+            border: '1px solid var(--ts-border)',
+            borderRadius: 10,
+          }}
+        >
+          <span aria-hidden style={{ fontSize: 14, lineHeight: '20px', flexShrink: 0 }}>📈</span>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {insights.lines.map((line, i) => (
+              <span key={i} style={{ fontSize: 13, color: 'var(--ts-text)', lineHeight: 1.4 }}>
+                {lang === 'en' ? line.en : line.es}
+              </span>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setInsightDismissed(true)}
+            aria-label={lang === 'en' ? 'Dismiss' : 'Cerrar'}
+            style={{
+              flexShrink: 0,
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--ts-muted)',
+              cursor: 'pointer',
+              fontSize: 16,
+              lineHeight: 1,
+              padding: 2,
+              fontFamily: 'inherit',
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* KPIs */}
       <div className="saas-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>

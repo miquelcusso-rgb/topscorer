@@ -4,6 +4,7 @@ import type { PlayerData } from '@/types'
 import SaasShell from './SaasShell'
 import SaasHomeInteractive from './SaasHomeInteractive'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
+import { computeHomeInsights } from '@/lib/home-insights'
 
 interface HeadingOverride {
   breadcrumb: string[]
@@ -58,6 +59,8 @@ export default function SaasHomeBody({
     p => p && p.season === '2526'
   )
   const positionPools = buildPositionPools(season)
+  // Small derived payload (1 hot striker + ≤2 insight lines) — tiny + serializable.
+  const insights = computeHomeInsights(season)
 
   const cta = lang === 'en' ? '+ New list' : '+ Crear lista'
   const labels = heading ?? (
@@ -87,7 +90,7 @@ export default function SaasHomeBody({
         <p style={{ margin: 0, fontSize: 13, color: 'var(--ts-muted)' }}>{labels.sub}</p>
       </div>
 
-      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} />
+      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} />
     </SaasShell>
   )
 }

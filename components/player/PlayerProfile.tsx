@@ -6,6 +6,7 @@ import ProfileTabs from '@/components/player/ProfileTabs'
 import RadarCard from '@/components/player/RadarCard'
 import type { Plan } from '@/types'
 import { shortName } from '@/lib/player-name'
+import { iig, IIG_NAME, IIG_EXPLAINER } from '@/lib/iig'
 
 type Tone = 'primary' | 'teal' | 'text'
 
@@ -68,7 +69,10 @@ export default function PlayerProfile({ player, lang, slug, userPlan }: Props) {
 
   return (
     <SaasShell activeKey="players" breadcrumb={breadcrumb} primaryCta={{ label: cta, icon: 'share' }} plan={userPlan}>
-      <IdentityCard player={player} />
+      <IdentityCard
+        player={player}
+        iigBadge={{ value: iig(player), title: `${IIG_NAME[lang]} · ${IIG_EXPLAINER[lang]}` }}
+      />
       <ProfileTabs
         compareHref={`/${lang}/estadisticas/comparador?p1=${slug}`}
         compareLabel={en ? '↗ Compare this player' : '↗ Comparar este jugador'}

@@ -2,6 +2,42 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
+import { PLAYERS } from '@/data/players'
+import { iig, leagueCoef, IIG_EXPLAINER } from '@/lib/iig'
+import type { PlayerData } from '@/types'
+
+// Real, weighted Golden Shoe ranking ordered by IIG (league-weighted goals +
+// rating quality + assists). Built from the static dataset, top 25 forwards.
+interface BotaRow {
+  pos: number
+  name: string
+  club: string
+  league: string
+  flag?: string
+  goles: number
+  coef: number
+  iig: number
+}
+
+function buildBotaRanking(): BotaRow[] {
+  const season = (Array.isArray(PLAYERS) ? PLAYERS : []).filter(
+    (p): p is PlayerData => !!p && p.season === '2526' && (p.goles ?? 0) > 0
+  )
+  return season
+    .map(p => ({ p, score: iig(p) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 25)
+    .map((entry, i) => ({
+      pos: i + 1,
+      name: entry.p.name,
+      club: entry.p.club,
+      league: entry.p.league,
+      flag: entry.p.flag,
+      goles: entry.p.goles ?? 0,
+      coef: leagueCoef(entry.p.league),
+      iig: entry.score,
+    }))
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -128,7 +164,11 @@ const headingStyle = {
   letterSpacing: 1,
 }
 
-export default function BotaDeOroPage() {
+export default async function BotaDeOroPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang: raw } = await params
+  const lang: 'es' | 'en' = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
+  const ranking = buildBotaRanking()
   return (
     <SaasShell activeKey="stats" breadcrumb={['Estadísticas', 'Bota de Oro']}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
@@ -211,6 +251,54 @@ export default function BotaDeOroPage() {
           <p style={{ marginTop: 10, color: '#475569', fontSize: 13 }}>
             Puntos = goles en liga × coeficiente. Datos actualizados, fuente: API-Football. Ver el{' '}
             <Link href="/maximos-goleadores-europa" style={{ color: '#f0c040', textDecoration: 'none' }}>ranking de goleadores de Europa →</Link>
+          </p>
+        </section>
+
+        {/* Real weighted ranking by IIG */}
+        <section style={{ marginBottom: 40 }}>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 8 }}>
+            {en ? 'Live ranking by IIG — Season 25/26' : 'Ranking en vivo por IIG — Temporada 25/26'}
+          </h2>
+          <p style={{ color: 'var(--ts-muted)', fontSize: 13, lineHeight: 1.6, marginBottom: 16 }}>
+            {IIG_EXPLAINER[lang]}
+          </p>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, minWidth: 0 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
+                  {[
+                    { k: '#', align: 'center' as const },
+                    { k: en ? 'Player' : 'Jugador', align: 'left' as const },
+                    { k: en ? 'League' : 'Liga', align: 'left' as const },
+                    { k: en ? 'Goals' : 'Goles', align: 'center' as const },
+                    { k: en ? 'Coef.' : 'Coef.', align: 'center' as const },
+                    { k: 'IIG', align: 'center' as const },
+                  ].map(col => (
+                    <th key={col.k} style={{ padding: '8px 12px', textAlign: col.align, color: 'var(--ts-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col.k}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {ranking.map(r => (
+                  <tr key={r.name + r.pos} style={{ borderBottom: '1px solid var(--ts-divider)' }}>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: r.pos <= 3 ? 'var(--ts-primary)' : 'var(--ts-muted)', fontWeight: 700, fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 13 }}>{r.pos}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--ts-text)', fontWeight: 600 }}>
+                      {r.flag ? `${r.flag} ` : ''}{r.name}
+                      <span style={{ display: 'block', color: 'var(--ts-muted)', fontWeight: 400, fontSize: 13 }}>{r.club}</span>
+                    </td>
+                    <td style={{ padding: '10px 12px', color: 'var(--ts-muted)' }}>{r.league}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-text)', fontFamily: 'JetBrains Mono, ui-monospace, monospace' }}>{r.goles}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-muted)', fontFamily: 'JetBrains Mono, ui-monospace, monospace' }}>×{r.coef.toFixed(1)}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'Barlow Condensed, sans-serif', fontSize: 17 }}>{r.iig.toFixed(1)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p style={{ marginTop: 10, color: 'var(--ts-faint)', fontSize: 13 }}>
+            {en
+              ? 'IIG (Striker Impact Index) is a TopScorers derived metric — league-weighted goals blended with season rating and assists. Source: API-Football.'
+              : 'El IIG (Índice de Impacto del Goleador) es una métrica propia de TopScorers: goles ponderados por liga combinados con la nota de temporada y las asistencias. Fuente: API-Football.'}
           </p>
         </section>
 
