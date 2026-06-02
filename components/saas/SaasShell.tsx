@@ -37,10 +37,14 @@ export default function SaasShell({
         color: 'var(--ts-text)',
         fontFamily: 'DM Sans, sans-serif',
         // Wide-screen: center the WHOLE app (sidebar + body) as one block, so
-        // the left gutter sits to the left of the sidebar too.
+        // the left gutter sits to the left of the sidebar too. Cap at 1600 and
+        // keep a small side gutter via padding so it never touches the edges,
+        // even on ~1600px-wide displays (mobile sidebar layout unaffected).
         width: '100%',
-        maxWidth: 1750,
+        maxWidth: 1600,
         marginInline: 'auto',
+        paddingInline: 'clamp(0px, 1.2vw, 20px)',
+        boxSizing: 'border-box',
       }}
     >
       <Sidebar activeKey={activeKey} plan={plan} />
