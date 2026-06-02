@@ -249,16 +249,34 @@ const RAW: RawPlayer[] = [
   { name:'Pedri',                  club:'Barcelona',      league:'La Liga',       age:21, pj:35, goles:8,  asist:9,  season:'2324', src:'srch', tab:'a' },
 ]
 
-const CURATED = RAW.map(p => ({
-  ...p,
-  ...(EXT[p.name] ?? {}),
-})) as PlayerData[]
+// Name normalisation + an "initial + last name" key so abbreviated generated
+// names ("H. Kane") match curated full names ("Harry Kane").
+const _norm = (s?: string) => (s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
+const _il = (s?: string) => { const t = _norm(s).split(' ').filter(Boolean); return t.length >= 2 ? `${t[0][0]} ${t[t.length - 1]}` : _norm(s) }
 
-// Generated leaderboard entries (data/players-generated.ts). Curated rich data
-// wins on name+season collisions; EXT is still applied in case of a name match.
+// Keys of every GENERATED current-season (2526) player. The generated rows
+// carry real stats + photo + apiId, so they must WIN over the curated stubs.
+const gen2526 = new Set<string>()
+for (const p of GENERATED_PLAYERS) {
+  if (p.season !== '2526') continue
+  gen2526.add(_norm(p.name)); gen2526.add(_il(p.name))
+  if (p.fullName) { gen2526.add(_norm(p.fullName)); gen2526.add(_il(p.fullName)) }
+}
+// EXT metadata indexed by initial+last, so it also attaches to abbreviated
+// generated names ("H. Kane" ← "Harry Kane" metadata).
+const EXT_BY_IL: Record<string, Partial<PlayerData>> = {}
+for (const k in EXT) { const il = _il(k); if (!(il in EXT_BY_IL)) EXT_BY_IL[il] = EXT[k] }
+
+// Curated rows: DROP 2526 stubs already covered by a generated row (generated
+// wins → real photo/stats); keep older seasons (history) + players with no
+// generated counterpart. EXT metadata still applied.
+const CURATED = RAW
+  .filter(p => !(p.season === '2526' && (gen2526.has(_norm(p.name)) || gen2526.has(_il(p.name)))))
+  .map(p => ({ ...p, ...(EXT[p.name] ?? {}) })) as PlayerData[]
+
 const seen = new Set(CURATED.map(p => `${p.name}|${p.season}`))
 const GENERATED: PlayerData[] = GENERATED_PLAYERS
-  .map(p => ({ ...p, ...(EXT[p.name] ?? {}) }))
+  .map(p => ({ ...p, ...(EXT[p.name] ?? EXT_BY_IL[_il(p.name)] ?? {}) }))
   .filter(p => {
     const k = `${p.name}|${p.season}`
     if (seen.has(k)) return false

@@ -12,23 +12,44 @@ function norm(s?: string): string {
     .replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
-const NAME_TO_ID = (() => {
-  const m = new Map<string, number>()
+// "Initial + last name" key: "Harry Kane" / "H. Kane" / "Harry Edward Kane" all
+// collapse to "h kane", so curated full names match abbreviated generated names.
+function initialLast(s?: string): string {
+  const t = norm(s).split(' ').filter(Boolean)
+  return t.length >= 2 ? `${t[0][0]} ${t[t.length - 1]}` : norm(s)
+}
+
+const NAME_TO_ID = new Map<string, number>()
+// Initial+last → apiId, but only when UNAMBIGUOUS (one player per il key).
+const IL_TO_ID = new Map<string, number>()
+const IL_AMBIG = new Set<string>()
+;(() => {
   for (const p of PLAYERS) {
     if (!p.apiId) continue
     const n = norm(p.name)
-    if (!m.has(n)) m.set(n, p.apiId)
+    if (!NAME_TO_ID.has(n)) NAME_TO_ID.set(n, p.apiId)
     const f = norm(p.fullName)
-    if (f && !m.has(f)) m.set(f, p.apiId)
+    if (f && !NAME_TO_ID.has(f)) NAME_TO_ID.set(f, p.apiId)
+    for (const il of [initialLast(p.name), initialLast(p.fullName)]) {
+      if (!il) continue
+      const cur = IL_TO_ID.get(il)
+      if (cur === undefined) IL_TO_ID.set(il, p.apiId)
+      else if (cur !== p.apiId) IL_AMBIG.add(il) // two different players share the il key
+    }
   }
-  return m
 })()
 
 /** Stable identity key for a player row (same person → same key). */
 export function playerKey(p: Pick<PlayerData, 'apiId' | 'name' | 'fullName'>): string {
   if (p.apiId) return `id:${p.apiId}`
-  const byName = NAME_TO_ID.get(norm(p.name)) ?? (p.fullName ? NAME_TO_ID.get(norm(p.fullName)) : undefined)
-  return byName ? `id:${byName}` : `nm:${norm(p.name)}`
+  // Exact name / full-name match against a generated apiId.
+  const exact = NAME_TO_ID.get(norm(p.name)) ?? (p.fullName ? NAME_TO_ID.get(norm(p.fullName)) : undefined)
+  if (exact) return `id:${exact}`
+  // Fallback: unambiguous initial+last match ("Harry Kane" → generated "H. Kane").
+  for (const il of [initialLast(p.name), initialLast(p.fullName)]) {
+    if (il && !IL_AMBIG.has(il)) { const id = IL_TO_ID.get(il); if (id) return `id:${id}` }
+  }
+  return `nm:${norm(p.name)}`
 }
 
 // Higher = more recent. Season codes are 4-digit ("2526" > "2425" > … > "1011").
