@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useLang } from '@/contexts/LangContext'
+import MatchCard from '@/components/saas/MatchCard'
 import type { ApiStandingEntry, ApiFixture, LeagueMeta } from '@/lib/api-football'
 import {
   LEAGUES as L_TOP,
@@ -222,6 +224,25 @@ function FixtureRow({ fixture, isLight }: { fixture: ApiFixture; isLight: boolea
   )
 }
 
+// Finished fixtures expand to show the auto match-summary card (goals, stats, MVP).
+function ExpandableFixture({ fixture, isLight }: { fixture: ApiFixture; isLight: boolean }) {
+  const { lang } = useLang()
+  const [open, setOpen] = useState(false)
+  const finished = ['FT', 'AET', 'PEN'].includes(fixture.fixture.status.short)
+  return (
+    <div>
+      <div onClick={() => finished && setOpen(o => !o)} style={{ cursor: finished ? 'pointer' : 'default' }}>
+        <FixtureRow fixture={fixture} isLight={isLight} />
+      </div>
+      {open && finished && (
+        <div style={{ padding: '4px 12px 12px' }}>
+          <MatchCard fixtureId={fixture.fixture.id} lang={lang === 'en' ? 'en' : 'es'} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── League section ───────────────────────────────────────────────────────────
 
 function LeagueSection({ league, activeTab, isLight }: { league: LeagueMeta; activeTab: 'standings' | 'fixtures'; isLight: boolean }) {
@@ -275,7 +296,7 @@ function LeagueSection({ league, activeTab, isLight }: { league: LeagueMeta; act
               Sin partidos recientes
             </div>
           ) : (
-            fixtures.slice().reverse().map(f => <FixtureRow key={f.fixture.id} fixture={f} isLight={isLight} />)
+            fixtures.slice().reverse().map(f => <ExpandableFixture key={f.fixture.id} fixture={f} isLight={isLight} />)
           )}
         </div>
       )}
@@ -381,7 +402,7 @@ function RoundsView({ league, isLight }: { league: LeagueMeta; isLight: boolean 
       {roundFixtures.length === 0 ? (
         <div className="py-10 text-center text-[12px]" style={{ color: textDim }}>Sin partidos en esta jornada.</div>
       ) : (
-        roundFixtures.map(f => <FixtureRow key={f.fixture.id} fixture={f} isLight={isLight} />)
+        roundFixtures.map(f => <ExpandableFixture key={f.fixture.id} fixture={f} isLight={isLight} />)
       )}
     </div>
   )

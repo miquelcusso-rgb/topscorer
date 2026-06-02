@@ -307,6 +307,62 @@ export const getPlayerCareer = unstable_cache(
   { revalidate: 86400, tags: ['api-football'] }
 )
 
+// ── Match summary card (goals+assists, stats, auto MVP) ──────────────────────
+export interface MatchSummary {
+  date: string
+  status: string
+  venue?: string
+  league: string
+  round?: string
+  home: { id: number; name: string; logo: string; goals: number | null }
+  away: { id: number; name: string; logo: string; goals: number | null }
+  scorers: { minute: number; teamId: number; player: string; assist?: string }[]
+  stats: { label: string; home: string | number; away: string | number }[]
+  mvp?: { name: string; team: string; rating: number; photo?: string }
+}
+
+export const getMatchSummary = unstable_cache(
+  async (fixtureId: number): Promise<MatchSummary | null> => {
+    const [fxRes, evRes, stRes, plRes] = await Promise.all([
+      apiFetch<ApiFixture[]>(`/fixtures?id=${fixtureId}`),
+      apiFetch<Array<Record<string, any>>>(`/fixtures/events?fixture=${fixtureId}`),
+      apiFetch<Array<Record<string, any>>>(`/fixtures/statistics?fixture=${fixtureId}`),
+      apiFetch<Array<Record<string, any>>>(`/fixtures/players?fixture=${fixtureId}`),
+    ])
+    const fx = fxRes.response?.[0]
+    if (!fx) return null
+    const scorers = (evRes.response ?? [])
+      .filter(e => e.type === 'Goal' && e.detail !== 'Missed Penalty')
+      .map(e => ({ minute: e.time?.elapsed ?? 0, teamId: e.team?.id, player: e.player?.name ?? '', assist: e.assist?.name ?? undefined }))
+    const wanted = ['Ball Possession', 'Total Shots', 'Shots on Goal', 'Corner Kicks', 'Fouls']
+    const labelEs: Record<string, string> = { 'Ball Possession': 'Posesión', 'Total Shots': 'Tiros', 'Shots on Goal': 'A puerta', 'Corner Kicks': 'Córners', 'Fouls': 'Faltas' }
+    const sHome = stRes.response?.[0]?.statistics ?? []
+    const sAway = stRes.response?.[1]?.statistics ?? []
+    const stat = (arr: any[], type: string) => arr.find((s: any) => s.type === type)?.value ?? '—'
+    const stats = wanted.map(t => ({ label: labelEs[t] ?? t, home: stat(sHome, t) ?? '—', away: stat(sAway, t) ?? '—' }))
+    // MVP = highest match rating across both teams.
+    let mvp: MatchSummary['mvp']
+    for (const team of plRes.response ?? []) {
+      for (const p of team.players ?? []) {
+        const r = parseFloat(p.statistics?.[0]?.games?.rating ?? '0')
+        if (r && (!mvp || r > mvp.rating)) mvp = { name: p.player?.name ?? '', team: team.team?.name ?? '', rating: Math.round(r * 100) / 100, photo: p.player?.photo }
+      }
+    }
+    return {
+      date: fx.fixture.date,
+      status: fx.fixture.status.short,
+      venue: fx.fixture.venue?.name,
+      league: fx.league.name,
+      round: fx.league.round,
+      home: { id: fx.teams.home.id, name: fx.teams.home.name, logo: fx.teams.home.logo, goals: fx.goals.home },
+      away: { id: fx.teams.away.id, name: fx.teams.away.name, logo: fx.teams.away.logo, goals: fx.goals.away },
+      scorers, stats, mvp,
+    }
+  },
+  ['api-football-match-summary'],
+  { revalidate: 3600, tags: ['api-football'] }
+)
+
 // All standings groups (e.g. World Cup groups A–L), not just the first one.
 export const getAllStandings = unstable_cache(
   async (leagueId: number, season: number = 2025): Promise<ApiStandingEntry[][]> => {
