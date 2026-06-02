@@ -350,3 +350,14 @@ body::before {
 @media (max-width: 680px) {
   .wc-venue { display: none !important; }
 }
+
+/* Page title a bit bigger + room on the right for the floating WC widget */
+.saas-page-header h1 { font-size: 30px !important; line-height: 1.05; }
+@media (min-width: 901px) {
+  .saas-page-header { padding-right: 300px; }
+}
+/* Mobile: toggles live in the MobileTopbar; hide the duplicate set + float */
+@media (max-width: 900px) {
+  .saas-topbar2-toggles { display: none !important; }
+  .saas-wc-float { display: none !important; }
+}

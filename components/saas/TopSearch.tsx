@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLang } from '@/contexts/LangContext'
 import Avatar from './Avatar'
-import type { SearchPlayerHit, SearchLeagueHit } from '@/app/api/search/route'
+import type { SearchPlayerHit, SearchLeagueHit, SearchClubHit } from '@/app/api/search/route'
 
 interface Props {
   placeholder?: string
@@ -15,6 +15,7 @@ export default function TopSearch({ placeholder }: Props) {
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(false)
   const [players, setPlayers] = useState<SearchPlayerHit[]>([])
+  const [clubs, setClubs] = useState<SearchClubHit[]>([])
   const [leagues, setLeagues] = useState<SearchLeagueHit[]>([])
   const [active, setActive] = useState(0)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -22,16 +23,17 @@ export default function TopSearch({ placeholder }: Props) {
 
   const ph = placeholder ?? (lang === 'en' ? 'Search player, team, league…' : 'Buscar jugador, equipo, liga…')
 
-  // Flat list of navigable results (leagues first, then players) for arrow keys.
-  const items: { type: 'league' | 'player'; href: string; key: string }[] = [
-    ...leagues.map(l => ({ type: 'league' as const, href: `/${lang}/competiciones/${l.slug}`, key: 'l' + l.slug })),
-    ...players.map(p => ({ type: 'player' as const, href: `/${lang}/jugadores/${p.slug}`, key: 'p' + p.slug })),
+  // Flat list of navigable results (clubs → leagues → players) for arrow keys.
+  const items: { href: string; key: string }[] = [
+    ...clubs.map(c => ({ href: `/${lang}/competiciones/${c.leagueSlug}`, key: 'c' + c.name })),
+    ...leagues.map(l => ({ href: `/${lang}/competiciones/${l.slug}`, key: 'l' + l.slug })),
+    ...players.map(p => ({ href: `/${lang}/jugadores/${p.slug}`, key: 'p' + p.slug })),
   ]
 
   // Debounced fetch.
   useEffect(() => {
     const term = q.trim()
-    if (term.length < 2) { setPlayers([]); setLeagues([]); return }
+    if (term.length < 2) { setPlayers([]); setClubs([]); setLeagues([]); return }
     let cancel = false
     const t = setTimeout(async () => {
       try {
@@ -39,6 +41,7 @@ export default function TopSearch({ placeholder }: Props) {
         const data = await res.json()
         if (cancel) return
         setPlayers(data.players ?? [])
+        setClubs(data.clubs ?? [])
         setLeagues(data.leagues ?? [])
         setActive(0)
       } catch { /* ignore */ }
@@ -72,6 +75,7 @@ export default function TopSearch({ placeholder }: Props) {
     setOpen(false)
     setQ('')
     setPlayers([])
+    setClubs([])
     setLeagues([])
     inputRef.current?.blur()
     router.push(href)
@@ -140,11 +144,33 @@ export default function TopSearch({ placeholder }: Props) {
             </div>
           )}
 
+          {clubs.length > 0 && (
+            <div>
+              <div style={SECTION_STYLE}>{lang === 'en' ? 'Teams' : 'Equipos'}</div>
+              {clubs.map((c, i) => {
+                const idx = i
+                return (
+                  <button key={'c' + c.name} type="button" onMouseEnter={() => setActive(idx)}
+                    onClick={() => go(`/${lang}/competiciones/${c.leagueSlug}`)} style={rowStyle(active === idx)}>
+                    {c.crest
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={c.crest} alt="" width={24} height={24} style={{ width: 24, height: 24, objectFit: 'contain' }} />
+                      : <span style={{ width: 24, textAlign: 'center', fontSize: 14 }}>🛡️</span>}
+                    <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, textAlign: 'left' }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)' }}>{c.name}</span>
+                      <span style={{ fontSize: 11, color: 'var(--ts-muted)' }}>{c.league}</span>
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
           {leagues.length > 0 && (
             <div>
               <div style={SECTION_STYLE}>{lang === 'en' ? 'Leagues' : 'Ligas'}</div>
               {leagues.map((l, i) => {
-                const idx = i
+                const idx = clubs.length + i
                 return (
                   <button key={'l' + l.slug} type="button" onMouseEnter={() => setActive(idx)}
                     onClick={() => go(`/${lang}/competiciones/${l.slug}`)} style={rowStyle(active === idx)}>
@@ -160,7 +186,7 @@ export default function TopSearch({ placeholder }: Props) {
             <div>
               <div style={SECTION_STYLE}>{lang === 'en' ? 'Players' : 'Jugadores'}</div>
               {players.map((p, i) => {
-                const idx = leagues.length + i
+                const idx = clubs.length + leagues.length + i
                 return (
                   <button key={'p' + p.slug} type="button" onMouseEnter={() => setActive(idx)}
                     onClick={() => go(`/${lang}/jugadores/${p.slug}`)} style={rowStyle(active === idx)}>

@@ -9,6 +9,7 @@ import MobileTopbar from './MobileTopbar'
 import LangTogglePill from './LangTogglePill'
 import ThemeTogglePill from './ThemeTogglePill'
 import WorldCupWidget from './WorldCupWidget'
+import TopSearch from './TopSearch'
 import type { Plan } from '@/types'
 
 interface SaasShellProps {
@@ -58,18 +59,22 @@ export default function SaasShell({
           display: 'flex',
           flexDirection: 'column',
           background: 'var(--ts-bg)',
+          position: 'relative',
         }}
       >
         <MobileTopbar activeKey={activeKey} lang={lang} primaryCta={primaryCta} />
-        {/* Top-right controls: language + theme, with the World Cup countdown below. */}
-        <div className="saas-topright" style={{ display: 'flex', justifyContent: 'flex-end', padding: '14px 24px 0' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <LangTogglePill />
-              <ThemeTogglePill />
-            </div>
-            <WorldCupWidget lang={lang === 'en' ? 'en' : 'es'} scale={1.3} />
+        {/* Top bar: multi-entity search (players · teams w/ crest · leagues) + toggles */}
+        <header className="saas-topbar2" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 24px', borderBottom: '1px solid var(--ts-border)' }}>
+          <TopSearch />
+          <div style={{ flex: 1 }} />
+          <div className="saas-topbar2-toggles" style={{ display: 'flex', gap: 8 }}>
+            <LangTogglePill />
+            <ThemeTogglePill />
           </div>
+        </header>
+        {/* World Cup countdown floats in the empty top-right space, beside the title */}
+        <div className="saas-wc-float" style={{ position: 'absolute', top: 72, right: 24, zIndex: 6 }}>
+          <WorldCupWidget lang={lang === 'en' ? 'en' : 'es'} scale={1.3} />
         </div>
         <div
           className="saas-main-content"

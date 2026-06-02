@@ -9,7 +9,6 @@ import { avatarTintFor, initialsOf } from '@/lib/palette'
 import { useTheme } from '@/contexts/ThemeContext'
 import type { Plan } from '@/types'
 import LockedPill from './LockedPill'
-import TopSearch from './TopSearch'
 import { ShareIcon, type PrimaryCta } from './Topbar'
 
 export type SidebarActiveKey =
@@ -206,7 +205,12 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
       style={{
         width: 232,
         flexShrink: 0,
-        alignSelf: 'stretch',
+        // Stick to the viewport: on long pages the sidebar's lower part stays
+        // anchored to the bottom of the window instead of scrolling away.
+        position: 'sticky',
+        top: 0,
+        height: '100vh',
+        overflowY: 'auto',
         background: 'var(--ts-sidebar)',
         borderRight: '1px solid var(--ts-border)',
         borderLeft: accent ? `4px solid ${accent}` : undefined,
@@ -277,9 +281,41 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         </svg>
       </button>
 
-      {/* Global search (relocated here from the removed top bar) */}
-      <div style={{ marginTop: 12 }}>
-        <TopSearch />
+      {/* User + My club, at the top */}
+      <div
+        style={{
+          marginTop: 12, display: 'flex', alignItems: 'center', gap: 10, padding: '10px',
+          background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 8,
+        }}
+      >
+        <div style={{ width: 30, height: 30, borderRadius: '50%', background: userTint.bg, color: userTint.fg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+          {userInitials}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</div>
+          {displayEmail && <div style={{ fontSize: 11, color: 'var(--ts-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayEmail}</div>}
+        </div>
+        <svg width={14} height={14} viewBox="0 0 14 14" fill="none" stroke="var(--ts-muted)" strokeWidth={1.5} aria-hidden>
+          <circle cx={7} cy={6} r={1.5} /><path d="M3 11c0-2 1.8-3 4-3s4 1 4 3" />
+        </svg>
+      </div>
+
+      {/* My club (PRO accent) */}
+      <div style={{ marginTop: 10 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 6 }}>
+          {en ? 'My club' : 'Mi club'} {!isProPlan && <span style={{ color: 'var(--ts-primary)' }}>· PRO</span>}
+        </div>
+        {isProPlan ? (
+          <select value={club} onChange={e => pickClub(e.target.value)} aria-label={en ? 'My club' : 'Mi club'}
+            style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: 'var(--ts-card)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', fontFamily: 'inherit', cursor: 'pointer' }}>
+            <option value="">{en ? '— none —' : '— ninguno —'}</option>
+            {clubColorOptions().map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        ) : (
+          <Link href={`/${lang}/pricing`} style={{ display: 'block', padding: '7px 10px', borderRadius: 8, fontSize: 12, textAlign: 'center', background: 'var(--ts-card2)', color: 'var(--ts-muted)', border: '1px dashed var(--ts-border)', textDecoration: 'none' }}>
+            🔒 {en ? 'Tint sidebar with your club' : 'Tiñe el panel con tu club'}
+          </Link>
+        )}
       </div>
 
       {/* nav */}
@@ -371,8 +407,6 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         })}
       </nav>
 
-      <div style={{ flex: 1 }} />
-
       {showUpgrade && (
         <div
           style={{
@@ -432,36 +466,6 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         </div>
       )}
 
-      {/* PRO: my club accent picker */}
-      <div style={{ marginTop: 12 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 6 }}>
-          {en ? 'My club' : 'Mi club'} {!isProPlan && <span style={{ color: 'var(--ts-primary)' }}>· PRO</span>}
-        </div>
-        {isProPlan ? (
-          <select
-            value={club}
-            onChange={e => pickClub(e.target.value)}
-            aria-label={en ? 'My club' : 'Mi club'}
-            style={{
-              width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-              background: 'var(--ts-card)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)',
-              fontFamily: 'inherit', cursor: 'pointer',
-            }}
-          >
-            <option value="">{en ? '— none —' : '— ninguno —'}</option>
-            {clubColorOptions().map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-        ) : (
-          <Link href={`/${lang}/pricing`} style={{
-            display: 'block', padding: '7px 10px', borderRadius: 8, fontSize: 12, textAlign: 'center',
-            background: 'var(--ts-card2)', color: 'var(--ts-muted)', border: '1px dashed var(--ts-border)',
-            textDecoration: 'none',
-          }}>
-            🔒 {en ? 'Tint sidebar with your club' : 'Tiñe el panel con tu club'}
-          </Link>
-        )}
-      </div>
-
       {/* Share CTA (lang/theme toggles live in the top-right of the shell) */}
       {primaryCta && (
         <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--ts-border)', display: 'flex', justifyContent: 'flex-end' }}>
@@ -479,66 +483,6 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         </div>
       )}
 
-      <div
-        style={{
-          marginTop: 12,
-          paddingTop: 12,
-          borderTop: '1px solid var(--ts-border)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          padding: '12px 6px 0',
-        }}
-      >
-        <div
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            background: userTint.bg,
-            color: userTint.fg,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 12,
-            fontWeight: 700,
-          }}
-        >
-          {userInitials}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: 'var(--ts-text)',
-              lineHeight: 1.1,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {displayName}
-          </div>
-          {displayEmail && (
-            <div
-              style={{
-                fontSize: 11,
-                color: 'var(--ts-muted)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {displayEmail}
-            </div>
-          )}
-        </div>
-        <svg width={14} height={14} viewBox="0 0 14 14" fill="none" stroke="var(--ts-muted)" strokeWidth={1.5} aria-hidden>
-          <circle cx={7} cy={6} r={1.5} />
-          <path d="M3 11c0-2 1.8-3 4-3s4 1 4 3" />
-        </svg>
-      </div>
     </aside>
   )
 }
