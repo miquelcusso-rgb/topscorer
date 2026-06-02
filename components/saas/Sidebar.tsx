@@ -19,6 +19,7 @@ export type SidebarActiveKey =
   | 'compare'
   | 'transfers'
   | 'results'
+  | 'news'
   | 'watchlist'
   | 'lists'
 
@@ -137,7 +138,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
     ? {
         gStats: 'Statistics', gComp: 'Competitions', gMarket: 'Market & Community', lists: 'Lists',
         players: 'Players', compare: 'Compare', boot: 'Golden Boot',
-        leagues: 'Leagues', standings: 'Standings', results: 'Results', wc: 'World Cup 2026',
+        leagues: 'Leagues', standings: 'Standings', results: 'Results', wc: 'World Cup 2026', news: 'News',
         transfers: 'Transfers', polls: 'Polls', predictions: 'Predictions', fantasy: 'Fantasy',
         watchlist: 'My watchlist',
         upgradeTitle: 'API access + full data', upgradeCta: 'Upgrade plan', planPro: 'Pro plan · €6/mo',
@@ -145,7 +146,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
     : {
         gStats: 'Estadísticas', gComp: 'Competiciones', gMarket: 'Mercado y Comunidad', lists: 'Listas',
         players: 'Jugadores', compare: 'Comparador', boot: 'Bota de Oro',
-        leagues: 'Ligas', standings: 'Clasificación', results: 'Resultados', wc: 'Mundial 2026',
+        leagues: 'Ligas', standings: 'Clasificación', results: 'Resultados', wc: 'Mundial 2026', news: 'Noticias',
         transfers: 'Transferencias', polls: 'Encuestas', predictions: 'Predicciones', fantasy: 'Fantasy',
         watchlist: 'Mi watchlist',
         upgradeTitle: 'Acceso API + datos completos', upgradeCta: 'Actualizar plan', planPro: 'Plan Pro · €6/mes',
@@ -174,6 +175,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         { id: 'leagues', icon: '📋', label: L.standings,              href: `/${lang}/clasificacion` },
         { id: 'results', icon: '⚽', label: L.results,    live: 3,     href: `/${lang}/resultados` },
         { id: 'leagues', icon: '🌍', label: L.wc,                      href: `/${lang}/mundial-2026` },
+        { id: 'news',    icon: '📰', label: L.news,                    href: `/${lang}/noticias` },
       ],
     },
     {

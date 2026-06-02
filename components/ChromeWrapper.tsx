@@ -33,6 +33,7 @@ const PATTERNS = [
   /^\/(es|en)\/encuestas(\/.*)?$/,
   /^\/(es|en)\/predicciones(\/.*)?$/,
   /^\/(es|en)\/mundial-2026(\/.*)?$/,
+  /^\/(es|en)\/noticias(\/.*)?$/,
   /^\/(es|en)\/clasificacion(\/.*)?$/,
   /^\/(es|en)\/descubrir(\/.*)?$/,
   /^\/(es|en)\/wiki(\/.*)?$/,

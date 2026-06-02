@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
+import NewsFeed from '@/components/saas/NewsFeed'
 import type { ApiFixture, ApiPlayerResponse, ApiStandingEntry } from '@/lib/api-football'
 
 // ─── Country → flag emoji ─────────────────────────────────────────────────────
@@ -246,7 +247,7 @@ function LiveDataPanel({ lang }: { lang: 'es' | 'en' }) {
 
 export default function Mundial2026Client() {
   const { lang } = useLang()
-  const [view, setView] = useState<'overview' | 'groups' | 'calendar' | 'venues' | 'live'>('overview')
+  const [view, setView] = useState<'overview' | 'news' | 'groups' | 'calendar' | 'venues' | 'live'>('overview')
 
   return (
     <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh' }}>
@@ -297,6 +298,7 @@ export default function Mundial2026Client() {
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             {([
               { id: 'overview', es: 'Resumen', en: 'Overview' },
+              { id: 'news', es: 'Noticias', en: 'News' },
               { id: 'groups', es: 'Grupos', en: 'Groups' },
               { id: 'calendar', es: 'Calendario', en: 'Calendar' },
               { id: 'venues', es: 'Sedes', en: 'Venues' },
@@ -325,6 +327,7 @@ export default function Mundial2026Client() {
       <div style={{ background: 'var(--ts-bg)' }}>
         <div style={{ maxWidth: 1500, margin: '0 auto', padding: '24px 20px 80px' }}>
           {view === 'overview' && <OverviewPanel lang={lang} onGoGroups={() => setView('groups')} onGoCalendar={() => setView('calendar')} />}
+          {view === 'news' && <NewsFeed scope="worldcup" lang={lang} />}
           {view === 'groups' && <GroupsPanel lang={lang} />}
           {view === 'calendar' && <CalendarPanel lang={lang} />}
           {view === 'venues' && <VenuesPanel lang={lang} />}
