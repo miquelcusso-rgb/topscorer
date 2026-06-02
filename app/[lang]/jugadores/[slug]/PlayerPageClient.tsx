@@ -219,6 +219,19 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
                 {player.name}
               </h1>
 
+              {player.fullName && (
+                <div
+                  style={{
+                    fontSize: 14,
+                    color: '#9a9ab8',
+                    marginTop: 6,
+                    fontWeight: 500,
+                  }}
+                >
+                  {player.fullName}
+                </div>
+              )}
+
               <div className="flex items-center gap-2 mt-3 flex-wrap">
                 {liveStats?.statistics[0]?.team.logo && (
                   <Image

@@ -10,6 +10,10 @@ export type Plan = 'free' | 'pro' | 'team' | 'scout'
 
 export interface PlayerData {
   name: string
+  /** Full/real name (firstname + lastname) when it differs from the common
+   *  display name/nickname (e.g. name "Vitinha" → fullName "Vítor Machado Ferreira").
+   *  Shown on the profile page; also searchable so users can find players by it. */
+  fullName?: string
   club: string
   league: string
   age: number

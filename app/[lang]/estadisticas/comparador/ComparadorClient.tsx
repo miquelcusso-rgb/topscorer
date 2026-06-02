@@ -208,7 +208,11 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
     // Accent-insensitive so "vitinha" matches "Vítinha", "ode" matches "Ödegaard", etc.
     const strip = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     const q = strip(query.trim())
-    return ALL_PLAYERS.filter(p => strip(p.name).includes(q) || strip(p.club).includes(q)).slice(0, 8)
+    return ALL_PLAYERS.filter(p =>
+      strip(p.name).includes(q) ||
+      (p.fullName ? strip(p.fullName).includes(q) : false) ||
+      strip(p.club).includes(q)
+    ).slice(0, 8)
   }, [query])
 
   function selectPlayer(p: EnrichedPlayer) {
