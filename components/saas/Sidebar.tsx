@@ -7,6 +7,10 @@ import { avatarTintFor, initialsOf } from '@/lib/palette'
 import { useTheme } from '@/contexts/ThemeContext'
 import type { Plan } from '@/types'
 import LockedPill from './LockedPill'
+import TopSearch from './TopSearch'
+import LangTogglePill from './LangTogglePill'
+import ThemeTogglePill from './ThemeTogglePill'
+import { ShareIcon, type PrimaryCta } from './Topbar'
 
 export type SidebarActiveKey =
   | 'stats'
@@ -21,6 +25,7 @@ export type SidebarActiveKey =
 interface SidebarProps {
   activeKey: SidebarActiveKey
   plan?: Plan
+  primaryCta?: PrimaryCta
 }
 
 interface NavItem {
@@ -112,7 +117,7 @@ function MenuRow({ item, active }: { item: NavItem; active: boolean }) {
   )
 }
 
-export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
+export default function Sidebar({ activeKey, plan = 'free', primaryCta }: SidebarProps) {
   const { lang } = useLang()
   const { theme } = useTheme()
   const { user, isLoaded } = useUser()
@@ -261,8 +266,13 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
         </svg>
       </button>
 
+      {/* Global search (relocated here from the removed top bar) */}
+      <div style={{ marginTop: 12 }}>
+        <TopSearch />
+      </div>
+
       {/* nav */}
-      <nav style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <nav style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 2 }}>
         {groups.map(group => (
           <div key={group.label} style={{ display: 'contents' }}>
             <div
@@ -410,6 +420,25 @@ export default function Sidebar({ activeKey, plan = 'free' }: SidebarProps) {
           </Link>
         </div>
       )}
+
+      {/* Controls relocated from the removed top bar: lang/theme + share */}
+      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--ts-border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <LangTogglePill />
+        <ThemeTogglePill />
+        {primaryCta && (
+          primaryCta.href ? (
+            <Link href={primaryCta.href} aria-label={primaryCta.label} title={primaryCta.label}
+              style={{ marginLeft: 'auto', width: 34, height: 34, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'var(--ts-card2)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', borderRadius: 8, textDecoration: 'none' }}>
+              {primaryCta.icon === 'share' ? <ShareIcon /> : primaryCta.label}
+            </Link>
+          ) : (
+            <button type="button" onClick={primaryCta.onClick} aria-label={primaryCta.label} title={primaryCta.label}
+              style={{ marginLeft: 'auto', width: 34, height: 34, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'var(--ts-card2)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {primaryCta.icon === 'share' ? <ShareIcon /> : primaryCta.label}
+            </button>
+          )
+        )}
+      </div>
 
       <div
         style={{

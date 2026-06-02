@@ -4,7 +4,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
 import { getPalette, cssVars } from '@/lib/palette'
 import Sidebar, { type SidebarActiveKey } from './Sidebar'
-import Topbar, { type PrimaryCta } from './Topbar'
+import { type PrimaryCta } from './Topbar'
 import MobileTopbar from './MobileTopbar'
 import type { Plan } from '@/types'
 
@@ -47,7 +47,7 @@ export default function SaasShell({
         boxSizing: 'border-box',
       }}
     >
-      <Sidebar activeKey={activeKey} plan={plan} />
+      <Sidebar activeKey={activeKey} plan={plan} primaryCta={primaryCta} />
       <main
         style={{
           flex: 1,
@@ -58,7 +58,6 @@ export default function SaasShell({
         }}
       >
         <MobileTopbar activeKey={activeKey} lang={lang} primaryCta={primaryCta} />
-        <Topbar breadcrumb={breadcrumb} primaryCta={primaryCta} />
         <div
           className="saas-main-content"
           style={{
