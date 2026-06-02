@@ -29,10 +29,10 @@ interface Props {
   positionPools: Record<PositionTabId, PlayerData[]>
   defaultPos?: PositionTabId
   insights?: HomeInsights
-  rumor?: HomeRumor | null
+  rumors?: HomeRumor[]
 }
 
-export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumor }: Props) {
+export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [] }: Props) {
   const [pos, setPos] = useState<PositionTabId>(defaultPos ?? 'fw')
   const [league, setLeague] = useState<LeagueFilterValue>('big5')
   const [ageBand, setAgeBand] = useState<'all' | 'u23' | 'u21'>('all')
@@ -132,8 +132,8 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
       </div>
 
       {/* Editorial: matchday standouts + hot rumour (real data) */}
-      {insights && (insights.standouts.length > 0 || rumor) && (
-        <MatchdayStandouts standouts={insights.standouts} rumor={rumor} lang={lang === 'en' ? 'en' : 'es'} />
+      {insights && (insights.standouts.length > 0 || rumors.length > 0) && (
+        <MatchdayStandouts standouts={insights.standouts} rumors={rumors} lang={lang === 'en' ? 'en' : 'es'} />
       )}
 
       {/* Hot striker + auto-insight banner (real derived data) */}

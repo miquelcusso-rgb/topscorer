@@ -7,13 +7,13 @@ import type { HomeRumor } from '@/lib/home-rumor'
 
 interface Props {
   standouts: Standout[]
-  rumor?: HomeRumor | null
+  rumors?: HomeRumor[]
   lang: 'es' | 'en'
 }
 
-// Editorial "Jugones de la jornada" strip + optional "Rumor del día" card.
-export default function MatchdayStandouts({ standouts, rumor, lang }: Props) {
-  if (!standouts.length && !rumor) return null
+// Editorial "Jugones de la jornada" strip + a "Rumores" bar (up to 3 cards).
+export default function MatchdayStandouts({ standouts, rumors = [], lang }: Props) {
+  if (!standouts.length && !rumors.length) return null
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ts-muted)' }}>
@@ -48,41 +48,48 @@ export default function MatchdayStandouts({ standouts, rumor, lang }: Props) {
         ))}
       </div>
 
-      {rumor && (
-        <Link
-          href={`/${lang}/rumores`}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
-            background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)',
-            borderRadius: 12, textDecoration: 'none', color: 'inherit',
-          }}
-        >
-          {/* Player photo (real) — falls back to tinted initials */}
-          {rumor.playerName && (
-            <span style={{ flexShrink: 0 }}>
-              <Avatar name={rumor.playerName} size={36} photo={rumor.playerPhoto ?? undefined} />
-            </span>
-          )}
-          <span style={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1, minWidth: 0 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)' }}>
-              {lang === 'en' ? '🔥 Hot rumour' : '🔥 Rumor del día'}
-            </span>
-            <span style={{ fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {rumor.headline}
-            </span>
-          </span>
-          {/* Destination club crest */}
-          {rumor.toClub && clubLogo(rumor.toClub) && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={clubLogo(rumor.toClub)} alt={rumor.toClub} width={22} height={22}
-              style={{ width: 22, height: 22, objectFit: 'contain', flexShrink: 0 }} />
-          )}
-          {rumor.likelihood != null && (
-            <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 700, color: 'var(--ts-primary)', fontVariantNumeric: 'tabular-nums' }}>
-              {rumor.likelihood}%
-            </span>
-          )}
-        </Link>
+      {rumors.length > 0 && (
+        <>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginTop: 4 }}>
+            {lang === 'en' ? '🔥 Hot rumours' : '🔥 Rumores'}
+          </div>
+          <div className="saas-rumours-grid" style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(rumors.length, 3)}, minmax(0,1fr))`, gap: 12 }}>
+            {rumors.slice(0, 3).map(rumor => (
+              <Link
+                key={rumor.id}
+                href={`/${lang}/rumores`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px',
+                  background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)',
+                  borderRadius: 12, textDecoration: 'none', color: 'inherit', minWidth: 0,
+                }}
+              >
+                {rumor.playerName && (
+                  <span style={{ flexShrink: 0 }}>
+                    <Avatar name={rumor.playerName} size={36} photo={rumor.playerPhoto ?? undefined} />
+                  </span>
+                )}
+                <span style={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1, minWidth: 0 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {rumor.headline}
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {rumor.toClub && clubLogo(rumor.toClub) && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={clubLogo(rumor.toClub)} alt={rumor.toClub} width={16} height={16}
+                        style={{ width: 16, height: 16, objectFit: 'contain', flexShrink: 0 }} />
+                    )}
+                    {rumor.likelihood != null && (
+                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ts-primary)', fontVariantNumeric: 'tabular-nums' }}>
+                        {rumor.likelihood}%
+                      </span>
+                    )}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

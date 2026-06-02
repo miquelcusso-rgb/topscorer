@@ -5,7 +5,8 @@ import SaasShell from './SaasShell'
 import SaasHomeInteractive from './SaasHomeInteractive'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
 import { computeHomeInsights } from '@/lib/home-insights'
-import { getTopRumor } from '@/lib/home-rumor'
+import { getTopRumors } from '@/lib/home-rumor'
+import WorldCupWidget from './WorldCupWidget'
 
 interface HeadingOverride {
   breadcrumb: string[]
@@ -79,7 +80,7 @@ export default async function SaasHomeBody({
   const insights = computeHomeInsights(season)
   // Editorial "rumor del día" — fetched at build (home is force-static); fully
   // defensive (null on any error), so it never breaks the build.
-  const rumor = await getTopRumor(lang === 'en' ? 'en' : 'es')
+  const rumors = await getTopRumors(lang === 'en' ? 'en' : 'es', 3)
 
   const cta = lang === 'en' ? '+ New list' : '+ Crear lista'
   const labels = heading ?? (
@@ -102,14 +103,17 @@ export default async function SaasHomeBody({
       breadcrumb={labels.breadcrumb}
       primaryCta={{ label: cta, href: `/${lang}/cuenta` }}
     >
-      <div className="saas-page-header" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <h1 style={{ margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, letterSpacing: '-0.012em', color: 'var(--ts-text)' }}>
-          {labels.h1}
-        </h1>
-        <p style={{ margin: 0, fontSize: 13, color: 'var(--ts-muted)' }}>{labels.sub}</p>
+      <div className="saas-page-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
+          <h1 style={{ margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, letterSpacing: '-0.012em', color: 'var(--ts-text)' }}>
+            {labels.h1}
+          </h1>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--ts-muted)' }}>{labels.sub}</p>
+        </div>
+        <WorldCupWidget lang={lang === 'en' ? 'en' : 'es'} />
       </div>
 
-      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumor={rumor} />
+      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} />
     </SaasShell>
   )
 }
