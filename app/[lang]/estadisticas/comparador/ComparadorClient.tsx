@@ -80,7 +80,7 @@ const PRESETS = [
 // Each axis pulls a REAL numeric value from a player (metric) and renders a
 // display string (format). aPct/bPct are computed later as val / max(a,b,1)
 // — UNLESS the axis sets `invert`, in which case fewer = better (see below).
-type StatSetId = 'compare' | 'fw' | 'mf' | 'df' | 'transfer'
+type StatSetId = 'pct' | 'compare' | 'fw' | 'mf' | 'df' | 'transfer'
 
 interface AxisDef {
   label: string
@@ -177,11 +177,11 @@ const STAT_SETS: Record<StatSetId, AxisDef[]> = {
 }
 
 const STAT_SET_LABELS: Record<'es' | 'en', Record<StatSetId, string>> = {
-  es: { compare: 'Comparativa', fw: 'Delantero', mf: 'Centrocampista', df: 'Defensa', transfer: 'Transfer info' },
-  en: { compare: 'Comparison', fw: 'Forward', mf: 'Midfielder', df: 'Defender', transfer: 'Transfer info' },
+  es: { pct: 'Percentil', compare: 'Comparativa', fw: 'Delantero', mf: 'Centrocampista', df: 'Defensa', transfer: 'Transfer info' },
+  en: { pct: 'Percentile', compare: 'Comparison', fw: 'Forward', mf: 'Midfielder', df: 'Defender', transfer: 'Transfer info' },
 }
 
-const STAT_SET_ORDER: StatSetId[] = ['compare', 'fw', 'mf', 'df', 'transfer']
+const STAT_SET_ORDER: StatSetId[] = ['pct', 'compare', 'fw', 'mf', 'df', 'transfer']
 
 function defaultSetForPosition(_pos?: Position): StatSetId {
   // Default to the cross-position "Comparativa" set (G/PJ, A/PJ, regates,
@@ -434,6 +434,21 @@ export default function ComparadorClient() {
   const [statSet, setStatSet] = useState<StatSetId>('compare')
   const [statSetTouched, setStatSetTouched] = useState(false)
 
+  // Per-position percentile radars (handoff schema: Understat + API-Football).
+  type RadarResp = { position: string; leagueHasUnderstat: boolean; axes: { axisId: string; label: string; percentile: number | null; isProxy: boolean }[] }
+  const [radarA, setRadarA] = useState<RadarResp | null>(null)
+  const [radarB, setRadarB] = useState<RadarResp | null>(null)
+  useEffect(() => {
+    setRadarA(null); const id = playerA?.apiId; if (!id) return
+    let c = false; fetch(`/api/player-radar?id=${id}`).then(r => r.json()).then(j => { if (!c && j.ok) setRadarA(j) }).catch(() => {})
+    return () => { c = true }
+  }, [playerA?.apiId])
+  useEffect(() => {
+    setRadarB(null); const id = playerB?.apiId; if (!id) return
+    let c = false; fetch(`/api/player-radar?id=${id}`).then(r => r.json()).then(j => { if (!c && j.ok) setRadarB(j) }).catch(() => {})
+    return () => { c = true }
+  }, [playerB?.apiId])
+
   const pageBg = isLight ? '#edf1f8' : '#07070f'
   const textMuted = isLight ? '#5060a0' : C_DARK.mu
   const cardBg = isLight ? 'rgba(255,255,255,.9)' : C_DARK.bg
@@ -462,9 +477,12 @@ export default function ComparadorClient() {
   // Default the stat-set selector to player A's position — until the user
   // manually picks one (then we respect their choice).
   useEffect(() => {
-    if (statSetTouched || !playerA) return
-    setStatSet(defaultSetForPosition(playerA.position))
-  }, [playerA, statSetTouched])
+    if (statSetTouched) return
+    // Default to the per-position percentile radar when both players have ids;
+    // otherwise fall back to player A's position stat set.
+    if (playerA?.apiId && playerB?.apiId) setStatSet('pct')
+    else if (playerA) setStatSet(defaultSetForPosition(playerA.position))
+  }, [playerA, playerB, statSetTouched])
 
   // Update URL when players change
   function selectA(p: EnrichedPlayer | null) {
@@ -507,6 +525,21 @@ export default function ComparadorClient() {
   // normalized by the MAX of the two players on that axis → leader hits 100%.
   const radarAxes: ComparisonAxis[] = useMemo(() => {
     if (!playerA || !playerB) return []
+    // Per-position percentile radar (both players overlaid on a 0–100 scale).
+    if (statSet === 'pct') {
+      if (!radarA || !radarB || radarA.position !== radarB.position) return []
+      const bMap = new Map(radarB.axes.map(a => [a.axisId, a]))
+      return radarA.axes
+        .map(a => {
+          const b = bMap.get(a.axisId)
+          if (a.percentile == null || !b || b.percentile == null) return null
+          return {
+            label: a.label + (a.isProxy || b.isProxy ? ' *' : ''),
+            aVal: a.percentile, bVal: b.percentile, aPct: a.percentile, bPct: b.percentile,
+          } as ComparisonAxis
+        })
+        .filter((x): x is ComparisonAxis => x !== null)
+    }
     return STAT_SETS[statSet].map(def => {
       const aRaw = def.metric(playerA)
       const bRaw = def.metric(playerB)
@@ -526,7 +559,7 @@ export default function ComparadorClient() {
         bPct,
       }
     })
-  }, [playerA, playerB, statSet, es])
+  }, [playerA, playerB, statSet, es, radarA, radarB])
 
   // Note: comparator is now free (was Pro-only). proUser kept for future Pro perks.
   void proUser
@@ -660,15 +693,28 @@ export default function ComparadorClient() {
                     </div>
                   ))}
                 </div>
+              ) : statSet === 'pct' && radarAxes.length < 3 ? (
+                <div style={{ textAlign: 'center', padding: '40px 16px', fontSize: 13, color: textMuted }}>
+                  {!radarA || !radarB
+                    ? (es ? 'Cargando radar por percentiles…' : 'Loading percentile radar…')
+                    : (es ? 'El radar por percentiles requiere dos jugadores de la misma posición. Usa otra pestaña para comparar posiciones distintas.' : 'The percentile radar needs two players of the same position. Use another tab to compare different positions.')}
+                </div>
               ) : (
-                <ComparisonRadar
-                  axes={radarAxes}
-                  colorA={RADAR_A}
-                  colorB={RADAR_B}
-                  labelA={playerA.name}
-                  labelB={playerB.name}
-                  size={360}
-                />
+                <>
+                  <ComparisonRadar
+                    axes={radarAxes}
+                    colorA={RADAR_A}
+                    colorB={RADAR_B}
+                    labelA={playerA.name}
+                    labelB={playerB.name}
+                    size={360}
+                  />
+                  {statSet === 'pct' && (
+                    <p style={{ textAlign: 'center', fontSize: 11, color: textMuted, marginTop: 8 }}>
+                      {es ? 'Percentil 0–100 vs su posición en la liga · ' : 'Percentile 0–100 vs position in league · '}<span style={{ color: 'var(--ts-primary)' }}>* {es ? 'eje aproximado' : 'approximated axis'}</span>
+                    </p>
+                  )}
+                </>
               )}
             </div>
 
