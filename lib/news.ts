@@ -38,7 +38,7 @@ const WORLD_CUP = ['mundial', 'world cup', 'copa del mundo', 'fifa', 'selección
 
 function decode(s: string): string {
   return s
-    .replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1')
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
     .replace(/<[^>]+>/g, '')
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, "'").replace(/&nbsp;/g, ' ')
