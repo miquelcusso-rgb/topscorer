@@ -266,11 +266,44 @@ const GENERATED: PlayerData[] = GENERATED_PLAYERS
     return true
   })
 
+// ── Photo backfill ───────────────────────────────────────────────────────────
+// Curated/generated current-season rows often lack a `photo`. The historical
+// dataset carries real API-Football photo URLs (stable per player id), so we
+// borrow a photo by matching name. Exact full-name match first; a surname-only
+// fallback is used ONLY when that surname maps to a single historical player
+// (collision-guarded) to avoid showing the wrong face.
+function nrmName(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
+}
+const PHOTO_BY_NAME = new Map<string, string>()
+const SURNAME_PHOTOS = new Map<string, Set<string>>()
+for (const h of HISTORICAL_PLAYERS) {
+  if (!h.photo) continue
+  const n = nrmName(h.name)
+  if (!PHOTO_BY_NAME.has(n)) PHOTO_BY_NAME.set(n, h.photo)
+  const sur = n.split(' ').pop() ?? ''
+  if (sur.length >= 4) {
+    if (!SURNAME_PHOTOS.has(sur)) SURNAME_PHOTOS.set(sur, new Set())
+    SURNAME_PHOTOS.get(sur)!.add(h.photo)
+  }
+}
+function withPhoto(p: PlayerData): PlayerData {
+  if (p.photo) return p
+  const n = nrmName(p.name)
+  let photo = PHOTO_BY_NAME.get(n)
+  if (!photo) {
+    const set = SURNAME_PHOTOS.get(n.split(' ').pop() ?? '')
+    if (set && set.size === 1) photo = [...set][0]
+  }
+  return photo ? { ...p, photo } : p
+}
+
 // Historical (10/11 → 19/20) merged AFTER curated+generated. Curated entries
 // take precedence when (name,season) collides because of the dedup above.
 export const PLAYERS: PlayerData[] = [
-  ...CURATED,
-  ...GENERATED,
+  ...CURATED.map(withPhoto),
+  ...GENERATED.map(withPhoto),
   ...HISTORICAL_PLAYERS.filter(h => {
     // Skip if a current entry already exists for this (name,season)
     const k = `${h.name}|${h.season}`
