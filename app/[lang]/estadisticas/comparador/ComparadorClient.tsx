@@ -7,10 +7,10 @@ import { useUser } from '@clerk/nextjs'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
 import { isPro } from '@/lib/plans'
-import { PLAYERS } from '@/data/players'
 import { enrich } from '@/lib/utils'
 import { slugify } from '@/lib/slugify'
 import { playerSlug } from '@/lib/player-slug'
+import { PRIMARY_PLAYERS, seasonsForPlayer } from '@/lib/player-identity'
 import { iig } from '@/lib/iig'
 import { clubLogo } from '@/lib/club-logos'
 import Avatar from '@/components/saas/Avatar'
@@ -50,16 +50,11 @@ function posAccent(pos?: string): string {
   return C_DARK.gd
 }
 
-// Deduplicated list of all players. Key by API id (falling back to name) so
-// distinct players who share a name (e.g. the several "Vitinha") are BOTH kept.
-const ALL_PLAYERS: EnrichedPlayer[] = (() => {
-  const seen = new Map<string | number, EnrichedPlayer>()
-  for (const p of PLAYERS) {
-    const k = p.apiId ?? `name:${p.name}`
-    if (!seen.has(k)) seen.set(k, enrich(p))
-  }
-  return Array.from(seen.values())
-})()
+// One entry per REAL player (PRIMARY_PLAYERS = current season, identity unified
+// by apiId). This fixes the "3 Pedris" / "Mbappé ×3" duplicates: each player
+// appears once (most recent season); other seasons are reachable via the season
+// picker on each selected card.
+const ALL_PLAYERS: EnrichedPlayer[] = PRIMARY_PLAYERS.map(enrich)
 
 const PRESETS = [
   { a: 'Harry Kane',    b: 'Erling Haaland'  },
@@ -348,6 +343,45 @@ function StatRow({ label, a, b, accentA, accentB, isLight }: StatRowProps) {
   )
 }
 
+// Season picker — shown only when the selected player has >1 season of data.
+// Switches which season's stats feed the radar/breakdown (identity stays the
+// same, so the URL slug doesn't change).
+function SeasonPicker({ selected, onPick, es, isLight }: {
+  selected: EnrichedPlayer | null
+  onPick: (p: EnrichedPlayer) => void
+  es: boolean
+  isLight: boolean
+}) {
+  if (!selected) return null
+  const seasons = seasonsForPlayer(selected)
+  if (seasons.length <= 1) return null
+  const fmtSeason = (s: string) => (s.length === 4 ? `${s.slice(0, 2)}/${s.slice(2)}` : s)
+  const current = `${selected.season}|${selected.club}`
+  return (
+    <select
+      value={current}
+      onChange={e => {
+        const [season, club] = e.target.value.split('|')
+        const row = seasons.find(r => r.season === season && r.club === club) ?? seasons.find(r => r.season === season)
+        if (row) onPick(enrich(row))
+      }}
+      aria-label={es ? 'Temporada' : 'Season'}
+      style={{
+        width: '100%', maxWidth: 280, padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+        background: isLight ? '#ffffff' : C_DARK.s2, color: isLight ? '#0f1830' : C_DARK.tx,
+        border: `1px solid ${isLight ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.12)'}`,
+        fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+      }}
+    >
+      {seasons.map(r => (
+        <option key={`${r.season}|${r.club}`} value={`${r.season}|${r.club}`}>
+          {fmtSeason(r.season)} · {r.club}
+        </option>
+      ))}
+    </select>
+  )
+}
+
 export default function ComparadorClient() {
   const { theme } = useTheme()
   const { lang } = useLang()
@@ -483,11 +517,17 @@ export default function ComparadorClient() {
 
         {/* Selectors */}
         <div style={{ display: 'flex', gap: 20, marginBottom: 40, flexWrap: 'wrap' as const }}>
-          <PlayerSelector label="Jugador A" selected={playerA} onSelect={selectA} isLight={isLight} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <PlayerSelector label="Jugador A" selected={playerA} onSelect={selectA} isLight={isLight} />
+            <SeasonPicker selected={playerA} onPick={setPlayerA} es={es} isLight={isLight} />
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', padding: '0 4px', color: textMuted, fontSize: 18, fontWeight: 700, alignSelf: 'center' }}>
             VS
           </div>
-          <PlayerSelector label="Jugador B" selected={playerB} onSelect={selectB} isLight={isLight} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <PlayerSelector label="Jugador B" selected={playerB} onSelect={selectB} isLight={isLight} />
+            <SeasonPicker selected={playerB} onPick={setPlayerB} es={es} isLight={isLight} />
+          </div>
         </div>
 
         {/* Save comparison button — shown when both selected */}

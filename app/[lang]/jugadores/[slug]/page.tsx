@@ -96,7 +96,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ lang: s
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
-      <PlayerProfile player={basePlayer} lang={lang} slug={slug} userPlan={userPlan} />
+      <PlayerProfile player={basePlayer} lang={lang} slug={slug} userPlan={userPlan} seasons={staticPlayers} />
     </>
   )
 }
