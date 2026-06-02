@@ -1,0 +1,187 @@
+{
+  "version": "3.0",
+  "updated": "2026-06",
+  "purpose": "Fuente de verdad del esquema de radares de jugador. Cascada de prioridad por eje (optimo -> sustituto -> fallback), resuelta con las fuentes ACTIVAS. v3: solo Understat + API-Football activas; EXT desactivada (sin scraping ToS, sin pago aun).",
+  "CRITICAL_NOTE": "FBref perdio sus stats avanzadas de Opta el 2026-01-20. No usar FBref para avanzado.",
+  "scale": "0-100 percentil dentro de la MISMA posicion + liga + temporada. Min ~600 min.",
+  "resolution_rule": "Para cada eje, recorrer priority[] en orden de tier y elegir el PRIMER tier cuya source este available=true y (si source=understat) la liga este cubierta por Understat. Guardar source/tier/status para la UI. Si ningun tier resuelve, el eje es 'unavailable'.",
+  "sources": {
+    "understat":          { "code": "US",  "available": true,  "covers_leagues": ["Premier League","La Liga","Bundesliga","Serie A","Ligue 1","RFPL"], "fields": ["xG","npxG","xA","key_passes","xGChain","xGBuildup","shots","goals","assists","npg","time"] },
+    "api_football":       { "code": "AF",  "available": true,  "covers_leagues": "all", "fields": ["minutes","shots.total","shots.on","goals.total","goals.conceded","goals.assists","goals.saves","passes.total","passes.key","passes.accuracy","tackles.total","tackles.blocks","tackles.interceptions","duels.total","duels.won","dribbles.attempts","dribbles.success","dribbles.past","fouls.committed","fouls.drawn","cards"] },
+    "external_advanced":  { "code": "EXT", "available": false, "note": "Desactivada por decision de producto (no scraping ToS, sin feed de pago). Activar a true cuando se contrate Opta/Sportmonks legal." },
+    "fbref":              { "code": "FBR", "available": false, "note": "Degradado desde 2026-01-20, solo basicos." }
+  },
+  "status_legend": {
+    "optimal": "Dato ideal disponible -> sin badge",
+    "good_proxy": "Sustituto solido -> badge 'aprox.'",
+    "weak_proxy": "Sustituto pobre -> badge 'aprox.' + nota",
+    "unavailable": "Ningun tier activo resuelve -> eje fuera del radar"
+  },
+  "positions": {
+    "POR": {
+      "label": "Portero", "tag": "POR", "axis_count": 4,
+      "note": "Reducido a 4 ejes: Salidas y Aereo solo existian via EXT (desactivada).",
+      "axes": [
+        { "id": "shot_stopping", "label": "Paradas", "ideal": "PSxG +/-",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "PSxG+/- /90", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "save% = saves/(saves+conceded)", "status": "good_proxy" }
+          ] },
+        { "id": "save_pct", "label": "% Paradas", "ideal": "saves / SoT recibidos",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Save% (saves/SoT)", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "saves/(saves+conceded)", "status": "good_proxy", "note": "Solapa con Paradas mientras no haya PSxG" }
+          ] },
+        { "id": "distribution", "label": "Juego de pies", "ideal": "Cmp% corto+largo, Launch%",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Cmp% por distancia + Launch%", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "passes.accuracy", "status": "weak_proxy", "note": "Sin split corto/largo" }
+          ] },
+        { "id": "build_up", "label": "Construccion", "ideal": "pases progresivos / Launch% bajo",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Progressive passes + Launch% bajo", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "passes.total/90 * (accuracy/100)", "status": "weak_proxy" }
+          ] }
+      ] },
+    "DEF": {
+      "label": "Defensa", "tag": "DEF", "axis_count": 6,
+      "axes": [
+        { "id": "tackling_intercepting", "label": "Entradas/Int.", "ideal": "Tkl+Int, Tkl%",
+          "priority": [
+            { "tier": 1, "source": "api_football", "metric": "(tackles.total + tackles.interceptions)/90", "status": "optimal" }
+          ] },
+        { "id": "aerial", "label": "Aereo", "ideal": "% aereos ganados",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Aerial Won%", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "duels.won/duels.total (mixto)", "status": "weak_proxy" }
+          ] },
+        { "id": "progression", "label": "Progresion", "ideal": "PrgP+PrgC+final third",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Progressive passes + carries", "status": "optimal" },
+            { "tier": 2, "source": "understat", "metric": "xGBuildup/90", "status": "good_proxy", "note": "Solo ligas US; aporte a jugadas" },
+            { "tier": 3, "source": "api_football", "metric": "passes.total/90 * (accuracy/100)", "status": "weak_proxy" }
+          ] },
+        { "id": "clearances_blocks", "label": "Despejes/Bloqueos", "ideal": "clearances + blocks",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Clearances + Blocks", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "tackles.blocks/90", "status": "good_proxy", "note": "Solo bloqueos; clearances no en AF" }
+          ] },
+        { "id": "pass_under_pressure", "label": "Pase presion", "ideal": "Cmp% bajo presion",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Pass completion under pressure", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "passes.accuracy", "status": "weak_proxy" }
+          ] },
+        { "id": "reliability", "label": "Fiabilidad", "ideal": "errores a tiro/gol + faltas (inv.)",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Errors leading to shot/goal", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "invert(fouls.committed/90 + cards)", "status": "good_proxy" }
+          ] }
+      ] },
+    "MID": {
+      "label": "Centrocampista", "tag": "MID", "axis_count": 6,
+      "axes": [
+        { "id": "progression", "label": "Progresion", "ideal": "PrgP+PrgC+final third",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Progressive passes + carries", "status": "optimal" },
+            { "tier": 2, "source": "understat", "metric": "xGBuildup/90", "status": "good_proxy" },
+            { "tier": 3, "source": "api_football", "metric": "passes.total/90 * (accuracy/100)", "status": "weak_proxy" }
+          ] },
+        { "id": "creation", "label": "Creacion", "ideal": "xA + key passes + SCA",
+          "priority": [
+            { "tier": 1, "source": "understat", "metric": "xA/90 + key_passes/90", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "(passes.key + goals.assists)/90", "status": "good_proxy" }
+          ] },
+        { "id": "recovery", "label": "Recuperacion", "ideal": "recoveries + Tkl/Int",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Recoveries + pressures", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "(tackles.total + tackles.interceptions)/90", "status": "good_proxy" }
+          ] },
+        { "id": "passing_accuracy", "label": "Precision", "ideal": "Cmp% campo rival",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Cmp% ultimo tercio", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "passes.accuracy", "status": "good_proxy" }
+          ] },
+        { "id": "physical", "label": "Fisico", "ideal": "distancia + sprints",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Distancia + sprints (tracking)", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "minutes (solo workload)", "status": "weak_proxy" }
+          ] },
+        { "id": "duels", "label": "Duelos", "ideal": "duelos suelo+aire ganados",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Ground+aerial won%", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "duels.won/duels.total (mixto)", "status": "good_proxy" }
+          ] }
+      ] },
+    "ST": {
+      "label": "Delantero (9)", "tag": "ST", "axis_count": 6,
+      "note": "box_presence y off_pressing (solo EXT, sin sustituto obtenible) reemplazados por shot_volume y creation.",
+      "axes": [
+        { "id": "xg90", "label": "xG/90", "ideal": "npxG/90",
+          "priority": [
+            { "tier": 1, "source": "understat", "metric": "npxG/90", "status": "optimal" },
+            { "tier": 2, "source": "external_advanced", "metric": "xG/90 (resto ligas)", "status": "optimal" },
+            { "tier": 3, "source": "api_football", "metric": "(shots.total + shots.on + goals.total)/90", "status": "weak_proxy" }
+          ] },
+        { "id": "finishing", "label": "Finalizacion", "ideal": "goals - npxG",
+          "priority": [
+            { "tier": 1, "source": "understat", "metric": "(goals - npxG)/90", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "goals.total/shots.total", "status": "good_proxy" }
+          ] },
+        { "id": "shot_volume", "label": "Volumen de remate", "ideal": "toques en area (sustituido)",
+          "priority": [
+            { "tier": 1, "source": "understat", "metric": "shots/90", "status": "good_proxy", "note": "Sustituto de toques en area; presencia de remate" },
+            { "tier": 2, "source": "api_football", "metric": "shots.total/90", "status": "good_proxy", "note": "Sustituto de toques en area" }
+          ] },
+        { "id": "aerial", "label": "Aereo", "ideal": "aerial won% + goles de cabeza",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Aerial won% + headed goals", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "duels.won/duels.total (mixto)", "status": "weak_proxy" }
+          ] },
+        { "id": "link_up", "label": "Asociacion", "ideal": "xGChain + xGBuildup",
+          "priority": [
+            { "tier": 1, "source": "understat", "metric": "xGChain/90 + xGBuildup/90", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "(passes.key + goals.assists)/90 * (accuracy/100)", "status": "good_proxy" }
+          ] },
+        { "id": "creation", "label": "Creacion p/otros", "ideal": "xA + key passes",
+          "priority": [
+            { "tier": 1, "source": "understat", "metric": "xA/90 + key_passes/90", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "(passes.key + goals.assists)/90", "status": "good_proxy" }
+          ] }
+      ] },
+    "WAM": {
+      "label": "Asistente (extremo/mediapunta)", "tag": "WAM", "axis_count": 6,
+      "axes": [
+        { "id": "xa_keypass", "label": "xA + p.clave", "ideal": "xA + key passes",
+          "priority": [
+            { "tier": 1, "source": "understat", "metric": "xA/90 + key_passes/90", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "(passes.key + goals.assists)/90", "status": "good_proxy" }
+          ] },
+        { "id": "dribbling", "label": "Regates", "ideal": "take-ons succ% + volumen",
+          "priority": [
+            { "tier": 1, "source": "api_football", "metric": "dribbles.success/90 (rate = succ/att)", "status": "optimal", "note": "AF cubre regate bien" }
+          ] },
+        { "id": "carries", "label": "Conducciones", "ideal": "PrgC + carries al area",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Progressive carries + CPA", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "dribbles.success/90", "status": "weak_proxy", "note": "Solapa con Regates" }
+          ] },
+        { "id": "sca_gca", "label": "SCA/GCA", "ideal": "SCA + GCA /90",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "SCA/GCA /90", "status": "optimal" },
+            { "tier": 2, "source": "understat", "metric": "xGChain/90", "status": "good_proxy" },
+            { "tier": 3, "source": "api_football", "metric": "(passes.key + goals.assists)/90", "status": "weak_proxy" }
+          ] },
+        { "id": "final_pass", "label": "Ultimo pase", "ideal": "crosses + PPA + key passes",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Crosses + passes into pen area", "status": "optimal" },
+            { "tier": 2, "source": "understat", "metric": "key_passes/90", "status": "good_proxy" },
+            { "tier": 3, "source": "api_football", "metric": "passes.key/90", "status": "good_proxy" }
+          ] },
+        { "id": "one_v_one", "label": "Desborde 1v1", "ideal": "take-ons succ% + tackled%",
+          "priority": [
+            { "tier": 1, "source": "external_advanced", "metric": "Take-ons Succ% + Tkld%", "status": "optimal" },
+            { "tier": 2, "source": "api_football", "metric": "dribbles.success/dribbles.attempts", "status": "good_proxy" }
+          ] }
+      ] }
+    }
+}

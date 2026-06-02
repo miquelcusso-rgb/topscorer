@@ -4,6 +4,7 @@ import IdentityCard from '@/components/player/IdentityCard'
 import PlayerCareer from '@/components/player/PlayerCareer'
 import MarketValueChart from '@/components/player/MarketValueChart'
 import PlayerHonors from '@/components/player/PlayerHonors'
+import PlayerRadar from '@/components/player/PlayerRadar'
 import ProfileTabs from '@/components/player/ProfileTabs'
 import RadarCard from '@/components/player/RadarCard'
 import type { Plan } from '@/types'
@@ -83,7 +84,9 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
         compareLabel={en ? '↗ Compare this player' : '↗ Comparar este jugador'}
       />
       <div className="saas-profile-grid" style={{ display: 'grid', gridTemplateColumns: '380px 1fr 320px', gap: 18 }}>
-        <RadarCard title={perf} subtitle={vsTop} axes={radarAxes} stats={radarStats} />
+        {player.apiId
+          ? <PlayerRadar apiId={player.apiId} en={en} />
+          : <RadarCard title={perf} subtitle={vsTop} axes={radarAxes} stats={radarStats} />}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <StatGroup title={en ? 'Attack' : 'Ataque'} items={[
