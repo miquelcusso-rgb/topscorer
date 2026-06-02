@@ -259,7 +259,11 @@ const seasonCode = (y: number) => `${String(y % 100).padStart(2, '0')}${String((
 export const getPlayerCareer = unstable_cache(
   async (playerId: number): Promise<CareerSeason[]> => {
     const seasonsRes = await apiFetch<number[]>(`/players/seasons?player=${playerId}`)
-    const seasons = (seasonsRes.response ?? []).filter(y => y >= 2008).sort((a, b) => b - a)
+    // Don't show future seasons: a season starting in year Y only counts once it
+    // has actually begun (~July). Today June 2026 → cutoff start-year = 2025.
+    const now = new Date()
+    const cutoff = now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1
+    const seasons = (seasonsRes.response ?? []).filter(y => y >= 2008 && y <= cutoff).sort((a, b) => b - a)
     const out: CareerSeason[] = []
     for (const y of seasons) {
       try {
