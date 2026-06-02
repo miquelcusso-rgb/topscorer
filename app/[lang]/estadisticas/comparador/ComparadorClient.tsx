@@ -365,19 +365,42 @@ function SeasonPicker({ selected, onPick, es, isLight }: {
   es: boolean
   isLight: boolean
 }) {
+  // Full real career fetched on demand (every season from API-Football), so we
+  // aren't limited to the bundled seasons (e.g. Messi's PSG / Inter Miami years).
+  const [career, setCareer] = useState<Array<Record<string, unknown> & { season: string; club: string }>>([])
+  useEffect(() => {
+    setCareer([])
+    const id = selected?.apiId
+    if (!id) return
+    let cancel = false
+    fetch(`/api/player-career?id=${id}`)
+      .then(r => r.json())
+      .then(j => { if (!cancel && j.ok && Array.isArray(j.data)) setCareer(j.data) })
+      .catch(() => {})
+    return () => { cancel = true }
+  }, [selected?.apiId])
+
   if (!selected) return null
-  const seasons = seasonsForPlayer(selected)
-  if (seasons.length <= 1) return null
+
+  // Merge: bundled static seasons first, then real career (overrides → real data).
+  const byKey = new Map<string, { season: string; club: string; row: EnrichedPlayer }>()
+  for (const r of seasonsForPlayer(selected)) {
+    byKey.set(r.season, { season: r.season, club: r.club, row: enrich(r) })
+  }
+  for (const c of career) {
+    const merged = { ...selected, ...c } as unknown as Parameters<typeof enrich>[0]
+    byKey.set(c.season, { season: c.season, club: c.club, row: enrich(merged) })
+  }
+  const options = [...byKey.values()].sort((a, b) => Number(b.season) - Number(a.season))
+  if (options.length <= 1) return null
+
   const fmtSeason = (s: string) => (s.length === 4 ? `${s.slice(0, 2)}/${s.slice(2)}` : s)
-  const current = `${selected.season}|${selected.club}`
+  const value = options.find(o => o.season === selected.season)?.season ?? options[0].season
+
   return (
     <select
-      value={current}
-      onChange={e => {
-        const [season, club] = e.target.value.split('|')
-        const row = seasons.find(r => r.season === season && r.club === club) ?? seasons.find(r => r.season === season)
-        if (row) onPick(enrich(row))
-      }}
+      value={value}
+      onChange={e => { const o = options.find(x => x.season === e.target.value); if (o) onPick(o.row) }}
       aria-label={es ? 'Temporada' : 'Season'}
       style={{
         width: '100%', maxWidth: 280, padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600,
@@ -386,10 +409,8 @@ function SeasonPicker({ selected, onPick, es, isLight }: {
         fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
       }}
     >
-      {seasons.map(r => (
-        <option key={`${r.season}|${r.club}`} value={`${r.season}|${r.club}`}>
-          {fmtSeason(r.season)} · {r.club}
-        </option>
+      {options.map(o => (
+        <option key={o.season} value={o.season}>{fmtSeason(o.season)} · {o.club}</option>
       ))}
     </select>
   )

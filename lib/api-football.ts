@@ -226,6 +226,83 @@ export const getStandings = unstable_cache(
   { revalidate: 21600, tags: ['api-football'] } // 6 h — standings update ~weekly
 )
 
+// Full per-season career for one player (on-demand). Loops the seasons the API
+// lists, picks the club competition with the most appearances per season, and
+// returns dataset-shaped rows. Cached 24h. Used by the profile history + the
+// comparador season picker so careers aren't limited to the bundled seasons.
+export interface CareerSeason {
+  season: string            // dataset code, e.g. 2022 → "2223"
+  club: string
+  league: string
+  age?: number
+  pj: number
+  goles: number
+  asist: number
+  minutes?: number
+  rating?: number
+  shotsTotal?: number
+  shotsOn?: number
+  passes?: number
+  keyPasses?: number
+  passAccuracy?: number
+  tacklesTotal?: number
+  interceptions?: number
+  duelsTotal?: number
+  duelsWon?: number
+  dribblesAttempts?: number
+  dribblesSuccess?: number
+  photo?: string
+}
+const num = (v: unknown) => (v == null ? undefined : Number(v))
+const seasonCode = (y: number) => `${String(y % 100).padStart(2, '0')}${String((y + 1) % 100).padStart(2, '0')}`
+
+export const getPlayerCareer = unstable_cache(
+  async (playerId: number): Promise<CareerSeason[]> => {
+    const seasonsRes = await apiFetch<number[]>(`/players/seasons?player=${playerId}`)
+    const seasons = (seasonsRes.response ?? []).filter(y => y >= 2008).sort((a, b) => b - a)
+    const out: CareerSeason[] = []
+    for (const y of seasons) {
+      try {
+        const r = await apiFetch<Array<{ player: { age?: number; photo?: string }; statistics: Array<Record<string, any>> }>>(
+          `/players?id=${playerId}&season=${y}`
+        )
+        const row = r.response?.[0]
+        if (!row) continue
+        // Pick the club competition (national league/cups) with the most apps.
+        const stats = (row.statistics ?? []).filter(s => (s.games?.appearences ?? 0) > 0)
+        if (!stats.length) continue
+        const best = [...stats].sort((a, b) => (b.games?.appearences ?? 0) - (a.games?.appearences ?? 0))[0]
+        out.push({
+          season: seasonCode(y),
+          club: best.team?.name ?? '',
+          league: best.league?.name ?? '',
+          age: num(row.player?.age),
+          pj: num(best.games?.appearences) ?? 0,
+          goles: num(best.goals?.total) ?? 0,
+          asist: num(best.goals?.assists) ?? 0,
+          minutes: num(best.games?.minutes),
+          rating: best.games?.rating != null ? Math.round(Number(best.games.rating) * 100) / 100 : undefined,
+          shotsTotal: num(best.shots?.total),
+          shotsOn: num(best.shots?.on),
+          passes: num(best.passes?.total),
+          keyPasses: num(best.passes?.key),
+          passAccuracy: num(best.passes?.accuracy),
+          tacklesTotal: num(best.tackles?.total),
+          interceptions: num(best.tackles?.interceptions),
+          duelsTotal: num(best.duels?.total),
+          duelsWon: num(best.duels?.won),
+          dribblesAttempts: num(best.dribbles?.attempts),
+          dribblesSuccess: num(best.dribbles?.success),
+          photo: row.player?.photo,
+        })
+      } catch { /* skip a season that errors */ }
+    }
+    return out
+  },
+  ['api-football-career'],
+  { revalidate: 86400, tags: ['api-football'] }
+)
+
 // All standings groups (e.g. World Cup groups A–L), not just the first one.
 export const getAllStandings = unstable_cache(
   async (leagueId: number, season: number = 2025): Promise<ApiStandingEntry[][]> => {

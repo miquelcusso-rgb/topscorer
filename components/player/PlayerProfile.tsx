@@ -1,6 +1,7 @@
 import type { PlayerData } from '@/types'
 import SaasShell from '@/components/saas/SaasShell'
 import IdentityCard from '@/components/player/IdentityCard'
+import SeasonHistory from '@/components/player/SeasonHistory'
 import ProfileTabs from '@/components/player/ProfileTabs'
 import RadarCard from '@/components/player/RadarCard'
 import type { Plan } from '@/types'
@@ -39,57 +40,6 @@ interface Props {
   seasons?: PlayerData[]
 }
 
-// Per-season career history table (Histórico / Trayectoria). Real numbers per
-// season + club from the dataset.
-function SeasonHistory({ seasons, en }: { seasons: PlayerData[]; en: boolean }) {
-  const fmtSeason = (s: string) => (s.length === 4 ? `${s.slice(0, 2)}/${s.slice(2)}` : s)
-  const cols: Array<[string, (p: PlayerData) => string | number]> = [
-    [en ? 'Season' : 'Temp.', p => fmtSeason(p.season)],
-    [en ? 'Club' : 'Club', p => p.club],
-    [en ? 'League' : 'Liga', p => p.league],
-    [en ? 'Apps' : 'PJ', p => p.pj ?? '—'],
-    [en ? 'Goals' : 'Goles', p => p.goles ?? 0],
-    [en ? 'Assists' : 'Asist.', p => p.asist ?? 0],
-    [en ? 'Rating' : 'Nota', p => (p.rating != null ? p.rating.toFixed(2) : '—')],
-  ]
-  return (
-    <div id="seasons" style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, padding: 18, scrollMarginTop: 80 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 12 }}>
-        {en ? 'Career history' : 'Trayectoria'}
-      </div>
-      {seasons.length === 0 ? (
-        <div style={{ fontSize: 13, color: 'var(--ts-muted)', padding: '8px 0' }}>
-          {en ? 'No season history available yet.' : 'Aún no hay histórico de temporadas.'}
-        </div>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
-                {cols.map(([h], i) => (
-                  <th key={i} style={{ textAlign: i <= 2 ? 'left' : 'right', padding: '8px 10px', fontSize: 10, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ts-muted)', fontWeight: 700, whiteSpace: 'nowrap' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {seasons.map((p, ri) => (
-                <tr key={ri} style={{ borderBottom: '1px solid var(--ts-hairline)' }}>
-                  {cols.map(([, fn], ci) => (
-                    <td key={ci} style={{
-                      textAlign: ci <= 2 ? 'left' : 'right', padding: '9px 10px',
-                      color: ci === 4 ? 'var(--ts-primary)' : ci === 5 ? 'var(--ts-teal)' : 'var(--ts-text)',
-                      fontWeight: ci >= 3 ? 700 : 500, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap',
-                    }}>{fn(p)}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  )
-}
 
 // Canonical SaaS player profile — real season stats from the static dataset
 // (no live per-player API call → free + fast). Used by /jugadores/[slug].
@@ -181,7 +131,7 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
         </div>
       </div>
 
-      <SeasonHistory seasons={seasons} en={en} />
+      <SeasonHistory apiId={player.apiId} seasons={seasons} en={en} />
     </SaasShell>
   )
 }
