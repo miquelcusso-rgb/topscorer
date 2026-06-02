@@ -105,33 +105,35 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
     setLeague(order[(order.indexOf(league) + 1) % order.length])
   }
 
+  // Position selector (Forwards/Assisters/…) — rendered next to the filters.
+  const positionTabs = (
+    <div className="saas-position-tabs" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      {POS_ORDER.map(id => {
+        const isActive = id === pos
+        const a = TAB_ACCENT[id]
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setPos(id)}
+            style={{
+              padding: '7px 14px', borderRadius: 6, fontSize: 13, fontWeight: isActive ? 600 : 500,
+              background: isActive ? `var(--ts-${a}-soft)` : 'transparent',
+              color: isActive ? `var(--ts-${a})` : 'var(--ts-text)',
+              border: `1px solid ${isActive ? 'var(--ts-border-hot)' : 'var(--ts-border)'}`,
+              cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6,
+            }}
+          >
+            <span style={{ fontSize: 13, opacity: isActive ? 1 : 0.7 }}>{POS_ICON[id]}</span>
+            {TAB_LABELS[lang === 'en' ? 'en' : 'es'][id]}
+          </button>
+        )
+      })}
+    </div>
+  )
+
   return (
     <>
-      {/* Position tabs (controlled) */}
-      <div className="saas-position-tabs" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        {POS_ORDER.map(id => {
-          const isActive = id === pos
-          const a = TAB_ACCENT[id]
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setPos(id)}
-              style={{
-                padding: '7px 14px', borderRadius: 6, fontSize: 13, fontWeight: isActive ? 600 : 500,
-                background: isActive ? `var(--ts-${a}-soft)` : 'transparent',
-                color: isActive ? `var(--ts-${a})` : 'var(--ts-text)',
-                border: `1px solid ${isActive ? 'var(--ts-border-hot)' : 'var(--ts-border)'}`,
-                cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 6,
-              }}
-            >
-              <span style={{ fontSize: 13, opacity: isActive ? 1 : 0.7 }}>{POS_ICON[id]}</span>
-              {TAB_LABELS[lang === 'en' ? 'en' : 'es'][id]}
-            </button>
-          )
-        })}
-      </div>
-
       {/* Editorial: matchday standouts + hot rumour (real data) */}
       {insights && (insights.standouts.length > 0 || rumors.length > 0) && (
         <MatchdayStandouts standouts={insights.standouts} rumors={rumors} lang={lang === 'en' ? 'en' : 'es'} />
@@ -213,6 +215,9 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         />
       </div>
 
+      {/* Position selector + filters, grouped right above the table */}
+      {positionTabs}
+
       <FilterBar
         filters={[
           { key: 'league', label: t.league, value: leagueLabel, active: league !== 'big5', options: [
@@ -221,7 +226,6 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
             { value: 'all', label: lang === 'en' ? 'All leagues' : 'Todas las ligas' },
           ] },
           { key: 'season', label: t.season, value: '25/26', options: [{ value: '2526', label: '25/26' }] },
-          { key: 'position', label: t.position, value: posLabel, options: POS_ORDER.map(id => ({ value: id, label: TAB_LABELS[lang === 'en' ? 'en' : 'es'][id] })) },
           { key: 'age', label: t.age, value: ageBand === 'u21' ? 'Sub-21' : ageBand === 'u23' ? 'Sub-23' : (lang === 'en' ? 'All' : 'Todas'), active: ageBand !== 'all', options: [
             { value: 'all', label: lang === 'en' ? 'All' : 'Todas' },
             { value: 'u23', label: 'Sub-23' },
