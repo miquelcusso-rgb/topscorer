@@ -346,3 +346,7 @@ body::before {
 @media (max-width: 720px) {
   .saas-rumours-grid { grid-template-columns: 1fr !important; }
 }
+/* World Cup calendar — hide venue column on narrow screens */
+@media (max-width: 680px) {
+  .wc-venue { display: none !important; }
+}
