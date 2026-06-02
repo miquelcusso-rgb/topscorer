@@ -3,6 +3,7 @@ import SaasShell from '@/components/saas/SaasShell'
 import IdentityCard from '@/components/player/IdentityCard'
 import PlayerCareer from '@/components/player/PlayerCareer'
 import MarketValueChart from '@/components/player/MarketValueChart'
+import PlayerHonors from '@/components/player/PlayerHonors'
 import ProfileTabs from '@/components/player/ProfileTabs'
 import RadarCard from '@/components/player/RadarCard'
 import type { Plan } from '@/types'
@@ -133,6 +134,8 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
       </div>
 
       <MarketValueChart name={player.fullName || player.name} en={en} />
+
+      <PlayerHonors apiId={player.apiId} en={en} />
 
       <PlayerCareer apiId={player.apiId} seasons={seasons} en={en} />
     </SaasShell>

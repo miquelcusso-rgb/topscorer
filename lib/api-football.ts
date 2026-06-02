@@ -307,6 +307,36 @@ export const getPlayerCareer = unstable_cache(
   { revalidate: 86400, tags: ['api-football'] }
 )
 
+// ── Player honours (palmarés) + transfer history ─────────────────────────────
+export interface PlayerHonors {
+  trophies: { title: string; country: string; count: number }[]   // titles WON, grouped
+  totalWon: number
+  transfers: { date: string; type: string; from: string; to: string }[]
+}
+
+export const getPlayerHonors = unstable_cache(
+  async (playerId: number): Promise<PlayerHonors> => {
+    const [trRes, tfRes] = await Promise.all([
+      apiFetch<Array<{ league: string; country: string; season: string; place: string }>>(`/trophies?player=${playerId}`),
+      apiFetch<Array<{ transfers: Array<{ date: string; type: string; teams: { in: { name: string }; out: { name: string } } }> }>>(`/transfers?player=${playerId}`),
+    ])
+    const won = (trRes.response ?? []).filter(t => /winner/i.test(t.place))
+    const byTitle = new Map<string, { title: string; country: string; count: number }>()
+    for (const t of won) {
+      const cur = byTitle.get(t.league)
+      if (cur) cur.count++
+      else byTitle.set(t.league, { title: t.league, country: t.country, count: 1 })
+    }
+    const trophies = [...byTitle.values()].sort((a, b) => b.count - a.count)
+    const transfers = (tfRes.response?.[0]?.transfers ?? [])
+      .map(x => ({ date: x.date, type: x.type, from: x.teams?.out?.name ?? '', to: x.teams?.in?.name ?? '' }))
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    return { trophies, totalWon: won.length, transfers }
+  },
+  ['api-football-honors'],
+  { revalidate: 86400, tags: ['api-football'] }
+)
+
 // ── Match summary card (goals+assists, stats, auto MVP) ──────────────────────
 export interface MatchSummary {
   date: string
