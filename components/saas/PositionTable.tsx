@@ -8,6 +8,7 @@ import { shortName } from '@/lib/player-name'
 import {
   type PositionTabId,
   COLUMNS_FOR,
+  EXTRA_STAT_COLUMNS,
   last5Ratings,
   TAB_ACCENT,
 } from '@/lib/position-stats'
@@ -75,10 +76,15 @@ interface Props {
   lang?: 'es' | 'en'
   sort?: { key: string; dir: 1 | -1 } | null
   onSort?: (key: string) => void
+  /** Extra stat columns appended via the "+ Añadir stat" menu. */
+  extraStats?: string[]
 }
 
-export default function PositionTable({ players, tab, lang = 'es', sort, onSort }: Props) {
-  const cols = COLUMNS_FOR[tab]
+export default function PositionTable({ players, tab, lang = 'es', sort, onSort, extraStats = [] }: Props) {
+  const cols = [
+    ...COLUMNS_FOR[tab],
+    ...extraStats.map(k => EXTRA_STAT_COLUMNS[k]).filter(Boolean),
+  ]
   const accent = TAB_ACCENT[tab]
   const last5Label = lang === 'en' ? 'Last 5 · avg' : 'Últimos 5 · media'
 

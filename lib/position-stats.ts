@@ -143,6 +143,27 @@ export const COLUMNS_FOR: Record<PositionTabId, PosColumn[]> = {
   ],
 }
 
+// ── Extra stat columns the user can ADD to any table ("+ Añadir stat") ───────
+// All backed by real backfilled API-Football fields.
+export const EXTRA_STAT_COLUMNS: Record<string, PosColumn & { labelEn: string }> = {
+  min:   { key: 'x_min',   label: 'Minutos',   labelEn: 'Minutes',   value: p => dash(p.minutes), tone: 'muted' },
+  tiros: { key: 'x_tiros', label: 'Tiros',     labelEn: 'Shots',     value: p => dash(p.shotsTotal), tone: 'text' },
+  sot:   { key: 'x_sot',   label: 'A puerta',  labelEn: 'On target', value: p => dash(p.shotsOn), tone: 'text' },
+  kp:    { key: 'x_kp',    label: 'P. clave',  labelEn: 'Key passes', value: p => dash(p.keyPasses), tone: 'primary' },
+  pas:   { key: 'x_pas',   label: 'Pases',     labelEn: 'Passes',    value: p => dash(p.passes), tone: 'muted' },
+  pacc:  { key: 'x_pacc',  label: '% Acierto', labelEn: 'Pass %',    value: p => (p.passAccuracy != null ? p.passAccuracy + '%' : '—'), tone: 'text' },
+  dra:   { key: 'x_dra',   label: 'Reg. int.', labelEn: 'Drib. att.', value: p => dash(p.dribblesAttempts), tone: 'text' },
+  drs:   { key: 'x_drs',   label: 'Reg. cons.', labelEn: 'Drib. won', value: p => dash(p.dribblesSuccess), tone: 'teal' },
+  tkl:   { key: 'x_tkl',   label: 'Entradas',  labelEn: 'Tackles',   value: p => dash(p.tacklesTotal), tone: 'text' },
+  int:   { key: 'x_int',   label: 'Intercep.', labelEn: 'Intercep.', value: p => dash(p.interceptions), tone: 'text' },
+  dw:    { key: 'x_dw',    label: 'Duelos G.', labelEn: 'Duels won', value: p => dash(p.duelsWon), tone: 'teal' },
+  dwp:   { key: 'x_dwp',   label: '% Duelos',  labelEn: 'Duel %',    value: p => pct(p.duelsWon, p.duelsTotal), tone: 'text' },
+  fc:    { key: 'x_fc',    label: 'Faltas',    labelEn: 'Fouls',     value: p => dash(p.foulsCommitted), tone: 'muted' },
+  yc:    { key: 'x_yc',    label: 'Amar.',     labelEn: 'Yellow',    value: p => dash(p.yellowCards), tone: 'muted' },
+}
+export const extraStatList = (lang: 'es' | 'en') =>
+  Object.entries(EXTRA_STAT_COLUMNS).map(([k, c]) => ({ value: k, label: lang === 'en' ? c.labelEn : c.label }))
+
 export const TAB_ACCENT: Record<PositionTabId, 'primary' | 'teal'> = {
   fw: 'primary', ast: 'teal', mf: 'primary', df: 'teal', gk: 'primary',
 }

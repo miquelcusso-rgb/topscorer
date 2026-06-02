@@ -7,7 +7,7 @@ import FilterBar from './FilterBar'
 import PositionTable from './PositionTable'
 import HotStrikerCard from './HotStrikerCard'
 import MatchdayStandouts from './MatchdayStandouts'
-import { type PositionTabId, TAB_LABELS, TAB_ACCENT } from '@/lib/position-stats'
+import { type PositionTabId, TAB_LABELS, TAB_ACCENT, extraStatList } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
 import { iig, leagueCoef } from '@/lib/iig'
@@ -39,6 +39,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
   const [minPj, setMinPj] = useState<number>(3)
   const [sort, setSort] = useState<{ key: string; dir: 1 | -1 } | null>(null)
   const [insightDismissed, setInsightDismissed] = useState(false)
+  const [extraStats, setExtraStats] = useState<string[]>([])
 
   const leagueMatch = useMemo(() => {
     if (league === 'big5') return (p: PlayerData) => BIG5.includes(p.league)
@@ -214,18 +215,30 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
 
       <FilterBar
         filters={[
-          { key: 'league',   label: t.league,   value: leagueLabel, active: league !== 'big5' },
-          { key: 'season',   label: t.season,   value: '25/26' },
-          { key: 'position', label: t.position, value: posLabel },
-          { key: 'age',      label: t.age,      value: ageBand === 'u21' ? 'Sub-21' : ageBand === 'u23' ? 'Sub-23' : (lang === 'en' ? 'All' : 'Todas'), active: ageBand !== 'all' },
-          { key: 'minpj',    label: t.minpj,    value: `${minPj}+`, active: minPj > 3 },
+          { key: 'league', label: t.league, value: leagueLabel, active: league !== 'big5', options: [
+            { value: 'big5', label: lang === 'en' ? 'Top 5 Europe' : 'Top 5 Europa' },
+            { value: 'big5pt', label: 'Top 5 + Portugal' },
+            { value: 'all', label: lang === 'en' ? 'All leagues' : 'Todas las ligas' },
+          ] },
+          { key: 'season', label: t.season, value: '25/26', options: [{ value: '2526', label: '25/26' }] },
+          { key: 'position', label: t.position, value: posLabel, options: POS_ORDER.map(id => ({ value: id, label: TAB_LABELS[lang === 'en' ? 'en' : 'es'][id] })) },
+          { key: 'age', label: t.age, value: ageBand === 'u21' ? 'Sub-21' : ageBand === 'u23' ? 'Sub-23' : (lang === 'en' ? 'All' : 'Todas'), active: ageBand !== 'all', options: [
+            { value: 'all', label: lang === 'en' ? 'All' : 'Todas' },
+            { value: 'u23', label: 'Sub-23' },
+            { value: 'u21', label: 'Sub-21' },
+          ] },
+          { key: 'minpj', label: t.minpj, value: `${minPj}+`, active: minPj > 3, options: [
+            { value: '3', label: '3+' }, { value: '5', label: '5+' }, { value: '10', label: '10+' },
+          ] },
         ]}
-        onFilterClick={key => {
-          if (key === 'league') cycleLeague()
-          else if (key === 'position') setPos(POS_ORDER[(POS_ORDER.indexOf(pos) + 1) % POS_ORDER.length])
-          else if (key === 'age') setAgeBand(b => (b === 'all' ? 'u23' : b === 'u23' ? 'u21' : 'all'))
-          else if (key === 'minpj') setMinPj(v => (v === 3 ? 5 : v === 5 ? 10 : 3))
+        onFilterSelect={(key, value) => {
+          if (key === 'league') setLeague(value as LeagueFilterValue)
+          else if (key === 'position') setPos(value as PositionTabId)
+          else if (key === 'age') setAgeBand(value as 'all' | 'u23' | 'u21')
+          else if (key === 'minpj') setMinPj(Number(value))
         }}
+        statOptions={extraStatList(lang === 'en' ? 'en' : 'es').filter(o => !extraStats.includes(o.value))}
+        onAddStat={v => setExtraStats(s => (s.includes(v) ? s : [...s, v]))}
         count={{ current: players.length, total: filtered.length }}
       />
 
@@ -235,6 +248,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         lang={lang === 'en' ? 'en' : 'es'}
         sort={sort}
         onSort={key => setSort(s => (s && s.key === key ? { key, dir: (s.dir * -1) as 1 | -1 } : { key, dir: -1 }))}
+        extraStats={extraStats}
       />
     </>
   )
