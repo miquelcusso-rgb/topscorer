@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
-import type { ApiFixture, ApiPlayerResponse } from '@/lib/api-football'
+import type { ApiFixture, ApiPlayerResponse, ApiStandingEntry } from '@/lib/api-football'
 
 // ─── Country → flag emoji ─────────────────────────────────────────────────────
 // Small inline map covering the qualified / likely WC 2026 nations referenced on
@@ -26,21 +26,6 @@ const FLAG: Record<string, string> = {
 const flagOf = (country: string): string => FLAG[country] ?? '🏳️'
 
 // ─── Static WC 2026 data ──────────────────────────────────────────────────────
-
-const WC_GROUPS = [
-  { id: 'A', teams: ['Qatar', 'Ecuador', 'Senegal', 'Netherlands'] },
-  { id: 'B', teams: ['England', 'Iran', 'USA', 'Wales'] },
-  { id: 'C', teams: ['Argentina', 'Saudi Arabia', 'Mexico', 'Poland'] },
-  { id: 'D', teams: ['France', 'Australia', 'Denmark', 'Tunisia'] },
-  { id: 'E', teams: ['Spain', 'Costa Rica', 'Germany', 'Japan'] },
-  { id: 'F', teams: ['Belgium', 'Canada', 'Morocco', 'Croatia'] },
-  { id: 'G', teams: ['Brazil', 'Serbia', 'Switzerland', 'Cameroon'] },
-  { id: 'H', teams: ['Portugal', 'Ghana', 'Uruguay', 'South Korea'] },
-  { id: 'I', teams: ['Italy', 'Colombia', 'USA', 'Egypt'] },
-  { id: 'J', teams: ['Netherlands', 'Chile', 'Austria', 'Algeria'] },
-  { id: 'K', teams: ['Mexico', 'New Zealand', 'Ivory Coast', 'Iraq'] },
-  { id: 'L', teams: ['Canada', 'Peru', 'Senegal', 'Slovenia'] },
-]
 
 const VENUES = [
   { city: 'New York/New Jersey', stadium: 'MetLife Stadium', country: 'USA', capacity: '82,500', final: true },
@@ -466,37 +451,67 @@ function OverviewPanel({ lang, onGoGroups, onGoCalendar }: { lang: 'es' | 'en'; 
 // ─── Groups panel ─────────────────────────────────────────────────────────────
 
 function GroupsPanel({ lang }: { lang: 'es' | 'en' }) {
+  const [groups, setGroups] = useState<ApiStandingEntry[][]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/football/standings?league=1&season=2026&groups=1')
+      .then(r => r.json())
+      .then(j => { if (j.ok && Array.isArray(j.data)) setGroups(j.data); else setError(true) })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false))
+  }, [])
+
+  // Real draw groups: keep only groups that actually have a name + ≥2 teams.
+  const realGroups = groups
+    .filter(g => g.length >= 2 && g[0]?.group)
+    .sort((a, b) => (a[0]!.group ?? '').localeCompare(b[0]!.group ?? ''))
+  // Whether the tournament has begun (any matches played) → show points table.
+  const started = realGroups.some(g => g.some(r => (r.all?.played ?? 0) > 0))
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <p style={{ fontSize: 12, marginBottom: 8, color: 'var(--ts-muted)' }}>
-        {t(
-          lang,
-          'El sorteo del Mundial 2026 se realizará en diciembre de 2025. Grupos provisionales basados en clasificaciones UEFA/CONMEBOL.',
-          'The World Cup 2026 draw takes place in December 2025. Provisional groups based on UEFA/CONMEBOL rankings.',
-        )}
+        {t(lang, 'Grupos oficiales del sorteo del Mundial 2026.', 'Official 2026 World Cup draw groups.')}
       </p>
-      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
-        {WC_GROUPS.map(g => (
-          <div key={g.id} style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
-            <div style={{
-              padding: '8px 12px', fontSize: 13, fontWeight: 800, color: 'var(--ts-primary)',
-              fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1, textTransform: 'uppercase',
-              borderBottom: '1px solid var(--ts-border)', borderLeft: '3px solid var(--ts-primary)',
-            }}>
-              {t(lang, 'GRUPO', 'GROUP')} {g.id}
-            </div>
-            {g.teams.map((team, ti) => (
-              <div key={team + ti} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: ti < g.teams.length - 1 ? '1px solid var(--ts-divider)' : 'none' }}>
-                <span style={{ fontSize: 14 }}>{flagOf(team)}</span>
-                <span style={{ fontSize: 12, color: 'var(--ts-text)' }}>{team}</span>
+
+      {loading && <div style={{ padding: '40px 0', textAlign: 'center', fontSize: 12, color: 'var(--ts-faint)' }}>{t(lang, 'Cargando grupos…', 'Loading groups…')}</div>}
+
+      {!loading && realGroups.length > 0 && (
+        <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+          {realGroups.map(g => (
+            <div key={g[0]!.group} style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
+              <div style={{
+                padding: '8px 12px', fontSize: 13, fontWeight: 800, color: 'var(--ts-primary)',
+                fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1, textTransform: 'uppercase',
+                borderBottom: '1px solid var(--ts-border)', borderLeft: '3px solid var(--ts-primary)',
+                display: 'flex', justifyContent: 'space-between',
+              }}>
+                <span>{(g[0]!.group ?? '').replace(/^Group/i, t(lang, 'Grupo', 'Group'))}</span>
+                {started && <span style={{ fontSize: 10, color: 'var(--ts-muted)' }}>{t(lang, 'Pts', 'Pts')}</span>}
               </div>
-            ))}
-          </div>
-        ))}
-      </div>
-      <p style={{ fontSize: 10, marginTop: 8, color: 'var(--ts-faint)' }}>
-        {t(lang, '* Se actualizarán tras el sorteo oficial.', '* Will update after the official draw.')}
-      </p>
+              {g.map((row, ti) => (
+                <div key={row.team.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: ti < g.length - 1 ? '1px solid var(--ts-divider)' : 'none' }}>
+                  {started && <span style={{ width: 14, fontSize: 11, color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>{row.rank}</span>}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={row.team.logo} alt="" width={18} height={18} style={{ objectFit: 'contain', flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: 'var(--ts-text)', flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.team.name}</span>
+                  {started && <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums' }}>{row.points}</span>}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!loading && realGroups.length === 0 && (
+        <p style={{ fontSize: 12, color: 'var(--ts-muted)' }}>
+          {error
+            ? t(lang, 'No se pudieron cargar los grupos ahora mismo.', 'Could not load the groups right now.')
+            : t(lang, 'Los grupos se publicarán tras el sorteo.', 'Groups will be published after the draw.')}
+        </p>
+      )}
     </div>
   )
 }

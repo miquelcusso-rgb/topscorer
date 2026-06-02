@@ -141,6 +141,7 @@ export interface ApiPlayerResponse {
 
 export interface ApiStandingEntry {
   rank: number
+  group?: string
   team: { id: number; name: string; logo: string }
   points: number
   goalsDiff: number
@@ -223,6 +224,18 @@ export const getStandings = unstable_cache(
   },
   ['api-football-standings'],
   { revalidate: 21600, tags: ['api-football'] } // 6 h — standings update ~weekly
+)
+
+// All standings groups (e.g. World Cup groups A–L), not just the first one.
+export const getAllStandings = unstable_cache(
+  async (leagueId: number, season: number = 2025): Promise<ApiStandingEntry[][]> => {
+    const data = await apiFetch<Array<{ league: { standings: ApiStandingEntry[][] } }>>(
+      `/standings?league=${leagueId}&season=${season}`
+    )
+    return data.response?.[0]?.league?.standings ?? []
+  },
+  ['api-football-all-standings'],
+  { revalidate: 21600, tags: ['api-football'] }
 )
 
 export const getFixtures = unstable_cache(

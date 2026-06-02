@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getStandings, type ApiStandingEntry } from '@/lib/api-football'
+import { getStandings, getAllStandings, type ApiStandingEntry } from '@/lib/api-football'
 import { getFDStandings, FD_LEAGUE_MAP } from '@/lib/football-data-org'
 
 export const revalidate = 3600
@@ -8,8 +8,15 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const league = Number(searchParams.get('league') ?? '140')
   const season = Number(searchParams.get('season') ?? '2025')
+  const groups = searchParams.get('groups')
 
   try {
+    // All groups (e.g. World Cup A–L) — array of standings arrays.
+    if (groups) {
+      const data = await getAllStandings(league, season)
+      return Response.json({ ok: true, data })
+    }
+
     // Try football-data.org first for Big 5 leagues when token is available
     if (FD_LEAGUE_MAP[league] && process.env.FOOTBALL_DATA_TOKEN) {
       try {
