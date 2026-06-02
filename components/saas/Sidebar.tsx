@@ -1,7 +1,9 @@
 'use client'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
+import { clubColor, clubColorOptions } from '@/lib/club-colors'
 import { useLang } from '@/contexts/LangContext'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -125,6 +127,14 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
   const pathname = usePathname() ?? ''
   const en = lang === 'en'
 
+  // PRO "my club" accent: persisted in localStorage; tints the sidebar spine +
+  // workspace badge with the club colour. Only applied for Pro/Scout plans.
+  const isProPlan = plan === 'pro' || plan === 'scout'
+  const [club, setClub] = useState<string>('')
+  useEffect(() => { try { setClub(localStorage.getItem('ts-club') ?? '') } catch {} }, [])
+  const pickClub = (c: string) => { setClub(c); try { localStorage.setItem('ts-club', c) } catch {} }
+  const accent = isProPlan ? clubColor(club) : undefined
+
   const L = en
     ? {
         gStats: 'Statistics', gComp: 'Competitions', gMarket: 'Market & Community', lists: 'Lists',
@@ -199,6 +209,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         alignSelf: 'stretch',
         background: 'var(--ts-sidebar)',
         borderRight: '1px solid var(--ts-border)',
+        borderLeft: accent ? `4px solid ${accent}` : undefined,
         display: 'flex',
         flexDirection: 'column',
         padding: '20px 14px',
@@ -242,7 +253,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
             width: 28,
             height: 28,
             borderRadius: 8,
-            background: 'var(--ts-primary)',
+            background: accent ?? 'var(--ts-primary)',
             color: 'var(--ts-bg)',
             display: 'flex',
             alignItems: 'center',
@@ -420,6 +431,36 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
           </Link>
         </div>
       )}
+
+      {/* PRO: my club accent picker */}
+      <div style={{ marginTop: 12 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 6 }}>
+          {en ? 'My club' : 'Mi club'} {!isProPlan && <span style={{ color: 'var(--ts-primary)' }}>· PRO</span>}
+        </div>
+        {isProPlan ? (
+          <select
+            value={club}
+            onChange={e => pickClub(e.target.value)}
+            aria-label={en ? 'My club' : 'Mi club'}
+            style={{
+              width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+              background: 'var(--ts-card)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)',
+              fontFamily: 'inherit', cursor: 'pointer',
+            }}
+          >
+            <option value="">{en ? '— none —' : '— ninguno —'}</option>
+            {clubColorOptions().map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        ) : (
+          <Link href={`/${lang}/pricing`} style={{
+            display: 'block', padding: '7px 10px', borderRadius: 8, fontSize: 12, textAlign: 'center',
+            background: 'var(--ts-card2)', color: 'var(--ts-muted)', border: '1px dashed var(--ts-border)',
+            textDecoration: 'none',
+          }}>
+            🔒 {en ? 'Tint sidebar with your club' : 'Tiñe el panel con tu club'}
+          </Link>
+        )}
+      </div>
 
       {/* Controls relocated from the removed top bar: lang/theme + share */}
       <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--ts-border)', display: 'flex', alignItems: 'center', gap: 8 }}>
