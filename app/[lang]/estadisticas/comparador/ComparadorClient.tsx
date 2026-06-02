@@ -124,6 +124,9 @@ function marketValueM(p: EnrichedPlayer): number {
 }
 
 const STAT_SETS: Record<StatSetId, AxisDef[]> = {
+  // 'pct' (per-position percentile radar) is resolved separately from the radars,
+  // not from these relative stat formulas.
+  pct: [],
   // Comparativa — the user-requested cross-position axes, all backed by REAL
   // API-Football season data (backfilled into PlayerData via scripts/backfill-full.mjs):
   //   G/PJ                = goles / pj
