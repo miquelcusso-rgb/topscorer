@@ -37,9 +37,12 @@ export default function HotStrikerCard({ hot, lang }: Props) {
           background:
             'linear-gradient(90deg, var(--ts-primary-soft) 0%, transparent 55%)',
           pointerEvents: 'none',
+          zIndex: 0,
         }}
       />
-      <Avatar name={hot.name} size={56} photo={hot.photo} />
+      <div style={{ position: 'relative', zIndex: 1, flexShrink: 0 }}>
+        <Avatar name={hot.name} size={56} photo={hot.photo} />
+      </div>
       <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
         <div
           style={{

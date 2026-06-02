@@ -34,7 +34,13 @@ export function playerKey(p: Pick<PlayerData, 'apiId' | 'name' | 'fullName'>): s
 // Higher = more recent. Season codes are 4-digit ("2526" > "2425" > … > "1011").
 const seasonRank = (s: string) => Number(s) || 0
 
-// Group every dataset row by identity; seasons sorted newest-first.
+// Richness: when two rows describe the SAME player+season (e.g. a curated stub
+// with no photo vs the generated row with photo + full API stats), keep the
+// richer one. apiId/photo (generated) dominate, then minutes.
+const score = (p: PlayerData) => (p.apiId ? 1e9 : 0) + (p.photo ? 1e6 : 0) + (p.minutes ?? 0)
+
+// Group every dataset row by identity; collapse to one row per season (richest);
+// sort newest-first so [0] is the current season's best entry.
 const GROUPS: Map<string, PlayerData[]> = (() => {
   const m = new Map<string, PlayerData[]>()
   for (const p of PLAYERS) {
@@ -43,7 +49,14 @@ const GROUPS: Map<string, PlayerData[]> = (() => {
     arr.push(p)
     m.set(k, arr)
   }
-  for (const arr of m.values()) arr.sort((a, b) => seasonRank(b.season) - seasonRank(a.season))
+  for (const [k, arr] of m) {
+    const bySeason = new Map<string, PlayerData>()
+    for (const p of arr) {
+      const cur = bySeason.get(p.season)
+      if (!cur || score(p) > score(cur)) bySeason.set(p.season, p)
+    }
+    m.set(k, [...bySeason.values()].sort((a, b) => seasonRank(b.season) - seasonRank(a.season)))
+  }
   return m
 })()
 

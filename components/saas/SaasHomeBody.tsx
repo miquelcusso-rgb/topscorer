@@ -1,4 +1,4 @@
-import { PLAYERS } from '@/data/players'
+import { PRIMARY_PLAYERS, playerKey } from '@/lib/player-identity'
 import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import SaasShell from './SaasShell'
@@ -51,7 +51,7 @@ function buildPositionPools(season: PlayerData[]): Record<PositionTabId, PlayerD
     const seen = new Set<string>()
     const merged: PlayerData[] = []
     for (const p of [...big5, ...pt, ...rest]) {
-      const k = `${p.name}|${p.club}`
+      const k = playerKey(p)
       if (seen.has(k)) continue
       seen.add(k)
       merged.push(trim(p))
@@ -70,7 +70,8 @@ export default async function SaasHomeBody({
   defaultPos?: PositionTabId
   heading?: HeadingOverride
 }) {
-  const season = (Array.isArray(PLAYERS) ? PLAYERS : []).filter(
+  // One entry per real player (identity-unified, current-season, carries photo).
+  const season = (Array.isArray(PRIMARY_PLAYERS) ? PRIMARY_PLAYERS : []).filter(
     p => p && p.season === '2526'
   )
   const positionPools = buildPositionPools(season)

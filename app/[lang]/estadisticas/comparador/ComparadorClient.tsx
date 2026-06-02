@@ -516,7 +516,7 @@ export default function ComparadorClient() {
         </div>
 
         {/* Selectors */}
-        <div style={{ display: 'flex', gap: 20, marginBottom: 40, flexWrap: 'wrap' as const }}>
+        <div style={{ display: 'flex', gap: 20, marginBottom: 40, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <PlayerSelector label="Jugador A" selected={playerA} onSelect={selectA} isLight={isLight} />
             <SeasonPicker selected={playerA} onPick={setPlayerA} es={es} isLight={isLight} />
