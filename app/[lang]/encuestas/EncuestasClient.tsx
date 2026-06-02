@@ -53,7 +53,7 @@ export default function EncuestasClient() {
 
   return (
     <main style={{ background: bg, minHeight: '100vh' }}>
-      <div style={{ maxWidth: 980, margin: '0 auto', padding: '40px 20px 80px' }}>
+      <div style={{ maxWidth: 1300, margin: '0 auto', padding: '40px 20px 80px' }}>
         <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: '#f0c040', textTransform: 'uppercase', marginBottom: 8 }}>
           {es ? 'Comunidad · Encuestas' : 'Community · Polls'}
         </div>

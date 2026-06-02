@@ -175,7 +175,7 @@ export default function DiscubrirClient({ players }: Props) {
 
   return (
     <div style={{ minHeight: '100vh', background: pageBg }}>
-      <div className="max-w-[1100px] mx-auto px-5 py-10">
+      <div className="px-5 py-10">
 
         {/* Header */}
         <div style={{ marginBottom: 32 }}>

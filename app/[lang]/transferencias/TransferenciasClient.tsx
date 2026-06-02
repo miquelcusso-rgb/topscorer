@@ -102,7 +102,7 @@ export default function TransferenciasClient() {
     : transfers.filter(t => t.teams.in.name === selectedClub || t.teams.out.name === selectedClub)
 
   return (
-    <div className="max-w-[1100px] mx-auto px-5 py-8">
+    <div className="px-5 py-8">
       {/* Header */}
       <h1
         style={{
@@ -163,7 +163,7 @@ export default function TransferenciasClient() {
 
       {/* Transfer list */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="gap-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))' }}>
           {Array.from({ length: 10 }).map((_, i) => (
             <div
               key={i}
@@ -181,7 +181,7 @@ export default function TransferenciasClient() {
           No hay transferencias recientes para esta liga.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="gap-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))' }}>
           {visibleTransfers.map((t, i) => <TransferCard key={i} t={t} isLight={isLight} />)}
         </div>
       )}

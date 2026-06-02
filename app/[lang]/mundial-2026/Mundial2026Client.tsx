@@ -268,7 +268,7 @@ export default function Mundial2026Client() {
 
       {/* Hero header */}
       <div style={{ background: 'linear-gradient(180deg, var(--ts-primary-soft), var(--ts-bg))', borderBottom: '1px solid var(--ts-border)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px' }}>
+        <div style={{ maxWidth: 1500, margin: '0 auto', padding: '0 20px' }}>
           <div style={{ paddingTop: 24 }}>
             {/* Badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
@@ -338,7 +338,7 @@ export default function Mundial2026Client() {
 
       {/* Content */}
       <div style={{ background: 'var(--ts-bg)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px 80px' }}>
+        <div style={{ maxWidth: 1500, margin: '0 auto', padding: '24px 20px 80px' }}>
           {view === 'overview' && <OverviewPanel lang={lang} onGoGroups={() => setView('groups')} onGoCalendar={() => setView('calendar')} />}
           {view === 'groups' && <GroupsPanel lang={lang} />}
           {view === 'calendar' && <CalendarPanel lang={lang} />}

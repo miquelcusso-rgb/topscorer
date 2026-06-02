@@ -53,12 +53,12 @@ function isLive(short: string) {
 // ─── Standings table ──────────────────────────────────────────────────────────
 
 function StandingsTable({ standings, leagueColor, isLight }: { standings: ApiStandingEntry[]; leagueColor: string; isLight: boolean }) {
-  const border = isLight ? '#c8d0e8' : '#151626'
-  const rowBorder = isLight ? '#e2e8f4' : '#0d0e1c'
-  const rowAlt = isLight ? 'rgba(0,0,0,.03)' : 'rgba(255,255,255,.012)'
-  const textMuted = isLight ? '#5060a0' : '#52526e'
-  const textMain = isLight ? '#0f1830' : '#c8c8e0'
-  const textBright = isLight ? '#0f1830' : '#e8e8f8'
+  const border = 'var(--ts-border)'
+  const rowBorder = 'var(--ts-divider)'
+  const rowAlt = 'var(--ts-card2)'
+  const textMuted = 'var(--ts-muted)'
+  const textMain = 'var(--ts-text)'
+  const textBright = 'var(--ts-text)'
 
   if (!standings.length) {
     return (
@@ -149,10 +149,10 @@ function FixtureRow({ fixture, isLight }: { fixture: ApiFixture; isLight: boolea
   const live = isLive(status)
   const finished = ['FT', 'AET', 'PEN'].includes(status)
 
-  const rowBorder = isLight ? '#e2e8f4' : '#0d0e1c'
-  const textMuted = isLight ? '#5060a0' : '#52526e'
-  const textDim = isLight ? '#8898c0' : '#3a3b52'
-  const textWinner = isLight ? '#0f1830' : '#e8e8f8'
+  const rowBorder = 'var(--ts-divider)'
+  const textMuted = 'var(--ts-muted)'
+  const textDim = 'var(--ts-faint)'
+  const textWinner = 'var(--ts-text)'
 
   return (
     <div
@@ -214,7 +214,7 @@ function FixtureRow({ fixture, isLight }: { fixture: ApiFixture; isLight: boolea
 
       {/* Date */}
       <div className="shrink-0 hidden sm:block text-right w-[90px]">
-        <span className="text-[10px]" style={{ color: isLight ? '#a0a8c8' : '#2a2b3e' }}>
+        <span className="text-[10px]" style={{ color: 'var(--ts-faint)' }}>
           {formatDate(fixture.fixture.date)}
         </span>
       </div>
@@ -302,10 +302,10 @@ function RoundsView({ league, isLight }: { league: LeagueMeta; isLight: boolean 
   const [error, setError] = useState(false)
   const [round, setRound] = useState<string | null>(null)
 
-  const textDim = isLight ? '#8898c0' : '#3a3b52'
-  const textMuted = isLight ? '#5060a0' : '#52526e'
-  const textMain = isLight ? '#0f1830' : '#c8c8e0'
-  const ctrlBorder = isLight ? '#c8d0e8' : '#151626'
+  const textDim = 'var(--ts-faint)'
+  const textMuted = 'var(--ts-muted)'
+  const textMain = 'var(--ts-text)'
+  const ctrlBorder = 'var(--ts-border)'
 
   useEffect(() => {
     setLoading(true); setError(false); setRound(null)
@@ -355,7 +355,7 @@ function RoundsView({ league, isLight }: { league: LeagueMeta; isLight: boolean 
           className="cursor-pointer"
           style={{
             flex: 1, maxWidth: 240, padding: '6px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
-            background: isLight ? '#ffffff' : '#0d0e1c', color: textMain,
+            background: 'var(--ts-card)', color: textMain,
             border: `1px solid ${ctrlBorder}`, fontFamily: "'DM Sans', sans-serif",
           }}
         >
@@ -431,7 +431,7 @@ function MoreLeaguesDropdown({
         <div
           className="absolute top-full right-0 z-50 mt-1 rounded-md shadow-2xl"
           style={{
-            background: isLight ? '#ffffff' : '#0d0e1c',
+            background: 'var(--ts-card)',
             border: `1px solid ${headerBorder}`,
             minWidth: 280,
             maxHeight: 460,
@@ -446,7 +446,7 @@ function MoreLeaguesDropdown({
                   fontSize: 10,
                   letterSpacing: 1.5,
                   textTransform: 'uppercase',
-                  color: isLight ? '#5060a0' : '#5a5c80',
+                  color: 'var(--ts-muted)',
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 700,
                 }}
@@ -465,12 +465,12 @@ function MoreLeaguesDropdown({
                         padding: '7px 12px',
                         background: active ? `${l.color}1f` : 'transparent',
                         border: 'none',
-                        color: active ? l.color : (isLight ? '#0f1830' : '#c8c8e0'),
+                        color: active ? l.color : 'var(--ts-text)',
                         fontSize: 12,
                         textAlign: 'left',
                         cursor: 'pointer',
                       }}
-                      onMouseEnter={e => { if (!active) e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.04)' }}
+                      onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--ts-card2)' }}
                       onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
                     >
                       <span style={{ fontSize: 14 }}>{l.flag ?? '🏳️'}</span>
@@ -494,14 +494,17 @@ export default function ResultadosClient() {
   const { theme } = useTheme()
   const isLight = theme === 'light'
 
-  const pageBg = isLight ? '#edf1f8' : '#0b0c1a'
-  const headerBg = isLight ? 'linear-gradient(180deg, #dde5f4, #edf1f8)' : 'linear-gradient(180deg,#07081a,#050610)'
-  const headerBorder = isLight ? '#c8d0e8' : '#151626'
-  const cardBg = isLight ? '#ffffff' : '#06070e'
-  const cardBorder = isLight ? '#c8d0e8' : '#151626'
-  const textPrimary = isLight ? '#0f1830' : '#e8e8f8'
-  const textMuted = isLight ? '#5060a0' : '#52526e'
-  const textDim = isLight ? '#8898c0' : '#3a3b52'
+  // Theme-driven via CSS vars (set by SaasShell + the data-theme attribute the
+  // anti-flash inline script applies pre-paint) so this page can't flash the
+  // wrong theme on a static refresh.
+  const pageBg = 'var(--ts-bg)'
+  const headerBg = 'var(--ts-surface)'
+  const headerBorder = 'var(--ts-border)'
+  const cardBg = 'var(--ts-card)'
+  const cardBorder = 'var(--ts-border)'
+  const textPrimary = 'var(--ts-text)'
+  const textMuted = 'var(--ts-muted)'
+  const textDim = 'var(--ts-faint)'
 
   return (
     <main className="relative z-10 min-h-screen">

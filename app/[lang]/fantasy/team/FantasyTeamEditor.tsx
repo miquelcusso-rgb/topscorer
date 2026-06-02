@@ -81,7 +81,7 @@ export default function FantasyTeamEditor({ lang, initialTeamName, initialPicks,
   const canSave = teamName.trim().length >= 2 && picks.every(p => p.player_slug) && picks.filter(p => p.captain).length === 1
 
   return (
-    <main style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px', color: 'var(--ts-text)' }}>
+    <main style={{ maxWidth: 1400, margin: '0 auto', padding: '40px 24px', color: 'var(--ts-text)' }}>
       <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 48, fontWeight: 800, margin: '0 0 20px', color: 'var(--ts-text)' }}>
         {es ? 'Tu equipo Fantasy' : 'Your Fantasy team'}
       </h1>

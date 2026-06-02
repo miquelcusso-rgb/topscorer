@@ -69,18 +69,33 @@ const PRESETS = [
 
 // ── Stat-set definitions for the comparison radar ────────────────────────────
 // Each axis pulls a REAL numeric value from a player (metric) and renders a
-// display string (format). aPct/bPct are computed later as val / max(a,b,1).
-type StatSetId = 'fw' | 'mf' | 'df' | 'transfer'
+// display string (format). aPct/bPct are computed later as val / max(a,b,1)
+// — UNLESS the axis sets `invert`, in which case fewer = better (see below).
+type StatSetId = 'compare' | 'fw' | 'mf' | 'df' | 'transfer'
 
 interface AxisDef {
   label: string
-  // real numeric value used for normalization (higher = better, all axes)
+  // bilingual labels for the radar/breakdown axis
+  labelEn?: string
+  // real numeric value used for the polygon. By default higher = better, so a
+  // larger value pushes the vertex further out. For `invert` axes (e.g. balls
+  // lost, where LOWER is better) we flip the normalization later so that the
+  // player with FEWER losses gets the bigger area — see radarAxes useMemo.
   metric: (p: EnrichedPlayer) => number
-  // display value
+  // display value (shown as the real number on the radar vertex / breakdown)
   format: (p: EnrichedPlayer) => string | number
+  // when true, lower raw metric = better; the polygon is inverted so a player
+  // who loses fewer balls does NOT look worse on the radar.
+  invert?: boolean
 }
 
 const n0 = (v?: number) => v ?? 0
+// Per-game rate, guarding divide-by-zero (pj = 0 → 0).
+function perGame(total?: number, pj?: number): number {
+  const g = pj ?? 0
+  if (g <= 0) return 0
+  return (total ?? 0) / g
+}
 function pctOf(a?: number, b?: number): number {
   if (!a || !b) return 0
   return Math.round((a / b) * 1000) / 10
@@ -100,6 +115,22 @@ function marketValueM(p: EnrichedPlayer): number {
 }
 
 const STAT_SETS: Record<StatSetId, AxisDef[]> = {
+  // Comparativa — the user-requested cross-position axes.
+  //   G/PJ  = goals per game (goles / pj)               — real
+  //   A/PJ  = assists per game (asist / pj)              — real
+  //   Regates conseguidos = dribblesSuccess              — real (PlayerData)
+  //   Balones perdidos = ballsLost — INVERTED (lower is better)
+  // NOTE: "Regates intentados" (dribbles ATTEMPTED) was requested as a 5th
+  // axis but there is NO attempts field on PlayerData/EnrichedPlayer — only
+  // `dribblesSuccess` exists (attempts lives solely in the live player-detail
+  // API payload, not in the comparador dataset). It is intentionally OMITTED
+  // here rather than fabricated; flag to lead if the field gets backfilled.
+  compare: [
+    { label: 'G/PJ',            labelEn: 'G/Game',     metric: p => perGame(p.goles, p.pj),  format: p => perGame(p.goles, p.pj).toFixed(2) },
+    { label: 'A/PJ',            labelEn: 'A/Game',     metric: p => perGame(p.asist, p.pj),  format: p => perGame(p.asist, p.pj).toFixed(2) },
+    { label: 'Regates cons.',   labelEn: 'Drib. won',  metric: p => n0(p.dribblesSuccess),   format: p => p.dribblesSuccess ?? '—' },
+    { label: 'Bal. perdidos',   labelEn: 'Balls lost', metric: p => n0(p.ballsLost),         format: p => p.ballsLost ?? '—', invert: true },
+  ],
   // Delantero — finishing volume + efficiency
   fw: [
     { label: 'Goles',    metric: p => n0(p.goles),                         format: p => n0(p.goles) },
@@ -136,17 +167,18 @@ const STAT_SETS: Record<StatSetId, AxisDef[]> = {
 }
 
 const STAT_SET_LABELS: Record<'es' | 'en', Record<StatSetId, string>> = {
-  es: { fw: 'Delantero', mf: 'Centrocampista', df: 'Defensa', transfer: 'Transfer info' },
-  en: { fw: 'Forward', mf: 'Midfielder', df: 'Defender', transfer: 'Transfer info' },
+  es: { compare: 'Comparativa', fw: 'Delantero', mf: 'Centrocampista', df: 'Defensa', transfer: 'Transfer info' },
+  en: { compare: 'Comparison', fw: 'Forward', mf: 'Midfielder', df: 'Defender', transfer: 'Transfer info' },
 }
 
-const STAT_SET_ORDER: StatSetId[] = ['fw', 'mf', 'df', 'transfer']
+const STAT_SET_ORDER: StatSetId[] = ['compare', 'fw', 'mf', 'df', 'transfer']
 
-function defaultSetForPosition(pos?: Position): StatSetId {
-  if (pos === 'MF') return 'mf'
-  if (pos === 'DF') return 'df'
-  // FW, GK and unknown → Delantero
-  return 'fw'
+function defaultSetForPosition(_pos?: Position): StatSetId {
+  // Default to the cross-position "Comparativa" set (G/PJ, A/PJ, regates,
+  // balones perdidos) regardless of position. Users can still switch to the
+  // position-specific sets via the segmented control.
+  void _pos
+  return 'compare'
 }
 
 interface PlayerSelectorProps {
@@ -323,7 +355,7 @@ export default function ComparadorClient() {
   const [playerB, setPlayerB] = useState<EnrichedPlayer | null>(null)
   // Stat set driving the comparison radar. Defaults to player A's position;
   // user touching the selector locks their choice (won't auto-flip after that).
-  const [statSet, setStatSet] = useState<StatSetId>('fw')
+  const [statSet, setStatSet] = useState<StatSetId>('compare')
   const [statSetTouched, setStatSetTouched] = useState(false)
 
   const pageBg = isLight ? '#edf1f8' : '#07070f'
@@ -400,18 +432,25 @@ export default function ComparadorClient() {
   const radarAxes: ComparisonAxis[] = useMemo(() => {
     if (!playerA || !playerB) return []
     return STAT_SETS[statSet].map(def => {
-      const aVal = def.metric(playerA)
-      const bVal = def.metric(playerB)
-      const max = Math.max(aVal, bVal, 1)
+      const aRaw = def.metric(playerA)
+      const bRaw = def.metric(playerB)
+      const max = Math.max(aRaw, bRaw, 1)
+      // Normalize relative to the max of the two players (relative radar).
+      // For `invert` axes (e.g. balones perdidos, where LOWER is better) we
+      // flip with (max - value) / max so the player who loses FEWER balls gets
+      // the LARGER area — i.e. fewer losses reads as "better" on the polygon.
+      // Larger raw value still shows as the real number on the vertex label.
+      const aPct = def.invert ? ((max - aRaw) / max) * 100 : (aRaw / max) * 100
+      const bPct = def.invert ? ((max - bRaw) / max) * 100 : (bRaw / max) * 100
       return {
-        label: def.label,
+        label: (es ? def.label : (def.labelEn ?? def.label)),
         aVal: def.format(playerA),
         bVal: def.format(playerB),
-        aPct: (aVal / max) * 100,
-        bPct: (bVal / max) * 100,
+        aPct,
+        bPct,
       }
     })
-  }, [playerA, playerB, statSet])
+  }, [playerA, playerB, statSet, es])
 
   // Note: comparator is now free (was Pro-only). proUser kept for future Pro perks.
   void proUser
@@ -483,13 +522,14 @@ export default function ComparadorClient() {
           </div>
         )}
 
-        {/* Comparison sections — shown when both selected */}
+        {/* Comparison sections — shown when both selected.
+            Layout order (user-requested): the per-player headers live in the
+            selectors above (photo + name + team logo); then the overlapping
+            comparative RADAR; then the detailed per-stat breakdown (VersusCard)
+            and the stats table. Radar sits ABOVE the breakdown. */}
         {bothSelected && (
           <>
-            {/* Head-to-head VERSUS card (real metrics + shareable) */}
-            <VersusCard a={playerA} b={playerB} es={lang === 'es'} />
-
-            {/* Overlapping comparison radar + stat-set selector */}
+            {/* Overlapping comparison radar + stat-set selector — ON TOP */}
             <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 8, padding: 20, marginBottom: 32 }}>
               {/* Segmented control */}
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
@@ -549,6 +589,9 @@ export default function ComparadorClient() {
                 />
               )}
             </div>
+
+            {/* Head-to-head VERSUS card (real metrics + shareable) — BELOW radar */}
+            <VersusCard a={playerA} b={playerB} es={lang === 'es'} />
 
             {/* Stats comparison table */}
             <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 8, marginBottom: 40, overflow: 'hidden' }}>

@@ -120,8 +120,16 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider>
-      <html lang={htmlLang} className="h-full">
+      <html lang={htmlLang} className="h-full" suppressHydrationWarning>
         <head>
+          {/* Anti-flash: set data-theme BEFORE first paint from the persisted
+              choice (localStorage) or OS preference, so SSG pages don't flash
+              the default dark theme on refresh for light-mode users. */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{var t=localStorage.getItem('ts-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`,
+            }}
+          />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           {/* Perf: dropped Bebas Neue (unused per design handoff) and
