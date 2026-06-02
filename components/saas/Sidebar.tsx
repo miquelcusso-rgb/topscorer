@@ -10,8 +10,6 @@ import { useTheme } from '@/contexts/ThemeContext'
 import type { Plan } from '@/types'
 import LockedPill from './LockedPill'
 import TopSearch from './TopSearch'
-import LangTogglePill from './LangTogglePill'
-import ThemeTogglePill from './ThemeTogglePill'
 import { ShareIcon, type PrimaryCta } from './Topbar'
 
 export type SidebarActiveKey =
@@ -462,24 +460,22 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         )}
       </div>
 
-      {/* Controls relocated from the removed top bar: lang/theme + share */}
-      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--ts-border)', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <LangTogglePill />
-        <ThemeTogglePill />
-        {primaryCta && (
-          primaryCta.href ? (
+      {/* Share CTA (lang/theme toggles live in the top-right of the shell) */}
+      {primaryCta && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--ts-border)', display: 'flex', justifyContent: 'flex-end' }}>
+          {primaryCta.href ? (
             <Link href={primaryCta.href} aria-label={primaryCta.label} title={primaryCta.label}
-              style={{ marginLeft: 'auto', width: 34, height: 34, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'var(--ts-card2)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', borderRadius: 8, textDecoration: 'none' }}>
+              style={{ width: 34, height: 34, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'var(--ts-card2)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', borderRadius: 8, textDecoration: 'none' }}>
               {primaryCta.icon === 'share' ? <ShareIcon /> : primaryCta.label}
             </Link>
           ) : (
             <button type="button" onClick={primaryCta.onClick} aria-label={primaryCta.label} title={primaryCta.label}
-              style={{ marginLeft: 'auto', width: 34, height: 34, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'var(--ts-card2)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ width: 34, height: 34, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'var(--ts-card2)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit' }}>
               {primaryCta.icon === 'share' ? <ShareIcon /> : primaryCta.label}
             </button>
-          )
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       <div
         style={{

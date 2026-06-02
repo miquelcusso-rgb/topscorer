@@ -6,6 +6,9 @@ import { getPalette, cssVars } from '@/lib/palette'
 import Sidebar, { type SidebarActiveKey } from './Sidebar'
 import { type PrimaryCta } from './Topbar'
 import MobileTopbar from './MobileTopbar'
+import LangTogglePill from './LangTogglePill'
+import ThemeTogglePill from './ThemeTogglePill'
+import WorldCupWidget from './WorldCupWidget'
 import type { Plan } from '@/types'
 
 interface SaasShellProps {
@@ -58,6 +61,16 @@ export default function SaasShell({
         }}
       >
         <MobileTopbar activeKey={activeKey} lang={lang} primaryCta={primaryCta} />
+        {/* Top-right controls: language + theme, with the World Cup countdown below. */}
+        <div className="saas-topright" style={{ display: 'flex', justifyContent: 'flex-end', padding: '14px 24px 0' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <LangTogglePill />
+              <ThemeTogglePill />
+            </div>
+            <WorldCupWidget lang={lang === 'en' ? 'en' : 'es'} scale={1.3} />
+          </div>
+        </div>
         <div
           className="saas-main-content"
           style={{

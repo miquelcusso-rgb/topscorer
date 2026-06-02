@@ -56,9 +56,22 @@ function posAccent(pos?: string): string {
 // picker on each selected card.
 const ALL_PLAYERS: EnrichedPlayer[] = PRIMARY_PLAYERS.map(enrich)
 
+// Robust lookup so presets/deep-links match abbreviated dataset names
+// ("Harry Kane" → "H. Kane", "Vinicius Junior" → "Vinícius Júnior").
+const _pnorm = (s?: string) => (s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
+const _pil = (s?: string) => { const t = _pnorm(s).split(' ').filter(Boolean); return t.length >= 2 ? `${t[0][0]} ${t[t.length - 1]}` : _pnorm(s) }
+function findPlayerByName(q: string): EnrichedPlayer | null {
+  const n = _pnorm(q), il = _pil(q)
+  return (
+    ALL_PLAYERS.find(p => _pnorm(p.name) === n || _pnorm(p.fullName) === n) ??
+    ALL_PLAYERS.find(p => _pil(p.name) === il || _pil(p.fullName) === il) ??
+    null
+  )
+}
+
 const PRESETS = [
   { a: 'Harry Kane',    b: 'Erling Haaland'  },
-  { a: 'Kylian Mbappe', b: 'Vinicius Junior'  },
+  { a: 'Kylian Mbappé', b: 'Vinicius Junior'  },
   { a: 'Mohamed Salah', b: 'Bukayo Saka'      },
   { a: 'Lamine Yamal',  b: 'Florian Wirtz'   },
 ]
@@ -450,8 +463,8 @@ export default function ComparadorClient() {
   }
 
   function applyPreset(preset: { a: string; b: string }) {
-    const pA = ALL_PLAYERS.find(p => p.name === preset.a) ?? null
-    const pB = ALL_PLAYERS.find(p => p.name === preset.b) ?? null
+    const pA = findPlayerByName(preset.a)
+    const pB = findPlayerByName(preset.b)
     setPlayerA(pA)
     setPlayerB(pB)
     const params = new URLSearchParams()

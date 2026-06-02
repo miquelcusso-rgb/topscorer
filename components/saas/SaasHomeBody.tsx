@@ -6,7 +6,6 @@ import SaasHomeInteractive from './SaasHomeInteractive'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
 import { computeHomeInsights } from '@/lib/home-insights'
 import { getTopRumors } from '@/lib/home-rumor'
-import WorldCupWidget from './WorldCupWidget'
 
 interface HeadingOverride {
   breadcrumb: string[]
@@ -103,14 +102,11 @@ export default async function SaasHomeBody({
       breadcrumb={labels.breadcrumb}
       primaryCta={{ label: cta, href: `/${lang}/cuenta` }}
     >
-      <div className="saas-page-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, letterSpacing: '-0.012em', color: 'var(--ts-text)' }}>
-            {labels.h1}
-          </h1>
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--ts-muted)' }}>{labels.sub}</p>
-        </div>
-        <WorldCupWidget lang={lang === 'en' ? 'en' : 'es'} />
+      <div className="saas-page-header" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <h1 style={{ margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, letterSpacing: '-0.012em', color: 'var(--ts-text)' }}>
+          {labels.h1}
+        </h1>
+        <p style={{ margin: 0, fontSize: 13, color: 'var(--ts-muted)' }}>{labels.sub}</p>
       </div>
 
       <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} />
