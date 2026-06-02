@@ -67,7 +67,9 @@ export function shortName(player: NameInput): string {
 
 export function fullName(player: NameInput): string {
   const raw = player.name
-  // If the raw name is already a long-form string we recognise, return it.
+  // Prefer the real/full name backfilled onto the dataset row (API firstname +
+  // lastname), then our curated headliner map, then the raw name.
+  if ('fullName' in player && player.fullName) return player.fullName
   if (Object.values(KNOWN_FULL_NAMES).includes(raw)) return raw
   return KNOWN_FULL_NAMES[raw] ?? raw
 }
