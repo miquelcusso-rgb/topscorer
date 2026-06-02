@@ -52,7 +52,9 @@ export interface PlayerData {
   passesAccuracy?: number
   tacklesTotal?: number
   duelsWon?: number
+  dribblesAttempts?: number
   dribblesSuccess?: number
+  blocks?: number
   yellowCards?: number
   redCards?: number
   penaltiesScored?: number

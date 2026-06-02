@@ -115,21 +115,22 @@ function marketValueM(p: EnrichedPlayer): number {
 }
 
 const STAT_SETS: Record<StatSetId, AxisDef[]> = {
-  // Comparativa — the user-requested cross-position axes.
-  //   G/PJ  = goals per game (goles / pj)               — real
-  //   A/PJ  = assists per game (asist / pj)              — real
-  //   Regates conseguidos = dribblesSuccess              — real (PlayerData)
-  //   Balones perdidos = ballsLost — INVERTED (lower is better)
-  // NOTE: "Regates intentados" (dribbles ATTEMPTED) was requested as a 5th
-  // axis but there is NO attempts field on PlayerData/EnrichedPlayer — only
-  // `dribblesSuccess` exists (attempts lives solely in the live player-detail
-  // API payload, not in the comparador dataset). It is intentionally OMITTED
-  // here rather than fabricated; flag to lead if the field gets backfilled.
+  // Comparativa — the user-requested cross-position axes, all backed by REAL
+  // API-Football season data (backfilled into PlayerData via scripts/backfill-full.mjs):
+  //   G/PJ                = goles / pj
+  //   A/PJ                = asist / pj
+  //   Regates intentados  = dribblesAttempts
+  //   Regates conseguidos = dribblesSuccess
+  //   Duelos ganados      = duelsWon
+  // NOTE: "Balones perdidos" (balls lost / dispossessed) is NOT exposed by the
+  // API-Football /players endpoint, so it cannot be shown with real data. We
+  // substitute "Duelos ganados" (a real, meaningful metric) for that 5th axis.
   compare: [
-    { label: 'G/PJ',            labelEn: 'G/Game',     metric: p => perGame(p.goles, p.pj),  format: p => perGame(p.goles, p.pj).toFixed(2) },
-    { label: 'A/PJ',            labelEn: 'A/Game',     metric: p => perGame(p.asist, p.pj),  format: p => perGame(p.asist, p.pj).toFixed(2) },
-    { label: 'Regates cons.',   labelEn: 'Drib. won',  metric: p => n0(p.dribblesSuccess),   format: p => p.dribblesSuccess ?? '—' },
-    { label: 'Bal. perdidos',   labelEn: 'Balls lost', metric: p => n0(p.ballsLost),         format: p => p.ballsLost ?? '—', invert: true },
+    { label: 'G/PJ',          labelEn: 'G/Game',     metric: p => perGame(p.goles, p.pj), format: p => perGame(p.goles, p.pj).toFixed(2) },
+    { label: 'A/PJ',          labelEn: 'A/Game',     metric: p => perGame(p.asist, p.pj), format: p => perGame(p.asist, p.pj).toFixed(2) },
+    { label: 'Regates int.',  labelEn: 'Drib. att.', metric: p => n0(p.dribblesAttempts), format: p => p.dribblesAttempts ?? '—' },
+    { label: 'Regates cons.', labelEn: 'Drib. won',  metric: p => n0(p.dribblesSuccess),  format: p => p.dribblesSuccess ?? '—' },
+    { label: 'Duelos gan.',   labelEn: 'Duels won',  metric: p => n0(p.duelsWon),         format: p => p.duelsWon ?? '—' },
   ],
   // Delantero — finishing volume + efficiency
   fw: [
@@ -204,8 +205,10 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
 
   const filtered = useMemo(() => {
     if (!query.trim()) return []
-    const q = query.toLowerCase()
-    return ALL_PLAYERS.filter(p => p.name.toLowerCase().includes(q)).slice(0, 8)
+    // Accent-insensitive so "vitinha" matches "Vítinha", "ode" matches "Ödegaard", etc.
+    const strip = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    const q = strip(query.trim())
+    return ALL_PLAYERS.filter(p => strip(p.name).includes(q) || strip(p.club).includes(q)).slice(0, 8)
   }, [query])
 
   function selectPlayer(p: EnrichedPlayer) {
