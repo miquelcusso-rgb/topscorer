@@ -75,9 +75,11 @@ async function leaguePlayers(leagueId, leagueName) {
       const p = row.player
       const full = [p.firstname, p.lastname].filter(Boolean).join(' ').trim()
       const fullName = full && nrmN(full) !== nrmN(p.name) ? full : undefined
+      const pa = num(st.passes?.accuracy)
       out.push({
         name: p.name,
         fullName,
+        apiId: num(p.id),
         club: st.team?.name ?? '',
         league: leagueName,
         age: num(p.age) ?? 0,
@@ -88,13 +90,23 @@ async function leaguePlayers(leagueId, leagueName) {
         position: POS[st.games?.position] ?? undefined,
         photo: p.photo,
         nationality: p.nationality,
+        height: p.height || undefined,
+        weight: p.weight || undefined,
+        birthDate: p.birth?.date || undefined,
+        birthPlace: [p.birth?.place, p.birth?.country].filter(Boolean).join(', ') || undefined,
+        injured: p.injured === true ? true : undefined,
         minutes: num(st.games?.minutes),
+        lineups: num(st.games?.lineups),
+        captain: st.games?.captain === true ? true : undefined,
         rating: round2(st.games?.rating),
+        subIn: num(st.substitutes?.in),
+        subOut: num(st.substitutes?.out),
+        subBench: num(st.substitutes?.bench),
         shotsTotal: num(st.shots?.total),
         shotsOn: num(st.shots?.on),
         passes: num(st.passes?.total),
         keyPasses: num(st.passes?.key),
-        passAccuracy: num(st.passes?.accuracy),
+        passAccuracy: pa,
         tacklesTotal: num(st.tackles?.total),
         blocks: num(st.tackles?.blocks),
         interceptions: num(st.tackles?.interceptions),
@@ -102,9 +114,19 @@ async function leaguePlayers(leagueId, leagueName) {
         duelsWon: num(st.duels?.won),
         dribblesAttempts: num(st.dribbles?.attempts),
         dribblesSuccess: num(st.dribbles?.success),
+        dribblesPast: num(st.dribbles?.past),
+        foulsDrawn: num(st.fouls?.drawn),
+        foulsCommitted: num(st.fouls?.committed),
         yellowCards: num(st.cards?.yellow),
+        yellowRed: num(st.cards?.yellowred),
         redCards: num(st.cards?.red),
+        goalsConceded: num(st.goals?.conceded),
+        saves: num(st.goals?.saves),
         penaltiesScored: num(st.penalty?.scored),
+        penaltyWon: num(st.penalty?.won),
+        penaltyCommitted: num(st.penalty?.commited),
+        penaltyMissed: num(st.penalty?.missed),
+        penaltySaved: num(st.penalty?.saved),
       })
     }
     page++
@@ -134,15 +156,16 @@ for (const [id, name] of LEAGUES) {
   }
 }
 
-// Dedup by normalized name (loan/transfer dupes) — keep the one with more minutes.
-const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
-const byName = new Map()
+// Dedup by API player id (a player loaned mid-season appears in two leagues) —
+// keep the entry with more minutes. Distinct players who SHARE a name (e.g. the
+// several "Vitinha") have different ids, so they are all KEPT.
+const byId = new Map()
 for (const p of all) {
-  const k = norm(p.name)
-  const cur = byName.get(k)
-  if (!cur || (p.minutes ?? 0) > (cur.minutes ?? 0)) byName.set(k, p)
+  const k = p.apiId ?? `name:${p.name}|${p.club}`
+  const cur = byId.get(k)
+  if (!cur || (p.minutes ?? 0) > (cur.minutes ?? 0)) byId.set(k, p)
 }
-const deduped = [...byName.values()].map(strip)
+const deduped = [...byId.values()].map(strip)
 
 const withPhoto = deduped.filter(p => p.photo).length
 console.error(`\nTOTAL kept ${deduped.length} players · with photo ${withPhoto} (${Math.round(withPhoto / deduped.length * 100)}%)`)

@@ -5,6 +5,7 @@ import type { PlayerData } from '@/types'
 import Avatar from './Avatar'
 import LeagueChip from './LeagueChip'
 import { slugify } from '@/lib/slugify'
+import { playerSlug } from '@/lib/player-slug'
 import { shortName } from '@/lib/player-name'
 
 interface Props {
@@ -29,7 +30,7 @@ export default function PlayerCardList({ players, lang = 'es' }: Props) {
     <div className="saas-mobile-cards" aria-label="Top scorers list">
       {players.map((player, i) => {
         const rank = i + 1
-        const slug = slugify(player.name)
+        const slug = playerSlug(player)
         return (
           <Link
             key={slug + i}

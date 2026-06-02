@@ -6,6 +6,7 @@ import Avatar from './Avatar'
 import LeagueChip from './LeagueChip'
 import Sparkline from './Sparkline'
 import { slugify } from '@/lib/slugify'
+import { playerSlug } from '@/lib/player-slug'
 import { shortName } from '@/lib/player-name'
 
 export type TableTab = 'goals' | 'ast' | 'pj' | 'xg'
@@ -137,7 +138,7 @@ export default function PlayerTable({
         const xg = syntheticXg(player)
         const xgDelta = Math.round((player.goles - xg) * 10) / 10
         const form = syntheticForm(player)
-        const slug = slugify(player.name)
+        const slug = playerSlug(player)
         const href = hrefBuilder ? hrefBuilder(player) : `/${lang}/jugadores/${slug}`
         const hovered = hoveredRow === slug
         return (

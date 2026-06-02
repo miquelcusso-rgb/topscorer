@@ -67,6 +67,24 @@ export interface PlayerData {
   duelsTotal?: number
   goalsConceded?: number
   saves?: number
+  // API-Football player id — stable unique identity, used to disambiguate
+  // players who share a name (e.g. the several "Vitinha").
+  apiId?: number
+  // Extended /players statistics (backfilled by scripts/backfill-full.mjs)
+  lineups?: number          // games.lineups (titularidades)
+  captain?: boolean         // games.captain
+  subIn?: number            // substitutes.in
+  subOut?: number           // substitutes.out
+  subBench?: number         // substitutes.bench
+  dribblesPast?: number     // dribbles.past (veces regateado)
+  foulsDrawn?: number       // fouls.drawn (faltas recibidas)
+  foulsCommitted?: number   // fouls.committed (faltas cometidas)
+  yellowRed?: number        // cards.yellowred (doble amarilla)
+  penaltyWon?: number       // penalty.won (provocados)
+  penaltyCommitted?: number // penalty.commited
+  penaltyMissed?: number    // penalty.missed
+  penaltySaved?: number     // penalty.saved (porteros)
+  injured?: boolean         // player.injured
 }
 
 export interface EnrichedPlayer extends PlayerData {

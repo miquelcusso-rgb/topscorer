@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { currentUser } from '@clerk/nextjs/server'
 import { PLAYERS } from '@/data/players'
-import { slugify } from '@/lib/slugify'
+import { playerSlug, findPlayerBySlug, playersForSlug } from '@/lib/player-slug'
 import { isLocale } from '@/lib/i18n'
 import { getUserPlan } from '@/lib/plans'
 import PlayerProfile from '@/components/player/PlayerProfile'
@@ -14,14 +14,14 @@ import PlayerProfile from '@/components/player/PlayerProfile'
 
 export async function generateStaticParams() {
   return PLAYERS
-    .filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i)
+    .filter((p, i, arr) => arr.findIndex(x => playerSlug(x) === playerSlug(p)) === i)
     .slice(0, 200)
-    .map(p => ({ slug: slugify(p.name) }))
+    .map(p => ({ slug: playerSlug(p) }))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
   const { lang, slug } = await params
-  const player = PLAYERS.find(p => slugify(p.name) === slug)
+  const player = findPlayerBySlug(slug)
   if (!player) return { title: 'Jugador — TopScorers' }
   const description = `Estadísticas de ${player.name}: goles, asistencias, valoración y más. Temporada 2025/26.`
   const path = `/jugadores/${slug}`
@@ -58,7 +58,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ lang: s
   const { lang: rawLang, slug } = await params
   const lang = isLocale(rawLang) ? rawLang : 'es'
 
-  const staticPlayers = PLAYERS.filter(p => slugify(p.name) === slug)
+  const staticPlayers = playersForSlug(slug)
   if (!staticPlayers.length) notFound()
 
   // Prefer the current-season entry for the headline profile.

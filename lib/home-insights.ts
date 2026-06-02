@@ -1,6 +1,7 @@
 import type { PlayerData } from '@/types'
 import { iig, leagueCoef } from './iig'
 import { slugify } from './slugify'
+import { playerSlug } from './player-slug'
 
 // Small, serializable payloads computed server-side from the real PLAYERS
 // dataset and passed to the client (1-3 players only — keeps RSC payload tiny,
@@ -115,7 +116,7 @@ export function computeHomeInsights(season: PlayerData[]): HomeInsights {
     if (!p) return
     standouts.push({
       key, labelEs, labelEn, name: p.name, club: p.club, flag: p.flag,
-      photo: p.photo, slug: slugify(p.name), stat, statLabelEs, statLabelEn,
+      photo: p.photo, slug: playerSlug(p), stat, statLabelEs, statLabelEn,
     })
   }
   const byGoals = [...season].filter(p => p.tab === 's').sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0))[0]

@@ -6,6 +6,7 @@ import type { PlayerData } from '@/types'
 import Avatar from '@/components/saas/Avatar'
 import RelatedLinks, { type RelatedLink } from '@/components/RelatedLinks'
 import { slugify } from '@/lib/slugify'
+import { playerSlug } from '@/lib/player-slug'
 import { iig } from '@/lib/iig'
 import { clubLogo } from '@/lib/club-logos'
 import {
@@ -188,8 +189,8 @@ function StatTable({
             const secondary = metric === 'goles' ? a : g
             return (
               <Link
-                key={slugify(p.name) + i}
-                href={`/${lang}/jugadores/${slugify(p.name)}`}
+                key={playerSlug(p) + i}
+                href={`/${lang}/jugadores/${playerSlug(p)}`}
                 style={{
                   display: 'grid', gridTemplateColumns: colTemplate, gap: 8, padding: '9px 14px', alignItems: 'center',
                   borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit',
@@ -225,7 +226,7 @@ function StatTable({
 function MvpCard({ lang, player }: { lang: 'es' | 'en'; player: PlayerData }) {
   return (
     <Link
-      href={`/${lang}/jugadores/${slugify(player.name)}`}
+      href={`/${lang}/jugadores/${playerSlug(player)}`}
       style={{
         display: 'flex', alignItems: 'center', gap: 18, padding: '20px 22px', textDecoration: 'none',
         background: 'linear-gradient(135deg, var(--ts-primary-soft), var(--ts-card))',
@@ -281,7 +282,7 @@ function LeaderCard({
 }) {
   return (
     <Link
-      href={`/${lang}/jugadores/${slugify(player.name)}`}
+      href={`/${lang}/jugadores/${playerSlug(player)}`}
       style={{
         display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', textDecoration: 'none',
         background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12,

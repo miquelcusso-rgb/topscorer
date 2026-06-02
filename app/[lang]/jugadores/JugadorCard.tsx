@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { slugify } from '@/lib/slugify'
+import { playerSlug } from '@/lib/player-slug'
 import { positionLabel } from '@/lib/position'
 import PlayerHoverCard from '@/components/PlayerHoverCard'
 import type { EnrichedPlayer } from '@/types'
@@ -12,7 +12,7 @@ interface Props {
 
 export default function JugadorCard({ player: p }: Props) {
   return (
-    <Link href={`/jugadores/${slugify(p.name)}`} style={{ textDecoration: 'none' }}>
+    <Link href={`/jugadores/${playerSlug(p)}`} style={{ textDecoration: 'none' }}>
       <div
         className="group relative rounded-lg p-3 cursor-pointer transition-colors duration-150 hover:bg-white/[.07]"
         style={{

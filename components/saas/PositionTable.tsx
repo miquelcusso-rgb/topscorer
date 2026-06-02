@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { PlayerData } from '@/types'
 import Avatar from './Avatar'
 import LeagueChip from './LeagueChip'
-import { slugify } from '@/lib/slugify'
+import { playerSlug } from '@/lib/player-slug'
 import { shortName } from '@/lib/player-name'
 import {
   type PositionTabId,
@@ -131,7 +131,7 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort 
 
         {players.map((p, i) => {
           const rank = i + 1
-          const slug = slugify(p.name)
+          const slug = playerSlug(p)
           return (
             <Link
               key={slug + i}
@@ -179,7 +179,7 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort 
       <div className="saas-mobile-cards" style={{ flexDirection: 'column', gap: 8 }}>
         {players.map((p, i) => {
           const rank = i + 1
-          const slug = slugify(p.name)
+          const slug = playerSlug(p)
           const { avg } = last5Ratings(p)
           const primaryCol = cols.find(c => c.accent && c.kind !== 'last5') ?? cols.find(c => c.kind !== 'last5') ?? cols[0]
           return (

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { PLAYERS } from '@/data/players'
 import { slugify } from '@/lib/slugify'
+import { playerSlug } from '@/lib/player-slug'
 import { allLeagueSlugs } from '@/lib/league-data'
 import { LOCALES } from '@/lib/i18n'
 
@@ -71,7 +72,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const playerUrls = PLAYERS
     .filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i)
     .filter(p => p.season === '2526')
-    .flatMap(p => localized(`/jugadores/${slugify(p.name)}`, 'weekly', 0.7))
+    .flatMap(p => localized(`/jugadores/${playerSlug(p)}`, 'weekly', 0.7))
 
   return [...staticUrls, ...competicionUrls, ...playerUrls]
 }

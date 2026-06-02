@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { PLAYERS } from '@/data/players'
 import { ALL_LEAGUES } from '@/lib/api-football'
 import { slugify } from '@/lib/slugify'
+import { playerSlug } from '@/lib/player-slug'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,7 +31,7 @@ const PLAYER_INDEX = (() => {
   const seen = new Set<string>()
   const out: (SearchPlayerHit & { _n: string; _c: string; _f: string })[] = []
   for (const p of PLAYERS) {
-    const slug = slugify(p.name)
+    const slug = playerSlug(p)
     if (seen.has(slug)) continue
     seen.add(slug)
     out.push({

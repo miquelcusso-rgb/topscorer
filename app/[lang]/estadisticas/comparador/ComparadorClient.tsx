@@ -10,6 +10,7 @@ import { isPro } from '@/lib/plans'
 import { PLAYERS } from '@/data/players'
 import { enrich } from '@/lib/utils'
 import { slugify } from '@/lib/slugify'
+import { playerSlug } from '@/lib/player-slug'
 import { iig } from '@/lib/iig'
 import { clubLogo } from '@/lib/club-logos'
 import Avatar from '@/components/saas/Avatar'
@@ -49,13 +50,13 @@ function posAccent(pos?: string): string {
   return C_DARK.gd
 }
 
-// Deduplicated list of all players (latest season per name)
+// Deduplicated list of all players. Key by API id (falling back to name) so
+// distinct players who share a name (e.g. the several "Vitinha") are BOTH kept.
 const ALL_PLAYERS: EnrichedPlayer[] = (() => {
-  const seen = new Map<string, EnrichedPlayer>()
+  const seen = new Map<string | number, EnrichedPlayer>()
   for (const p of PLAYERS) {
-    if (!seen.has(p.name)) {
-      seen.set(p.name, enrich(p))
-    }
+    const k = p.apiId ?? `name:${p.name}`
+    if (!seen.has(k)) seen.set(k, enrich(p))
   }
   return Array.from(seen.values())
 })()
@@ -381,11 +382,11 @@ export default function ComparadorClient() {
     const slugA = searchParams.get('a') ?? searchParams.get('p1')
     const slugB = searchParams.get('b') ?? searchParams.get('p2')
     if (slugA) {
-      const found = ALL_PLAYERS.find(p => slugify(p.name) === slugA)
+      const found = ALL_PLAYERS.find(p => playerSlug(p) === slugA)
       if (found) setPlayerA(found)
     }
     if (slugB) {
-      const found = ALL_PLAYERS.find(p => slugify(p.name) === slugB)
+      const found = ALL_PLAYERS.find(p => playerSlug(p) === slugB)
       if (found) setPlayerB(found)
     }
   }, [searchParams])
@@ -401,7 +402,7 @@ export default function ComparadorClient() {
   function selectA(p: EnrichedPlayer | null) {
     setPlayerA(p)
     const params = new URLSearchParams(searchParams.toString())
-    if (p) params.set('a', slugify(p.name))
+    if (p) params.set('a', playerSlug(p))
     else params.delete('a')
     router.replace(`/estadisticas/comparador?${params.toString()}`, { scroll: false })
   }
@@ -409,7 +410,7 @@ export default function ComparadorClient() {
   function selectB(p: EnrichedPlayer | null) {
     setPlayerB(p)
     const params = new URLSearchParams(searchParams.toString())
-    if (p) params.set('b', slugify(p.name))
+    if (p) params.set('b', playerSlug(p))
     else params.delete('b')
     router.replace(`/estadisticas/comparador?${params.toString()}`, { scroll: false })
   }
@@ -420,8 +421,8 @@ export default function ComparadorClient() {
     setPlayerA(pA)
     setPlayerB(pB)
     const params = new URLSearchParams()
-    if (pA) params.set('a', slugify(pA.name))
-    if (pB) params.set('b', slugify(pB.name))
+    if (pA) params.set('a', playerSlug(pA))
+    if (pB) params.set('b', playerSlug(pB))
     router.replace(`/estadisticas/comparador?${params.toString()}`, { scroll: false })
   }
 
