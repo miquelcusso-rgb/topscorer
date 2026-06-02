@@ -463,9 +463,9 @@ function GroupsPanel({ lang }: { lang: 'es' | 'en' }) {
       .finally(() => setLoading(false))
   }, [])
 
-  // Real draw groups: keep only groups that actually have a name + ≥2 teams.
+  // Real draw groups only (Group A–L) — exclude the "third-placed ranking" table.
   const realGroups = groups
-    .filter(g => g.length >= 2 && g[0]?.group)
+    .filter(g => g.length >= 2 && /^group\s+[a-z]$/i.test(g[0]?.group ?? ''))
     .sort((a, b) => (a[0]!.group ?? '').localeCompare(b[0]!.group ?? ''))
   // Whether the tournament has begun (any matches played) → show points table.
   const started = realGroups.some(g => g.some(r => (r.all?.played ?? 0) > 0))
