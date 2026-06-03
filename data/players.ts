@@ -1,5 +1,6 @@
 import type { PlayerData } from '@/types'
 import { GENERATED_PLAYERS } from './players-generated'
+import { PLAYERS_CURRENT } from './players-current'
 import { HISTORICAL_PLAYERS } from './players-historical'
 
 export const EXT: Record<string, Partial<PlayerData>> = {
@@ -254,7 +255,7 @@ const _il = (s?: string) => { const t = _norm(s).split(' ').filter(Boolean); ret
 // Keys of every GENERATED current-season (2526) player. The generated rows
 // carry real stats + photo + apiId, so they must WIN over the curated stubs.
 const gen2526 = new Set<string>()
-for (const p of GENERATED_PLAYERS) {
+for (const p of [...GENERATED_PLAYERS, ...PLAYERS_CURRENT]) {
   if (p.season !== '2526') continue
   gen2526.add(_norm(p.name)); gen2526.add(_il(p.name))
   if (p.fullName) { gen2526.add(_norm(p.fullName)); gen2526.add(_il(p.fullName)) }
@@ -316,8 +317,21 @@ function withPhoto(p: PlayerData): PlayerData {
 
 // Historical (10/11 → 19/20) merged AFTER curated+generated. Curated entries
 // take precedence when (name,season) collides because of the dedup above.
+// Current-season (2526) rows for curated stars missing from the capped generated
+// dataset (e.g. rotated/injured players, mid-season movers). Carry apiId → win as
+// the player's current entry; their old curated rows become history (same id).
+const CURRENT: PlayerData[] = PLAYERS_CURRENT
+  .map(p => ({ ...p, ...(EXT[p.name] ?? EXT_BY_IL[_il(p.name)] ?? {}) }))
+  .filter(p => {
+    const k = `${p.name}|${p.season}`
+    if (seen.has(k)) return false
+    seen.add(k)
+    return true
+  })
+
 export const PLAYERS: PlayerData[] = [
   ...CURATED.map(withPhoto),
+  ...CURRENT.map(withPhoto),
   ...GENERATED.map(withPhoto),
   ...HISTORICAL_PLAYERS.filter(h => {
     // Skip if a current entry already exists for this (name,season)

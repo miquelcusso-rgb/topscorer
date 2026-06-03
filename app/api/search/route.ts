@@ -36,7 +36,12 @@ export interface SearchClubHit {
   crest?: string
 }
 
-type IndexedHit = SearchPlayerHit & { _n: string; _c: string; _f: string; _rich: boolean; _mins: number }
+type IndexedHit = SearchPlayerHit & { _n: string; _c: string; _f: string; _sn: string; _fsn: string; _rich: boolean; _mins: number }
+
+// Last token = surname. Players are stored with the API's abbreviated names
+// ("A. Isak", "J. David"), so surname matching is what makes searching by the
+// common name work.
+const surname = (s: string) => { const t = s.split(' ').filter(Boolean); return t[t.length - 1] ?? s }
 
 // Build a deduped player index once at module init. Two tiers:
 //  1) the static dataset (PRIMARY_PLAYERS) — rich, canonical clean slugs;
@@ -57,6 +62,7 @@ const PLAYER_INDEX = (() => {
       name: p.name, fullName: p.fullName, slug,
       club: p.club, league: p.league, flag: p.flag ?? flagFor(p.nationality), photo: p.photo, age: p.age, pos: p.position,
       _n: norm(p.name), _c: norm(p.club), _f: norm(p.fullName ?? ''),
+      _sn: surname(norm(p.name)), _fsn: surname(norm(p.fullName ?? '')),
       _rich: true, _mins: p.minutes ?? 0,
     })
   }
@@ -67,6 +73,7 @@ const PLAYER_INDEX = (() => {
       name: p.name, fullName: p.fullName, slug: `${slugify(p.name)}-${p.id}`,
       club: p.club, league: p.league, photo: p.photo, age: p.age, pos: p.pos,
       _n: norm(p.name), _c: norm(p.club), _f: norm(p.fullName ?? ''),
+      _sn: surname(norm(p.name)), _fsn: surname(norm(p.fullName ?? '')),
       _rich: false, _mins: p.mins ?? 0,
     })
   }
@@ -109,20 +116,21 @@ export async function GET(req: NextRequest) {
   // played (a fame proxy that works across both tiers, so a Barça regular beats
   // an obscure namesake who happens to be in the capped dataset), then dataset.
   const rank = (p: IndexedHit) => ({
-    exact: p._n === q ? 0 : 1,
-    nameStarts: p._n.startsWith(q) ? 0 : 1,
-    fullStarts: p._f.startsWith(q) ? 0 : 1,
+    // exact common/full name OR exact surname ("isak" → "A. Isak")
+    exact: (p._n === q || p._f === q || p._sn === q || p._fsn === q) ? 0 : 1,
+    surnameStarts: (p._sn.startsWith(q) || p._fsn.startsWith(q)) ? 0 : 1,
+    nameStarts: (p._n.startsWith(q) || p._f.startsWith(q)) ? 0 : 1,
   })
   const nameHits = PLAYER_INDEX.filter(p => p._n.includes(q) || p._f.includes(q))
   nameHits.sort((a, b) => {
     const ra = rank(a), rb = rank(b)
-    return ra.exact - rb.exact || ra.nameStarts - rb.nameStarts || ra.fullStarts - rb.fullStarts
+    return ra.exact - rb.exact || ra.surnameStarts - rb.surnameStarts || ra.nameStarts - rb.nameStarts
       || b._mins - a._mins || (a._rich ? 0 : 1) - (b._rich ? 0 : 1) || a._n.localeCompare(b._n)
   })
   const clubHits = PLAYER_INDEX.filter(p => !p._n.includes(q) && !p._f.includes(q) && p._c.includes(q))
     .sort((a, b) => (a._rich ? 0 : 1) - (b._rich ? 0 : 1) || b._mins - a._mins)
   const players = [...nameHits, ...clubHits].slice(0, 8)
-    .map(({ _n, _c, _f, _rich, _mins, ...rest }) => rest)
+    .map(({ _n, _c, _f, _sn, _fsn, _rich, _mins, ...rest }) => rest)
 
   const clubs = CLUB_INDEX.filter(c => c._n.includes(q))
     .sort((a, b) => (a._n.startsWith(q) ? 0 : 1) - (b._n.startsWith(q) ? 0 : 1))

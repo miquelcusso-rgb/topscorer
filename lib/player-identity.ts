@@ -1,4 +1,5 @@
 import { PLAYERS } from '@/data/players'
+import { CURATED_IDS } from '@/data/curated-ids'
 import type { PlayerData } from '@/types'
 
 // Unified player identity. The generated current-season rows carry a real
@@ -7,8 +8,10 @@ import type { PlayerData } from '@/types'
 // identity to the rows that don't. This collapses the "3 Pedris" / "Mbappé ×3"
 // duplicates into a single player with multiple season entries.
 
+const SPECIAL: Record<string, string> = { 'ø': 'o', 'œ': 'oe', 'æ': 'ae', 'ł': 'l', 'ð': 'd', 'þ': 'th', 'ı': 'i', 'ß': 'ss', 'đ': 'd', 'ħ': 'h' }
 function norm(s?: string): string {
   return (s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[øœæłðþıßđħ]/g, c => SPECIAL[c] ?? c)
     .replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
@@ -49,6 +52,11 @@ export function playerKey(p: Pick<PlayerData, 'apiId' | 'name' | 'fullName'>): s
   for (const il of [initialLast(p.name), initialLast(p.fullName)]) {
     if (il && !IL_AMBIG.has(il)) { const id = IL_TO_ID.get(il); if (id) return `id:${id}` }
   }
+  // Curated stars pinned to their current apiId (data/curated-ids.ts) so old
+  // curated rows always merge with the fresh current entry, even when the name
+  // is ambiguous or differs from the API's abbreviated form.
+  const pinned = CURATED_IDS[norm(p.name)] ?? (p.fullName ? CURATED_IDS[norm(p.fullName)] : undefined)
+  if (pinned) return `id:${pinned}`
   return `nm:${norm(p.name)}`
 }
 
