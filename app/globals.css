@@ -361,3 +361,8 @@ body::before {
   .saas-topbar2-toggles { display: none !important; }
   .saas-wc-float { display: none !important; }
 }
+
+/* Breaking-news LIVE dot pulse (NewsFeed banner) */
+@keyframes ts-live-pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
+.ts-live-dot { animation: ts-live-pulse 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .ts-live-dot { animation: none; } }
