@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
@@ -48,7 +48,7 @@ function Wordmark() {
         gap: 12,
         fontFamily: 'Barlow Condensed, sans-serif',
         fontWeight: 800,
-        fontSize: 25,
+        fontSize: 30,
         letterSpacing: '0.04em',
         color: 'var(--ts-text)',
         textTransform: 'uppercase',
@@ -58,9 +58,9 @@ function Wordmark() {
       <img
         src="/logo-ball-alpha.png"
         alt="TopScorers"
-        width={52}
-        height={52}
-        style={{ width: 52, height: 52, objectFit: 'contain', flexShrink: 0 }}
+        width={64}
+        height={64}
+        style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 }}
       />
       <span>
         TOP<span style={{ color: 'var(--ts-primary)' }}>·SCORERS</span>
@@ -199,23 +199,43 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
 
   const showUpgrade = plan !== 'scout'
 
+  // Sticky behaviour: the sidebar shows its FULL content (no internal scrollbar).
+  // If it's taller than the viewport, we pin it with a negative `top` equal to
+  // (viewport − height), so it scrolls up with the page until its bottom reaches
+  // the window bottom and then stays anchored there ("recovers parity" on scroll
+  // down). If it fits, top = 0. Measured here because CSS can't know its height.
+  const asideRef = useRef<HTMLElement>(null)
+  const [stickyTop, setStickyTop] = useState(0)
+  useEffect(() => {
+    const el = asideRef.current
+    if (!el) return
+    const update = () => { const h = el.offsetHeight, vh = window.innerHeight; setStickyTop(h > vh ? vh - h : 0) }
+    update()
+    window.addEventListener('resize', update)
+    const ro = new ResizeObserver(update); ro.observe(el)
+    return () => { window.removeEventListener('resize', update); ro.disconnect() }
+  }, [plan, club, isLoaded])
+
+  // Shared "card" look (matches the account/club cards) for the nav section boxes.
+  const cardBox: React.CSSProperties = { background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, padding: 8 }
+  const groupLabel: React.CSSProperties = { padding: '4px 8px 6px', fontSize: 10, color: 'var(--ts-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }
+
   return (
     <aside
+      ref={asideRef}
       className="saas-sidebar"
       style={{
         width: 232,
         flexShrink: 0,
-        // Stick to the viewport: on long pages the sidebar's lower part stays
-        // anchored to the bottom of the window instead of scrolling away.
         position: 'sticky',
-        top: 0,
-        height: '100vh',
-        overflowY: 'auto',
+        top: stickyTop,
+        alignSelf: 'flex-start',
         background: 'var(--ts-sidebar)',
         borderRight: '1px solid var(--ts-border)',
         borderLeft: accent ? `4px solid ${accent}` : undefined,
         display: 'flex',
         flexDirection: 'column',
+        gap: 10,
         padding: '20px 14px',
         fontFamily: 'DM Sans, sans-serif',
         color: 'var(--ts-text)',
@@ -233,144 +253,71 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         </Link>
       </div>
 
-      {/* workspace switcher */}
-      <button
-        type="button"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          padding: '10px',
-          marginTop: 2,
-          background: 'var(--ts-card)',
-          border: '1px solid var(--ts-border)',
-          borderRadius: 8,
-          cursor: 'pointer',
-          textAlign: 'left',
-          width: '100%',
-          fontFamily: 'inherit',
-          color: 'inherit',
-        }}
-      >
-        <span
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: 8,
-            background: accent ?? 'var(--ts-primary)',
-            color: 'var(--ts-bg)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: 13,
-          }}
-        >
-          TS
-        </span>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ts-text)' }}>
-            Top-Scorers
+      {/* Unified account card: workspace · user · my-club (one box) */}
+      <div style={{ ...cardBox, padding: 0, overflow: 'hidden' }}>
+        {/* workspace row */}
+        <button type="button" style={{
+          display: 'flex', alignItems: 'center', gap: 10, padding: '10px',
+          background: 'transparent', border: 'none', borderBottom: '1px solid var(--ts-border)',
+          cursor: 'pointer', textAlign: 'left', width: '100%', fontFamily: 'inherit', color: 'inherit',
+        }}>
+          <span style={{ width: 28, height: 28, borderRadius: 8, background: accent ?? 'var(--ts-primary)', color: 'var(--ts-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13 }}>TS</span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ts-text)' }}>Top-Scorers</span>
+            <span style={{ display: 'block', fontSize: 12, color: 'var(--ts-muted)' }}>{L.planPro}</span>
           </span>
-          <span style={{ display: 'block', fontSize: 12, color: 'var(--ts-muted)' }}>
-            {L.planPro}
-          </span>
-        </span>
-        <svg width={10} height={10} viewBox="0 0 10 10" fill="none" stroke="var(--ts-muted)" strokeWidth={1.5} aria-hidden>
-          <path d="M2 4l3 3 3-3" />
-        </svg>
-      </button>
-
-      {/* User + My club, at the top */}
-      <div
-        style={{
-          marginTop: 12, display: 'flex', alignItems: 'center', gap: 10, padding: '10px',
-          background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 8,
-        }}
-      >
-        <div style={{ width: 30, height: 30, borderRadius: '50%', background: userTint.bg, color: userTint.fg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
-          {userInitials}
+          <svg width={10} height={10} viewBox="0 0 10 10" fill="none" stroke="var(--ts-muted)" strokeWidth={1.5} aria-hidden><path d="M2 4l3 3 3-3" /></svg>
+        </button>
+        {/* user row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px', borderBottom: '1px solid var(--ts-border)' }}>
+          <div style={{ width: 30, height: 30, borderRadius: '50%', background: userTint.bg, color: userTint.fg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{userInitials}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</div>
+            {displayEmail && <div style={{ fontSize: 11, color: 'var(--ts-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayEmail}</div>}
+          </div>
+          <svg width={14} height={14} viewBox="0 0 14 14" fill="none" stroke="var(--ts-muted)" strokeWidth={1.5} aria-hidden><circle cx={7} cy={6} r={1.5} /><path d="M3 11c0-2 1.8-3 4-3s4 1 4 3" /></svg>
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</div>
-          {displayEmail && <div style={{ fontSize: 11, color: 'var(--ts-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayEmail}</div>}
+        {/* my-club row */}
+        <div style={{ padding: '10px' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 6 }}>
+            {en ? 'My club' : 'Mi club'} {!isProPlan && <span style={{ color: 'var(--ts-primary)' }}>· PRO</span>}
+          </div>
+          {isProPlan ? (
+            <select value={club} onChange={e => pickClub(e.target.value)} aria-label={en ? 'My club' : 'Mi club'}
+              style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: 'var(--ts-bg)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', fontFamily: 'inherit', cursor: 'pointer' }}>
+              <option value="">{en ? '— none —' : '— ninguno —'}</option>
+              {clubColorOptions().map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          ) : (
+            <Link href={`/${lang}/pricing`} style={{ display: 'block', padding: '7px 10px', borderRadius: 8, fontSize: 12, textAlign: 'center', background: 'var(--ts-bg)', color: 'var(--ts-muted)', border: '1px dashed var(--ts-border)', textDecoration: 'none' }}>
+              🔒 {en ? 'Tint sidebar with your club' : 'Tiñe el panel con tu club'}
+            </Link>
+          )}
         </div>
-        <svg width={14} height={14} viewBox="0 0 14 14" fill="none" stroke="var(--ts-muted)" strokeWidth={1.5} aria-hidden>
-          <circle cx={7} cy={6} r={1.5} /><path d="M3 11c0-2 1.8-3 4-3s4 1 4 3" />
-        </svg>
-      </div>
-
-      {/* My club (PRO accent) */}
-      <div style={{ marginTop: 10 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 6 }}>
-          {en ? 'My club' : 'Mi club'} {!isProPlan && <span style={{ color: 'var(--ts-primary)' }}>· PRO</span>}
-        </div>
-        {isProPlan ? (
-          <select value={club} onChange={e => pickClub(e.target.value)} aria-label={en ? 'My club' : 'Mi club'}
-            style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: 'var(--ts-card)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', fontFamily: 'inherit', cursor: 'pointer' }}>
-            <option value="">{en ? '— none —' : '— ninguno —'}</option>
-            {clubColorOptions().map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
-        ) : (
-          <Link href={`/${lang}/pricing`} style={{ display: 'block', padding: '7px 10px', borderRadius: 8, fontSize: 12, textAlign: 'center', background: 'var(--ts-card2)', color: 'var(--ts-muted)', border: '1px dashed var(--ts-border)', textDecoration: 'none' }}>
-            🔒 {en ? 'Tint sidebar with your club' : 'Tiñe el panel con tu club'}
-          </Link>
-        )}
       </div>
 
       {/* nav */}
-      <nav style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {groups.map(group => (
-          <div key={group.label} style={{ display: 'contents' }}>
-            <div
-              style={{
-                padding: '14px 10px 6px',
-                fontSize: 10,
-                color: 'var(--ts-faint)',
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                fontWeight: 600,
-              }}
-            >
-              {group.label}
-            </div>
+          <div key={group.label} style={cardBox}>
+            <div style={groupLabel}>{group.label}</div>
             {group.items.map((it, i) => (
               <MenuRow key={`${it.label}-${i}`} item={it} active={isActive(it.href)} />
             ))}
           </div>
         ))}
 
-        <div
-          style={{
-            padding: '14px 10px 6px',
-            fontSize: 10,
-            color: 'var(--ts-faint)',
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            fontWeight: 600,
-          }}
-        >
-          {L.lists}
+        <div style={cardBox}>
+          <div style={groupLabel}>{L.lists}</div>
+          <MenuRow
+            item={{ id: 'watchlist', icon: '⭐', label: L.watchlist, href: `/${lang}/cuenta` }}
+            active={isActive(`/${lang}/cuenta`)}
+          />
         </div>
-        <MenuRow
-          item={{ id: 'watchlist', icon: '⭐', label: L.watchlist, href: `/${lang}/cuenta` }}
-          active={isActive(`/${lang}/cuenta`)}
-        />
 
-        {/* Scout tools — gated. Items disabled with line-through + SCOUT pill
-            for non-scout plans. (audit pass 1, item 12) */}
-        <div
-          style={{
-            padding: '14px 10px 6px',
-            fontSize: 10,
-            color: 'var(--ts-faint)',
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            fontWeight: 600,
-          }}
-        >
-          {lang === 'en' ? 'Scout Tools' : 'Herramientas Scout'}
-        </div>
+        {/* Scout tools — gated (line-through + SCOUT pill for non-scout plans). */}
+        <div style={cardBox}>
+          <div style={groupLabel}>{lang === 'en' ? 'Scout Tools' : 'Herramientas Scout'}</div>
         {(
           [
             { label: lang === 'en' ? 'Performance Alerts' : 'Alertas de rendimiento', href: `/${lang}/cuenta/alerts`, icon: '🔔' },
@@ -405,6 +352,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
             <div key={tool.href} style={baseStyle} aria-disabled="true">{inner}</div>
           )
         })}
+        </div>
       </nav>
 
       {showUpgrade && (

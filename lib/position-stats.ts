@@ -105,17 +105,22 @@ export const COLUMNS_FOR: Record<PositionTabId, PosColumn[]> = {
     { key: 'rtc',   label: 'Nota·Coef', value: ratingCoef, tone: 'teal' },
     { key: 'iig',   label: 'IIG',      value: p => iig(p).toFixed(1), accent: true, tone: 'primary' },
   ],
-  // Asistentes: creation
+  // Asistentes: creation (con Edad·PJ y Nota·Coef para igualar a goleadores)
   ast: [
+    { key: 'age',   label: 'Edad',     value: p => dash(p.age), tone: 'muted' },
+    { key: 'pj',    label: 'PJ',       value: p => n(p.pj), tone: 'muted' },
     { key: 'asist', label: 'Asist.',   value: p => n(p.asist), accent: true, tone: 'teal' },
     { key: 'kp',    label: 'P. clave', value: p => dash(p.keyPasses), tone: 'primary' },
     { key: 'pas',   label: 'Pases',    value: p => dash(p.passes), tone: 'muted' },
     { key: 'pacc',  label: '% Acier.', value: p => (p.passAccuracy != null ? p.passAccuracy + '%' : '—'), tone: 'text' },
     { key: 'last5', label: 'Últimos 5', value: () => '', kind: 'last5' },
     { key: 'rt',    label: 'Nota',     value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
+    { key: 'rtc',   label: 'Nota·Coef', value: ratingCoef, tone: 'teal' },
   ],
   // Centrocampistas: playmaking + volume + contribution
   mf: [
+    { key: 'age',   label: 'Edad',     value: p => dash(p.age), tone: 'muted' },
+    { key: 'pj',    label: 'PJ',       value: p => n(p.pj), tone: 'muted' },
     { key: 'kp',    label: 'P. clave', value: p => dash(p.keyPasses), accent: true, tone: 'primary' },
     { key: 'pas',   label: 'Pases',    value: p => dash(p.passes), tone: 'muted' },
     { key: 'pacc',  label: '% Acier.', value: p => (p.passAccuracy != null ? p.passAccuracy + '%' : '—'), tone: 'text' },
@@ -123,15 +128,19 @@ export const COLUMNS_FOR: Record<PositionTabId, PosColumn[]> = {
     { key: 'rec',   label: 'Recup.',   value: p => dash(p.interceptions), tone: 'muted' },
     { key: 'last5', label: 'Últimos 5', value: () => '', kind: 'last5' },
     { key: 'rt',    label: 'Nota',     value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
+    { key: 'rtc',   label: 'Nota·Coef', value: ratingCoef, tone: 'teal' },
   ],
   // Defensas: defensive actions
   df: [
+    { key: 'age',   label: 'Edad',     value: p => dash(p.age), tone: 'muted' },
+    { key: 'pj',    label: 'PJ',       value: p => n(p.pj), tone: 'muted' },
     { key: 'tkl',   label: 'Entradas', value: p => dash(p.tacklesTotal), accent: true, tone: 'teal' },
     { key: 'int',   label: 'Intercep.', value: p => dash(p.interceptions), tone: 'primary' },
     { key: 'dw',    label: 'Duelos G.', value: p => dash(p.duelsWon), tone: 'muted' },
     { key: 'dwp',   label: '% Duelos', value: p => pct(p.duelsWon, p.duelsTotal), tone: 'text' },
     { key: 'last5', label: 'Últimos 5', value: () => '', kind: 'last5' },
     { key: 'rt',    label: 'Nota',     value: p => (p.rating != null ? p.rating.toFixed(2) : '—'), tone: 'text' },
+    { key: 'rtc',   label: 'Nota·Coef', value: ratingCoef, tone: 'teal' },
   ],
   // Porteros: shot-stopping (sparse in this dataset — topscorers rarely lists GKs)
   gk: [

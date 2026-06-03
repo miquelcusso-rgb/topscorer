@@ -74,7 +74,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
     const acc = SORT_ACCESSOR[sort.key]
     return [...filtered].sort((a, b) => (acc(b) - acc(a)) * sort.dir)
   }, [filtered, sort])
-  const players = sorted.slice(0, 12)
+  const players = sorted.slice(0, 20)
   const leader = players[0]
   const accent = TAB_ACCENT[pos]
 
@@ -251,7 +251,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         tab={pos}
         lang={lang === 'en' ? 'en' : 'es'}
         sort={sort}
-        onSort={key => setSort(s => (s && s.key === key ? { key, dir: (s.dir * -1) as 1 | -1 } : { key, dir: -1 }))}
+        onSort={key => setSort({ key, dir: -1 })}
         extraStats={extraStats}
       />
     </>

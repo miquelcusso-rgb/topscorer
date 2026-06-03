@@ -7,6 +7,7 @@ import HomeNewsTeaser from './HomeNewsTeaser'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
 import { computeHomeInsights } from '@/lib/home-insights'
 import { getTopRumors } from '@/lib/home-rumor'
+import { flagFor } from '@/lib/flags'
 
 interface HeadingOverride {
   breadcrumb: string[]
@@ -21,7 +22,7 @@ function trim(p: PlayerData): PlayerData {
   return {
     name: p.name, club: p.club, league: p.league, age: p.age,
     pj: p.pj, goles: p.goles, asist: p.asist, season: p.season,
-    src: p.src, tab: p.tab, position: p.position, flag: p.flag,
+    src: p.src, tab: p.tab, position: p.position, flag: p.flag ?? flagFor(p.nationality),
     photo: p.photo, minutes: p.minutes, nationality: p.nationality,
     // real advanced stats (needed by per-position columns + last-5)
     rating: p.rating, shotsTotal: p.shotsTotal, shotsOn: p.shotsOn,
