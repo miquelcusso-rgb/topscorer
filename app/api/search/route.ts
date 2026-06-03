@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { PRIMARY_PLAYERS } from '@/lib/player-identity'
 import { ALL_LEAGUES } from '@/lib/api-football'
+import { SEARCH_INDEX } from '@/data/search-index'
 import { slugify } from '@/lib/slugify'
 import { playerSlug } from '@/lib/player-slug'
 import { clubLogo } from '@/lib/club-logos'
@@ -33,26 +34,38 @@ export interface SearchClubHit {
   crest?: string
 }
 
-// Build a deduped player index once at module init (static dataset).
+type IndexedHit = SearchPlayerHit & { _n: string; _c: string; _f: string; _rich: boolean; _mins: number }
+
+// Build a deduped player index once at module init. Two tiers:
+//  1) the static dataset (PRIMARY_PLAYERS) — rich, canonical clean slugs;
+//  2) the full server-only SEARCH_INDEX — every first-division player with apps
+//     (Gavi, Fermín, rotation players…), so the search isn't limited to the
+//     minutes-capped dataset. Index-only players get a `name-<apiId>` slug that
+//     the profile page resolves live from API-Football.
 const PLAYER_INDEX = (() => {
-  const seen = new Set<string>()
-  const out: (SearchPlayerHit & { _n: string; _c: string; _f: string })[] = []
+  const bySlug = new Set<string>()
+  const byApiId = new Set<number>()
+  const out: IndexedHit[] = []
   for (const p of PRIMARY_PLAYERS) {
     const slug = playerSlug(p)
-    if (seen.has(slug)) continue
-    seen.add(slug)
+    if (bySlug.has(slug)) continue
+    bySlug.add(slug)
+    if (p.apiId) byApiId.add(p.apiId)
     out.push({
-      name: p.name,
-      fullName: p.fullName,
-      slug,
-      club: p.club,
-      league: p.league,
-      flag: p.flag,
-      photo: p.photo,
-      age: p.age,
-      _n: norm(p.name),
-      _c: norm(p.club),
-      _f: norm(p.fullName ?? ''),
+      name: p.name, fullName: p.fullName, slug,
+      club: p.club, league: p.league, flag: p.flag, photo: p.photo, age: p.age,
+      _n: norm(p.name), _c: norm(p.club), _f: norm(p.fullName ?? ''),
+      _rich: true, _mins: p.minutes ?? 0,
+    })
+  }
+  for (const p of SEARCH_INDEX) {
+    if (byApiId.has(p.id)) continue // already covered by the rich dataset
+    byApiId.add(p.id)
+    out.push({
+      name: p.name, fullName: p.fullName, slug: `${slugify(p.name)}-${p.id}`,
+      club: p.club, league: p.league, photo: p.photo, age: p.age,
+      _n: norm(p.name), _c: norm(p.club), _f: norm(p.fullName ?? ''),
+      _rich: false, _mins: p.mins ?? 0,
     })
   }
   return out
@@ -90,14 +103,24 @@ export async function GET(req: NextRequest) {
 
   // Players: common-name OR full/real-name match first (ranked by startsWith),
   // then club match. All accent-insensitive via norm().
+  // Relevance: exact name → name-prefix → full-name-prefix, then by minutes
+  // played (a fame proxy that works across both tiers, so a Barça regular beats
+  // an obscure namesake who happens to be in the capped dataset), then dataset.
+  const rank = (p: IndexedHit) => ({
+    exact: p._n === q ? 0 : 1,
+    nameStarts: p._n.startsWith(q) ? 0 : 1,
+    fullStarts: p._f.startsWith(q) ? 0 : 1,
+  })
   const nameHits = PLAYER_INDEX.filter(p => p._n.includes(q) || p._f.includes(q))
   nameHits.sort((a, b) => {
-    const as = a._n.startsWith(q) || a._f.startsWith(q) ? 0 : 1
-    const bs = b._n.startsWith(q) || b._f.startsWith(q) ? 0 : 1
-    return as - bs || a._n.localeCompare(b._n)
+    const ra = rank(a), rb = rank(b)
+    return ra.exact - rb.exact || ra.nameStarts - rb.nameStarts || ra.fullStarts - rb.fullStarts
+      || b._mins - a._mins || (a._rich ? 0 : 1) - (b._rich ? 0 : 1) || a._n.localeCompare(b._n)
   })
   const clubHits = PLAYER_INDEX.filter(p => !p._n.includes(q) && !p._f.includes(q) && p._c.includes(q))
-  const players = [...nameHits, ...clubHits].slice(0, 8).map(({ _n, _c, _f, ...rest }) => rest)
+    .sort((a, b) => (a._rich ? 0 : 1) - (b._rich ? 0 : 1) || b._mins - a._mins)
+  const players = [...nameHits, ...clubHits].slice(0, 8)
+    .map(({ _n, _c, _f, _rich, _mins, ...rest }) => rest)
 
   const clubs = CLUB_INDEX.filter(c => c._n.includes(q))
     .sort((a, b) => (a._n.startsWith(q) ? 0 : 1) - (b._n.startsWith(q) ? 0 : 1))

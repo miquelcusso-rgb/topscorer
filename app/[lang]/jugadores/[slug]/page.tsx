@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { currentUser } from '@clerk/nextjs/server'
 import { PLAYERS } from '@/data/players'
-import { playerSlug, findPlayerBySlug, playersForSlug } from '@/lib/player-slug'
+import { playerSlug } from '@/lib/player-slug'
+import { resolvePlayerProfile } from '@/lib/resolve-player'
 import { isLocale } from '@/lib/i18n'
 import { getUserPlan } from '@/lib/plans'
 import PlayerProfile from '@/components/player/PlayerProfile'
@@ -21,7 +22,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string; slug: string }> }): Promise<Metadata> {
   const { lang, slug } = await params
-  const player = findPlayerBySlug(slug)
+  const resolved = await resolvePlayerProfile(slug)
+  const player = resolved?.base
   if (!player) return { title: 'Jugador — TopScorers' }
   const description = `Estadísticas de ${player.name}: goles, asistencias, valoración y más. Temporada 2025/26.`
   const path = `/jugadores/${slug}`
@@ -58,11 +60,9 @@ export default async function PlayerPage({ params }: { params: Promise<{ lang: s
   const { lang: rawLang, slug } = await params
   const lang = isLocale(rawLang) ? rawLang : 'es'
 
-  const staticPlayers = playersForSlug(slug)
-  if (!staticPlayers.length) notFound()
-
-  // Prefer the current-season entry for the headline profile.
-  const basePlayer = staticPlayers.find(p => p.season === '2526') ?? staticPlayers[0]
+  const resolved = await resolvePlayerProfile(slug)
+  if (!resolved) notFound()
+  const { base: basePlayer, seasons: staticPlayers } = resolved
 
   const user = await currentUser()
   const userPlan = getUserPlan(user?.publicMetadata as Record<string, unknown> | undefined)

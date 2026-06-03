@@ -81,7 +81,6 @@ export default async function SaasHomeBody({
   // defensive (null on any error), so it never breaks the build.
   const rumors = await getTopRumors(lang === 'en' ? 'en' : 'es', 3)
 
-  const cta = lang === 'en' ? '+ New list' : '+ Crear lista'
   const labels = heading ?? (
     lang === 'en'
       ? {
@@ -100,7 +99,6 @@ export default async function SaasHomeBody({
     <SaasShell
       activeKey="stats"
       breadcrumb={labels.breadcrumb}
-      primaryCta={{ label: cta, href: `/${lang}/cuenta` }}
     >
       <div className="saas-page-header" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         <h1 style={{ margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, letterSpacing: '-0.012em', color: 'var(--ts-text)' }}>
