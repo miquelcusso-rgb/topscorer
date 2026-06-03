@@ -27,7 +27,7 @@ export default function LogoMark({ size = 32 }: { size?: number }) {
       />
       <path
         d="M 49 49 A 24 24 0 1 1 15 15"
-        stroke="#4a9eff" strokeWidth="1" strokeOpacity="0.4"
+        stroke="#00c8b0" strokeWidth="1" strokeOpacity="0.4"
         strokeLinecap="round" fill="none"
       />
 
@@ -59,8 +59,8 @@ export default function LogoMark({ size = 32 }: { size?: number }) {
       {/* Orbit dots */}
       <circle cx="44" cy="44" r="1.5" fill="#00c8b0" fillOpacity="0.7" />
       <circle cx="36" cy="48" r="1" fill="#00c8b0" fillOpacity="0.5" />
-      <circle cx="27" cy="47" r="1.2" fill="#4a9eff" fillOpacity="0.6" />
-      <circle cx="49" cy="36" r="1" fill="#4a9eff" fillOpacity="0.5" />
+      <circle cx="27" cy="47" r="1.2" fill="#00c8b0" fillOpacity="0.6" />
+      <circle cx="49" cy="36" r="1" fill="#00c8b0" fillOpacity="0.5" />
     </svg>
   )
 }

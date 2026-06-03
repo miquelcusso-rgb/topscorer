@@ -80,8 +80,8 @@ export const BADGES: BadgeDef[] = [
     label:  { es: 'Estratosférico',         en: 'Stratospheric' },
     short:  { es: 'Estratosférico',         en: 'Stratospheric' },
     blurb:  { es: 'Leyenda viva del foro.',  en: 'Living legend of the forum.' },
-    color:  '#a060ff',
-    bg:     'rgba(160,96,255,.14)',
+    color:  '#00c8b0',
+    bg:     'rgba(0,200,176,.14)',
     icon:   '🚀',
   },
 ]

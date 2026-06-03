@@ -24,7 +24,7 @@ function TransferCard({ t, isLight }: { t: Transfer; isLight: boolean }) {
 
   const feeColor = t.type === 'Free' ? '#38c47a'
     : t.type === 'N/A' ? '#52526e'
-    : t.type.includes('Loan') ? '#a060ff'
+    : t.type.includes('Loan') ? '#00c8b0'
     : '#f0c040'
 
   return (

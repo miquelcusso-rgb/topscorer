@@ -102,7 +102,7 @@ export default function PrediccionesClient() {
   return (
     <main style={{ background: bg, minHeight: '100vh' }}>
       <div style={{ maxWidth: 880, margin: '0 auto', padding: '40px 20px 80px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: '#a060ff', textTransform: 'uppercase', marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: '#00c8b0', textTransform: 'uppercase', marginBottom: 8 }}>
           {es ? 'Comunidad · Predicciones' : 'Community · Predictions'}
         </div>
         <h1 style={{
@@ -126,9 +126,9 @@ export default function PrediccionesClient() {
               onClick={() => setActiveLeague(l)}
               style={{
                 padding: '6px 14px', borderRadius: 999,
-                background: activeLeague.id === l.id ? '#a060ff1f' : 'transparent',
-                border: `1px solid ${activeLeague.id === l.id ? '#a060ff55' : border}`,
-                color: activeLeague.id === l.id ? '#a060ff' : muted,
+                background: activeLeague.id === l.id ? '#00c8b01f' : 'transparent',
+                border: `1px solid ${activeLeague.id === l.id ? '#00c8b055' : border}`,
+                color: activeLeague.id === l.id ? '#00c8b0' : muted,
                 fontSize: 12, fontWeight: 700, cursor: 'pointer',
                 fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5,
               }}
@@ -139,10 +139,10 @@ export default function PrediccionesClient() {
         </div>
 
         {!isSignedIn && (
-          <div style={{ padding: 14, background: 'rgba(160,96,255,.06)', border: '1px dashed rgba(160,96,255,.3)', borderRadius: 8, marginBottom: 18, fontSize: 13, color: text2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ padding: 14, background: 'rgba(0,200,176,.06)', border: '1px dashed rgba(0,200,176,.3)', borderRadius: 8, marginBottom: 18, fontSize: 13, color: text2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
             <span>{es ? 'Inicia sesión para hacer picks.' : 'Sign in to make picks.'}</span>
             <SignInButton mode="modal">
-              <button style={{ background: '#a060ff', color: '#fff', padding: '5px 14px', borderRadius: 5, fontWeight: 700, cursor: 'pointer' }}>
+              <button style={{ background: '#00c8b0', color: '#fff', padding: '5px 14px', borderRadius: 5, fontWeight: 700, cursor: 'pointer' }}>
                 {es ? 'Entrar' : 'Sign in'}
               </button>
             </SignInButton>
@@ -192,9 +192,9 @@ export default function PrediccionesClient() {
                             disabled={locked || !isSignedIn || submitting === fix.fixture.id}
                             style={{
                               width: 36, height: 36, borderRadius: 6,
-                              background: isMine ? '#a060ff' : 'transparent',
+                              background: isMine ? '#00c8b0' : 'transparent',
                               color: isMine ? '#fff' : muted,
-                              border: `1px solid ${isMine ? '#a060ff' : border}`,
+                              border: `1px solid ${isMine ? '#00c8b0' : border}`,
                               fontSize: 13, fontWeight: 700, cursor: (locked || !isSignedIn) ? 'not-allowed' : 'pointer',
                               fontFamily: "'Bebas Neue', cursive", letterSpacing: 1,
                               opacity: (locked && !isMine) ? 0.4 : 1,

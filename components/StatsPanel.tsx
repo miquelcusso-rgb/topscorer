@@ -91,7 +91,7 @@ function Pill({
     bl: { bg: 'rgba(0,200,176,.1)',   border: 'rgba(0,200,176,.4)',   text: '#00c8b0' },
     gr: { bg: 'rgba(56,196,122,.1)',  border: 'rgba(56,196,122,.4)',  text: '#38c47a' },
     mu: { bg: 'rgba(255,255,255,.06)',border: 'rgba(255,255,255,.16)',text: '#9090a8' },
-    pu: { bg: 'rgba(160,96,255,.1)',  border: 'rgba(160,96,255,.4)',  text: '#a060ff' },
+    pu: { bg: 'rgba(0,200,176,.1)',  border: 'rgba(0,200,176,.4)',  text: '#00c8b0' },
   }
   const c = map[color]
   const inactiveStyle = isLight
@@ -644,7 +644,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
               <button key={String(o.v)} onClick={() => update({ showTop50: o.v })}
                 className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 cursor-pointer"
                 style={st.showTop50 === o.v
-                  ? { background: 'rgba(160,96,255,.12)', border: '1px solid rgba(160,96,255,.35)', color: '#a060ff' }
+                  ? { background: 'rgba(0,200,176,.12)', border: '1px solid rgba(0,200,176,.35)', color: '#00c8b0' }
                   : { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#7878a0' }
                 }
               >{o.label}</button>

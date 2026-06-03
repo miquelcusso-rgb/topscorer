@@ -121,7 +121,7 @@ export default async function AboutPage({
                   <span className="text-[11px]" style={{ color: C.mu }}>— métrica base sin ajuste de liga</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-sm" style={{ color: '#a060ff', background: 'rgba(160,96,255,.1)', border: '1px solid rgba(160,96,255,.2)', fontFamily: "'Barlow Condensed', sans-serif" }}>Val+</span>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-sm" style={{ color: '#00c8b0', background: 'rgba(0,200,176,.1)', border: '1px solid rgba(0,200,176,.2)', fontFamily: "'Barlow Condensed', sans-serif" }}>Val+</span>
                   <span className="text-[12px]" style={{ color: C.tx }}>Goles × Coef. × 2 + Asistencias</span>
                   <span className="text-[11px]" style={{ color: C.mu }}>— pondera por dificultad de liga</span>
                 </div>

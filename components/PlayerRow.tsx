@@ -305,7 +305,7 @@ export default function PlayerRow({
       {showFantasy && (
         <td className="pr-3 text-right tabular">
           <div className="flex flex-col items-end">
-            <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 15, color: '#a060ff', lineHeight: 1 }}>
+            <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 15, color: '#00c8b0', lineHeight: 1 }}>
               {player.fantasyPoints ?? '—'}
             </span>
             {player.fantasyPrice != null && (

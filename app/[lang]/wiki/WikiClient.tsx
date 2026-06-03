@@ -50,12 +50,12 @@ export default function WikiClient() {
   const seals: [string, string, string, string][] = es
     ? [
         ['⚡', 'Élite', '#f0c040', 'Rendimiento de los mejores de Europa. Score muy alto en goles + asistencias por 90 min.'],
-        ['★', 'Promesa', '#a060ff', 'Jugador joven (≤21 años) rindiendo ya a nivel de élite.'],
+        ['★', 'Promesa', '#00c8b0', 'Jugador joven (≤21 años) rindiendo ya a nivel de élite.'],
         ['◆', 'Joya oculta', '#00c8b0', 'Gran rendimiento por 90 min, a menudo infravalorado o en liga de menor exposición.'],
       ]
     : [
         ['⚡', 'Elite', '#f0c040', 'Top-tier output in Europe. Very high goals + assists per 90 min.'],
-        ['★', 'Prospect', '#a060ff', 'Young player (≤21) already performing at an elite level.'],
+        ['★', 'Prospect', '#00c8b0', 'Young player (≤21) already performing at an elite level.'],
         ['◆', 'Hidden gem', '#00c8b0', 'High per-90 output, often undervalued or in a lower-exposure league.'],
       ]
 

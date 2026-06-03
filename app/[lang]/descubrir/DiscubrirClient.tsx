@@ -288,7 +288,7 @@ export default function DiscubrirClient({ players }: Props) {
                   background: cardBg,
                   border: `1px solid ${sealVariant ? (
                     sealVariant === 'elite' ? 'rgba(240,192,64,.22)' :
-                    sealVariant === 'prospect' ? 'rgba(160,96,255,.22)' :
+                    sealVariant === 'prospect' ? 'rgba(0,200,176,.22)' :
                     'rgba(0,200,176,.22)'
                   ) : cardBorder}`,
                   transition: 'border-color .15s, box-shadow .15s',
@@ -296,7 +296,7 @@ export default function DiscubrirClient({ players }: Props) {
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLElement
                   el.style.borderColor = sealVariant === 'elite' ? 'rgba(240,192,64,.45)' :
-                    sealVariant === 'prospect' ? 'rgba(160,96,255,.45)' :
+                    sealVariant === 'prospect' ? 'rgba(0,200,176,.45)' :
                     sealVariant === 'gem' ? 'rgba(0,200,176,.45)' :
                     isLight ? 'rgba(240,192,64,.3)' : 'rgba(240,192,64,.25)'
                   el.style.boxShadow = sealVariant ? '0 4px 20px rgba(0,0,0,.12)' : 'none'
@@ -305,7 +305,7 @@ export default function DiscubrirClient({ players }: Props) {
                   const el = e.currentTarget as HTMLElement
                   el.style.borderColor = sealVariant ? (
                     sealVariant === 'elite' ? 'rgba(240,192,64,.22)' :
-                    sealVariant === 'prospect' ? 'rgba(160,96,255,.22)' :
+                    sealVariant === 'prospect' ? 'rgba(0,200,176,.22)' :
                     'rgba(0,200,176,.22)'
                   ) : cardBorder
                   el.style.boxShadow = 'none'
@@ -393,7 +393,7 @@ export default function DiscubrirClient({ players }: Props) {
                     { label: 'G/90', value: g90, color: '#f0c040' },
                     { label: 'A/90', value: a90, color: '#00c8b0' },
                     { label: 'PJ',   value: p.pj, color: textMuted },
-                    { label: lang === 'es' ? 'Edad' : 'Age', value: p.age, color: p.age <= 21 ? '#a060ff' : p.age <= 24 ? '#38c47a' : textMuted },
+                    { label: lang === 'es' ? 'Edad' : 'Age', value: p.age, color: p.age <= 21 ? '#00c8b0' : p.age <= 24 ? '#38c47a' : textMuted },
                   ].map(stat => (
                     <div key={stat.label} className="flex-1 text-center">
                       <div

@@ -19,7 +19,7 @@ type SealSize = 'lg' | 'md' | 'sm'
 
 const VARIANTS: Record<SealVariant, { color: string; bg: string; label: string; labelEN: string }> = {
   gem:      { color: '#00c8b0', bg: 'rgba(0,200,176,.12)',   label: 'JOYA OCULTA',  labelEN: 'HIDDEN GEM'  },
-  prospect: { color: '#a060ff', bg: 'rgba(160,96,255,.12)',  label: 'PROMESA',      labelEN: 'PROSPECT'    },
+  prospect: { color: '#00c8b0', bg: 'rgba(0,200,176,.12)',  label: 'PROMESA',      labelEN: 'PROSPECT'    },
   elite:    { color: '#f0c040', bg: 'rgba(240,192,64,.12)',  label: 'ÉLITE',        labelEN: 'ELITE'       },
 }
 

@@ -61,7 +61,7 @@ export default function ClasificacionClient() {
   return (
     <main style={{ background: bg, minHeight: '100vh' }}>
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '40px 20px 80px' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: '#a060ff', textTransform: 'uppercase', marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: '#00c8b0', textTransform: 'uppercase', marginBottom: 8 }}>
           {es ? 'Comunidad · Ranking' : 'Community · Ranking'}
         </div>
         <h1 style={{

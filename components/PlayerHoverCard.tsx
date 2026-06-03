@@ -8,7 +8,7 @@ const STATUS_LABEL: Record<string, { label: string; color: string; bg: string; b
 }
 
 const POS_COLOR: Record<string, string> = {
-  FW: '#f0c040', MF: '#00c8b0', DF: '#38c47a', GK: '#a060ff',
+  FW: '#f0c040', MF: '#00c8b0', DF: '#38c47a', GK: '#00c8b0',
 }
 
 interface Props {
@@ -206,7 +206,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
                 <div>
                   <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#5a5a7a' }}>Fantasy</div>
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-[15px] font-bold" style={{ fontFamily: "'Bebas Neue', cursive", letterSpacing: '1px', color: '#a060ff' }}>
+                    <span className="text-[15px] font-bold" style={{ fontFamily: "'Bebas Neue', cursive", letterSpacing: '1px', color: '#00c8b0' }}>
                       {player.fantasyPoints} pts
                     </span>
                     {player.fantasyPrice != null && (

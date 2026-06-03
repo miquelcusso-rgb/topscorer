@@ -15,8 +15,8 @@ import type { PlayerData } from '@/types'
 const TAB_DEFS = [
   { id: 's' as const, labelKey: 'tab_scorers'  as const, color: '#f0c040', rgb: '240,192,64'  },
   { id: 'a' as const, labelKey: 'tab_assists'  as const, color: '#00c8b0', rgb: '0,200,176'   },
-  { id: 'c' as const, labelKey: 'tab_midfield' as const, color: '#a060ff', rgb: '160,96,255'  },
-  { id: 'd' as const, labelKey: 'tab_defense'  as const, color: '#4090ff', rgb: '64,144,255'  },
+  { id: 'c' as const, labelKey: 'tab_midfield' as const, color: '#00c8b0', rgb: '160,96,255'  },
+  { id: 'd' as const, labelKey: 'tab_defense'  as const, color: '#e05a30', rgb: '64,144,255'  },
   { id: 'g' as const, labelKey: 'tab_gk'       as const, color: '#e05a30', rgb: '224,90,48'   },
 ]
 
@@ -189,13 +189,13 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
           </div>
           <div style={{ display: tab === 'c' ? 'block' : 'none' }}>
             {proUser
-              ? <PositionPanel position="MF" accentColor="#a060ff" proUser={proUser} />
+              ? <PositionPanel position="MF" accentColor="#00c8b0" proUser={proUser} />
               : <ProGateCard title={t('pro_gate_mid_title', lang)} description={t('pro_gate_mid_desc', lang)} />
             }
           </div>
           <div style={{ display: tab === 'd' ? 'block' : 'none' }}>
             {proUser
-              ? <PositionPanel position="DF" accentColor="#4090ff" proUser={proUser} />
+              ? <PositionPanel position="DF" accentColor="#e05a30" proUser={proUser} />
               : <ProGateCard title={t('pro_gate_def_title', lang)} description={t('pro_gate_def_desc', lang)} />
             }
           </div>

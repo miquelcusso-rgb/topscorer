@@ -161,7 +161,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
           return (
         <div
           className="rounded-xl p-6 mb-5 relative overflow-hidden"
-          style={{ background: '#060d18', border: `1px solid ${heroSeal === 'elite' ? 'rgba(240,192,64,.3)' : heroSeal === 'prospect' ? 'rgba(160,96,255,.25)' : heroSeal === 'gem' ? 'rgba(0,200,176,.25)' : '#1a1b2e'}` }}
+          style={{ background: '#060d18', border: `1px solid ${heroSeal === 'elite' ? 'rgba(240,192,64,.3)' : heroSeal === 'prospect' ? 'rgba(0,200,176,.25)' : heroSeal === 'gem' ? 'rgba(0,200,176,.25)' : '#1a1b2e'}` }}
         >
           {heroSeal && (
             <div style={{ position: 'absolute', top: 14, right: 16, opacity: 0.9, zIndex: 2 }}>
@@ -814,7 +814,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
               {player.fantasyPoints != null && (
                 <div>
                   <div style={{ fontSize: 10, color: textMuted, letterSpacing: '1px' }}>FANTASY PTS</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: '#a060ff', fontFamily: "'Barlow Condensed', sans-serif" }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: '#00c8b0', fontFamily: "'Barlow Condensed', sans-serif" }}>
                     {player.fantasyPoints}
                   </div>
                 </div>
@@ -822,7 +822,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
               {player.fantasyPrice != null && (
                 <div>
                   <div style={{ fontSize: 10, color: textMuted, letterSpacing: '1px' }}>PRECIO FANTASY</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: '#a060ff', fontFamily: "'Barlow Condensed', sans-serif" }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: '#00c8b0', fontFamily: "'Barlow Condensed', sans-serif" }}>
                     €{player.fantasyPrice}M
                   </div>
                 </div>

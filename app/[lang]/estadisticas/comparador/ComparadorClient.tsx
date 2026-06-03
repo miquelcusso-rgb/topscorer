@@ -42,16 +42,16 @@ function ClubLogo({ club, size = 18 }: { club: string; size?: number }) {
 }
 
 const C_DARK = {
-  gd: '#f0c040', pu: '#a060ff', te: '#00c8b0', bl: '#4090ff', or: '#e05a30',
+  gd: '#f0c040', pu: '#00c8b0', te: '#00c8b0', bl: '#e05a30', or: '#9aa0b0',
   tx: '#e5e5f2', mu: '#5a5a7a', bd: '#1e1e34', sf: '#0e0e1c', s2: '#151528',
   bg: 'rgba(7,14,26,.90)',
 }
 
 function posAccent(pos?: string): string {
-  if (pos === 'FW') return C_DARK.gd
-  if (pos === 'MF') return C_DARK.pu
-  if (pos === 'DF') return C_DARK.bl
-  if (pos === 'GK') return C_DARK.or
+  if (pos === 'FW') return C_DARK.gd   // gold
+  if (pos === 'MF') return C_DARK.pu   // teal
+  if (pos === 'DF') return C_DARK.bl   // orange
+  if (pos === 'GK') return C_DARK.or   // neutral grey
   return C_DARK.gd
 }
 

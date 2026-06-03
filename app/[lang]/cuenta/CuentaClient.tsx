@@ -272,7 +272,7 @@ export default function CuentaClient() {
             🏆 {es ? 'Ranking comunidad' : 'Leaderboard'}
           </Link>
           {(plan === 'scout' || plan === 'team') && (
-            <Link href={`/${lang}/cuenta/api`} style={{ fontSize: 12, color: '#a060ff', textDecoration: 'none', padding: '6px 12px', borderRadius: 5, border: `1px solid #a060ff55`, background: 'rgba(160,96,255,.08)' }}>
+            <Link href={`/${lang}/cuenta/api`} style={{ fontSize: 12, color: '#00c8b0', textDecoration: 'none', padding: '6px 12px', borderRadius: 5, border: `1px solid #00c8b055`, background: 'rgba(0,200,176,.08)' }}>
               🔑 {es ? 'Claves API' : 'API keys'}
             </Link>
           )}

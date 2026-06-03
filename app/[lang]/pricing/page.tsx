@@ -12,7 +12,7 @@ import { track } from '@/lib/analytics'
 type Billing = 'monthly' | 'yearly'
 
 const C = {
-  gd: '#f0c040', pu: '#a060ff', gr: '#38c47a', bl: '#4a9eff',
+  gd: '#f0c040', pu: '#00c8b0', gr: '#38c47a', bl: '#00c8b0',
   tx: '#e5e5f2', mu: '#5a5a7a', bd: '#1e1e34', sf: '#0e0e1c', s2: '#151528',
 }
 
@@ -65,7 +65,7 @@ function Cell({ v, lang }: { v: FeatureValue; lang: Lang }) {
   if (v === true)    return <span style={{ color: C.gr, fontSize: 15 }}>✓</span>
   if (v === false)   return <span style={{ color: '#2a2a48', fontSize: 15 }}>—</span>
   if (v === 'soon')  return (
-    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ color: C.bl, background: 'rgba(74,158,255,.12)', border: '1px solid rgba(74,158,255,.22)' }}>
+    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ color: C.bl, background: 'rgba(0,200,176,.12)', border: '1px solid rgba(0,200,176,.22)' }}>
       {t('pricing_soon_short', lang)}
     </span>
   )
@@ -159,7 +159,7 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
               <span style={{ color: soon ? '#5a5a9a' : isWarning ? '#9a7a40' : C.tx }}>
                 {text}
                 {soon && (
-                  <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ color: C.bl, background: 'rgba(74,158,255,.12)', border: '1px solid rgba(74,158,255,.22)' }}>
+                  <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ color: C.bl, background: 'rgba(0,200,176,.12)', border: '1px solid rgba(0,200,176,.22)' }}>
                     {t('pricing_soon_short', lang)}
                   </span>
                 )}
@@ -196,8 +196,8 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
             className="w-full text-center text-[13px] font-bold py-3.5 rounded-sm transition-all duration-150 cursor-pointer flex items-center justify-center gap-2"
             style={
               ctaVariant === 'gold'   ? { background: C.gd, color: '#07070f', border: `1px solid ${C.gd}` } :
-              ctaVariant === 'purple' ? { background: 'rgba(160,96,255,.15)', color: C.pu, border: '1px solid rgba(160,96,255,.35)' } :
-              ctaVariant === 'scout'  ? { background: 'rgba(160,96,255,.15)', color: C.pu, border: '1px solid rgba(160,96,255,.35)' } :
+              ctaVariant === 'purple' ? { background: 'rgba(0,200,176,.15)', color: C.pu, border: '1px solid rgba(0,200,176,.35)' } :
+              ctaVariant === 'scout'  ? { background: 'rgba(0,200,176,.15)', color: C.pu, border: '1px solid rgba(0,200,176,.35)' } :
               { background: C.s2, color: C.tx, border: `1px solid ${C.bd}` }
             }
           >
