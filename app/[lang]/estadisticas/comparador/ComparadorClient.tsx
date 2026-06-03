@@ -43,8 +43,8 @@ function ClubLogo({ club, size = 18 }: { club: string; size?: number }) {
 
 const C_DARK = {
   gd: '#f0c040', pu: '#00c8b0', te: '#00c8b0', bl: '#e05a30', or: '#9aa0b0',
-  tx: '#e5e5f2', mu: '#5a5a7a', bd: '#1e1e34', sf: '#0e0e1c', s2: '#151528',
-  bg: 'rgba(7,14,26,.90)',
+  tx: '#f1e8d2', mu: '#9a917e', bd: '#2a2620', sf: '#15130f', s2: '#1c1a16',
+  bg: 'rgba(10,9,8,.92)',
 }
 
 function posAccent(pos?: string): string {
@@ -210,12 +210,12 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
 
-  const textMuted = isLight ? '#5060a0' : C_DARK.mu
-  const textMain = isLight ? '#0f1830' : C_DARK.tx
+  const textMuted = isLight ? '#8a7f68' : C_DARK.mu
+  const textMain = isLight ? '#1c1608' : C_DARK.tx
   const inputBg = isLight ? '#ffffff' : C_DARK.s2
-  const inputBorder = isLight ? '#c8d0e8' : C_DARK.bd
-  const dropdownBg = isLight ? '#ffffff' : '#0b1220'
-  const dropdownBorder = isLight ? '#c8d0e8' : C_DARK.bd
+  const inputBorder = isLight ? '#e6dfce' : C_DARK.bd
+  const dropdownBg = isLight ? '#ffffff' : '#15130f'
+  const dropdownBorder = isLight ? '#e6dfce' : C_DARK.bd
   const rowHoverBg = isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.05)'
   const emptyCardBg = isLight ? 'rgba(0,0,0,.03)' : 'rgba(255,255,255,.02)'
   const emptyCardBorder = isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.1)'
@@ -365,8 +365,8 @@ function StatRow({ label, a, b, accentA, accentB, isLight }: StatRowProps) {
   const numB = typeof b === 'number' ? b : parseFloat(b as string) || 0
   const aWins = numA > numB
   const bWins = numB > numA
-  const textMuted = isLight ? '#5060a0' : C_DARK.mu
-  const textMain = isLight ? '#0f1830' : C_DARK.tx
+  const textMuted = isLight ? '#8a7f68' : C_DARK.mu
+  const textMain = isLight ? '#1c1608' : C_DARK.tx
   const rowBorder = isLight ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.04)'
   return (
     <tr style={{ borderBottom: `1px solid ${rowBorder}` }}>
@@ -425,7 +425,7 @@ function SeasonPicker({ selected, onPick, es, isLight }: {
       aria-label={es ? 'Temporada' : 'Season'}
       style={{
         width: '100%', maxWidth: 280, padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-        background: isLight ? '#ffffff' : C_DARK.s2, color: isLight ? '#0f1830' : C_DARK.tx,
+        background: isLight ? '#ffffff' : C_DARK.s2, color: isLight ? '#1c1608' : C_DARK.tx,
         border: `1px solid ${isLight ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.12)'}`,
         fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
       }}
@@ -470,15 +470,15 @@ export default function ComparadorClient() {
     return () => { c = true }
   }, [playerB?.apiId])
 
-  const pageBg = isLight ? '#edf1f8' : '#07070f'
-  const textMuted = isLight ? '#5060a0' : C_DARK.mu
+  const pageBg = isLight ? '#faf8f2' : '#0a0908'
+  const textMuted = isLight ? '#8a7f68' : C_DARK.mu
   const cardBg = isLight ? 'rgba(255,255,255,.9)' : C_DARK.bg
   const cardBorder = isLight ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.07)'
   const presetBg = isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.03)'
   const presetBorder = isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.09)'
   const presetHoverBg = isLight ? 'rgba(0,0,0,.07)' : 'rgba(255,255,255,.07)'
   const presetHoverBorder = isLight ? `${C_DARK.gd}44` : `${C_DARK.gd}44`
-  const textPreset = isLight ? '#0f1830' : C_DARK.tx
+  const textPreset = isLight ? '#1c1608' : C_DARK.tx
 
   // Load from URL params on mount. Accept ?a=/?b= (canonical) and also
   // ?p1=/?p2= (deep-link from player profile CTA).

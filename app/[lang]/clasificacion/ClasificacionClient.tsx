@@ -32,12 +32,12 @@ export default function ClasificacionClient() {
   const isLight = theme === 'light'
   const es = lang === 'es'
 
-  const bg     = isLight ? '#f4f6ff' : '#060d18'
-  const card   = isLight ? '#ffffff' : '#0d0e1c'
-  const border = isLight ? '#d8deef' : '#1a1c2e'
-  const text1  = isLight ? '#0f1830' : '#e8e8f8'
-  const text2  = isLight ? '#33405e' : '#9aa6c8'
-  const muted  = isLight ? '#6070a0' : '#5a5c80'
+  const bg     = isLight ? '#faf8f2' : '#0a0908'
+  const card   = isLight ? '#ffffff' : '#15130f'
+  const border = isLight ? '#e6dfce' : '#211e18'
+  const text1  = isLight ? '#1c1608' : '#f0ebe0'
+  const text2  = isLight ? '#6e6655' : '#b5ab95'
+  const muted  = isLight ? '#8a7f68' : '#9a917e'
 
   const [rows, setRows] = useState<Row[]>([])
   const [me, setMe] = useState<MyBadge | null>(null)
@@ -94,7 +94,7 @@ export default function ClasificacionClient() {
                 </span>
               )}
             </div>
-            <div style={{ height: 6, background: isLight ? '#e2e8f4' : '#1a1c2e', borderRadius: 999, overflow: 'hidden' }}>
+            <div style={{ height: 6, background: isLight ? '#ece6d8' : '#211e18', borderRadius: 999, overflow: 'hidden' }}>
               <div style={{ width: `${me.progress * 100}%`, height: '100%', background: '#f0c040', borderRadius: 999, transition: 'width .3s' }} />
             </div>
           </div>

@@ -38,18 +38,20 @@ interface NavItem {
 }
 
 function Wordmark() {
-  // Canonical brand: logo-ball.png is the official TopScorers mark (also used
-  // by the legacy Navbar). 2x bigger after audit pass 1.
+  // Vertical brand lockup: a large ball centred in the sidebar header, with the
+  // TOP·SCORERS wordmark centred below it.
   return (
     <span
       style={{
-        display: 'inline-flex',
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        gap: 12,
+        gap: 6,
+        width: '100%',
         fontFamily: 'Barlow Condensed, sans-serif',
         fontWeight: 800,
-        fontSize: 30,
-        letterSpacing: '0.04em',
+        fontSize: 26,
+        letterSpacing: '0.06em',
         color: 'var(--ts-text)',
         textTransform: 'uppercase',
       }}
@@ -58,11 +60,11 @@ function Wordmark() {
       <img
         src="/logo-ball-alpha.png"
         alt="TopScorers"
-        width={64}
-        height={64}
-        style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 }}
+        width={132}
+        height={132}
+        style={{ width: 132, height: 132, objectFit: 'contain', flexShrink: 0 }}
       />
-      <span>
+      <span style={{ lineHeight: 1 }}>
         TOP<span style={{ color: 'var(--ts-primary)' }}>·SCORERS</span>
       </span>
     </span>
@@ -248,7 +250,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
           marginBottom: 16,
         }}
       >
-        <Link href={`/${lang}`} style={{ textDecoration: 'none' }}>
+        <Link href={`/${lang}`} style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>
           <Wordmark />
         </Link>
       </div>
