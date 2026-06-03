@@ -23,6 +23,7 @@ export interface HotStriker {
 export interface HomeInsight {
   es: string
   en: string
+  slug?: string  // player profile slug, so a curiosity links to the player
 }
 
 // "Jugones de la jornada" — a few editorial standouts, each a real leader.
@@ -91,6 +92,7 @@ export function computeHomeInsights(season: PlayerData[]): HomeInsights {
     lines.push({
       es: `${leader.name} lidera el IIG con ${leader.goles ?? 0} goles · ${num1(lv)} IIG (coef. liga ×${num1(coef)})`,
       en: `${leader.name} leads the IIG with ${leader.goles ?? 0} goals · ${numEn1(lv)} IIG (league coef ×${numEn1(coef)})`,
+      slug: playerSlug(leader),
     })
   }
 
@@ -104,6 +106,7 @@ export function computeHomeInsights(season: PlayerData[]): HomeInsights {
     lines.push({
       es: `${sharp.name} firma la mejor conversión: ${pctEs}% de sus tiros acaban en gol`,
       en: `${sharp.name} has the sharpest finishing: ${pctEn}% of shots converted`,
+      slug: playerSlug(sharp),
     })
   }
 

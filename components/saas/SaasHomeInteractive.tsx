@@ -1,12 +1,13 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import KpiCard from './KpiCard'
 import FilterBar from './FilterBar'
 import PositionTable from './PositionTable'
-import HotStrikerCard from './HotStrikerCard'
+import HotStrikersRow from './HotStrikersRow'
 import MatchdayStandouts from './MatchdayStandouts'
+import Link from 'next/link'
 import { type PositionTabId, TAB_LABELS, TAB_ACCENT, extraStatList } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
@@ -39,6 +40,13 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
   const [minPj, setMinPj] = useState<number>(3)
   const [sort, setSort] = useState<{ key: string; dir: 1 | -1 } | null>(null)
   const [insightDismissed, setInsightDismissed] = useState(false)
+  const [curio, setCurio] = useState(0)
+  const curioCount = insights?.lines.length ?? 0
+  useEffect(() => {
+    if (curioCount < 2) return
+    const t = setInterval(() => setCurio(c => (c + 1) % curioCount), 5500)
+    return () => clearInterval(t)
+  }, [curioCount])
   const [extraStats, setExtraStats] = useState<string[]>([])
 
   const leagueMatch = useMemo(() => {
@@ -140,48 +148,35 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
       )}
 
       {/* Hot striker + auto-insight banner (real derived data) */}
-      {insights?.hot && <HotStrikerCard hot={insights.hot} lang={lang === 'en' ? 'en' : 'es'} />}
+      {insights && insights.standouts.length > 0 && <HotStrikersRow standouts={insights.standouts} lang={lang === 'en' ? 'en' : 'es'} />}
 
-      {insights && insights.lines.length > 0 && !insightDismissed && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 12,
-            padding: '12px 14px',
-            background: 'var(--ts-teal-soft)',
-            border: '1px solid var(--ts-border)',
-            borderRadius: 10,
-          }}
-        >
-          <span aria-hidden style={{ fontSize: 14, lineHeight: '20px', flexShrink: 0 }}>📈</span>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {insights.lines.map((line, i) => (
-              <span key={i} style={{ fontSize: 13, color: 'var(--ts-text)', lineHeight: 1.4 }}>
-                {lang === 'en' ? line.en : line.es}
+      {insights && insights.lines.length > 0 && !insightDismissed && (() => {
+        const line = insights.lines[curio % insights.lines.length]
+        const text = lang === 'en' ? line.en : line.es
+        const Inner = (
+          <>
+            <span aria-hidden style={{ fontSize: 14, lineHeight: '20px', flexShrink: 0 }}>💡</span>
+            <span style={{ flex: 1, minWidth: 0, fontSize: 13, color: 'var(--ts-text)', lineHeight: 1.4 }}>{text}</span>
+            {insights.lines.length > 1 && (
+              <span style={{ flexShrink: 0, display: 'flex', gap: 4, alignItems: 'center' }}>
+                {insights.lines.map((_, i) => (
+                  <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: i === (curio % insights.lines.length) ? 'var(--ts-primary)' : 'var(--ts-border)' }} />
+                ))}
               </span>
-            ))}
+            )}
+          </>
+        )
+        const boxStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'var(--ts-teal-soft)', border: '1px solid var(--ts-border)', borderRadius: 10, textDecoration: 'none', color: 'inherit' }
+        return (
+          <div style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
+            {line.slug
+              ? <Link href={`/${lang}/jugadores/${line.slug}`} style={{ ...boxStyle, flex: 1 }}>{Inner}</Link>
+              : <div style={{ ...boxStyle, flex: 1 }}>{Inner}</div>}
+            <button type="button" onClick={() => setInsightDismissed(true)} aria-label={lang === 'en' ? 'Dismiss' : 'Cerrar'}
+              style={{ flexShrink: 0, background: 'transparent', border: '1px solid var(--ts-border)', borderRadius: 10, color: 'var(--ts-muted)', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: '0 10px', fontFamily: 'inherit' }}>×</button>
           </div>
-          <button
-            type="button"
-            onClick={() => setInsightDismissed(true)}
-            aria-label={lang === 'en' ? 'Dismiss' : 'Cerrar'}
-            style={{
-              flexShrink: 0,
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--ts-muted)',
-              cursor: 'pointer',
-              fontSize: 16,
-              lineHeight: 1,
-              padding: 2,
-              fontFamily: 'inherit',
-            }}
-          >
-            ×
-          </button>
-        </div>
-      )}
+        )
+      })()}
 
       {/* KPIs */}
       <div className="saas-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>

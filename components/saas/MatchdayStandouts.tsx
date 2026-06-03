@@ -73,18 +73,35 @@ export default function MatchdayStandouts({ standouts, rumors = [], lang }: Prop
                   <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {rumor.headline}
                   </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {rumor.toClub && clubLogo(rumor.toClub) && (
+                  {(() => {
+                    const renewal = !rumor.toClub || rumor.fromClub === rumor.toClub
+                      || /renu|renew|amplí|extend|contrat|new deal/i.test(rumor.headline)
+                    const lk = rumor.likelihood
+                    const arrowColor = lk == null ? 'var(--ts-muted)' : lk >= 75 ? 'var(--ts-teal)' : lk < 50 ? 'var(--ts-red)' : 'var(--ts-primary)'
+                    const crest = (c?: string | null) => c && clubLogo(c)
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={clubLogo(rumor.toClub)} alt={rumor.toClub} width={16} height={16}
-                        style={{ width: 16, height: 16, objectFit: 'contain', flexShrink: 0 }} />
-                    )}
-                    {rumor.likelihood != null && (
-                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ts-primary)', fontVariantNumeric: 'tabular-nums' }}>
-                        {rumor.likelihood}%
+                      ? <img src={clubLogo(c)!} alt={c} width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain', flexShrink: 0 }} />
+                      : null
+                    return (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        {renewal ? (
+                          <>
+                            <span aria-hidden style={{ fontSize: 13 }}>💰</span>
+                            {crest(rumor.fromClub ?? rumor.toClub)}
+                          </>
+                        ) : (
+                          <>
+                            {crest(rumor.fromClub)}
+                            <span aria-hidden style={{ color: arrowColor, fontWeight: 800, fontSize: 13, lineHeight: 1 }}>→</span>
+                            {crest(rumor.toClub)}
+                          </>
+                        )}
+                        {lk != null && (
+                          <span style={{ fontSize: 11, fontWeight: 700, color: arrowColor, fontVariantNumeric: 'tabular-nums', marginLeft: 2 }}>{lk}%</span>
+                        )}
                       </span>
-                    )}
-                  </span>
+                    )
+                  })()}
                 </span>
               </Link>
             ))}
