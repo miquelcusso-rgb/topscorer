@@ -5,10 +5,15 @@ import type { PlayerSeasonRaw, PositionTag, ResolvedAxis } from './radar-types'
 import type { PlayerData } from '@/types'
 
 export interface RadarPoint extends ResolvedAxis { percentile: number | null }
+export interface UnderstatRaw {
+  xG: number; npxG: number; xA: number; shots: number; keyPasses: number; minutes: number
+  xGChain: number; xGBuildup: number; npg: number
+}
 export interface PlayerRadar {
   position: PositionTag
   leagueHasUnderstat: boolean
   axes: RadarPoint[]
+  understat?: UnderstatRaw | null  // raw Understat numbers when matched
 }
 
 // ── name match (US ↔ our dataset) ────────────────────────────────────────────
@@ -21,8 +26,28 @@ function tagFor(p: PlayerData): PositionTag {
   if (p.position === 'GK') return 'POR'
   if (p.position === 'DF') return 'DEF'
   if (p.position === 'MF') return 'MID'
-  // FW: a creator (more assists than goals) reads as a winger/AM → WAM.
-  if (p.position === 'FW' && (p.asist ?? 0) > (p.goles ?? 0)) return 'WAM'
+  // FW split into winger/attacking-mid (WAM) vs out-and-out striker (ST).
+  // A pure striker is goal-dominant AND high shot volume; a WAM creates/carries
+  // more (assists, key passes, dribbles) relative to finishing. We score several
+  // creator signals so a goalscoring winger (e.g. Salah) still reads as WAM.
+  if (p.position === 'FW') {
+    const g = p.goles ?? 0, a = p.asist ?? 0
+    const pj = Math.max(1, p.pj ?? 1)
+    // Elite/high-volume finisher → pure striker (Mbappé, Haaland, Lewandowski),
+    // even if technically gifted. ~18+ goals dominating assists.
+    if (g >= 18 && g >= a) return 'ST'
+    // Otherwise the winger/AM signal is mostly DRIBBLING + chance creation:
+    // wingers carry the ball far more than centre-forwards.
+    const dribPg = (p.dribblesSuccess ?? 0) / pj
+    const keyPg = (p.keyPasses ?? 0) / pj
+    const creatorShare = a / Math.max(1, g + a)
+    let score = 0
+    if (dribPg >= 2.5) score += 2
+    else if (dribPg >= 1.5) score += 1
+    if (keyPg >= 1.5) score++
+    if (creatorShare >= 0.45) score++
+    return score >= 2 ? 'WAM' : 'ST'
+  }
   return 'ST'
 }
 const broad = (t: PositionTag): Broad => (t === 'POR' ? 'POR' : t === 'DEF' ? 'DEF' : t === 'MID' ? 'MID' : 'FWD')
@@ -99,5 +124,11 @@ export async function getPlayerRadar(apiId: number): Promise<PlayerRadar | null>
     return { ...ax, percentile: pctRank(vals, ax.rawValue) }
   })
 
-  return { position: tag, leagueHasUnderstat: leagueHasUS, axes }
+  const understat: UnderstatRaw | null = usTarget ? {
+    xG: usTarget.xG, npxG: usTarget.npxG, xA: usTarget.xA, shots: usTarget.shots,
+    keyPasses: usTarget.key_passes, minutes: usTarget.minutes,
+    xGChain: usTarget.xGChain, xGBuildup: usTarget.xGBuildup, npg: usTarget.npg,
+  } : null
+
+  return { position: tag, leagueHasUnderstat: leagueHasUS, axes, understat }
 }

@@ -456,7 +456,7 @@ export default function ComparadorClient() {
   const [statSetTouched, setStatSetTouched] = useState(false)
 
   // Per-position percentile radars (handoff schema: Understat + API-Football).
-  type RadarResp = { position: string; leagueHasUnderstat: boolean; axes: { axisId: string; label: string; percentile: number | null; isProxy: boolean }[] }
+  type RadarResp = { position: string; leagueHasUnderstat: boolean; axes: { axisId: string; label: string; percentile: number | null; isProxy: boolean }[]; understat?: { xG: number; npxG: number; xA: number; keyPasses: number } | null }
   const [radarA, setRadarA] = useState<RadarResp | null>(null)
   const [radarB, setRadarB] = useState<RadarResp | null>(null)
   useEffect(() => {
@@ -768,6 +768,13 @@ export default function ComparadorClient() {
                   <StatRow label="Val+"    a={playerA.val_con}                 b={playerB.val_con}                 accentA={accentA} accentB={accentB} isLight={isLight} />
                   <StatRow label="ELO"     a={playerA.elo ?? '—'}             b={playerB.elo ?? '—'}             accentA={accentA} accentB={accentB} isLight={isLight} />
                   <StatRow label="Fantasy" a={playerA.fantasyPoints ?? '—'}   b={playerB.fantasyPoints ?? '—'}   accentA={accentA} accentB={accentB} isLight={isLight} />
+                  {radarA?.understat && radarB?.understat && (
+                    <>
+                      <StatRow label="xG"   a={radarA.understat.xG.toFixed(1)}   b={radarB.understat.xG.toFixed(1)}   accentA={accentA} accentB={accentB} isLight={isLight} />
+                      <StatRow label="npxG" a={radarA.understat.npxG.toFixed(1)} b={radarB.understat.npxG.toFixed(1)} accentA={accentA} accentB={accentB} isLight={isLight} />
+                      <StatRow label="xA"   a={radarA.understat.xA.toFixed(1)}   b={radarB.understat.xA.toFixed(1)}   accentA={accentA} accentB={accentB} isLight={isLight} />
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>

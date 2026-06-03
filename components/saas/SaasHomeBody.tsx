@@ -3,6 +3,7 @@ import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import SaasShell from './SaasShell'
 import SaasHomeInteractive from './SaasHomeInteractive'
+import HomeNewsTeaser from './HomeNewsTeaser'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
 import { computeHomeInsights } from '@/lib/home-insights'
 import { getTopRumors } from '@/lib/home-rumor'
@@ -108,6 +109,8 @@ export default async function SaasHomeBody({
       </div>
 
       <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} />
+
+      <HomeNewsTeaser lang={lang === 'en' ? 'en' : 'es'} />
     </SaasShell>
   )
 }
