@@ -250,6 +250,7 @@ export default function MaximosGoleadoresEuropaPage() {
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {[
+              { href: '/europe-top-scorers', label: "Europe's top scorers (EN)" },
               { href: '/goleadores-liga-espanola', label: 'Goleadores La Liga (Pichichi)' },
               { href: '/goleadores-premier-league', label: 'Goleadores Premier League' },
               { href: '/goleadores-serie-a', label: 'Goleadores Serie A' },

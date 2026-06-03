@@ -50,6 +50,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ['/goleadores-bundesliga',   'weekly',  0.9],
     ['/goleadores-ligue-1',      'weekly',  0.9],
     ['/maximos-goleadores-europa','weekly', 0.9],
+    ['/europe-top-scorers',      'weekly',  0.9],
     ['/bota-de-oro',             'weekly',  0.85],
     ['/records',                 'weekly',  0.8],
     ['/transferencias',          'daily',   0.7],
