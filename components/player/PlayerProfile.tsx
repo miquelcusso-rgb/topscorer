@@ -6,6 +6,7 @@ import MarketValueChart from '@/components/player/MarketValueChart'
 import PlayerHonors from '@/components/player/PlayerHonors'
 import PlayerRadar from '@/components/player/PlayerRadar'
 import ScoutPanel from '@/components/player/ScoutPanel'
+import BioPanel from '@/components/player/BioPanel'
 import LockedSection from '@/components/saas/LockedSection'
 import ProfileTabs from '@/components/player/ProfileTabs'
 import RadarCard from '@/components/player/RadarCard'
@@ -147,6 +148,8 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
       <PlayerHonors apiId={player.apiId} en={en} />
 
       <PlayerCareer apiId={player.apiId} seasons={seasons} en={en} />
+
+      <BioPanel name={player.fullName || player.name} lang={lang} />
     </SaasShell>
   )
 }
