@@ -86,7 +86,7 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
       <BreakingBanner items={items} en={en} />
 
       {/* Hero story — ~2.5× a normal card */}
-      <a href={hero.link} target="_blank" rel="noopener noreferrer"
+      <a href={hero.link} target="_blank" rel="noopener noreferrer" className="saas-news-hero"
         style={{ display: 'grid', gridTemplateColumns: hero.image ? 'minmax(0, 1.4fr) 1fr' : '1fr', gap: 0,
           background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 14, overflow: 'hidden', textDecoration: 'none', color: 'inherit', minHeight: 200 }}>
         {hero.image && (

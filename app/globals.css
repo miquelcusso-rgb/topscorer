@@ -366,3 +366,11 @@ body::before {
 @keyframes ts-live-pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
 .ts-live-dot { animation: ts-live-pulse 1.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .ts-live-dot { animation: none; } }
+
+/* New components responsive (push 2026-06-04) */
+@media (max-width: 700px) {
+  .saas-news-hero { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 560px) {
+  .saas-standouts-grid { grid-template-columns: 1fr !important; }
+}

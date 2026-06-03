@@ -86,8 +86,29 @@ export default async function CompeticionPage({
   // knockout bracket + scorers, World-Cup-style, instead of the dataset view.
   if (isEuroCup(league.id)) {
     const data = await getEuroCupData(league.id, lang)
+    const euroJsonLd = data ? {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: `${league.name} — ${lang === 'en' ? 'Top scorers 25/26' : 'Goleadores 25/26'}`,
+      url: `${BASE}/${lang}/competiciones/${slug}`,
+      numberOfItems: Math.min(data.scorers.length, 12),
+      itemListElement: data.scorers.slice(0, 12).map((s, i) => ({
+        '@type': 'ListItem', position: i + 1,
+        name: `${s.name} — ${s.value} ${lang === 'en' ? 'goals' : 'goles'} (${s.club})`,
+      })),
+    } : null
+    const euroBreadcrumb = {
+      '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'TopScorers', item: BASE },
+        { '@type': 'ListItem', position: 2, name: lang === 'en' ? 'Competitions' : 'Competiciones', item: `${BASE}/${lang}/competiciones` },
+        { '@type': 'ListItem', position: 3, name: league.name, item: `${BASE}/${lang}/competiciones/${slug}` },
+      ],
+    }
     return (
       <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
+        {euroJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(euroJsonLd).replace(/</g, '\\u003c') }} />}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(euroBreadcrumb).replace(/</g, '\\u003c') }} />
         {data
           ? <EuroCupClient data={data} lang={lang} />
           : <div style={{ color: 'var(--ts-muted)', padding: 24 }}>{lang === 'en' ? 'Data temporarily unavailable.' : 'Datos no disponibles temporalmente.'}</div>}
