@@ -59,3 +59,53 @@ export async function marketValueByName(name: string): Promise<{ tmId: number | 
   if (!tmId) return { tmId: null, points: [] }
   return { tmId, points: await tmMarketValue(tmId) }
 }
+
+export interface TmProfile {
+  contractExpires?: string  // e.g. "30/06/2029"
+  joined?: string           // at current club since
+  foot?: string             // "right" | "left" | "both"
+  agent?: string            // player agent / agency (only public, no contact data)
+  outfitter?: string        // kit brand (adidas/Nike…)
+  placeOfBirth?: string
+  height?: string           // "1,86 m"
+}
+
+const clean = (s: string) => s.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()
+
+// Profile "info-table" (contract, foot, joined…). PUBLIC scouting fields only —
+// never contact details. <es2018-safe regex (no dotAll flag).
+export const tmProfile = unstable_cache(
+  async (tmId: number): Promise<TmProfile> => {
+    try {
+      const res = await fetch(`https://www.transfermarkt.com/-/profil/spieler/${tmId}`, { headers })
+      if (!res.ok) return {}
+      const html = await res.text()
+      const pairs: Record<string, string> = {}
+      const re = /<span class="info-table__content info-table__content--regular">([^<]*)<\/span>\s*<span class="info-table__content info-table__content--bold">([\s\S]*?)<\/span>/g
+      let m: RegExpExecArray | null
+      while ((m = re.exec(html))) {
+        const label = clean(m[1]).replace(/:$/, '').toLowerCase()
+        const value = clean(m[2])
+        if (label && value) pairs[label] = value
+      }
+      return {
+        contractExpires: pairs['contract expires'] || undefined,
+        joined: pairs['joined'] || undefined,
+        foot: pairs['foot'] || undefined,
+        agent: pairs['player agent'] || undefined,
+        outfitter: pairs['outfitter'] || undefined,
+        placeOfBirth: pairs['place of birth'] || undefined,
+        height: pairs['height'] || undefined,
+      }
+    } catch { return {} }
+  },
+  ['tm-profile'],
+  { revalidate: 604800, tags: ['transfermarkt'] } // 7d
+)
+
+/** Scouting profile fields resolved from a player name (search → profile). */
+export async function scoutByName(name: string): Promise<TmProfile & { tmId: number | null }> {
+  const tmId = await tmSearchId(name)
+  if (!tmId) return { tmId: null }
+  return { tmId, ...(await tmProfile(tmId)) }
+}

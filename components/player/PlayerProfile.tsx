@@ -5,6 +5,8 @@ import PlayerCareer from '@/components/player/PlayerCareer'
 import MarketValueChart from '@/components/player/MarketValueChart'
 import PlayerHonors from '@/components/player/PlayerHonors'
 import PlayerRadar from '@/components/player/PlayerRadar'
+import ScoutPanel from '@/components/player/ScoutPanel'
+import LockedSection from '@/components/saas/LockedSection'
 import ProfileTabs from '@/components/player/ProfileTabs'
 import RadarCard from '@/components/player/RadarCard'
 import type { Plan } from '@/types'
@@ -137,6 +139,10 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
       </div>
 
       <MarketValueChart name={player.fullName || player.name} en={en} />
+
+      <LockedSection requiredPlan="pro" userPlan={userPlan}>
+        <ScoutPanel name={player.fullName || player.name} en={en} releaseClause={player.releaseClause} />
+      </LockedSection>
 
       <PlayerHonors apiId={player.apiId} en={en} />
 
