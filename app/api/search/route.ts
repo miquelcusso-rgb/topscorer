@@ -5,6 +5,7 @@ import { SEARCH_INDEX } from '@/data/search-index'
 import { slugify } from '@/lib/slugify'
 import { playerSlug } from '@/lib/player-slug'
 import { clubLogo } from '@/lib/club-logos'
+import { flagFor } from '@/lib/flags'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,6 +23,7 @@ export interface SearchPlayerHit {
   flag?: string
   photo?: string
   age?: number
+  pos?: string
 }
 export interface SearchLeagueHit {
   name: string
@@ -53,7 +55,7 @@ const PLAYER_INDEX = (() => {
     if (p.apiId) byApiId.add(p.apiId)
     out.push({
       name: p.name, fullName: p.fullName, slug,
-      club: p.club, league: p.league, flag: p.flag, photo: p.photo, age: p.age,
+      club: p.club, league: p.league, flag: p.flag ?? flagFor(p.nationality), photo: p.photo, age: p.age, pos: p.position,
       _n: norm(p.name), _c: norm(p.club), _f: norm(p.fullName ?? ''),
       _rich: true, _mins: p.minutes ?? 0,
     })
@@ -63,7 +65,7 @@ const PLAYER_INDEX = (() => {
     byApiId.add(p.id)
     out.push({
       name: p.name, fullName: p.fullName, slug: `${slugify(p.name)}-${p.id}`,
-      club: p.club, league: p.league, photo: p.photo, age: p.age,
+      club: p.club, league: p.league, photo: p.photo, age: p.age, pos: p.pos,
       _n: norm(p.name), _c: norm(p.club), _f: norm(p.fullName ?? ''),
       _rich: false, _mins: p.mins ?? 0,
     })

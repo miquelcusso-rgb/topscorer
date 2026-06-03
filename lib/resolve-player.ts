@@ -1,6 +1,7 @@
 import type { PlayerData } from '@/types'
 import { playersForSlug } from '@/lib/player-slug'
 import { getPlayerDetails, type ApiPlayerDetail } from '@/lib/api-football'
+import { flagFor } from '@/lib/flags'
 
 const POS_MAP: Record<string, PlayerData['position']> = {
   Attacker: 'FW', Forward: 'FW', Midfielder: 'MF', Defender: 'DF', Goalkeeper: 'GK',
@@ -33,6 +34,7 @@ export function apiDetailToPlayer(d: ApiPlayerDetail): PlayerData | null {
     src: 'live',
     tab: 's',
     nationality: p.nationality,
+    flag: flagFor(p.nationality),
     photo: p.photo,
     position: POS_MAP[(st.games as { position?: string })?.position ?? ''] ?? undefined,
     height: p.height || undefined,

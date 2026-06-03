@@ -18,6 +18,11 @@ import ComparisonRadar, { type ComparisonAxis } from '@/components/player/Compar
 import type { EnrichedPlayer, Position } from '@/types'
 import VersusCard from './VersusCard'
 
+interface SearchHit {
+  name: string; fullName?: string; slug: string; club: string; league: string
+  flag?: string; photo?: string; age?: number; pos?: string
+}
+
 // Small club crest next to a club name. Omitted gracefully when no logo URL.
 function ClubLogo({ club, size = 18 }: { club: string; size?: number }) {
   const src = clubLogo(club)
@@ -215,22 +220,35 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
   const emptyCardBg = isLight ? 'rgba(0,0,0,.03)' : 'rgba(255,255,255,.02)'
   const emptyCardBorder = isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.1)'
 
-  const filtered = useMemo(() => {
-    if (!query.trim()) return []
-    // Accent-insensitive so "vitinha" matches "Vítinha", "ode" matches "Ödegaard", etc.
-    const strip = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-    const q = strip(query.trim())
-    return ALL_PLAYERS.filter(p =>
-      strip(p.name).includes(q) ||
-      (p.fullName ? strip(p.fullName).includes(q) : false) ||
-      strip(p.club).includes(q)
-    ).slice(0, 8)
+  // Search hits come from /api/search (covers ALL first-division players, not
+  // just the minutes-capped local dataset → Julián Álvarez, rotation players…).
+  const [hits, setHits] = useState<SearchHit[]>([])
+  useEffect(() => {
+    const q = query.trim()
+    if (q.length < 2) { setHits([]); return }
+    let cancel = false
+    const t = setTimeout(() => {
+      fetch(`/api/search?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(j => { if (!cancel && j.ok) setHits((j.players ?? []).slice(0, 8)) })
+        .catch(() => {})
+    }, 180)
+    return () => { cancel = true; clearTimeout(t) }
   }, [query])
+  const filtered = hits
 
-  function selectPlayer(p: EnrichedPlayer) {
-    onSelect(p)
-    setQuery('')
-    setOpen(false)
+  async function selectPlayer(hit: SearchHit) {
+    setQuery(''); setHits([]); setOpen(false)
+    // Player in the rich local dataset → use it directly (multi-season, full stats).
+    const local = ALL_PLAYERS.find(p => playerSlug(p) === hit.slug)
+    if (local) { onSelect(local); return }
+    // Otherwise load live by API id (parsed from the `name-<id>` slug).
+    const m = hit.slug.match(/-(\d+)$/)
+    if (!m) return
+    try {
+      const j = await fetch(`/api/player?id=${m[1]}`).then(r => r.json())
+      if (j.ok && j.player) onSelect(enrich(j.player))
+    } catch { /* ignore */ }
   }
 
   const accent = selected ? posAccent(selected.position) : C_DARK.gd
@@ -264,7 +282,7 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
           }}>
             {filtered.map(p => (
               <button
-                key={p.name}
+                key={p.slug}
                 onMouseDown={() => selectPlayer(p)}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', gap: 8,
@@ -281,9 +299,9 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
                   <ClubLogo club={p.club} size={14} />
                   {p.club}
                 </span>
-                {p.position && (
-                  <span style={{ fontSize: 10, fontWeight: 700, color: posAccent(p.position), background: `${posAccent(p.position)}22`, padding: '2px 5px', borderRadius: 3 }}>
-                    {p.position}
+                {p.pos && (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: posAccent(p.pos as Position), background: `${posAccent(p.pos as Position)}22`, padding: '2px 5px', borderRadius: 3 }}>
+                    {p.pos}
                   </span>
                 )}
               </button>
@@ -465,16 +483,22 @@ export default function ComparadorClient() {
   // Load from URL params on mount. Accept ?a=/?b= (canonical) and also
   // ?p1=/?p2= (deep-link from player profile CTA).
   useEffect(() => {
+    let cancel = false
+    const load = async (slug: string, set: (p: EnrichedPlayer) => void) => {
+      const found = ALL_PLAYERS.find(p => playerSlug(p) === slug)
+      if (found) { set(found); return }
+      const m = slug.match(/-(\d+)$/)
+      if (!m) return
+      try {
+        const j = await fetch(`/api/player?id=${m[1]}`).then(r => r.json())
+        if (!cancel && j.ok && j.player) set(enrich(j.player))
+      } catch { /* ignore */ }
+    }
     const slugA = searchParams.get('a') ?? searchParams.get('p1')
     const slugB = searchParams.get('b') ?? searchParams.get('p2')
-    if (slugA) {
-      const found = ALL_PLAYERS.find(p => playerSlug(p) === slugA)
-      if (found) setPlayerA(found)
-    }
-    if (slugB) {
-      const found = ALL_PLAYERS.find(p => playerSlug(p) === slugB)
-      if (found) setPlayerB(found)
-    }
+    if (slugA) load(slugA, setPlayerA)
+    if (slugB) load(slugB, setPlayerB)
+    return () => { cancel = true }
   }, [searchParams])
 
   // Default the stat-set selector to player A's position — until the user

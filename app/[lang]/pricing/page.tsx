@@ -123,10 +123,10 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
 
         <div className="flex items-end gap-1 mb-1">
           {price === 0 ? (
-            <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 44, color: C.tx, lineHeight: 1 }}>{t('pricing_free_price', lang)}</span>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 44, color: C.tx, lineHeight: 1 }}>{t('pricing_free_price', lang)}</span>
           ) : (
             <>
-              <span style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 44, color: C.tx, lineHeight: 1 }}>€{price}</span>
+              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 44, color: C.tx, lineHeight: 1 }}>€{price}</span>
               <span className="text-[12px] pb-2" style={{ color: C.mu }}>/{billing === 'monthly' ? t('pricing_per_month', lang) : t('pricing_per_year', lang)}</span>
             </>
           )}
@@ -244,13 +244,13 @@ export default function PricingPage() {
             {t('pricing_eyebrow', lang)}
           </div>
           <h1
-            className="leading-none mb-3"
-            style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 'clamp(32px, 5vw, 56px)', letterSpacing: 2 }}
+            className="leading-none mb-3 font-bold"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(32px, 5vw, 56px)', letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-text)' }}
           >
             {t('pricing_h1_pre', lang)} <span style={{ color: C.gd }}>{t('pricing_h1_accent', lang)}</span>
           </h1>
-          <p className="text-[14px] max-w-[500px] mx-auto leading-relaxed" style={{ color: C.mu }}>
-            {t('pricing_subtitle_pre', lang)}<span style={{ color: C.tx }}>{t('pricing_subtitle_em', lang)}</span>.
+          <p className="text-[14px] max-w-[520px] mx-auto leading-relaxed text-center" style={{ color: 'var(--ts-muted)' }}>
+            {t('pricing_subtitle_pre', lang)}<span style={{ color: 'var(--ts-text)', fontWeight: 600 }}>{t('pricing_subtitle_em', lang)}</span>.
           </p>
         </div>
 
@@ -370,7 +370,7 @@ export default function PricingPage() {
         <div className="mb-16">
           <h2
             className="text-center mb-8 leading-none"
-            style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 34, letterSpacing: 2 }}
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 34, letterSpacing: 2 }}
           >
             {t('pricing_cmp_title', lang)}
           </h2>
@@ -408,7 +408,7 @@ export default function PricingPage() {
         <div className="mb-16">
           <h2
             className="text-center mb-8 leading-none"
-            style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 34, letterSpacing: 2 }}
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 34, letterSpacing: 2 }}
           >
             {t('pricing_faq_title', lang)}
           </h2>

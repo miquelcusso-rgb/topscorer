@@ -64,18 +64,19 @@ export default function SaasShell({
       >
         <MobileTopbar activeKey={activeKey} lang={lang} primaryCta={primaryCta} />
         {/* Top bar: multi-entity search (players · teams w/ crest · leagues) + toggles */}
-        <header className="saas-topbar2" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 24px', borderBottom: '1px solid var(--ts-border)' }}>
+        <header className="saas-topbar2" style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '10px 24px', borderBottom: '1px solid var(--ts-border)' }}>
           <TopSearch />
           <div style={{ flex: 1 }} />
+          {/* World Cup countdown lives in the top bar (normal flow) so it never
+              overlaps the page content below it. */}
+          <div className="saas-wc-float" style={{ flexShrink: 0 }}>
+            <WorldCupWidget lang={lang === 'en' ? 'en' : 'es'} scale={1.05} />
+          </div>
           <div className="saas-topbar2-toggles" style={{ display: 'flex', gap: 8 }}>
             <LangTogglePill />
             <ThemeTogglePill />
           </div>
         </header>
-        {/* World Cup countdown floats in the empty top-right space, beside the title */}
-        <div className="saas-wc-float" style={{ position: 'absolute', top: 72, right: 24, zIndex: 6 }}>
-          <WorldCupWidget lang={lang === 'en' ? 'en' : 'es'} scale={1.3} />
-        </div>
         <div
           className="saas-main-content"
           style={{

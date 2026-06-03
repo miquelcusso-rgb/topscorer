@@ -1,4 +1,5 @@
 import type { PlayerData, EnrichedPlayer, SortKey, PanelState, Tab } from '@/types'
+import { flagFor } from '@/lib/flags'
 
 export const COEF: Record<string, number> = {
   'La Liga': 2, 'Premier League': 2, 'Bundesliga': 2, 'Serie A': 2, 'Ligue 1': 2,
@@ -60,6 +61,7 @@ export function enrich(p: PlayerData): EnrichedPlayer {
   const coef = COEF[p.league] || 1
   return {
     ...p,
+    flag: p.flag ?? flagFor(p.nationality),
     coef,
     ratio_g: Math.round((p.goles / p.pj) * 100) / 100,
     ratio_a: Math.round((p.asist / p.pj) * 100) / 100,

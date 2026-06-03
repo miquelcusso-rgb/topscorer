@@ -45,6 +45,8 @@ const LEAGUES = [
 ]
 
 const POS = { Goalkeeper: 'GK', Defender: 'DF', Midfielder: 'MF', Attacker: 'FW' }
+// API-Football sometimes HTML-encodes apostrophes etc. in names (e.g. "O&apos;Reilly").
+const dec = s => (s ?? '').replace(/&apos;/g, "'").replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"')
 const nrmN = s => (s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
 const num = v => (v == null ? undefined : Number(v))
 
@@ -74,8 +76,8 @@ async function leaguePlayers(leagueId, leagueName) {
       const fullName = full && nrmN(full) !== nrmN(p.name) ? full : undefined
       out.push({
         id: num(p.id),
-        name: p.name,
-        fullName,
+        name: dec(p.name),
+        fullName: dec(fullName) || undefined,
         club: st.team?.name ?? '',
         league: leagueName,
         photo: p.photo,

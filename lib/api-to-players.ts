@@ -1,6 +1,7 @@
 import type { ApiPlayerResponse } from './api-football'
 import type { PlayerData, Season, Tab } from '@/types'
 import { EXT } from '@/data/players'
+import { flagFor } from '@/lib/flags'
 
 const LEAGUE_NAME: Record<number, string> = {
   140: 'La Liga',
@@ -106,7 +107,7 @@ export function transformApiPlayer(res: ApiPlayerResponse, tab: Tab): PlayerData
     src:         'live' as const,
     tab,
     nationality: res.player.nationality,
-    flag:        FLAG_MAP[res.player.nationality] ?? ext.flag,
+    flag:        FLAG_MAP[res.player.nationality] ?? flagFor(res.player.nationality) ?? ext.flag,
     position:    (POS_MAP[stat.games.position] as PlayerData['position']) ?? ext.position,
     minutes:     stat.games.minutes ?? undefined,
     ...ext,

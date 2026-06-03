@@ -47,6 +47,7 @@ const LEAGUES = [
 ]
 
 const POS = { Goalkeeper: 'GK', Defender: 'DF', Midfielder: 'MF', Attacker: 'FW' }
+const dec = s => (s ?? '').replace(/&apos;/g, "'").replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"')
 const nrmN = s => (s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
 const num = v => (v == null ? undefined : Number(v))
 const round2 = v => (v == null ? undefined : Math.round(Number(v) * 100) / 100)
@@ -77,8 +78,8 @@ async function leaguePlayers(leagueId, leagueName) {
       const fullName = full && nrmN(full) !== nrmN(p.name) ? full : undefined
       const pa = num(st.passes?.accuracy)
       out.push({
-        name: p.name,
-        fullName,
+        name: dec(p.name),
+        fullName: dec(fullName) || undefined,
         apiId: num(p.id),
         club: st.team?.name ?? '',
         league: leagueName,
