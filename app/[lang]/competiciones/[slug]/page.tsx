@@ -9,8 +9,12 @@ import {
   playersForLeague,
 } from '@/lib/league-data'
 import LeagueClient from './LeagueClient'
+import EuroCupClient from '@/components/saas/EuroCupClient'
+import { isEuroCup, getEuroCupData } from '@/lib/euro-cups'
 
 const BASE = 'https://www.top-scorers.com'
+
+export const revalidate = 21600 // 6h ISR — keeps standings/fixtures fresh
 
 export function generateStaticParams() {
   return allLeagueSlugs().map(slug => ({ slug }))
@@ -75,10 +79,23 @@ export default async function CompeticionPage({
   const league = findLeagueBySlug(slug)
   if (!league) notFound()
 
-  const players = playersForLeague(league, '2526')
-
   const breadcrumb =
     lang === 'en' ? ['Competitions', league.name] : ['Competiciones', league.name]
+
+  // UEFA club competitions (UCL/UEL/UECL): live league-phase table + calendar +
+  // knockout bracket + scorers, World-Cup-style, instead of the dataset view.
+  if (isEuroCup(league.id)) {
+    const data = await getEuroCupData(league.id, lang)
+    return (
+      <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
+        {data
+          ? <EuroCupClient data={data} lang={lang} />
+          : <div style={{ color: 'var(--ts-muted)', padding: 24 }}>{lang === 'en' ? 'Data temporarily unavailable.' : 'Datos no disponibles temporalmente.'}</div>}
+      </SaasShell>
+    )
+  }
+
+  const players = playersForLeague(league, '2526')
 
   const itemListJsonLd = {
     '@context': 'https://schema.org',
