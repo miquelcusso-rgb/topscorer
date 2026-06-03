@@ -14,22 +14,23 @@ export default function Avatar({ name, size = 36, photo }: AvatarProps) {
   const { theme } = useTheme()
   const tint = avatarTintFor(name, theme)
   const initials = initialsOf(name)
-  const [broken, setBroken] = useState(false)
+  // Photo load: try with crossOrigin (lets the radar export to canvas), then
+  // retry without it if that fails (some edge responses miss CORS headers), and
+  // only then fall back to tinted initials — maximizes real-photo coverage.
+  const [step, setStep] = useState(0)
 
-  if (photo && !broken) {
+  if (photo && step < 2) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
+        key={step}
         src={photo}
         alt={name}
         width={size}
         height={size}
         loading="lazy"
-        // Allow canvas / html-to-image export without tainting when the CDN
-        // serves permissive CORS headers (API-Football does). Falls back to
-        // tinted initials on load error.
-        crossOrigin="anonymous"
-        onError={() => setBroken(true)}
+        crossOrigin={step === 0 ? 'anonymous' : undefined}
+        onError={() => setStep(s => s + 1)}
         style={{
           width: size,
           height: size,

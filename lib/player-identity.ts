@@ -94,9 +94,16 @@ export function seasonsForPlayer(p: Pick<PlayerData, 'apiId' | 'name' | 'fullNam
   return GROUPS.get(playerKey(p)) ?? []
 }
 
+// A player counts as "current" only if their newest entry is recent (≥ 23/24).
+// This drops history-only players (e.g. someone who exists in the 10/11→19/20
+// historical set but whose current club lives only in the live search index, like
+// a capped-out active player) so they never surface as a STALE current entry —
+// their up-to-date version still comes from the search index / live resolver, and
+// their full history remains in seasonsForPlayer().
+const CURRENT_SEASON_FLOOR = 2324
 /** Exactly one entry per real player — the most recent (current) season. */
 export const PRIMARY_PLAYERS: PlayerData[] = (() => {
   const out: PlayerData[] = []
-  for (const arr of GROUPS.values()) if (arr[0]) out.push(arr[0])
+  for (const arr of GROUPS.values()) if (arr[0] && seasonRank(arr[0].season) >= CURRENT_SEASON_FLOOR) out.push(arr[0])
   return out
 })()

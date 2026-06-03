@@ -97,6 +97,8 @@ export function transformApiPlayer(res: ApiPlayerResponse, tab: Tab): PlayerData
   const ext = EXT[res.player.name] ?? {}
   return {
     name:        res.player.name,
+    apiId:       res.player.id,
+    photo:       res.player.photo,
     club:        stat.team.name,
     league:      leagueName,
     age:         res.player.age,

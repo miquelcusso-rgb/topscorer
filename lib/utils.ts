@@ -62,6 +62,9 @@ export function enrich(p: PlayerData): EnrichedPlayer {
   return {
     ...p,
     flag: p.flag ?? flagFor(p.nationality),
+    // Every player with an API id has a CDN headshot — derive it when a row
+    // didn't carry one, so photos show wherever an apiId is known.
+    photo: p.photo ?? (p.apiId ? `https://media.api-sports.io/football/players/${p.apiId}.png` : undefined),
     coef,
     ratio_g: Math.round((p.goles / p.pj) * 100) / 100,
     ratio_a: Math.round((p.asist / p.pj) * 100) / 100,
