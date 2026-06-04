@@ -9,7 +9,11 @@ import { SEARCH_INDEX } from '@/data/search-index'
 // for a player who isn't in the static dataset still resolve live by apiId.
 const SLUG_TO_ID = (() => {
   const m = new Map<string, number>()
-  for (const p of SEARCH_INDEX) { const s = slugify(p.name); if (!m.has(s)) m.set(s, p.id) }
+  for (const p of SEARCH_INDEX) {
+    for (const s of [slugify(p.name), p.fullName ? slugify(p.fullName) : '']) {
+      if (s && !m.has(s)) m.set(s, p.id)
+    }
+  }
   return m
 })()
 
