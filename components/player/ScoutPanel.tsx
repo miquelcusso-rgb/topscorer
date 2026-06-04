@@ -52,7 +52,6 @@ export default function ScoutPanel({ name, en, releaseClause }: { name: string; 
         <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-muted)' }}>
           {en ? 'Scout report' : 'Informe scout'}
         </span>
-        <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.08em', color: 'var(--ts-primary)', border: '1px solid var(--ts-primary)', borderRadius: 4, padding: '1px 5px' }}>PRO</span>
       </div>
       {!loaded ? (
         <div style={{ fontSize: 12, color: 'var(--ts-faint)' }}>{en ? 'Loading scouting data…' : 'Cargando datos de scout…'}</div>

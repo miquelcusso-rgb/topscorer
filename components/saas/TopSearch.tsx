@@ -9,6 +9,26 @@ interface Props {
   placeholder?: string
 }
 
+// Curated "hot topics of the day". Items with `href` navigate; the rest prefill
+// the search box (so the normal player/team search resolves them).
+interface HotTopic { label: string; href?: (lang: string) => string }
+const HOT_TOPICS: HotTopic[] = [
+  { label: 'World Cup 2026', href: l => `/${l}/mundial-2026` },
+  { label: 'Champions League', href: l => `/${l}/competiciones/champions-league` },
+  { label: 'Haaland' },
+  { label: 'Lamine Yamal' },
+  { label: 'Mbappé' },
+  { label: 'Real Madrid' },
+  { label: 'Barcelona' },
+  { label: 'PSG' },
+  { label: 'Man City' },
+  { label: 'Liverpool' },
+  { label: 'Arsenal' },
+  { label: 'Bayern' },
+  { label: 'Bota de Oro', href: l => `/${l}/bota-de-oro` },
+  { label: 'Transferencias', href: l => `/${l}/transferencias` },
+]
+
 export default function TopSearch({ placeholder }: Props) {
   const { lang } = useLang()
   const router = useRouter()
@@ -90,7 +110,8 @@ export default function TopSearch({ placeholder }: Props) {
   }
 
   const hasResults = items.length > 0
-  const showDropdown = open && q.trim().length >= 2
+  const emptyFocus = open && q.trim().length === 0
+  const showDropdown = (open && q.trim().length >= 2) || emptyFocus
 
   return (
     <div ref={wrapRef} style={{ position: 'relative', flex: 1, maxWidth: 380 }}>
@@ -138,7 +159,26 @@ export default function TopSearch({ placeholder }: Props) {
             boxShadow: '0 12px 32px rgba(0,0,0,.18)', overflow: 'hidden', maxHeight: 420, overflowY: 'auto',
           }}
         >
-          {!hasResults && (
+          {emptyFocus && (
+            <div>
+              <div style={SECTION_STYLE}>🔥 {lang === 'en' ? 'Trending today' : 'Tendencias de hoy'}</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '4px 12px 12px' }}>
+                {HOT_TOPICS.map(t => (
+                  <button key={t.label} type="button"
+                    onClick={() => { if (t.href) go(t.href(lang)); else { setQ(t.label); inputRef.current?.focus() } }}
+                    style={{
+                      fontSize: 12, fontWeight: 600, padding: '6px 11px', borderRadius: 999,
+                      background: 'var(--ts-card2)', border: '1px solid var(--ts-border)',
+                      color: 'var(--ts-text)', cursor: 'pointer', fontFamily: 'inherit',
+                    }}>
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {!emptyFocus && !hasResults && (
             <div style={{ padding: '14px 16px', fontSize: 13, color: 'var(--ts-muted)' }}>
               {lang === 'en' ? 'No matches.' : 'Sin resultados.'}
             </div>

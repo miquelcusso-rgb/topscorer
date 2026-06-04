@@ -1,4 +1,5 @@
 import type { PlayerData } from '@/types'
+import { PRIMARY_PLAYERS } from '@/lib/player-identity'
 import SaasShell from '@/components/saas/SaasShell'
 import IdentityCard from '@/components/player/IdentityCard'
 import PlayerCareer from '@/components/player/PlayerCareer'
@@ -7,8 +8,7 @@ import PlayerHonors from '@/components/player/PlayerHonors'
 import PlayerRadar from '@/components/player/PlayerRadar'
 import ScoutPanel from '@/components/player/ScoutPanel'
 import BioPanel from '@/components/player/BioPanel'
-import LockedSection from '@/components/saas/LockedSection'
-import ProfileTabs from '@/components/player/ProfileTabs'
+import ProfileTabbed from '@/components/player/ProfileTabbed'
 import RadarCard from '@/components/player/RadarCard'
 import type { Plan } from '@/types'
 import { shortName } from '@/lib/player-name'
@@ -61,13 +61,23 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
   const conv = shots ? Math.round(((player.goles ?? 0) / shots) * 100) : 0
   const onTarget = shots ? Math.round(((player.shotsOn ?? 0) / shots) * 100) : 0
 
+  // Fallback radar (only when a player has no apiId → no percentile radar). Bars
+  // are RELATIVE to the best in the same broad position within our dataset, so a
+  // value isn't measured against an arbitrary fixed max. (apiId players get the
+  // true percentile radar in PlayerRadar.)
+  const broadPos = player.position
+  const peers = PRIMARY_PLAYERS.filter(p => p.position === broadPos)
+  const poolMax = (sel: (p: PlayerData) => number) => Math.max(1, ...peers.map(sel))
+  const rel = (v: number, max: number) => clampPct((v / max) * 100)
+  const maxG = poolMax(p => p.goles ?? 0), maxA = poolMax(p => p.asist ?? 0)
+  const maxSh = poolMax(p => p.shotsTotal ?? 0), maxKp = poolMax(p => p.keyPasses ?? 0)
   const radarAxes = [
-    { label: en ? 'Goals' : 'Goles',      value: player.goles ?? 0, pct: clampPct(((player.goles ?? 0) / 36) * 100) },
-    { label: en ? 'Assists' : 'Asist.',   value: player.asist ?? 0, pct: clampPct(((player.asist ?? 0) / 22) * 100) },
-    { label: en ? 'Shots' : 'Tiros',      value: shots, pct: clampPct((shots / 130) * 100) },
+    { label: en ? 'Goals' : 'Goles',      value: player.goles ?? 0, pct: rel(player.goles ?? 0, maxG) },
+    { label: en ? 'Assists' : 'Asist.',   value: player.asist ?? 0, pct: rel(player.asist ?? 0, maxA) },
+    { label: en ? 'Shots' : 'Tiros',      value: shots, pct: rel(shots, maxSh) },
     { label: en ? 'On tgt' : '% Puerta',  value: `${onTarget}%`, pct: clampPct(onTarget) },
     { label: en ? 'Conv.' : 'Conversión', value: `${conv}%`, pct: clampPct(conv * 3) },
-    { label: en ? 'Key P.' : 'P. clave',  value: player.keyPasses ?? 0, pct: clampPct(((player.keyPasses ?? 0) / 100) * 100) },
+    { label: en ? 'Key P.' : 'P. clave',  value: player.keyPasses ?? 0, pct: rel(player.keyPasses ?? 0, maxKp) },
   ]
   const radarStats = [
     { value: player.rating != null ? player.rating.toFixed(2) : '—', label: en ? 'Rating' : 'Nota', tone: 'primary' as const },
@@ -82,10 +92,11 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
         player={player}
         iigBadge={{ value: iig(player), title: `${IIG_NAME[lang]} · ${IIG_EXPLAINER[lang]}` }}
       />
-      <ProfileTabs
+      <ProfileTabbed
         compareHref={`/${lang}/estadisticas/comparador?p1=${slug}`}
         compareLabel={en ? '↗ Compare this player' : '↗ Comparar este jugador'}
-      />
+        en={en}
+        resumen={<>
       <div className="saas-profile-grid" style={{ display: 'grid', gridTemplateColumns: '380px 1fr 320px', gap: 18 }}>
         {player.apiId
           ? <PlayerRadar apiId={player.apiId} en={en} />
@@ -139,17 +150,16 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
         </div>
       </div>
 
-      <MarketValueChart name={player.fullName || player.name} en={en} />
-
-      <LockedSection requiredPlan="pro" userPlan={userPlan}>
-        <ScoutPanel name={player.fullName || player.name} en={en} releaseClause={player.releaseClause} />
-      </LockedSection>
-
-      <PlayerHonors apiId={player.apiId} en={en} />
-
-      <PlayerCareer apiId={player.apiId} seasons={seasons} en={en} />
+      <ScoutPanel name={player.fullName || player.name} en={en} releaseClause={player.releaseClause} />
 
       <BioPanel name={player.fullName || player.name} lang={lang} />
+        </>}
+        historico={<>
+          <MarketValueChart name={player.fullName || player.name} en={en} />
+          <PlayerHonors apiId={player.apiId} en={en} />
+          <PlayerCareer apiId={player.apiId} seasons={seasons} en={en} />
+        </>}
+      />
     </SaasShell>
   )
 }
