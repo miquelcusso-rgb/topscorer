@@ -225,6 +225,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
   // Shared "card" look (matches the account/club cards) for the nav section boxes.
   const cardBox: React.CSSProperties = { background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, padding: 8 }
   const groupLabel: React.CSSProperties = { padding: '4px 8px 6px', fontSize: 10, color: 'var(--ts-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }
+  const sectionDivider: React.CSSProperties = { borderTop: '1px solid var(--ts-border)', marginTop: 6, paddingTop: 6 }
 
   return (
     <aside
@@ -306,10 +307,12 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         </div>
       </div>
 
-      {/* nav */}
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {groups.map(group => (
-          <div key={group.label} style={cardBox}>
+      {/* nav — ONE card with internal dividers (no gappy "grey boxes" between
+          sections; matches the account card treatment). */}
+      <nav>
+       <div style={cardBox}>
+        {groups.map((group, gi) => (
+          <div key={group.label} style={gi > 0 ? sectionDivider : undefined}>
             <div style={groupLabel}>{group.label}</div>
             {group.items.map((it, i) => (
               <MenuRow key={`${it.label}-${i}`} item={it} active={isActive(it.href)} />
@@ -317,7 +320,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
           </div>
         ))}
 
-        <div style={cardBox}>
+        <div style={sectionDivider}>
           <div style={groupLabel}>{L.lists}</div>
           <MenuRow
             item={{ id: 'watchlist', icon: '⭐', label: L.watchlist, href: `/${lang}/cuenta` }}
@@ -326,7 +329,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         </div>
 
         {/* Scout tools — gated (line-through + SCOUT pill for non-scout plans). */}
-        <div style={cardBox}>
+        <div style={sectionDivider}>
           <div style={groupLabel}>{lang === 'en' ? 'Scout Tools' : 'Herramientas Scout'}</div>
         {(
           [
@@ -363,6 +366,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
           )
         })}
         </div>
+       </div>
       </nav>
 
       {showUpgrade && (
