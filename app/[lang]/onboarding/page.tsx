@@ -112,7 +112,7 @@ export default function OnboardingPage() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
-      style={{ background: 'linear-gradient(160deg,#07081a 0%,#0b0d22 100%)' }}
+      style={{ background: 'linear-gradient(160deg,#0a0908 0%,#0b0d22 100%)' }}
     >
       {/* Card */}
       <div
@@ -134,12 +134,12 @@ export default function OnboardingPage() {
             className="font-bold mb-1"
             style={{
               fontFamily: "'Barlow Condensed', sans-serif",
-              fontSize: 26, color: '#e8e8f8', letterSpacing: 0.5,
+              fontSize: 26, color: '#efe9dc', letterSpacing: 0.5,
             }}
           >
             {t('onb_welcome', lang)}{user?.firstName ? `, ${user.firstName}` : ''}!
           </h1>
-          <p className="text-[13px]" style={{ color: '#5060a0' }}>
+          <p className="text-[13px]" style={{ color: '#8a7f68' }}>
             {t('onb_subtitle', lang)}
           </p>
         </div>
@@ -153,9 +153,9 @@ export default function OnboardingPage() {
             onChange={e => setSearch(e.target.value)}
             className="w-full rounded text-[13px] px-3 py-2 outline-none"
             style={{
-              background: '#07070f',
+              background: '#0a0908',
               border: '1px solid #1a1c38',
-              color: '#c8c8e0',
+              color: '#f1e8d2',
             }}
           />
         </div>
@@ -166,7 +166,7 @@ export default function OnboardingPage() {
             <div key={league} className="mb-4">
               <div
                 className="text-[10px] font-bold uppercase tracking-[2px] mb-2 mt-3"
-                style={{ color: '#3a3b52', fontFamily: "'Barlow Condensed', sans-serif" }}
+                style={{ color: '#9a917e', fontFamily: "'Barlow Condensed', sans-serif" }}
               >
                 {league === 'Resultados' ? t('onb_results', lang) : league === 'Outros' ? t('onb_league_others', lang) : league}
               </div>
@@ -194,7 +194,7 @@ export default function OnboardingPage() {
                       <span
                         className="text-[10px] text-center leading-tight"
                         style={{
-                          color: active ? '#f0c040' : '#7878a0',
+                          color: active ? '#f0c040' : '#9a917e',
                           fontWeight: active ? 700 : 400,
                         }}
                       >
@@ -219,7 +219,7 @@ export default function OnboardingPage() {
             className="flex-1 py-2.5 rounded font-bold text-[13px] cursor-pointer transition-all duration-150"
             style={{
               background: selected ? '#f0c040' : '#1a1c38',
-              color: selected ? '#05060c' : '#3a3b52',
+              color: selected ? '#0a0908' : '#9a917e',
               fontFamily: "'Barlow Condensed', sans-serif",
               letterSpacing: 1,
             }}
@@ -229,9 +229,9 @@ export default function OnboardingPage() {
           <button
             onClick={handleSkip}
             className="px-4 py-2.5 text-[12px] cursor-pointer transition-colors duration-150"
-            style={{ color: '#3a3b52' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#7878a0')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#3a3b52')}
+            style={{ color: '#9a917e' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#9a917e')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#9a917e')}
           >
             {t('onb_skip', lang)}
           </button>

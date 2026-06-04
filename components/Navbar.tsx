@@ -49,9 +49,9 @@ export default function Navbar() {
   const lp = (p: string) => (p === '/' ? `/${lang}` : `/${lang}${p}`)
   const [showHint, setShowHint] = useState(false)
   const isLight = theme === 'light'
-  const navBg   = isLight ? 'rgba(248,250,255,.97)' : 'rgba(6,13,24,.96)'
+  const navBg   = isLight ? 'rgba(248,250,255,.97)' : 'rgba(10,9,8,.96)'
   const navText = isLight ? '#1a2a40' : '#7888aa'
-  const navActive = isLight ? '#0f1830' : '#eef4ff'
+  const navActive = isLight ? '#1c1608' : '#f8f7f3'
   const navActiveBg = isLight ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.06)'
 
   useEffect(() => {
@@ -169,7 +169,7 @@ export default function Navbar() {
                   background: path === href ? navActiveBg : 'transparent',
                   fontWeight: path === href ? 600 : 500,
                 }}
-                onMouseEnter={e => { if (path !== href) { e.currentTarget.style.color = isLight ? '#2a3a54' : '#b8c8e0'; e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.04)' } }}
+                onMouseEnter={e => { if (path !== href) { e.currentTarget.style.color = isLight ? '#6e6655' : '#b8c8e0'; e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.04)' } }}
                 onMouseLeave={e => { if (path !== href) { e.currentTarget.style.color = navText; e.currentTarget.style.background = 'transparent' } }}
               >
                 {label}
@@ -197,8 +197,8 @@ export default function Navbar() {
                 <div
                   className="absolute left-0 top-full mt-1 rounded-lg py-1 z-50 min-w-[160px]"
                   style={{
-                    background: isLight ? '#ffffff' : '#10111e',
-                    border: `1px solid ${isLight ? 'rgba(0,0,0,.1)' : '#1a1b2e'}`,
+                    background: isLight ? '#ffffff' : '#15130f',
+                    border: `1px solid ${isLight ? 'rgba(0,0,0,.1)' : '#2a2620'}`,
                     boxShadow: '0 8px 32px rgba(0,0,0,.32)',
                   }}
                 >
@@ -210,13 +210,13 @@ export default function Navbar() {
                       className="block px-4 py-2.5 transition-colors duration-150"
                       style={{
                         fontSize: 13,
-                        color: path === href ? (isLight ? '#0f1830' : '#eef4ff') : (isLight ? '#3a5070' : '#8090b0'),
+                        color: path === href ? (isLight ? '#1c1608' : '#f8f7f3') : (isLight ? '#3a5070' : '#9a917e'),
                         fontWeight: path === href ? 600 : 400,
                         background: path === href ? (isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.05)') : 'transparent',
                         textDecoration: 'none',
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.06)'; e.currentTarget.style.color = isLight ? '#0f1830' : '#d8d8ec' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = path === href ? (isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.05)') : 'transparent'; e.currentTarget.style.color = path === href ? (isLight ? '#0f1830' : '#eef4ff') : (isLight ? '#3a5070' : '#8090b0') }}
+                      onMouseEnter={e => { e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.06)'; e.currentTarget.style.color = isLight ? '#1c1608' : '#f1e8d2' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = path === href ? (isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.05)') : 'transparent'; e.currentTarget.style.color = path === href ? (isLight ? '#1c1608' : '#f8f7f3') : (isLight ? '#3a5070' : '#9a917e') }}
                     >
                       {label}
                     </Link>
@@ -301,7 +301,7 @@ export default function Navbar() {
                   href={lp("/pricing")}
                   className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
                   style={{
-                    fontSize: 12.5, color: '#060d18', background: '#f0c040',
+                    fontSize: 12.5, color: '#0a0908', background: '#f0c040',
                     boxShadow: '0 2px 12px rgba(240,192,64,.28)',
                     letterSpacing: '0.3px', textDecoration: 'none',
                   }}
@@ -316,7 +316,7 @@ export default function Navbar() {
                   href={`${lp('/sign-in')}?redirect_url=${encodeURIComponent(lp('/pricing'))}`}
                   className="inline-flex font-bold px-4 py-1.5 rounded cursor-pointer transition-all duration-150 items-center gap-1"
                   style={{
-                    fontSize: 12.5, color: '#060d18', background: '#f0c040',
+                    fontSize: 12.5, color: '#0a0908', background: '#f0c040',
                     boxShadow: '0 2px 12px rgba(240,192,64,.28)',
                     letterSpacing: '0.3px', textDecoration: 'none',
                   }}
@@ -356,7 +356,7 @@ export default function Navbar() {
       {menuOpen && (
         <div
           className="md:hidden"
-          style={{ background: isLight ? 'rgba(240,244,255,.99)' : 'rgba(9,7,16,.98)', borderBottom: `1px solid ${isLight ? 'rgba(0,0,0,.1)' : '#1a1630'}` }}
+          style={{ background: isLight ? 'rgba(244,242,235,.99)' : 'rgba(10,9,8,.98)', borderBottom: `1px solid ${isLight ? 'rgba(0,0,0,.1)' : '#2a2620'}` }}
         >
           {navLinks.map(({ href, label }) => (
             <Link
@@ -365,8 +365,8 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
               className="block px-5 py-3 text-[14px] font-medium border-b transition-colors duration-150"
               style={{
-                color: path === href ? (isLight ? '#0f1830' : '#d8d8ec') : (isLight ? '#3a5070' : '#8080a8'),
-                borderColor: isLight ? 'rgba(0,0,0,.08)' : '#0e0f1e',
+                color: path === href ? (isLight ? '#1c1608' : '#f1e8d2') : (isLight ? '#3a5070' : '#8080a8'),
+                borderColor: isLight ? 'rgba(0,0,0,.08)' : '#15130f',
               }}
             >
               {label}
@@ -374,7 +374,7 @@ export default function Navbar() {
           ))}
           {/* Auth buttons in mobile menu */}
           {isLoaded && (
-            <div className="px-5 py-4 flex items-center gap-3" style={{ borderTop: `1px solid ${isLight ? 'rgba(0,0,0,.1)' : '#1a1630'}` }}>
+            <div className="px-5 py-4 flex items-center gap-3" style={{ borderTop: `1px solid ${isLight ? 'rgba(0,0,0,.1)' : '#2a2620'}` }}>
               {!isSignedIn ? (
                 <>
                   <SignInButton mode="modal">
@@ -389,7 +389,7 @@ export default function Navbar() {
                   <Link
                     href={lp("/pricing")}
                     className="flex-1 py-2 rounded text-[13px] font-bold cursor-pointer text-center"
-                    style={{ color: '#060d18', background: '#f0c040', textDecoration: 'none' }}
+                    style={{ color: '#0a0908', background: '#f0c040', textDecoration: 'none' }}
                     onClick={() => setMenuOpen(false)}
                   >
                     ⚡ Pro

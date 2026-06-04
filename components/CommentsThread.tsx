@@ -40,12 +40,12 @@ export default function CommentsThread({ targetType, targetId }: Props) {
   const [posting, setPosting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const card    = isLight ? '#ffffff' : '#0d0e1c'
-  const border  = isLight ? '#d8deef' : '#1a1c2e'
-  const text1   = isLight ? '#0f1830' : '#e8e8f8'
-  const text2   = isLight ? '#33405e' : '#9aa6c8'
-  const muted   = isLight ? '#6070a0' : '#5a5c80'
-  const inputBg = isLight ? '#f4f6ff' : '#07070f'
+  const card    = isLight ? '#ffffff' : '#15130f'
+  const border  = isLight ? '#e6dfce' : '#2a2620'
+  const text1   = isLight ? '#1c1608' : '#efe9dc'
+  const text2   = isLight ? '#6e6655' : '#b5ab95'
+  const muted   = isLight ? '#8a7f68' : '#9a917e'
+  const inputBg = isLight ? '#f8f7f3' : '#0a0908'
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -156,7 +156,7 @@ export default function CommentsThread({ targetType, targetId }: Props) {
               onClick={post}
               disabled={posting || !text.trim()}
               style={{
-                background: '#f0c040', color: '#05060c',
+                background: '#f0c040', color: '#0a0908',
                 padding: '6px 18px', borderRadius: 6,
                 fontFamily: "'Barlow Condensed', sans-serif", fontSize: 13, fontWeight: 700,
                 letterSpacing: 0.5, cursor: 'pointer',
@@ -181,7 +181,7 @@ export default function CommentsThread({ targetType, targetId }: Props) {
           <SignInButton mode="modal">
             <button
               style={{
-                background: '#f0c040', color: '#05060c',
+                background: '#f0c040', color: '#0a0908',
                 padding: '5px 14px', borderRadius: 5,
                 fontFamily: "'Barlow Condensed', sans-serif", fontSize: 12, fontWeight: 700,
                 letterSpacing: 0.5, cursor: 'pointer',

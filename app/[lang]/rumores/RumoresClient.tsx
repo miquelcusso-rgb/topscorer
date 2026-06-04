@@ -29,7 +29,7 @@ type StatusFilter = 'all' | 'rumor' | 'agreed' | 'confirmed'
 type LeagueFilter = 'all' | 'La Liga' | 'Premier League' | 'Bundesliga' | 'Serie A' | 'Ligue 1'
 
 const STATUS_STYLE: Record<Rumor['status'], { es: string; en: string; color: string }> = {
-  rumor:     { es: 'Rumor',      en: 'Rumour',    color: '#9aa6c8' },
+  rumor:     { es: 'Rumor',      en: 'Rumour',    color: '#b5ab95' },
   agreed:    { es: 'Acordado',   en: 'Agreed',    color: '#f0c040' },
   confirmed: { es: 'Confirmado', en: 'Confirmed', color: '#38c47a' },
   failed:    { es: 'Descartado', en: 'Failed',    color: '#e03a3a' },
@@ -41,12 +41,12 @@ export default function RumoresClient() {
   const isLight = theme === 'light'
   const es = lang === 'es'
 
-  const bg     = isLight ? '#f4f6ff' : '#060d18'
-  const card   = isLight ? '#ffffff' : '#0d0e1c'
-  const border = isLight ? '#d8deef' : '#1a1c2e'
-  const text1  = isLight ? '#0f1830' : '#e8e8f8'
-  const text2  = isLight ? '#33405e' : '#9aa6c8'
-  const muted  = isLight ? '#6070a0' : '#5a5c80'
+  const bg     = isLight ? '#f8f7f3' : '#0a0908'
+  const card   = isLight ? '#ffffff' : '#15130f'
+  const border = isLight ? '#e6dfce' : '#2a2620'
+  const text1  = isLight ? '#1c1608' : '#efe9dc'
+  const text2  = isLight ? '#6e6655' : '#b5ab95'
+  const muted  = isLight ? '#8a7f68' : '#9a917e'
 
   const [rumors, setRumors] = useState<Rumor[]>([])
   const [loading, setLoading] = useState(true)

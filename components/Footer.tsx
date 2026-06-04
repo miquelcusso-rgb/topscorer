@@ -12,15 +12,15 @@ export default function Footer() {
   const isLight = theme === 'light'
 
   const footerBg = isLight ? '#e8edf8' : '#080910'
-  const footerBorder = isLight ? '#c8d0e8' : '#1e2033'
-  const bottomBorder = isLight ? '#c8d0e8' : '#1e1a38'
-  const textBrand = isLight ? '#0f1830' : '#eeeef5'
-  const textDesc = isLight ? '#5060a0' : '#7070a0'
+  const footerBorder = isLight ? '#ddd5c2' : '#2a2620'
+  const bottomBorder = isLight ? '#ddd5c2' : '#1e1a38'
+  const textBrand = isLight ? '#1c1608' : '#eeeef5'
+  const textDesc = isLight ? '#8a7f68' : '#7070a0'
   const textData = isLight ? '#7080a0' : '#525278'
-  const textGroup = isLight ? '#6070a0' : '#5a5c88'
-  const textLink = isLight ? '#5060a0' : '#7070a0'
-  const textLinkHover = isLight ? '#0f1830' : '#b0b0cc'
-  const textCopy = isLight ? '#6070a0' : '#525278'
+  const textGroup = isLight ? '#8a7f68' : '#5a5c88'
+  const textLink = isLight ? '#8a7f68' : '#7070a0'
+  const textLinkHover = isLight ? '#1c1608' : '#b0b0cc'
+  const textCopy = isLight ? '#8a7f68' : '#525278'
 
   // Locale-aware path builder
   const lp = (p: string) => (p === '/' ? `/${lang}` : `/${lang}${p}`)

@@ -30,12 +30,12 @@ export default function CuentaClient() {
   const isLight = theme === 'light'
   const es = lang === 'es'
 
-  const bg     = isLight ? '#f4f6ff' : '#060d18'
-  const card   = isLight ? '#ffffff' : '#0d0e1c'
-  const border = isLight ? '#d8deef' : '#1a1c2e'
-  const text1  = isLight ? '#0f1830' : '#e8e8f8'
-  const text2  = isLight ? '#33405e' : '#9aa6c8'
-  const muted  = isLight ? '#6070a0' : '#5a5c80'
+  const bg     = isLight ? '#f8f7f3' : '#0a0908'
+  const card   = isLight ? '#ffffff' : '#15130f'
+  const border = isLight ? '#e6dfce' : '#2a2620'
+  const text1  = isLight ? '#1c1608' : '#efe9dc'
+  const text2  = isLight ? '#6e6655' : '#b5ab95'
+  const muted  = isLight ? '#8a7f68' : '#9a917e'
 
   const [badge, setBadge] = useState<BadgeState | null>(null)
   const [comps, setComps] = useState<Comparison[]>([])
@@ -81,7 +81,7 @@ export default function CuentaClient() {
     return (
       <div style={{ background: bg, padding: '40px 20px', textAlign: 'center', borderRadius: 12 }}>
         <p style={{ color: text2, marginBottom: 16 }}>{es ? 'Inicia sesión para ver tu cuenta.' : 'Sign in to view your account.'}</p>
-        <Link href={`/${lang}/sign-in`} style={{ background: '#f0c040', color: '#05060c', padding: '8px 18px', borderRadius: 5, fontWeight: 700, textDecoration: 'none' }}>
+        <Link href={`/${lang}/sign-in`} style={{ background: '#f0c040', color: '#0a0908', padding: '8px 18px', borderRadius: 5, fontWeight: 700, textDecoration: 'none' }}>
           {es ? 'Entrar' : 'Sign in'}
         </Link>
       </div>
@@ -145,7 +145,7 @@ export default function CuentaClient() {
                 </span>
                 <span style={{ fontSize: 12, color: muted }}>{badge.points_to_next} pts</span>
               </div>
-              <div style={{ height: 6, background: isLight ? '#e2e8f4' : '#1a1c2e', borderRadius: 999, overflow: 'hidden' }}>
+              <div style={{ height: 6, background: isLight ? '#ece6d8' : '#2a2620', borderRadius: 999, overflow: 'hidden' }}>
                 <div style={{ width: `${badge.progress * 100}%`, height: '100%', background: '#f0c040', borderRadius: 999, transition: 'width .3s' }} />
               </div>
             </>
@@ -226,7 +226,7 @@ export default function CuentaClient() {
           {plan === 'free' ? (
             <div className="flex items-center justify-between gap-3 flex-wrap" style={{ fontSize: 13, color: text2 }}>
               <span>{es ? 'Estás en el plan gratuito. Pásate a Pro para desbloquear extras de comunidad y sin anuncios.' : 'You are on the free plan. Upgrade to Pro for community perks and ads-free.'}</span>
-              <Link href={`/${lang}/pricing`} style={{ background: '#f0c040', color: '#05060c', padding: '6px 14px', borderRadius: 4, fontWeight: 700, fontSize: 12, fontFamily: "'Barlow Condensed', sans-serif", textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              <Link href={`/${lang}/pricing`} style={{ background: '#f0c040', color: '#0a0908', padding: '6px 14px', borderRadius: 4, fontWeight: 700, fontSize: 12, fontFamily: "'Barlow Condensed', sans-serif", textDecoration: 'none', whiteSpace: 'nowrap' }}>
                 {es ? 'Ver planes' : 'See plans'}
               </Link>
             </div>
@@ -254,7 +254,7 @@ export default function CuentaClient() {
               style={{
                 padding: '6px 16px', borderRadius: 999,
                 background: newsletterOn ? '#38c47a' : 'transparent',
-                color: newsletterOn ? '#05060c' : muted,
+                color: newsletterOn ? '#0a0908' : muted,
                 border: `1px solid ${newsletterOn ? '#38c47a' : border}`,
                 fontFamily: "'Barlow Condensed', sans-serif", fontSize: 12, fontWeight: 700,
                 letterSpacing: 0.5, textTransform: 'uppercase', cursor: 'pointer',

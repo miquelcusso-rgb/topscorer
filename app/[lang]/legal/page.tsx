@@ -37,8 +37,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 const C = {
-  bg: '#07070f', sf: '#0c0d1a', bd: '#151626', tx: '#d8d8ec',
-  mu: '#52526e', gd: '#f0c040',
+  bg: '#0a0908', sf: '#15130f', bd: '#2a2620', tx: '#f1e8d2',
+  mu: '#9a917e', gd: '#f0c040',
 }
 
 export default async function LegalPage({

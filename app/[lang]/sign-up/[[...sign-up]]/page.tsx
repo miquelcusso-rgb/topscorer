@@ -4,7 +4,7 @@ export default function SignUpPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center"
-      style={{ background: '#07070f' }}
+      style={{ background: '#0a0908' }}
     >
       <SignUp />
     </div>

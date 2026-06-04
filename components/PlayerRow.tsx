@@ -45,13 +45,13 @@ export default function PlayerRow({
   const rankColor =
     rank === 1 ? '#f0c040' :
     rank <= 3   ? '#9090b8' :
-    '#4a5878'
+    '#8a7f68'
 
   const isTop1 = rank === 1
   const isTop3 = rank <= 3
   const mainVal = isAssist ? player.asist : player.goles
   const barPct  = Math.round((mainVal / maxVal) * 100)
-  const ls      = LEAGUE_STYLE[player.league] ?? { bg: 'rgba(90,90,122,.1)', color: '#52526e', border: 'rgba(90,90,122,.22)' }
+  const ls      = LEAGUE_STYLE[player.league] ?? { bg: 'rgba(90,90,122,.1)', color: '#9a917e', border: 'rgba(90,90,122,.22)' }
   // Always resolve a position (exact when known, generic fallback otherwise)
   const posInfo = resolvePosition(player)
   const pos     = POS_STYLE[posInfo.code]
@@ -77,7 +77,7 @@ export default function PlayerRow({
 
   const eloColor = player.elo != null
     ? player.elo >= 2100 ? '#f0c040' : player.elo >= 1900 ? '#38c47a' : '#00c8b0'
-    : '#52526e'
+    : '#9a917e'
 
   // Row background: odd = slight tint, even = transparent (top3 get special bg)
   const rowBgDefault = isTop1
@@ -132,7 +132,7 @@ export default function PlayerRow({
             {rank}
           </span>
         ) : (
-          <span style={{ fontSize: 14, color: '#4a5878', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>{rank}</span>
+          <span style={{ fontSize: 14, color: '#8a7f68', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>{rank}</span>
         )}
       </td>
 
@@ -149,7 +149,7 @@ export default function PlayerRow({
                 style={{
                   fontSize: 14,
                   fontWeight: 600,
-                  color: '#dde8ff',
+                  color: '#f1e8d2',
                   textShadow: isTop1 ? '0 0 12px rgba(240,192,64,.18)' : 'none',
                   minWidth: 0,
                   flex: 1,
@@ -201,7 +201,7 @@ export default function PlayerRow({
         <div className="flex flex-col gap-0.5">
           <span
             className="player-club-name"
-            style={{ fontSize: 13, fontWeight: 600, color: '#dde8ff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 120, display: 'block' }}
+            style={{ fontSize: 13, fontWeight: 600, color: '#f1e8d2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 120, display: 'block' }}
           >
             {player.club}
           </span>
@@ -222,7 +222,7 @@ export default function PlayerRow({
       </td>
 
       {/* Age */}
-      <td className="pr-3 text-right player-age tabular" style={{ fontSize: 12, color: '#7878a0' }}>
+      <td className="pr-3 text-right player-age tabular" style={{ fontSize: 12, color: '#9a917e' }}>
         {player.age}
       </td>
 
@@ -236,7 +236,7 @@ export default function PlayerRow({
       {/* Main stat + mini bar */}
       <td className="pr-3">
         <div className="flex items-center justify-end gap-2">
-          <div className="bar-track h-[2px] rounded-full w-[52px] shrink-0" style={{ background: '#1e2033' }}>
+          <div className="bar-track h-[2px] rounded-full w-[52px] shrink-0" style={{ background: '#2a2620' }}>
             <div className="h-full rounded-full" style={{ width: `${barPct}%`, background: isAssist ? 'rgba(0,200,176,.35)' : 'rgba(240,192,64,.45)' }} />
           </div>
           <span className="main-stat-num tabular" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 800, color: isAssist ? '#00c8b0' : '#f0c040', lineHeight: 1, minWidth: 22, textAlign: 'right', letterSpacing: '0.5px' }}>
@@ -253,10 +253,10 @@ export default function PlayerRow({
       {/* Ratios */}
       {showRatios && (
         <>
-          <td className="pr-3 text-right player-ratio tabular" style={{ fontSize: 13, fontWeight: 600, color: '#7878a0' }}>
+          <td className="pr-3 text-right player-ratio tabular" style={{ fontSize: 13, fontWeight: 600, color: '#9a917e' }}>
             {isAssist ? player.ratio_a.toFixed(2) : player.ratio_g.toFixed(2)}
           </td>
-          <td className="pr-3 text-right player-ratio tabular" style={{ fontSize: 13, fontWeight: 600, color: '#7878a0' }}>
+          <td className="pr-3 text-right player-ratio tabular" style={{ fontSize: 13, fontWeight: 600, color: '#9a917e' }}>
             {isAssist ? player.ratio_g.toFixed(2) : player.ratio_a.toFixed(2)}
           </td>
         </>
@@ -265,11 +265,11 @@ export default function PlayerRow({
       {/* Val sin / G+A */}
       {showValSin && (
         isAssist ? (
-          <td className="pr-3 text-right val-sin-cell tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#7878a0', lineHeight: 1 }}>
+          <td className="pr-3 text-right val-sin-cell tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#9a917e', lineHeight: 1 }}>
             {player.goles + player.asist}
           </td>
         ) : (
-          <td className="pr-3 text-right val-sin-cell tabular" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, color: '#7878a0', lineHeight: 1 }}>
+          <td className="pr-3 text-right val-sin-cell tabular" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, color: '#9a917e', lineHeight: 1 }}>
             {player.val_sin}
           </td>
         )
@@ -287,7 +287,7 @@ export default function PlayerRow({
 
       {/* Min/G */}
       {showMinG && (
-        <td className="pr-3 text-right player-ratio tabular" style={{ fontSize: 13, color: '#7878a0' }}>
+        <td className="pr-3 text-right player-ratio tabular" style={{ fontSize: 13, color: '#9a917e' }}>
           {player.minutes && player.goles > 0 ? Math.round(player.minutes / player.goles) : '—'}
         </td>
       )}
@@ -309,7 +309,7 @@ export default function PlayerRow({
               {player.fantasyPoints ?? '—'}
             </span>
             {player.fantasyPrice != null && (
-              <div style={{ fontSize: 9, color: '#7878a0' }}>€{player.fantasyPrice}M</div>
+              <div style={{ fontSize: 9, color: '#9a917e' }}>€{player.fantasyPrice}M</div>
             )}
           </div>
         </td>

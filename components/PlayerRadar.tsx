@@ -31,7 +31,7 @@ export default function PlayerRadar({ player, color = '#f0c040' }: Props) {
         <PolarGrid stroke="rgba(255,255,255,.08)" />
         <PolarAngleAxis
           dataKey="subject"
-          tick={{ fill: '#7878a0', fontSize: 11, fontFamily: "'Barlow Condensed', sans-serif" }}
+          tick={{ fill: '#9a917e', fontSize: 11, fontFamily: "'Barlow Condensed', sans-serif" }}
         />
         <Radar
           dataKey="value"
@@ -41,7 +41,7 @@ export default function PlayerRadar({ player, color = '#f0c040' }: Props) {
           strokeWidth={1.5}
         />
         <Tooltip
-          contentStyle={{ background: '#0e0e1c', border: `1px solid ${color}44`, fontSize: 12, color: '#e5e5f2' }}
+          contentStyle={{ background: '#15130f', border: `1px solid ${color}44`, fontSize: 12, color: '#f1e8d2' }}
           formatter={(v) => [`${v ?? ''}`, 'Score']}
         />
       </RadarChart>

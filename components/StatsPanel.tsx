@@ -96,10 +96,10 @@ function Pill({
   const c = map[color]
   const inactiveStyle = isLight
     ? { background: 'rgba(210,220,245,.8)', border: '1px solid rgba(0,0,0,.12)', color: '#3a4a68' }
-    : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#6878a0' }
+    : { background: 'rgba(21,19,15,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#9a917e' }
   const lockedStyle = isLight
     ? { background: 'rgba(200,210,235,.5)', border: '1px solid rgba(0,0,0,.08)', color: '#8898b8' }
-    : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#2a3a54' }
+    : { background: 'rgba(21,19,15,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#6e6655' }
   return (
     <button
       data-active={active ? "true" : undefined}
@@ -144,16 +144,16 @@ function ProUpsellInline() {
 
   // Light-mode-aware tokens
   const skelBar    = isLight ? '#cfd8ee' : '#1e1f35'
-  const rowBorder  = isLight ? '#e2e8f4' : '#151626'
+  const rowBorder  = isLight ? '#ece6d8' : '#2a2620'
   const rowAltBg   = isLight ? 'rgba(0,0,0,.025)' : 'rgba(255,255,255,.018)'
-  const fadeTop    = isLight ? 'rgba(244,246,255,.9)' : 'rgba(6,7,14,.85)'
+  const fadeTop    = isLight ? 'rgba(248,247,243,.9)' : 'rgba(10,9,8,.85)'
   const headColor  = isLight ? '#1a2236' : '#e8e0c0'
-  const pillColor  = isLight ? '#8a6a00' : '#c8a830'
-  const ghostNum   = isLight ? '#9aa6c8' : '#3a3b50'
-  const secLinkCol = isLight ? '#5a6a90' : '#7878a0'
+  const pillColor  = isLight ? '#8a6a00' : '#f0c040'
+  const ghostNum   = isLight ? '#b5ab95' : '#3a3b50'
+  const secLinkCol = isLight ? '#5a6a90' : '#9a917e'
   const secLinkBd  = isLight ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.08)'
-  const stickyBg   = isLight ? 'rgba(244,246,255,.97)' : 'rgba(6,7,14,.96)'
-  const stickyText = isLight ? '#33405e' : '#9090b8'
+  const stickyBg   = isLight ? 'rgba(248,247,243,.97)' : 'rgba(10,9,8,.96)'
+  const stickyText = isLight ? '#6e6655' : '#9090b8'
 
   useEffect(() => {
     const el = sentinelRef.current
@@ -253,7 +253,7 @@ function ProUpsellInline() {
             <Link
               href="/pricing"
               className="inline-flex items-center gap-1.5 font-bold rounded-sm transition-all duration-150 cursor-pointer"
-              style={{ fontSize: 12, padding: '8px 20px', background: '#f0c040', color: '#05060c', boxShadow: '0 2px 18px rgba(240,192,64,.28)', borderRadius: 4 }}
+              style={{ fontSize: 12, padding: '8px 20px', background: '#f0c040', color: '#0a0908', boxShadow: '0 2px 18px rgba(240,192,64,.28)', borderRadius: 4 }}
               onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 28px rgba(240,192,64,.45)' }}
               onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 18px rgba(240,192,64,.28)' }}
             >
@@ -263,7 +263,7 @@ function ProUpsellInline() {
               href="/sign-in"
               className="inline-flex items-center gap-1 transition-all duration-150 cursor-pointer"
               style={{ fontSize: 11, padding: '7px 14px', background: 'transparent', color: secLinkCol, border: `1px solid ${secLinkBd}`, borderRadius: 4 }}
-              onMouseEnter={e => { e.currentTarget.style.color = isLight ? '#0f1830' : '#a0a0c8'; e.currentTarget.style.borderColor = isLight ? 'rgba(0,0,0,.2)' : 'rgba(255,255,255,.18)' }}
+              onMouseEnter={e => { e.currentTarget.style.color = isLight ? '#1c1608' : '#a0a0c8'; e.currentTarget.style.borderColor = isLight ? 'rgba(0,0,0,.2)' : 'rgba(255,255,255,.18)' }}
               onMouseLeave={e => { e.currentTarget.style.color = secLinkCol; e.currentTarget.style.borderColor = secLinkBd }}
             >
               Ya tengo cuenta
@@ -284,12 +284,12 @@ function ProUpsellInline() {
         >
           <span style={{ fontSize: 12, color: stickyText, lineHeight: 1.35 }}>
             Ver Top 25 completo —{' '}
-            <span style={{ color: '#c8a830', fontWeight: 600 }}>Pro desde €4.99/mes</span>
+            <span style={{ color: '#f0c040', fontWeight: 600 }}>Pro desde €4.99/mes</span>
           </span>
           <Link
             href="/pricing"
             className="shrink-0 font-bold rounded-sm"
-            style={{ fontSize: 11, padding: '7px 14px', background: '#f0c040', color: '#05060c', borderRadius: 4, whiteSpace: 'nowrap' }}
+            style={{ fontSize: 11, padding: '7px 14px', background: '#f0c040', color: '#0a0908', borderRadius: 4, whiteSpace: 'nowrap' }}
           >
             Activar Pro
           </Link>
@@ -439,7 +439,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
       <div
         className="filter-toolbar"
         style={{
-          background: isLight ? 'rgba(225,233,252,.92)' : 'rgba(8,16,30,.92)',
+          background: isLight ? 'rgba(248,247,243,.92)' : 'rgba(21,19,15,.92)',
           border: isLight ? '1px solid rgba(0,0,0,.1)' : '1px solid rgba(255,255,255,.07)',
           borderRadius: '8px 8px 0 0', backdropFilter: 'blur(8px)',
         }}
@@ -510,7 +510,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                     ? { background: `rgba(${c},.14)`, border: `1px solid rgba(${c},.45)`, color: `rgb(${c})` }
                     : isLight
                       ? { background: 'rgba(210,220,245,.8)', border: '1px solid rgba(0,0,0,.12)', color: '#3a4a68' }
-                      : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#6878a0' }
+                      : { background: 'rgba(21,19,15,.7)', border: '1px solid rgba(255,255,255,.08)', color: '#9a917e' }
                   }
                 >{label}</button>
               )
@@ -554,7 +554,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                       className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 whitespace-nowrap"
                       style={isLight
                         ? { background: 'rgba(200,210,235,.5)', border: '1px solid rgba(0,0,0,.08)', color: '#8898b8', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
-                        : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#6878a0', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
+                        : { background: 'rgba(21,19,15,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#9a917e', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
                       }
                     >{label}</button>
                   </div>
@@ -580,7 +580,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                       className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 whitespace-nowrap"
                       style={isLight
                         ? { background: 'rgba(200,210,235,.5)', border: '1px solid rgba(0,0,0,.08)', color: '#8898b8', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
-                        : { background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#6878a0', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
+                        : { background: 'rgba(21,19,15,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#9a917e', textDecoration: 'line-through', opacity: 0.45, cursor: 'default' }
                       }
                     >
                       {a.label}
@@ -611,8 +611,8 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                 <button
                   className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 whitespace-nowrap"
                   style={{
-                    background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)',
-                    color: '#6878a0', textDecoration: 'line-through', opacity: 0.45,
+                    background: 'rgba(21,19,15,.7)', border: '1px solid rgba(255,255,255,.06)',
+                    color: '#9a917e', textDecoration: 'line-through', opacity: 0.45,
                     cursor: 'default',
                   }}
                 >ELO</button>
@@ -632,8 +632,8 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                 <button
                   className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 whitespace-nowrap"
                   style={{
-                    background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)',
-                    color: '#6878a0', textDecoration: 'line-through', opacity: 0.45,
+                    background: 'rgba(21,19,15,.7)', border: '1px solid rgba(255,255,255,.06)',
+                    color: '#9a917e', textDecoration: 'line-through', opacity: 0.45,
                     cursor: 'default',
                   }}
                 >Fantasy</button>
@@ -645,7 +645,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                 className="text-[12px] font-medium px-3 py-1 rounded transition-all duration-150 cursor-pointer"
                 style={st.showTop50 === o.v
                   ? { background: 'rgba(0,200,176,.12)', border: '1px solid rgba(0,200,176,.35)', color: '#00c8b0' }
-                  : { background: 'rgba(14,16,28,.7)', border: '1px solid #1e2038', color: '#7878a0' }
+                  : { background: 'rgba(21,19,15,.7)', border: '1px solid #2a2620', color: '#9a917e' }
                 }
               >{o.label}</button>
             ))}
@@ -654,7 +654,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
 
         {/* Fila 2: count + actions */}
         <div className="filter-toolbar-row2 flex items-center gap-3 px-4 py-2" style={{ background: 'rgba(5,10,20,.70)' }}>
-          <span style={{ fontSize: 12, color: '#6878a0' }}>
+          <span style={{ fontSize: 12, color: '#9a917e' }}>
             <strong style={{ color: '#8898bc' }}>{topN.length}</strong> {t('players_count', lang)}
           </span>
           <div className="ml-auto flex items-center gap-2">
@@ -688,14 +688,14 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
               <div className="relative group">
                 <button
                   className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-sm cursor-default"
-                  style={{ background: 'rgba(8,16,30,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#2a3a54', opacity: 0.55 }}
+                  style={{ background: 'rgba(21,19,15,.7)', border: '1px solid rgba(255,255,255,.06)', color: '#6e6655', opacity: 0.55 }}
                   title="Feature Pro"
                 >
                   ⬇ CSV
                 </button>
                 <div
                   className="absolute bottom-full mb-1.5 right-0 hidden group-hover:block z-30 whitespace-nowrap"
-                  style={{ fontSize: 10, background: 'rgba(14,16,28,.96)', border: '1px solid rgba(240,192,64,.2)', color: '#c8a830', padding: '4px 8px', borderRadius: 4 }}
+                  style={{ fontSize: 10, background: 'rgba(21,19,15,.96)', border: '1px solid rgba(240,192,64,.2)', color: '#f0c040', padding: '4px 8px', borderRadius: 4 }}
                 >
                   Feature Pro —{' '}
                   <Link href="/pricing" style={{ color: '#f0c040', textDecoration: 'underline' }}>
@@ -715,7 +715,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
                   border: '1px solid rgba(255,255,255,.07)',
                   borderRadius: 6,
                   whiteSpace: 'nowrap',
-                  background: 'rgba(8,16,30,.6)',
+                  background: 'rgba(21,19,15,.6)',
                 }}
               >
                 {t('add_player', lang)}
@@ -775,11 +775,11 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
       <div
         className="px-4 py-2"
         style={{
-          borderLeft: `1px solid ${isLight ? '#d8deef' : '#201c3a'}`,
-          borderRight: `1px solid ${isLight ? '#d8deef' : '#201c3a'}`,
-          borderBottom: `1px solid ${isLight ? '#d8deef' : '#201c3a'}`,
+          borderLeft: `1px solid ${isLight ? '#e6dfce' : '#201c3a'}`,
+          borderRight: `1px solid ${isLight ? '#e6dfce' : '#201c3a'}`,
+          borderBottom: `1px solid ${isLight ? '#e6dfce' : '#201c3a'}`,
           borderRadius: '0 0 6px 6px',
-          background: isLight ? 'rgba(232,237,248,.7)' : 'rgba(10,8,18,.65)',
+          background: isLight ? 'rgba(244,242,235,.7)' : 'rgba(21,19,15,.65)',
         }}
       >
         <span style={{ fontSize: 10, color: isLight ? '#5a6a90' : '#525278' }}>

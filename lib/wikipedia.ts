@@ -34,6 +34,11 @@ export const getPlayerBio = unstable_cache(
       if (!d.extract || d.type === 'disambiguation') return null
       // Only trust results that read like a footballer bio.
       if (!new RegExp(qualifier, 'i').test(d.extract) && !/football|soccer|fútbol|futbol/i.test(d.extract)) return null
+      // Guard against the wrong same-initials player: the searched surname must
+      // appear in the resolved title (accent-insensitive).
+      const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      const surname = norm(name).split(/\s+/).filter(Boolean).pop() ?? ''
+      if (surname.length >= 3 && !norm(d.title ?? title).includes(surname)) return null
       return {
         title: d.title ?? title,
         extract: d.extract.length > 420 ? d.extract.slice(0, 420).replace(/\s+\S*$/, '') + '…' : d.extract,

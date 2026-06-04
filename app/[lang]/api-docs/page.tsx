@@ -32,7 +32,7 @@ export default function ApiDocsPage() {
       <main
         style={{
           background: '#fff',
-          color: '#060d18',
+          color: '#0a0908',
           minHeight: '100vh',
         }}
       >

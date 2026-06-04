@@ -21,7 +21,7 @@ export default function NotFoundLang() {
         justifyContent: 'center',
         padding: '48px 24px',
         fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif",
-        color: '#eef4ff',
+        color: '#f8f7f3',
       }}
     >
       <div style={{ textAlign: 'center', maxWidth: 520 }}>
@@ -54,7 +54,7 @@ export default function NotFoundLang() {
               fontSize: 14,
               fontWeight: 600,
               backgroundColor: '#f0c040',
-              color: '#060d18',
+              color: '#0a0908',
               textDecoration: 'none',
             }}
           >
@@ -68,7 +68,7 @@ export default function NotFoundLang() {
               fontSize: 14,
               fontWeight: 600,
               border: '1px solid rgba(255,255,255,.18)',
-              color: '#eef4ff',
+              color: '#f8f7f3',
               textDecoration: 'none',
             }}
           >
@@ -82,7 +82,7 @@ export default function NotFoundLang() {
               fontSize: 14,
               fontWeight: 600,
               border: '1px solid rgba(255,255,255,.18)',
-              color: '#eef4ff',
+              color: '#f8f7f3',
               textDecoration: 'none',
             }}
           >

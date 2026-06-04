@@ -69,8 +69,11 @@ const PLAYER_INDEX = (() => {
   for (const p of SEARCH_INDEX) {
     if (byApiId.has(p.id)) continue // already covered by the rich dataset
     byApiId.add(p.id)
+    const slug = `${slugify(p.name)}-${p.id}`
+    if (bySlug.has(slug)) continue
+    bySlug.add(slug)
     out.push({
-      name: p.name, fullName: p.fullName, slug: `${slugify(p.name)}-${p.id}`,
+      name: p.name, fullName: p.fullName, slug,
       club: p.club, league: p.league, photo: p.photo, age: p.age, pos: p.pos,
       _n: norm(p.name), _c: norm(p.club), _f: norm(p.fullName ?? ''),
       _sn: surname(norm(p.name)), _fsn: surname(norm(p.fullName ?? '')),

@@ -22,13 +22,13 @@ export default function JugadorCard({ player: p }: Props) {
       >
         {/* Rich hover card (photo/avatar, market value, season stats) */}
         <PlayerHoverCard player={p} showElo={false} showFantasy={false} />
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#dde8ff' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#f1e8d2' }}>
           {p.flag} {p.name}
         </div>
         {/* Position directly below the name (always shown) */}
         <div style={{ fontSize: 11, marginTop: 2 }}>
           <span style={{ color: '#00c8b0', fontWeight: 600 }}>{positionLabel(p)}</span>
-          <span style={{ color: '#6878a0' }}> · {p.club}</span>
+          <span style={{ color: '#9a917e' }}> · {p.club}</span>
         </div>
         <div className="flex gap-2 mt-2">
           <span

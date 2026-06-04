@@ -19,11 +19,11 @@ interface Transfer {
 function TransferCard({ t, isLight }: { t: Transfer; isLight: boolean }) {
   const cardBg     = isLight ? '#ffffff' : 'rgba(255,255,255,.04)'
   const cardBorder = isLight ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.07)'
-  const textPrimary = isLight ? '#0f1830' : '#dde8ff'
-  const textMuted   = isLight ? '#5060a0' : '#6878a0'
+  const textPrimary = isLight ? '#1c1608' : '#f1e8d2'
+  const textMuted   = isLight ? '#8a7f68' : '#9a917e'
 
   const feeColor = t.type === 'Free' ? '#38c47a'
-    : t.type === 'N/A' ? '#52526e'
+    : t.type === 'N/A' ? '#9a917e'
     : t.type.includes('Loan') ? '#00c8b0'
     : '#f0c040'
 
@@ -77,8 +77,8 @@ export default function TransferenciasClient() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const textPrimary   = isLight ? '#0f1830' : '#dde8ff'
-  const textMuted     = isLight ? '#5060a0' : '#6878a0'
+  const textPrimary   = isLight ? '#1c1608' : '#f1e8d2'
+  const textMuted     = isLight ? '#8a7f68' : '#9a917e'
   const tabActiveBg   = isLight ? 'rgba(240,192,64,.15)' : 'rgba(240,192,64,.12)'
   const tabInactiveBg = isLight ? 'rgba(210,220,245,.8)' : 'rgba(255,255,255,.04)'
 

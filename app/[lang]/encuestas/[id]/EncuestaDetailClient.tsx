@@ -35,12 +35,12 @@ export default function EncuestaDetailClient({ id }: { id: string }) {
   const isLight = theme === 'light'
   const es = lang === 'es'
 
-  const bg     = isLight ? '#f4f6ff' : '#060d18'
-  const card   = isLight ? '#ffffff' : '#0d0e1c'
-  const border = isLight ? '#d8deef' : '#1a1c2e'
-  const text1  = isLight ? '#0f1830' : '#e8e8f8'
-  const text2  = isLight ? '#33405e' : '#9aa6c8'
-  const muted  = isLight ? '#6070a0' : '#5a5c80'
+  const bg     = isLight ? '#f8f7f3' : '#0a0908'
+  const card   = isLight ? '#ffffff' : '#15130f'
+  const border = isLight ? '#e6dfce' : '#2a2620'
+  const text1  = isLight ? '#1c1608' : '#efe9dc'
+  const text2  = isLight ? '#6e6655' : '#b5ab95'
+  const muted  = isLight ? '#8a7f68' : '#9a917e'
 
   const [state, setState] = useState<State>({ poll: null, tally: {}, myVote: null, total: 0, loading: true, notFound: false })
   const [voting, setVoting] = useState(false)
@@ -164,7 +164,7 @@ export default function EncuestaDetailClient({ id }: { id: string }) {
           {!isSignedIn && !closed && (
             <div style={{ marginTop: 14, padding: 12, background: 'rgba(240,192,64,.06)', border: '1px dashed rgba(240,192,64,.3)', borderRadius: 8, textAlign: 'center', fontSize: 13, color: text2 }}>
               <SignInButton mode="modal">
-                <button style={{ background: '#f0c040', color: '#05060c', padding: '5px 14px', borderRadius: 5, fontWeight: 700, cursor: 'pointer' }}>
+                <button style={{ background: '#f0c040', color: '#0a0908', padding: '5px 14px', borderRadius: 5, fontWeight: 700, cursor: 'pointer' }}>
                   {es ? 'Entrar para votar' : 'Sign in to vote'}
                 </button>
               </SignInButton>

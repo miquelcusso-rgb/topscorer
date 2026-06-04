@@ -13,7 +13,7 @@ type Billing = 'monthly' | 'yearly'
 
 const C = {
   gd: '#f0c040', pu: '#00c8b0', gr: '#38c47a', bl: '#00c8b0',
-  tx: '#e5e5f2', mu: '#5a5a7a', bd: '#1e1e34', sf: '#0e0e1c', s2: '#151528',
+  tx: '#f1e8d2', mu: '#9a917e', bd: '#2a2620', sf: '#15130f', s2: '#1c1a16',
 }
 
 // Feature cell value: boolean checkmark/dash, 'soon' token, or a translation key to resolve at render.
@@ -110,7 +110,7 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
       {badge && (
         <div
           className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold tracking-[2px] uppercase px-3 py-0.5 rounded-full"
-          style={{ background: bColor, color: '#07070f' }}
+          style={{ background: bColor, color: '#0a0908' }}
         >
           {badge}
         </div>
@@ -179,7 +179,7 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
         {comingSoon ? (
           <div
             className="block text-center text-[13px] font-bold py-2.5 rounded-sm"
-            style={{ background: 'rgba(90,90,122,.1)', color: '#5a5a7a', border: '1px solid rgba(90,90,122,.35)' }}
+            style={{ background: 'rgba(90,90,122,.1)', color: '#9a917e', border: '1px solid rgba(90,90,122,.35)' }}
           >
             COMING SOON
           </div>
@@ -195,7 +195,7 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
             onClick={onCtaClick ?? (() => { window.location.href = ctaHref })}
             className="w-full text-center text-[13px] font-bold py-3.5 rounded-sm transition-all duration-150 cursor-pointer flex items-center justify-center gap-2"
             style={
-              ctaVariant === 'gold'   ? { background: C.gd, color: '#07070f', border: `1px solid ${C.gd}` } :
+              ctaVariant === 'gold'   ? { background: C.gd, color: '#0a0908', border: `1px solid ${C.gd}` } :
               ctaVariant === 'purple' ? { background: 'rgba(0,200,176,.15)', color: C.pu, border: '1px solid rgba(0,200,176,.35)' } :
               ctaVariant === 'scout'  ? { background: 'rgba(0,200,176,.15)', color: C.pu, border: '1px solid rgba(0,200,176,.35)' } :
               { background: C.s2, color: C.tx, border: `1px solid ${C.bd}` }
@@ -263,7 +263,7 @@ export default function PricingPage() {
                 onClick={() => setBilling(b)}
                 className="flex items-center gap-2 px-5 py-1.5 rounded-full text-[12px] font-semibold transition-all duration-150 cursor-pointer"
                 style={billing === b
-                  ? { background: C.gd, color: '#07070f' }
+                  ? { background: C.gd, color: '#0a0908' }
                   : { background: 'transparent', color: C.mu }
                 }
               >
@@ -272,7 +272,7 @@ export default function PricingPage() {
                   <span
                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
                     style={billing === 'yearly'
-                      ? { color: '#07070f', background: 'rgba(0,0,0,.2)' }
+                      ? { color: '#0a0908', background: 'rgba(0,0,0,.2)' }
                       : { color: C.gr, background: 'rgba(56,196,122,.15)', border: '1px solid rgba(56,196,122,.3)' }
                     }
                   >
@@ -343,10 +343,10 @@ export default function PricingPage() {
             perMonth={billing === 'yearly' ? 4.17 : undefined}
             savePercent={billing === 'yearly' ? 30 : undefined}
             desc={t('pricing_scout_desc', lang)}
-            accent={'#5a5a7a'}
+            accent={'#9a917e'}
             highlight={false}
             badge={'COMING SOON'}
-            badgeColor={'#5a5a7a'}
+            badgeColor={'#9a917e'}
             cta={'COMING SOON'}
             ctaHref={'#'}
             ctaVariant="ghost"

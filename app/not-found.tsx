@@ -21,8 +21,8 @@ export default function NotFound() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#060d18',
-        color: '#eef4ff',
+        backgroundColor: '#0a0908',
+        color: '#f8f7f3',
         fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif",
         padding: '24px',
       }}
@@ -69,7 +69,7 @@ export default function NotFound() {
               fontSize: 15,
               fontWeight: 600,
               backgroundColor: '#f0c040',
-              color: '#060d18',
+              color: '#0a0908',
               textDecoration: 'none',
             }}
           >
@@ -83,7 +83,7 @@ export default function NotFound() {
               padding: '10px 22px',
               fontSize: 15,
               fontWeight: 600,
-              color: '#eef4ff',
+              color: '#f8f7f3',
               textDecoration: 'none',
             }}
           >

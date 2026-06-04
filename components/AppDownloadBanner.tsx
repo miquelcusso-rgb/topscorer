@@ -26,8 +26,8 @@ export default function AppDownloadBanner() {
     <div
       className="fixed bottom-0 left-0 right-0 z-50 px-4 py-3 flex items-center gap-3"
       style={{
-        background: '#0c0d18',
-        borderTop: '1px solid #1a1b2e',
+        background: '#15130f',
+        borderTop: '1px solid #2a2620',
         boxShadow: '0 -8px 32px rgba(0,0,0,.4)',
       }}
     >
@@ -36,8 +36,8 @@ export default function AppDownloadBanner() {
         <img src="/logo-ball.png" alt="TopScorers" width={40} height={40} />
       </div>
       <div className="flex-1">
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#eef4ff' }}>TopScorers App</div>
-        <div style={{ fontSize: 11, color: '#52526e' }}>Próximamente en Google Play</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#f8f7f3' }}>TopScorers App</div>
+        <div style={{ fontSize: 11, color: '#9a917e' }}>Próximamente en Google Play</div>
       </div>
       <a
         href="https://play.google.com/store/apps/details?id=com.topscorers.app"
@@ -46,7 +46,7 @@ export default function AppDownloadBanner() {
         style={{
           padding: '6px 14px',
           background: '#f0c040',
-          color: '#060d18',
+          color: '#0a0908',
           borderRadius: 6,
           fontSize: 12,
           fontWeight: 700,
@@ -59,7 +59,7 @@ export default function AppDownloadBanner() {
       </a>
       <button
         onClick={dismiss}
-        style={{ background: 'none', border: 'none', color: '#52526e', fontSize: 18, cursor: 'pointer', padding: '0 4px' }}
+        style={{ background: 'none', border: 'none', color: '#9a917e', fontSize: 18, cursor: 'pointer', padding: '0 4px' }}
         aria-label="Cerrar"
       >
         ×

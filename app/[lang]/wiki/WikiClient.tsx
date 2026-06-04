@@ -10,12 +10,12 @@ export default function WikiClient() {
   const isLight = theme === 'light'
   const es = lang === 'es'
 
-  const bg       = isLight ? '#f4f6ff' : '#060d18'
-  const cardBg   = isLight ? '#ffffff' : '#0d0e1c'
-  const border   = isLight ? '#d0d8ee' : '#1a1c2e'
-  const heading  = isLight ? '#0f1830' : '#e8e8f8'
-  const body     = isLight ? '#33405e' : '#9aa6c8'
-  const muted    = isLight ? '#6070a0' : '#5a5c80'
+  const bg       = isLight ? '#f8f7f3' : '#0a0908'
+  const cardBg   = isLight ? '#ffffff' : '#15130f'
+  const border   = isLight ? '#e6dfce' : '#2a2620'
+  const heading  = isLight ? '#1c1608' : '#efe9dc'
+  const body     = isLight ? '#6e6655' : '#b5ab95'
+  const muted    = isLight ? '#8a7f68' : '#9a917e'
   const accent   = '#f0c040'
 
   const lp = (p: string) => `/${lang}${p}`
@@ -127,7 +127,7 @@ export default function WikiClient() {
               ? 'La versión gratuita muestra el Top 10 con publicidad. Pro y Scout amplían los jugadores visibles, el histórico de temporadas, stats avanzados, comparador, Radar de Talentos y exportación. Scout añade acceso por API.'
               : 'The free tier shows the Top 10 with ads. Pro and Scout expand visible players, season history, advanced stats, the comparator, the Talent Radar and export. Scout adds API access.'}
           </p>
-          <Link href={lp('/pricing')} style={{ display: 'inline-block', marginTop: 12, padding: '8px 16px', borderRadius: 6, background: accent, color: '#05060c', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, letterSpacing: 1, fontSize: 14, textDecoration: 'none' }}>
+          <Link href={lp('/pricing')} style={{ display: 'inline-block', marginTop: 12, padding: '8px 16px', borderRadius: 6, background: accent, color: '#0a0908', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, letterSpacing: 1, fontSize: 14, textDecoration: 'none' }}>
             {es ? 'Ver planes' : 'See plans'}
           </Link>
         </Section>

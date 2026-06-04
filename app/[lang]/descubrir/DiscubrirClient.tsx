@@ -95,14 +95,14 @@ export default function DiscubrirClient({ players }: Props) {
   }, [scored, posFilter, leagueFilter, ageFilter])
 
   // Design tokens
-  const pageBg    = isLight ? '#f4f6ff' : '#060d18'
-  const cardBg    = isLight ? '#ffffff' : '#10111e'
-  const cardBorder = isLight ? 'rgba(0,0,0,.08)' : '#1a1b2e'
-  const textPrimary = isLight ? '#0f1830' : '#d8d8ec'
-  const textMuted   = isLight ? '#5060a0' : '#52526e'
+  const pageBg    = isLight ? '#f8f7f3' : '#0a0908'
+  const cardBg    = isLight ? '#ffffff' : '#15130f'
+  const cardBorder = isLight ? 'rgba(0,0,0,.08)' : '#2a2620'
+  const textPrimary = isLight ? '#1c1608' : '#f1e8d2'
+  const textMuted   = isLight ? '#8a7f68' : '#9a917e'
   const filterBg    = isLight ? '#ffffff' : 'rgba(255,255,255,.04)'
   const filterBorder = isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.1)'
-  const filterActive = isLight ? '#0f1830' : '#eef4ff'
+  const filterActive = isLight ? '#1c1608' : '#f8f7f3'
   const filterActiveBg = isLight ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.1)'
 
   function FilterBtn({
@@ -507,7 +507,7 @@ export default function DiscubrirClient({ players }: Props) {
                   <Link
                     href="/pricing"
                     className="inline-block px-6 py-2.5 rounded font-bold"
-                    style={{ background: '#00c8b0', color: '#05060c', fontFamily: "'Barlow Condensed', sans-serif", fontSize: 14, letterSpacing: 1 }}
+                    style={{ background: '#00c8b0', color: '#0a0908', fontFamily: "'Barlow Condensed', sans-serif", fontSize: 14, letterSpacing: 1 }}
                   >
                     {lang === 'es' ? 'Desbloquear con Pro' : 'Unlock with Pro'}
                   </Link>

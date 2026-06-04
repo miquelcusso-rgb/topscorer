@@ -66,16 +66,16 @@ function ResultadosSkeleton() {
     <main className="min-h-screen" style={{ background: '#0b0c1a' }}>
       <div
         className="w-full"
-        style={{ background: 'linear-gradient(180deg,#07081a,#050610)', borderBottom: '1px solid #151626' }}
+        style={{ background: 'linear-gradient(180deg,#0a0908,#0a0908)', borderBottom: '1px solid #2a2620' }}
       >
         <div className="max-w-[1100px] mx-auto px-5 py-8">
-          <div className="h-5 w-40 rounded" style={{ background: '#151626' }} />
-          <div className="h-8 w-72 rounded mt-3" style={{ background: '#151626' }} />
+          <div className="h-5 w-40 rounded" style={{ background: '#2a2620' }} />
+          <div className="h-8 w-72 rounded mt-3" style={{ background: '#2a2620' }} />
         </div>
       </div>
       <div className="max-w-[1100px] mx-auto px-5 py-8 space-y-6">
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-48 rounded" style={{ background: '#0e0f1e', border: '1px solid #151626' }} />
+          <div key={i} className="h-48 rounded" style={{ background: '#15130f', border: '1px solid #2a2620' }} />
         ))}
       </div>
     </main>

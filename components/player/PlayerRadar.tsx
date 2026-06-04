@@ -45,11 +45,12 @@ export default function PlayerRadar({ apiId, en }: { apiId?: number; en: boolean
 
   const proxies = data.axes.filter(a => a.isProxy && a.percentile != null)
   const us = data.understat
+  const f1 = (v?: number) => (v != null ? v.toFixed(1) : '—')
   const xgItems: Array<[string, string]> = us ? [
-    ['xG', us.xG.toFixed(1)],
-    ['npxG', us.npxG.toFixed(1)],
-    ['xA', us.xA.toFixed(1)],
-    [en ? 'Key P.' : 'P. clave', String(us.keyPasses)],
+    ['xG', f1(us.xG)],
+    ['npxG', f1(us.npxG)],
+    ['xA', f1(us.xA)],
+    [en ? 'Key P.' : 'P. clave', us.keyPasses != null ? String(us.keyPasses) : '—'],
   ] : []
 
   return (

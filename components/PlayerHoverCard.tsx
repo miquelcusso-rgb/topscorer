@@ -20,7 +20,7 @@ interface Props {
 
 export default function PlayerHoverCard({ player, showElo, showFantasy, open }: Props) {
   const status = player.status ? STATUS_LABEL[player.status] : null
-  const posColor = player.position ? POS_COLOR[player.position] : '#5a5a7a'
+  const posColor = player.position ? POS_COLOR[player.position] : '#9a917e'
   const isAssistTab = player.tab === 'a'
   const initials = player.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
 
@@ -35,16 +35,16 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
         style={{
           borderTop: '5px solid transparent',
           borderBottom: '5px solid transparent',
-          borderRight: '5px solid #1a1b2e',
+          borderRight: '5px solid #2a2620',
         }}
       />
 
       <div
         className="rounded-sm shadow-2xl overflow-hidden"
-        style={{ background: '#0a0b14', border: '1px solid #1a1b2e' }}
+        style={{ background: '#0a0b14', border: '1px solid #2a2620' }}
       >
         {/* Header */}
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid #1a1b2e', background: '#10111e' }}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid #2a2620', background: '#15130f' }}>
           <div className="flex items-start justify-between gap-2">
             {/* Avatar (photo when available, initials fallback) */}
             <div
@@ -74,10 +74,10 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
                   </span>
                 )}
               </div>
-              <div className="font-bebas text-xl leading-tight tracking-wide" style={{ color: '#e5e5f2', fontFamily: "'Bebas Neue', cursive" }}>
+              <div className="font-bebas text-xl leading-tight tracking-wide" style={{ color: '#f1e8d2', fontFamily: "'Bebas Neue', cursive" }}>
                 {player.name}
               </div>
-              <div className="text-[11px] mt-0.5" style={{ color: '#5a5a7a' }}>
+              <div className="text-[11px] mt-0.5" style={{ color: '#9a917e' }}>
                 {player.club}
                 {player.prevClub && (
                   <span style={{ color: '#38c47a' }}> · ex {player.prevClub}</span>
@@ -86,10 +86,10 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
             </div>
             {player.nationality && (
               <div className="text-right shrink-0">
-                <div className="text-[10px] font-semibold" style={{ color: '#5a5a7a' }}>
+                <div className="text-[10px] font-semibold" style={{ color: '#9a917e' }}>
                   {player.nationality}
                 </div>
-                <div className="text-[11px]" style={{ color: '#5a5a7a' }}>
+                <div className="text-[11px]" style={{ color: '#9a917e' }}>
                   {player.age} años
                 </div>
               </div>
@@ -99,7 +99,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
 
         {/* Status badge */}
         {status && (
-          <div className="px-4 py-2" style={{ borderBottom: '1px solid #1a1b2e', background: `${status.bg}` }}>
+          <div className="px-4 py-2" style={{ borderBottom: '1px solid #2a2620', background: `${status.bg}` }}>
             <div className="flex items-center gap-2">
               <span
                 className="text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-sm"
@@ -117,23 +117,23 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
         )}
 
         {/* Contract / Value */}
-        <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #1a1b2e' }}>
+        <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #2a2620' }}>
           <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
             {player.marketValue && (
               <div>
-                <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#5a5a7a' }}>Valor</div>
-                <div className="text-[13px] font-semibold" style={{ color: '#e5e5f2' }}>{player.marketValue}</div>
+                <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#9a917e' }}>Valor</div>
+                <div className="text-[13px] font-semibold" style={{ color: '#f1e8d2' }}>{player.marketValue}</div>
               </div>
             )}
             {player.contractUntil && (
               <div>
-                <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#5a5a7a' }}>Contrato</div>
-                <div className="text-[13px] font-semibold" style={{ color: '#e5e5f2' }}>hasta {player.contractUntil}</div>
+                <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#9a917e' }}>Contrato</div>
+                <div className="text-[13px] font-semibold" style={{ color: '#f1e8d2' }}>hasta {player.contractUntil}</div>
               </div>
             )}
             {player.releaseClause !== undefined && (
               <div className="col-span-2">
-                <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#5a5a7a' }}>Cláusula</div>
+                <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#9a917e' }}>Cláusula</div>
                 <div className="text-[13px] font-semibold" style={{ color: player.releaseClause ? '#f0c040' : '#36364e' }}>
                   {player.releaseClause ?? '—'}
                 </div>
@@ -143,8 +143,8 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
         </div>
 
         {/* Season stats mini */}
-        <div className="px-4 py-2.5" style={{ borderBottom: (showElo || showFantasy) ? '1px solid #1a1b2e' : 'none' }}>
-          <div className="text-[9px] font-bold tracking-widest uppercase mb-2" style={{ color: '#5a5a7a' }}>
+        <div className="px-4 py-2.5" style={{ borderBottom: (showElo || showFantasy) ? '1px solid #2a2620' : 'none' }}>
+          <div className="text-[9px] font-bold tracking-widest uppercase mb-2" style={{ color: '#9a917e' }}>
             Temporada · {player.pj} PJ
           </div>
           <div className="flex gap-4">
@@ -152,31 +152,31 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
               <div className="font-bebas text-2xl leading-none" style={{ color: '#f0c040', fontFamily: "'Bebas Neue', cursive" }}>
                 {player.goles}
               </div>
-              <div className="text-[9px]" style={{ color: '#5a5a7a' }}>Goles</div>
+              <div className="text-[9px]" style={{ color: '#9a917e' }}>Goles</div>
             </div>
             <div className="text-center">
               <div className="font-bebas text-2xl leading-none" style={{ color: '#00c8b0', fontFamily: "'Bebas Neue', cursive" }}>
                 {player.asist}
               </div>
-              <div className="text-[9px]" style={{ color: '#5a5a7a' }}>Asist.</div>
+              <div className="text-[9px]" style={{ color: '#9a917e' }}>Asist.</div>
             </div>
             <div className="text-center">
               <div className="text-[13px] font-semibold" style={{ color: '#f0c040' }}>
                 {player.ratio_g.toFixed(2)}
               </div>
-              <div className="text-[9px]" style={{ color: '#5a5a7a' }}>G/PJ</div>
+              <div className="text-[9px]" style={{ color: '#9a917e' }}>G/PJ</div>
             </div>
             <div className="text-center">
               <div className="text-[13px] font-semibold" style={{ color: '#00c8b0' }}>
                 {player.ratio_a.toFixed(2)}
               </div>
-              <div className="text-[9px]" style={{ color: '#5a5a7a' }}>A/PJ</div>
+              <div className="text-[9px]" style={{ color: '#9a917e' }}>A/PJ</div>
             </div>
             <div className="text-center">
               <div className="text-[13px] font-semibold" style={{ color: '#e05a30' }}>
                 {isAssistTab ? player.goles + player.asist : player.val_con}
               </div>
-              <div className="text-[9px]" style={{ color: '#5a5a7a' }}>
+              <div className="text-[9px]" style={{ color: '#9a917e' }}>
                 {isAssistTab ? 'G+A' : 'Val.'}
               </div>
             </div>
@@ -189,7 +189,7 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
             <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
               {showElo && player.elo != null && (
                 <div>
-                  <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#5a5a7a' }}>ELO Rating</div>
+                  <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#9a917e' }}>ELO Rating</div>
                   <div
                     className="text-[15px] font-bold"
                     style={{
@@ -204,13 +204,13 @@ export default function PlayerHoverCard({ player, showElo, showFantasy, open }: 
               )}
               {showFantasy && player.fantasyPoints != null && (
                 <div>
-                  <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#5a5a7a' }}>Fantasy</div>
+                  <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#9a917e' }}>Fantasy</div>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-[15px] font-bold" style={{ fontFamily: "'Bebas Neue', cursive", letterSpacing: '1px', color: '#00c8b0' }}>
                       {player.fantasyPoints} pts
                     </span>
                     {player.fantasyPrice != null && (
-                      <span className="text-[10px] font-semibold" style={{ color: '#5a5a7a' }}>
+                      <span className="text-[10px] font-semibold" style={{ color: '#9a917e' }}>
                         €{player.fantasyPrice}M
                       </span>
                     )}

@@ -59,7 +59,7 @@ export default function AddToHomeScreen() {
       <button
         onClick={dismiss}
         className="absolute top-3 right-4 cursor-pointer"
-        style={{ fontSize: 18, color: '#4a5878', lineHeight: 1 }}
+        style={{ fontSize: 18, color: '#8a7f68', lineHeight: 1 }}
         aria-label="Cerrar"
       >
         ×
@@ -76,10 +76,10 @@ export default function AddToHomeScreen() {
         </div>
 
         <div className="flex-1 min-w-0">
-          <p style={{ fontSize: 13.5, fontWeight: 700, color: '#eef4ff', marginBottom: 3 }}>
+          <p style={{ fontSize: 13.5, fontWeight: 700, color: '#f8f7f3', marginBottom: 3 }}>
             Añadir a pantalla inicio
           </p>
-          <p style={{ fontSize: 11.5, color: '#6878a0', lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11.5, color: '#9a917e', lineHeight: 1.5 }}>
             {isIos
               ? <>Pulsa <span style={{ color: '#f0c040' }}>Compartir</span> → <span style={{ color: '#f0c040' }}>&ldquo;Añadir a inicio&rdquo;</span> para acceso rápido</>
               : <>Pulsa el <span style={{ color: '#f0c040' }}>menú ⋮</span> → <span style={{ color: '#f0c040' }}>&ldquo;Añadir a pantalla inicio&rdquo;</span></>

@@ -40,7 +40,7 @@ interface Props {
 
 const PRIMARY = 'var(--ts-primary, #f0c040)'
 const TEAL    = 'var(--ts-teal,    #3ed6c2)'
-const TEXT    = 'var(--ts-text,    #e8e8f8)'
+const TEXT    = 'var(--ts-text,    #efe9dc)'
 const MUTED   = 'var(--ts-muted,   rgba(216,216,236,.6))'
 const CARD    = 'var(--ts-card,    #15130f)'
 const BORDER  = 'var(--ts-border,  rgba(240,200,90,.08))'

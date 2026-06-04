@@ -70,13 +70,13 @@ export default function StatsTable({
   return (
     <div
       className="stats-table-wrap"
-      style={{ overflowX: 'auto', overflowY: 'clip', background: 'rgba(7,14,26,.90)', border: '1px solid rgba(255,255,255,.07)', borderTop: 'none' }}
+      style={{ overflowX: 'auto', overflowY: 'clip', background: 'rgba(21,19,15,.90)', border: '1px solid rgba(255,255,255,.07)', borderTop: 'none' }}
     >
       <table className="w-full border-collapse" style={{ minWidth: 680 }}>
         <thead>
           <tr
             style={{
-              background: 'rgba(8,16,30,.97)',
+              background: 'rgba(21,19,15,.97)',
               borderBottom: '1px solid rgba(255,255,255,.08)',
             }}
           >

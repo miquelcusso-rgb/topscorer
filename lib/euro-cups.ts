@@ -82,11 +82,11 @@ export async function getEuroCupData(leagueId: number, lang: 'es' | 'en'): Promi
     })
     .filter((x): x is { round: string; fixtures: EuroFixture[] } => !!x)
 
-  const scorers: EuroScorer[] = scorersRaw.slice(0, 20).map(p => ({
+  const scorers: EuroScorer[] = scorersRaw.filter(p => p.statistics?.[0]).slice(0, 20).map(p => ({
     name: p.player.name, club: p.statistics[0]?.team?.name ?? '', photo: p.player.photo,
     apiId: p.player.id, value: p.statistics[0]?.goals?.total ?? 0,
   }))
-  const assists: EuroScorer[] = assistsRaw.slice(0, 15).map(p => ({
+  const assists: EuroScorer[] = assistsRaw.filter(p => p.statistics?.[0]).slice(0, 15).map(p => ({
     name: p.player.name, club: p.statistics[0]?.team?.name ?? '', photo: p.player.photo,
     apiId: p.player.id, value: p.statistics[0]?.goals?.assists ?? 0,
   }))

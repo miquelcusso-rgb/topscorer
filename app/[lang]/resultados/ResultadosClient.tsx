@@ -251,7 +251,7 @@ function LeagueSection({ league, activeTab, isLight }: { league: LeagueMeta; act
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const textDim = isLight ? '#8898c0' : '#3a3b52'
+  const textDim = isLight ? '#9a917e' : '#9a917e'
 
   useEffect(() => {
     setLoading(true)
@@ -570,7 +570,7 @@ export default function ResultadosClient() {
                     borderBottom: active ? `2px solid ${league.color}` : '2px solid transparent',
                     marginBottom: -1,
                   }}
-                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = isLight ? '#8898c0' : '#60608a' }}
+                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = isLight ? '#9a917e' : '#9a917e' }}
                   onMouseLeave={e => { if (!active) e.currentTarget.style.color = textDim }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -619,10 +619,10 @@ export default function ResultadosClient() {
                 style={{
                   fontFamily: "'Barlow Condensed', sans-serif",
                   background: activeTab === t.id ? activeLeague.color : 'transparent',
-                  color: activeTab === t.id ? (isLight ? '#ffffff' : '#05060c') : textMuted,
+                  color: activeTab === t.id ? (isLight ? '#ffffff' : '#0a0908') : textMuted,
                   border: `1px solid ${activeTab === t.id ? activeLeague.color : headerBorder}`,
                 }}
-                onMouseEnter={e => { if (activeTab !== t.id) { e.currentTarget.style.borderColor = isLight ? '#8898c0' : '#3a3b52'; e.currentTarget.style.color = isLight ? '#0f1830' : '#c8c8e0' } }}
+                onMouseEnter={e => { if (activeTab !== t.id) { e.currentTarget.style.borderColor = isLight ? '#9a917e' : '#9a917e'; e.currentTarget.style.color = isLight ? '#1c1608' : '#f1e8d2' } }}
                 onMouseLeave={e => { if (activeTab !== t.id) { e.currentTarget.style.borderColor = headerBorder; e.currentTarget.style.color = textMuted } }}
               >
                 {t.label}

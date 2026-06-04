@@ -71,7 +71,7 @@ export default function ShareButton() {
         }}>
           <button onClick={copyLink} style={{
             display: 'flex', alignItems: 'center', gap: 8, width: '100%',
-            background: 'none', border: 'none', color: isLight ? '#1a2a40' : '#eef4ff',
+            background: 'none', border: 'none', color: isLight ? '#1a2a40' : '#f8f7f3',
             padding: '8px 12px', borderRadius: 7, cursor: 'pointer', fontSize: 13,
           }}>
             {copied
@@ -80,7 +80,7 @@ export default function ShareButton() {
           </button>
           <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`} target="_blank" rel="noopener noreferrer" style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            color: isLight ? '#1a2a40' : '#eef4ff', padding: '8px 12px',
+            color: isLight ? '#1a2a40' : '#f8f7f3', padding: '8px 12px',
             borderRadius: 7, textDecoration: 'none', fontSize: 13,
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>

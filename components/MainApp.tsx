@@ -26,7 +26,7 @@ function ProGateCard({ title, description }: { title: string; description: strin
     <div
       className="flex flex-col items-center justify-center gap-5 py-16 rounded"
       style={{
-        background: 'rgba(6,7,14,.9)',
+        background: 'rgba(10,9,8,.9)',
         border: '1px solid rgba(240,192,64,.18)',
         borderTop: '2px solid rgba(240,192,64,.35)',
       }}
@@ -35,16 +35,16 @@ function ProGateCard({ title, description }: { title: string; description: strin
       <div className="text-center">
         <div
           className="font-bold mb-2"
-          style={{ fontSize: 18, color: '#d8d8ec', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5 }}
+          style={{ fontSize: 18, color: '#f1e8d2', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5 }}
         >
           {title}
         </div>
-        <div style={{ fontSize: 13, color: '#52526e' }}>{description}</div>
+        <div style={{ fontSize: 13, color: '#9a917e' }}>{description}</div>
       </div>
       <Link
         href="/pricing"
         className="inline-flex items-center gap-2 font-bold rounded-sm transition-all duration-150 cursor-pointer"
-        style={{ fontSize: 13, padding: '9px 24px', background: '#f0c040', color: '#05060c', boxShadow: '0 2px 16px rgba(240,192,64,.25)' }}
+        style={{ fontSize: 13, padding: '9px 24px', background: '#f0c040', color: '#0a0908', boxShadow: '0 2px 16px rgba(240,192,64,.25)' }}
         onMouseEnter={e => { e.currentTarget.style.background = '#f8d060'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(240,192,64,.4)' }}
         onMouseLeave={e => { e.currentTarget.style.background = '#f0c040'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(240,192,64,.25)' }}
       >
@@ -72,11 +72,11 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
   const isLight = theme === 'light'
 
   // Hero siempre sobre fondo oscuro (gris en claro, oscuro en dark)
-  const heroTitleColor = '#eef4ff'
+  const heroTitleColor = '#f8f7f3'
   const heroMidText    = isLight ? 'rgba(195,210,235,.72)' : '#6888aa'
   const heroBg   = isLight
     ? 'linear-gradient(180deg, rgba(42,56,88,.84) 0%, rgba(32,46,78,.80) 100%)'
-    : 'linear-gradient(180deg, rgba(8,16,32,.95) 0%, rgba(6,13,24,.88) 100%)'
+    : 'linear-gradient(180deg, rgba(8,16,32,.95) 0%, rgba(10,9,8,.88) 100%)'
   const heroBorder = 'rgba(255,255,255,.07)'
 
   // Colores adaptativos para zonas claras (tabla, etc.)
@@ -160,7 +160,7 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
                     fontWeight: 700,
                     textTransform: 'uppercase' as const,
                     // Hero bg is always slate-dark; inactive needs enough contrast on it
-                    color: active ? t.color : '#9aa6c8',
+                    color: active ? t.color : '#b5ab95',
                     background: 'transparent',
                     border: 'none',
                     borderBottom: active ? `2px solid ${t.color}` : '2px solid transparent',
@@ -168,7 +168,7 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
                     marginBottom: -1,
                   }}
                   onMouseEnter={e => { if (!active) e.currentTarget.style.color = '#dde6f5' }}
-                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#9aa6c8' }}
+                  onMouseLeave={e => { if (!active) e.currentTarget.style.color = '#b5ab95' }}
                 >
                   {t.label}
                 </button>

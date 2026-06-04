@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Estadísticas de fútbol europeo: goleadores, asistentes, clasificaciones y perfiles de jugadores.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#060d18',
+    background_color: '#0a0908',
     theme_color: '#f0c040',
     orientation: 'portrait',
     scope: '/',

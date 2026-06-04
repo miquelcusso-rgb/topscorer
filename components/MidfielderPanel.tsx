@@ -45,7 +45,7 @@ function Pill({ active, color = 'tl', children, onClick }: {
       className="text-[11px] font-medium px-2.5 py-1 rounded-sm transition-all duration-150 cursor-pointer whitespace-nowrap"
       style={active
         ? { background: c.bg, border: `1px solid ${c.border}`, color: c.text }
-        : { background: 'transparent', border: '1px solid rgba(255,255,255,.06)', color: '#52526e' }
+        : { background: 'transparent', border: '1px solid rgba(255,255,255,.06)', color: '#9a917e' }
       }
     >
       {children}
@@ -56,7 +56,7 @@ function Pill({ active, color = 'tl', children, onClick }: {
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2.5 shrink-0">
-      <span className="text-[9px] font-bold tracking-[1.8px] uppercase shrink-0" style={{ color: '#52526e', fontFamily: "'Barlow Condensed', sans-serif" }}>
+      <span className="text-[9px] font-bold tracking-[1.8px] uppercase shrink-0" style={{ color: '#9a917e', fontFamily: "'Barlow Condensed', sans-serif" }}>
         {label}
       </span>
       <div className="flex items-center gap-1">{children}</div>
@@ -134,7 +134,7 @@ export default function MidfielderPanel() {
         <span className="text-[9px] font-bold tracking-[1.5px] uppercase shrink-0 px-1.5 py-0.5 rounded-sm" style={{ color: '#00c8b0', background: 'rgba(0,200,176,.12)', border: '1px solid rgba(0,200,176,.3)' }}>
           API
         </span>
-        <span className="text-[11.5px]" style={{ color: '#52526e' }}>
+        <span className="text-[11.5px]" style={{ color: '#9a917e' }}>
           Pases, % pase, minutos, recuperaciones y balones perdidos disponibles al conectar{' '}
           <strong style={{ color: '#3a3b50' }}>API-Football</strong>.
         </span>
@@ -150,7 +150,7 @@ export default function MidfielderPanel() {
       </div>
 
       {/* Toolbar */}
-      <div style={{ background: '#06070e', border: '1px solid #151626', borderRadius: '6px 6px 0 0' }}>
+      <div style={{ background: '#15130f', border: '1px solid #2a2620', borderRadius: '6px 6px 0 0' }}>
         <div className="flex flex-wrap items-center gap-x-0 gap-y-0 px-3 py-2" style={{ borderBottom: '1px solid #101120' }}>
           <FilterGroup label="Temp.">
             {SEASONS.map(s => (
@@ -194,17 +194,17 @@ export default function MidfielderPanel() {
 
           <div className="ml-auto">
             <span className="text-[10.5px] tabular" style={{ color: '#3a3b50' }}>
-              <strong style={{ color: '#52526e' }}>{players.length}</strong> MF
+              <strong style={{ color: '#9a917e' }}>{players.length}</strong> MF
             </span>
           </div>
         </div>
       </div>
 
       {/* Table */}
-      <div style={{ overflowX: 'auto', overflowY: 'clip', background: '#06070e', border: '1px solid #151626', borderTop: 'none' }}>
+      <div style={{ overflowX: 'auto', overflowY: 'clip', background: '#15130f', border: '1px solid #2a2620', borderTop: 'none' }}>
         <table className="w-full border-collapse" style={{ minWidth: 680 }}>
           <thead className="sticky top-[52px] z-[30]">
-            <tr style={{ background: '#050610', borderBottom: '2px solid #1e1f35' }}>
+            <tr style={{ background: '#0a0908', borderBottom: '2px solid #1e1f35' }}>
               {[
                 { label: '#',      align: 'right' as const, width: 44 },
                 { label: 'Jugador',align: 'left'  as const, width: 220 },
@@ -246,7 +246,7 @@ export default function MidfielderPanel() {
           <tbody>
             {players.map((p, i) => {
               const rank = i + 1
-              const ls = LEAGUE_STYLE[p.league] ?? { bg: 'rgba(90,90,122,.1)', color: '#52526e', border: 'rgba(90,90,122,.22)' }
+              const ls = LEAGUE_STYLE[p.league] ?? { bg: 'rgba(90,90,122,.1)', color: '#9a917e', border: 'rgba(90,90,122,.22)' }
               return (
                 <tr
                   key={`${p.name}-${p.season}`}
@@ -280,12 +280,12 @@ export default function MidfielderPanel() {
                   <td className="py-0 pr-3" style={{ width: 220, maxWidth: 220, overflow: 'hidden' }}>
                     <div className="flex items-center gap-1.5 min-w-0">
                       <div className="min-w-0">
-                        <div className="font-semibold leading-tight truncate" style={{ fontSize: 13, color: '#d8d8ec' }}>
+                        <div className="font-semibold leading-tight truncate" style={{ fontSize: 13, color: '#f1e8d2' }}>
                           {p.flag && <span className="mr-0.5 text-xs">{p.flag}</span>}
                           {p.name}
                         </div>
                         <div className="flex items-center gap-1 leading-tight">
-                          <span className="truncate" style={{ fontSize: 10, color: '#52526e' }}>{p.club}</span>
+                          <span className="truncate" style={{ fontSize: 10, color: '#9a917e' }}>{p.club}</span>
                           <span style={{ fontSize: 8, fontWeight: 700, padding: '1px 3px', borderRadius: 2, color: POS_STYLE.MF.color, background: POS_STYLE.MF.bg, flexShrink: 0, letterSpacing: 0.3 }}>MF</span>
                         </div>
                       </div>
@@ -300,10 +300,10 @@ export default function MidfielderPanel() {
                   </td>
 
                   {/* Age */}
-                  <td className="pr-3 text-right tabular" style={{ fontSize: 11, color: '#52526e' }}>{p.age}</td>
+                  <td className="pr-3 text-right tabular" style={{ fontSize: 11, color: '#9a917e' }}>{p.age}</td>
 
                   {/* PJ */}
-                  <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#2a2b3e' }}>{p.pj}</td>
+                  <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#3a352b' }}>{p.pj}</td>
 
                   {/* G+A */}
                   <td className="pr-3 text-right tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 20, color: '#00c8b0', lineHeight: 1 }}>{p.ga}</td>
@@ -322,7 +322,7 @@ export default function MidfielderPanel() {
 
                   {/* API stats — pending */}
                   {[p.minutes, p.passes, p.passAccuracy, p.recoveries].map((v, idx) => (
-                    <td key={idx} className="pr-3 text-right tabular" style={{ fontSize: 12, color: '#2a2b3e' }}>
+                    <td key={idx} className="pr-3 text-right tabular" style={{ fontSize: 12, color: '#3a352b' }}>
                       {v != null ? v : '—'}
                     </td>
                   ))}
@@ -343,9 +343,9 @@ export default function MidfielderPanel() {
       {/* Footer note */}
       <div
         className="px-4 py-2"
-        style={{ borderLeft: '1px solid #151626', borderRight: '1px solid #151626', borderBottom: '1px solid #151626', borderRadius: '0 0 6px 6px', background: '#05060b' }}
+        style={{ borderLeft: '1px solid #2a2620', borderRight: '1px solid #2a2620', borderBottom: '1px solid #2a2620', borderRadius: '0 0 6px 6px', background: '#0a0908' }}
       >
-        <span style={{ fontSize: 10, color: '#2a2b3e' }}>
+        <span style={{ fontSize: 10, color: '#3a352b' }}>
           Datos 25/26 (G+A) de temporadas activas · Min, Pases, P%, Recup. → API-Football (próximamente)
         </span>
       </div>

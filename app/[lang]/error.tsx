@@ -22,7 +22,7 @@ export default function LangError({
         alignItems: 'center',
         justifyContent: 'center',
         padding: '48px 24px',
-        color: '#eef4ff',
+        color: '#f8f7f3',
         fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif",
       }}
     >
@@ -55,7 +55,7 @@ export default function LangError({
             fontWeight: 600,
             cursor: 'pointer',
             backgroundColor: '#f0c040',
-            color: '#060d18',
+            color: '#0a0908',
           }}
         >
           Reintentar

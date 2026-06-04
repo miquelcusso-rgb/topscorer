@@ -42,9 +42,9 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
           onChange={e => { setQuery(e.target.value); setOpen(true) }}
           className="w-full pl-8 pr-3 py-1.5 text-[12px] rounded outline-none transition-colors duration-150"
           style={{
-            background: 'rgba(8,16,30,.8)',
+            background: 'rgba(21,19,15,.8)',
             border: '1px solid rgba(255,255,255,.1)',
-            color: '#dde8ff',
+            color: '#f1e8d2',
             fontFamily: "'DM Sans', sans-serif",
           }}
           onFocus={e => { e.currentTarget.style.borderColor = 'rgba(240,192,64,.5)'; setOpen(true) }}
@@ -62,7 +62,7 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
                 <div
                   key={p.name}
                   className="flex items-center justify-between gap-2 px-3 py-2 cursor-pointer text-[12px] transition-colors duration-100"
-                  style={{ color: added ? '#5a5a7a' : '#e5e5f2' }}
+                  style={{ color: added ? '#9a917e' : '#f1e8d2' }}
                   onMouseEnter={e => { if (!added) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,.04)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                   onClick={() => {
@@ -72,12 +72,12 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
                   <span>
                     {p.flag && <span className="mr-1">{p.flag}</span>}
                     <strong>{p.name}</strong>{' '}
-                    <span className="text-[10.5px]" style={{ color: '#5a5a7a' }}>{p.club} · {p.age}a</span>
+                    <span className="text-[10.5px]" style={{ color: '#9a917e' }}>{p.club} · {p.age}a</span>
                   </span>
                   <span
                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm shrink-0"
                     style={{
-                      color: added ? '#5a5a7a' : '#38c47a',
+                      color: added ? '#9a917e' : '#38c47a',
                       border: `1px solid ${added ? '#36364e' : 'rgba(56,196,122,.3)'}`,
                     }}
                   >

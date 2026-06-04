@@ -80,12 +80,12 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
   void proUser
 
   // ─── Design tokens ──────────────────────────────────────────────────────────
-  const pageBg     = isLight ? '#edf1f8' : '#060d18'
-  const cardBg     = isLight ? '#ffffff' : '#10111e'
-  const cardBorder = isLight ? 'rgba(0,0,0,.08)' : '#1a1b2e'
-  const sectionBg  = isLight ? 'rgba(235,240,255,.6)' : '#0c0d18'
-  const textMuted  = isLight ? '#52526e' : '#52526e'
-  const textPrimary = isLight ? '#0f1830' : '#d8d8ec'
+  const pageBg     = isLight ? '#f8f7f3' : '#0a0908'
+  const cardBg     = isLight ? '#ffffff' : '#15130f'
+  const cardBorder = isLight ? 'rgba(0,0,0,.08)' : '#2a2620'
+  const sectionBg  = isLight ? 'rgba(235,240,255,.6)' : '#15130f'
+  const textMuted  = isLight ? '#9a917e' : '#9a917e'
+  const textPrimary = isLight ? '#1c1608' : '#f1e8d2'
 
   const gold  = '#f0c040'
   const teal  = '#00c8b0'
@@ -161,7 +161,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
           return (
         <div
           className="rounded-xl p-6 mb-5 relative overflow-hidden"
-          style={{ background: '#060d18', border: `1px solid ${heroSeal === 'elite' ? 'rgba(240,192,64,.3)' : heroSeal === 'prospect' ? 'rgba(0,200,176,.25)' : heroSeal === 'gem' ? 'rgba(0,200,176,.25)' : '#1a1b2e'}` }}
+          style={{ background: '#0a0908', border: `1px solid ${heroSeal === 'elite' ? 'rgba(240,192,64,.3)' : heroSeal === 'prospect' ? 'rgba(0,200,176,.25)' : heroSeal === 'gem' ? 'rgba(0,200,176,.25)' : '#2a2620'}` }}
         >
           {heroSeal && (
             <div style={{ position: 'absolute', top: 14, right: 16, opacity: 0.9, zIndex: 2 }}>
@@ -173,7 +173,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
             {det?.player.photo ? (
               <div
                 className="rounded-full overflow-hidden shrink-0"
-                style={{ width: 120, height: 120, border: '3px solid #1a1b2e' }}
+                style={{ width: 120, height: 120, border: '3px solid #2a2620' }}
               >
                 <Image
                   src={det.player.photo}
@@ -190,8 +190,8 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
                 style={{
                   width: 120,
                   height: 120,
-                  background: '#10111e',
-                  border: '3px solid #1a1b2e',
+                  background: '#15130f',
+                  border: '3px solid #2a2620',
                   fontSize: 40,
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 800,
@@ -209,7 +209,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontSize: 44,
                   fontWeight: 800,
-                  color: '#d8d8ec',
+                  color: '#f1e8d2',
                   lineHeight: 1,
                   textTransform: 'uppercase',
                   letterSpacing: 1,
@@ -243,11 +243,11 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
                     unoptimized
                   />
                 )}
-                <span style={{ fontSize: 14, color: '#d8d8ec', fontWeight: 600 }}>{player.club}</span>
+                <span style={{ fontSize: 14, color: '#f1e8d2', fontWeight: 600 }}>{player.club}</span>
 
                 {liveStats?.statistics[0]?.league.logo && (
                   <>
-                    <span style={{ color: '#1a1b2e', margin: '0 2px' }}>·</span>
+                    <span style={{ color: '#2a2620', margin: '0 2px' }}>·</span>
                     <Image
                       src={liveStats.statistics[0].league.logo}
                       alt={player.league}
@@ -310,7 +310,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
               {/* Bio row */}
               <div
                 className="flex flex-wrap gap-x-4 gap-y-1 mt-3"
-                style={{ fontSize: 12, color: '#52526e' }}
+                style={{ fontSize: 12, color: '#9a917e' }}
               >
                 {det?.player.nationality && <span>{player.flag} {det.player.nationality}</span>}
                 {player.age != null && <span>{player.age} años</span>}
@@ -335,7 +335,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
                 >
                   {player.elo}
                 </div>
-                <div style={{ fontSize: 10, color: '#52526e', letterSpacing: 1, marginTop: 2 }}>ELO</div>
+                <div style={{ fontSize: 10, color: '#9a917e', letterSpacing: 1, marginTop: 2 }}>ELO</div>
               </div>
             )}
           </div>
@@ -687,7 +687,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
                 />
                 <YAxis hide />
                 <Tooltip
-                  contentStyle={{ background: '#0e0e1c', border: '1px solid #1a1b2e', fontSize: 12, color: '#e5e5f2' }}
+                  contentStyle={{ background: '#15130f', border: '1px solid #2a2620', fontSize: 12, color: '#f1e8d2' }}
                   cursor={{ fill: 'rgba(255,255,255,.04)' }}
                 />
                 <Bar dataKey="goles" name="Goles" radius={[2, 2, 0, 0]}>

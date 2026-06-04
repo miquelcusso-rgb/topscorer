@@ -42,7 +42,7 @@ export default function AdSlot({ slot, format = 'auto', className }: Props) {
       <div
         style={{
           fontSize: 9,
-          color: '#3a3b52',
+          color: '#9a917e',
           textAlign: 'center',
           letterSpacing: '1px',
           textTransform: 'uppercase',
