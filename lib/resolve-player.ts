@@ -2,6 +2,16 @@ import type { PlayerData } from '@/types'
 import { playersForSlug } from '@/lib/player-slug'
 import { getPlayerDetails, type ApiPlayerDetail } from '@/lib/api-football'
 import { flagFor } from '@/lib/flags'
+import { slugify } from '@/lib/slugify'
+import { SEARCH_INDEX } from '@/data/search-index'
+
+// slugify(name) → apiId, built once. Lets a CLEAN slug (e.g. "christos-tzolis")
+// for a player who isn't in the static dataset still resolve live by apiId.
+const SLUG_TO_ID = (() => {
+  const m = new Map<string, number>()
+  for (const p of SEARCH_INDEX) { const s = slugify(p.name); if (!m.has(s)) m.set(s, p.id) }
+  return m
+})()
 
 const POS_MAP: Record<string, PlayerData['position']> = {
   Attacker: 'FW', Forward: 'FW', Midfielder: 'MF', Defender: 'DF', Goalkeeper: 'GK',
@@ -83,9 +93,9 @@ export async function resolvePlayerProfile(slug: string): Promise<ResolvedProfil
     const base = seasons.find(p => p.season === '2526') ?? seasons[0]
     return { base, seasons, live: false }
   }
+  // `name-<apiId>` slug, or a clean slug resolved via the search index.
   const m = slug.match(/-(\d+)$/)
-  if (!m) return null
-  const id = Number(m[1])
+  const id = m ? Number(m[1]) : (SLUG_TO_ID.get(slug) ?? 0)
   if (!id) return null
   const detail = await getPlayerDetails(id, 2025)
   if (!detail) return null

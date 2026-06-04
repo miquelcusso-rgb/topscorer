@@ -134,6 +134,10 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
   useEffect(() => { try { setClub(localStorage.getItem('ts-club') ?? '') } catch {} }, [])
   const pickClub = (c: string) => { setClub(c); try { localStorage.setItem('ts-club', c) } catch {} }
   const accent = isProPlan ? clubColor(club) : undefined
+  const planLabel = plan === 'pro' ? (en ? 'Pro plan' : 'Plan Pro')
+    : plan === 'scout' ? (en ? 'Scout plan' : 'Plan Scout')
+    : plan === 'team' ? (en ? 'Team plan' : 'Plan Team')
+    : (en ? 'Free plan' : 'Plan Gratis')
 
   const L = en
     ? {
@@ -257,19 +261,23 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
 
       {/* Unified account card: workspace · user · my-club (one box) */}
       <div style={{ ...cardBox, padding: 0, overflow: 'hidden' }}>
-        {/* workspace row */}
-        <button type="button" style={{
+        {/* plan row — shows the REAL plan + a working CTA to pricing (free users
+            no longer see a misleading "Pro plan" label) */}
+        <Link href={`/${lang}/pricing`} style={{
           display: 'flex', alignItems: 'center', gap: 10, padding: '10px',
-          background: 'transparent', border: 'none', borderBottom: '1px solid var(--ts-border)',
-          cursor: 'pointer', textAlign: 'left', width: '100%', fontFamily: 'inherit', color: 'inherit',
+          borderBottom: '1px solid var(--ts-border)', textDecoration: 'none',
         }}>
           <span style={{ width: 28, height: 28, borderRadius: 8, background: accent ?? 'var(--ts-primary)', color: 'var(--ts-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13 }}>TS</span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ts-text)' }}>Top-Scorers</span>
-            <span style={{ display: 'block', fontSize: 12, color: 'var(--ts-muted)' }}>{L.planPro}</span>
+            <span style={{ display: 'block', fontSize: 12, color: 'var(--ts-muted)' }}>{planLabel}</span>
           </span>
-          <svg width={10} height={10} viewBox="0 0 10 10" fill="none" stroke="var(--ts-muted)" strokeWidth={1.5} aria-hidden><path d="M2 4l3 3 3-3" /></svg>
-        </button>
+          {plan === 'free' && (
+            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', color: 'var(--ts-bg)', background: 'var(--ts-primary)', borderRadius: 6, padding: '3px 7px' }}>
+              {en ? 'Go Pro' : 'Hazte Pro'}
+            </span>
+          )}
+        </Link>
         {/* user row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px', borderBottom: '1px solid var(--ts-border)' }}>
           <div style={{ width: 30, height: 30, borderRadius: '50%', background: userTint.bg, color: userTint.fg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{userInitials}</div>
@@ -393,7 +401,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
               lineHeight: 1.3,
             }}
           >
-            {L.upgradeTitle} · <span style={{ color: 'var(--ts-primary)' }}>€18/mes</span>
+            {L.upgradeTitle} · <span style={{ color: 'var(--ts-primary)' }}>{en ? '€5.99/mo' : '€5.99/mes'}</span>
           </div>
           <Link
             href={`/${lang}/pricing`}

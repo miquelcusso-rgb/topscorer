@@ -364,3 +364,11 @@ body::before {
 @media (max-width: 560px) {
   .saas-standouts-grid { grid-template-columns: 1fr !important; }
 }
+
+/* Mobile overflow safety net — stop any page body from exceeding the viewport
+   (was clipping the right edge on e.g. /pricing). */
+@media (max-width: 1023px) {
+  .saas-main-content { overflow-x: clip; max-width: 100%; }
+  .saas-main-content > * { max-width: 100%; }
+  .saas-main-content table { display: block; overflow-x: auto; }
+}

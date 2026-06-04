@@ -11,9 +11,13 @@ import { track } from '@/lib/analytics'
 
 type Billing = 'monthly' | 'yearly'
 
+// Theme-aware: dark in dark mode, white/cream in light mode (the pricing page
+// previously hardcoded a dark palette → the highlighted Pro card was unreadable
+// in light mode).
 const C = {
-  gd: '#f0c040', pu: '#00c8b0', gr: '#38c47a', bl: '#00c8b0',
-  tx: '#f1e8d2', mu: '#9a917e', bd: '#2a2620', sf: '#15130f', s2: '#1c1a16',
+  gd: 'var(--ts-primary)', pu: 'var(--ts-teal)', gr: '#38c47a', bl: 'var(--ts-teal)',
+  tx: 'var(--ts-text)', mu: 'var(--ts-muted)', bd: 'var(--ts-border)', sf: 'var(--ts-card)', s2: 'var(--ts-card2)',
+  faint: 'var(--ts-faint)',
 }
 
 // Feature cell value: boolean checkmark/dash, 'soon' token, or a translation key to resolve at render.
@@ -63,7 +67,7 @@ const FAQ: { q: TKey; a: TKey }[] = [
 
 function Cell({ v, lang }: { v: FeatureValue; lang: Lang }) {
   if (v === true)    return <span style={{ color: C.gr, fontSize: 15 }}>✓</span>
-  if (v === false)   return <span style={{ color: '#2a2a48', fontSize: 15 }}>—</span>
+  if (v === false)   return <span style={{ color: 'var(--ts-faint)', fontSize: 15 }}>—</span>
   if (v === 'soon')  return (
     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ color: C.bl, background: 'rgba(0,200,176,.12)', border: '1px solid rgba(0,200,176,.22)' }}>
       {t('pricing_soon_short', lang)}
@@ -102,7 +106,7 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
     <div
       className="flex flex-col rounded-sm relative"
       style={{
-        background: highlight ? 'rgba(240,192,64,.035)' : C.sf,
+        background: C.sf,
         border: `1px solid ${highlight ? C.gd : accent ? accent + '55' : C.bd}`,
         boxShadow: highlight ? '0 0 60px rgba(240,192,64,.07), inset 0 1px 0 rgba(240,192,64,.08)' : 'none',
       }}
@@ -139,7 +143,7 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
         )}
 
         {contextLine && (
-          <div className="text-[10px] mb-2" style={{ color: '#3a3a5a' }}>{contextLine}</div>
+          <div className="text-[10px] mb-2" style={{ color: 'var(--ts-faint)' }}>{contextLine}</div>
         )}
 
         <p className="text-[12px] leading-relaxed" style={{ color: C.mu }}>{desc}</p>
@@ -156,7 +160,7 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
               <span className="shrink-0 mt-0.5" style={{ color: soon ? C.bl : isWarning ? '#c48a30' : C.gr }}>
                 {soon ? '◷' : isWarning ? '' : '✓'}
               </span>
-              <span style={{ color: soon ? '#5a5a9a' : isWarning ? '#9a7a40' : C.tx }}>
+              <span style={{ color: soon ? 'var(--ts-muted)' : isWarning ? '#9a7a40' : C.tx }}>
                 {text}
                 {soon && (
                   <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ color: C.bl, background: 'rgba(0,200,176,.12)', border: '1px solid rgba(0,200,176,.22)' }}>
@@ -169,8 +173,8 @@ function PlanCard({ name, price, billing, perMonth, savePercent, desc, accent, b
         })}
         {locked?.map(f => (
           <div key={f} className="flex items-start gap-2 text-[12.5px]">
-            <span className="shrink-0 mt-0.5" style={{ color: '#2a2a48' }}>—</span>
-            <span style={{ color: '#2a2a48', textDecoration: 'line-through', textDecorationColor: '#2a2a48' }}>{f}</span>
+            <span className="shrink-0 mt-0.5" style={{ color: 'var(--ts-faint)' }}>—</span>
+            <span style={{ color: 'var(--ts-faint)', textDecoration: 'line-through', textDecorationColor: 'var(--ts-faint)' }}>{f}</span>
           </div>
         ))}
       </div>
@@ -308,11 +312,11 @@ export default function PricingPage() {
 
           <PlanCard
             name="Pro"
-            price={billing === 'monthly' ? 2.99 : 23.99}
+            price={billing === 'monthly' ? 2.99 : 24.99}
             billing={billing}
             lang={lang}
-            perMonth={billing === 'yearly' ? 2.0 : undefined}
-            savePercent={billing === 'yearly' ? 33 : undefined}
+            perMonth={billing === 'yearly' ? 2.08 : undefined}
+            savePercent={billing === 'yearly' ? 30 : undefined}
             desc={t('pricing_pro_desc', lang)}
             highlight={true}
             badge={t('pricing_pro_badge', lang)}
