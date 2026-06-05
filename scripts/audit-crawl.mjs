@@ -3,7 +3,8 @@
 import { readFileSync } from 'fs'
 const BASE = 'https://www.top-scorers.com'
 function load(f){const m=readFileSync(f,'utf8');return JSON.parse(JSON.parse(m.slice(m.indexOf('JSON.parse(')+11,m.lastIndexOf(') as'))))}
-const slugify = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')
+const SPECIAL = { 'ø':'o','œ':'oe','æ':'ae','å':'a','ß':'ss','ł':'l','đ':'d','ð':'d','þ':'th','ı':'i','ħ':'h' }
+const slugify = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[øœæåßłđðþıħ]/g,c=>SPECIAL[c]||c).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')
 
 const gen = load('data/players-generated.ts')
 const idx = load('data/search-index.ts')
