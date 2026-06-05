@@ -97,8 +97,9 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
     const key = sort?.key ?? DEFAULT_SORT[pos]
     const acc = SORT_ACCESSOR[key]
     if (!acc) return filtered
-    const dir = sort?.dir ?? -1
-    return [...filtered].sort((a, b) => (acc(b) - acc(a)) * dir)
+    // ALWAYS descending — best stat on top. No ascending toggle (ascending would
+    // surface players with 0 of the stat, which is noise on a leaderboard).
+    return [...filtered].sort((a, b) => acc(b) - acc(a))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtered, sort, pos])
   const players = sorted.slice(0, 20)
