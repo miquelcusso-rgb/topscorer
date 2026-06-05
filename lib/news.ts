@@ -11,20 +11,36 @@ export interface NewsItem {
   image?: string
   isPriority?: boolean
   isWorldCup?: boolean
+  isBreaking?: boolean   // recent + breaking keyword → eligible for the home banner
 }
 
 interface Feed { name: string; url: string; lang: 'es' | 'en' }
 
+// All feeds verified live (2026-06-05). NOTE: AS RSS was dropped — it has been
+// abandoned since Aug 2022 (valid XML, zero fresh items). We only ingest feeds
+// the publisher publicly exposes, and we show headline + source + link back
+// (no article body / images beyond the RSS field) → clean, ToS-safe syndication.
 const FEEDS: Feed[] = [
   // Spanish
   { name: 'Europa Press', url: 'https://www.europapress.es/rss/rss.aspx?ch=00109', lang: 'es' },
-  { name: 'AS', url: 'https://as.com/rss/futbol/primera.xml', lang: 'es' },
   { name: 'Marca', url: 'https://e00-marca.uecdn.es/rss/futbol/primera-division.xml', lang: 'es' },
+  { name: 'Marca — Más fútbol', url: 'https://e00-marca.uecdn.es/rss/futbol/mas-futbol.xml', lang: 'es' },
+  { name: 'Marca — Champions', url: 'https://e00-marca.uecdn.es/rss/futbol/champions-league.xml', lang: 'es' },
   { name: 'Mundo Deportivo', url: 'https://www.mundodeportivo.com/rss/futbol', lang: 'es' },
   { name: 'Sport', url: 'https://www.sport.es/es/rss/futbol/rss.xml', lang: 'es' },
+  { name: 'El Mundo', url: 'https://e00-elmundo.uecdn.es/elmundodeporte/rss/futbol.xml', lang: 'es' },
+  { name: 'ABC', url: 'https://www.abc.es/rss/feeds/abc_Deportes.xml', lang: 'es' },
   // English
   { name: 'The Guardian', url: 'https://www.theguardian.com/football/rss', lang: 'en' },
+  { name: 'Guardian — Transfers', url: 'https://www.theguardian.com/football/transfer-window/rss', lang: 'en' },
   { name: 'BBC Sport', url: 'https://feeds.bbci.co.uk/sport/football/rss.xml', lang: 'en' },
+  { name: 'BBC — Premier League', url: 'https://feeds.bbci.co.uk/sport/football/premier-league/rss.xml', lang: 'en' },
+  { name: 'ESPN', url: 'https://www.espn.com/espn/rss/soccer/news', lang: 'en' },
+  { name: 'Sky Sports', url: 'https://www.skysports.com/rss/12040', lang: 'en' },
+  { name: 'Sky — Transfer Centre', url: 'https://www.skysports.com/rss/12691', lang: 'en' },
+  { name: 'talkSPORT', url: 'https://talksport.com/football/feed/', lang: 'en' },
+  { name: 'Football365', url: 'https://www.football365.com/rss', lang: 'en' },
+  { name: 'The Independent', url: 'https://www.independent.co.uk/sport/football/rss', lang: 'en' },
 ]
 
 // Internationally-followed clubs + marquee names → boosted to the top.
@@ -35,6 +51,14 @@ const PRIORITY = [
   'messi', 'mbapp', 'haaland', 'vinicius', 'vinícius', 'yamal', 'bellingham', 'cristiano', 'ronaldo',
 ]
 const WORLD_CUP = ['mundial', 'world cup', 'copa del mundo', 'fifa', 'selección', 'seleccion', 'la roja']
+// Strong "breaking" signals in ES/EN sports headlines. Combined with a recency
+// gate (<90 min old) to power the home breaking banner without false positives.
+const BREAKING = [
+  'oficial', 'official', 'última hora', 'ultima hora', 'breaking', 'confirmado', 'confirmed',
+  'acuerdo', 'done deal', 'here we go', 'ficha por', 'signs for', 'fichaje cerrado',
+  'lesión', 'lesion', 'baja', 'ruled out', 'injury', 'destituido', 'sacked', 'dimite', 'resigns',
+]
+const BREAKING_WINDOW_MS = 90 * 60 * 1000
 
 function decode(s: string): string {
   return s
@@ -90,10 +114,13 @@ export const getNews = unstable_cache(
       seen.add(k)
       return true
     })
+    const nowMs = Date.now()
     for (const it of items) {
       const t = it.title.toLowerCase()
       it.isPriority = PRIORITY.some(p => t.includes(p))
       it.isWorldCup = WORLD_CUP.some(p => t.includes(p))
+      const ageMs = nowMs - new Date(it.date).getTime()
+      it.isBreaking = ageMs >= 0 && ageMs <= BREAKING_WINDOW_MS && BREAKING.some(p => t.includes(p))
     }
     if (scope === 'worldcup') items = items.filter(it => it.isWorldCup)
     // Sort by recency, nudging priority items up (~6h boost).
