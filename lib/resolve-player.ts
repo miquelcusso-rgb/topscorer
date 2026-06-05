@@ -7,10 +7,25 @@ import { SEARCH_INDEX } from '@/data/search-index'
 
 // slugify(name) → apiId, built once. Lets a CLEAN slug (e.g. "christos-tzolis")
 // for a player who isn't in the static dataset still resolve live by apiId.
+// "Erling Braut Haaland" → "erling haaland" (first word + last word). Lets a
+// natural "FirstName Surname" slug resolve even when the dataset stores the
+// player as an initial ("E. Haaland") and the fullName has a middle name.
+function firstLast(full: string): string {
+  const parts = full.trim().split(/\s+/)
+  if (parts.length < 2) return ''
+  return `${parts[0]} ${parts[parts.length - 1]}`
+}
+
 const SLUG_TO_ID = (() => {
   const m = new Map<string, number>()
   for (const p of SEARCH_INDEX) {
-    for (const s of [slugify(p.name), p.fullName ? slugify(p.fullName) : '']) {
+    const forms = [slugify(p.name)]
+    if (p.fullName) {
+      forms.push(slugify(p.fullName))
+      const fl = firstLast(p.fullName)
+      if (fl) forms.push(slugify(fl))
+    }
+    for (const s of forms) {
       if (s && !m.has(s)) m.set(s, p.id)
     }
   }
