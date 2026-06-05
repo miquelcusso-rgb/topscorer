@@ -1,5 +1,5 @@
 import type { PlayerData } from '@/types'
-import { playersForSlug } from '@/lib/player-slug'
+import { playersForSlug, playersForId } from '@/lib/player-slug'
 import { getPlayerDetails, type ApiPlayerDetail } from '@/lib/api-football'
 import { flagFor } from '@/lib/flags'
 import { slugify } from '@/lib/slugify'
@@ -116,6 +116,14 @@ export async function resolvePlayerProfile(slug: string): Promise<ResolvedProfil
   const m = slug.match(/-(\d+)$/)
   const id = m ? Number(m[1]) : (SLUG_TO_ID.get(slug) ?? 0)
   if (!id) return null
+  // If that apiId is actually in the static dataset (e.g. "erling-haaland"
+  // resolving to E. Haaland / 1100), serve the rich static profile instead of a
+  // slow, failure-prone live fetch.
+  const staticById = playersForId(id)
+  if (staticById.length) {
+    const base = staticById.find(p => p.season === '2526') ?? staticById[0]
+    return { base, seasons: staticById, live: false }
+  }
   const detail = await getPlayerDetails(id, 2025)
   if (!detail) return null
   const base = apiDetailToPlayer(detail)

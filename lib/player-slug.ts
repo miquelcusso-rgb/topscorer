@@ -52,4 +52,12 @@ export function playersForSlug(slug: string): PlayerData[] {
   return seasons.length ? seasons : [base]
 }
 
+/** Every season row for the player with this apiId (newest first), or []. */
+export function playersForId(apiId: number): PlayerData[] {
+  const base = PRIMARY_PLAYERS.find(p => p.apiId === apiId)
+  if (!base) return []
+  const seasons = seasonsForPlayer(base)
+  return seasons.length ? seasons : [base]
+}
+
 export { playerKey }
