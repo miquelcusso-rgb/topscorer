@@ -60,9 +60,9 @@ function Wordmark() {
       <img
         src="/logo-ball-alpha.png"
         alt="TopScorers"
-        width={132}
-        height={132}
-        style={{ width: 132, height: 132, objectFit: 'contain', flexShrink: 0 }}
+        width={165}
+        height={165}
+        style={{ width: 165, height: 165, objectFit: 'contain', flexShrink: 0, marginBottom: -8 }}
       />
       <span style={{ lineHeight: 1 }}>
         TOP<span style={{ color: 'var(--ts-primary)' }}>·SCORERS</span>
@@ -250,9 +250,9 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
     >
       <div
         style={{
-          padding: '4px 8px 16px',
+          padding: '0 8px 8px',
           borderBottom: '1px solid var(--ts-border-hot)',
-          marginBottom: 16,
+          marginBottom: 10,
         }}
       >
         <Link href={`/${lang}`} style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>

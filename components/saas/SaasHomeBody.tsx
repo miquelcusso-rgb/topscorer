@@ -3,7 +3,7 @@ import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import SaasShell from './SaasShell'
 import SaasHomeInteractive from './SaasHomeInteractive'
-import HomeNewsTeaser from './HomeNewsTeaser'
+import { getNews } from '@/lib/news'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
 import { computeHomeInsights } from '@/lib/home-insights'
 import { getTopRumors } from '@/lib/home-rumor'
@@ -82,36 +82,18 @@ export default async function SaasHomeBody({
   // Editorial "rumor del día" — fetched at build (home is force-static); fully
   // defensive (null on any error), so it never breaks the build.
   const rumors = await getTopRumors(lang === 'en' ? 'en' : 'es', 3)
+  // Top 3 headlines for the HOT NEWS strip (defensive — empty on any error).
+  let news: { title: string; link: string; source: string }[] = []
+  try { news = (await getNews(lang === 'en' ? 'en' : 'es', 'general', 3)).slice(0, 3).map(n => ({ title: n.title, link: n.link, source: n.source })) } catch { /* feeds down */ }
 
-  const labels = heading ?? (
-    lang === 'en'
-      ? {
-          breadcrumb: ['Statistics', 'Players'],
-          h1: 'Player rankings · Europe top leagues',
-          sub: 'Season 25/26 · MD36 · by position',
-        }
-      : {
-          breadcrumb: ['Estadísticas', 'Jugadores'],
-          h1: 'Rankings por jugador · Top ligas de Europa',
-          sub: 'Temporada 25/26 · J36 · por posición',
-        }
-  )
+  const breadcrumb = heading?.breadcrumb ?? (lang === 'en' ? ['Statistics', 'Players'] : ['Estadísticas', 'Jugadores'])
 
   return (
     <SaasShell
       activeKey="stats"
-      breadcrumb={labels.breadcrumb}
+      breadcrumb={breadcrumb}
     >
-      <div className="saas-page-header" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <h1 style={{ margin: 0, fontFamily: 'DM Sans, sans-serif', fontSize: 24, fontWeight: 700, letterSpacing: '-0.012em', color: 'var(--ts-text)' }}>
-          {labels.h1}
-        </h1>
-        <p style={{ margin: 0, fontSize: 13, color: 'var(--ts-muted)' }}>{labels.sub}</p>
-      </div>
-
-      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} />
-
-      <HomeNewsTeaser lang={lang === 'en' ? 'en' : 'es'} />
+      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} />
     </SaasShell>
   )
 }

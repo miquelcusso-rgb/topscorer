@@ -289,15 +289,11 @@ body::before {
   }
   .saas-position-tabs::-webkit-scrollbar { display: none; }
 
-  /* Swap table for card list */
-  .saas-desktop-table { display: none !important; }
-  .saas-mobile-cards {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-    width: 100% !important;
-  }
-  .saas-mobile-cards > * { min-width: 0 !important; }
+  /* Keep the full stats table on mobile and let it scroll sideways (the inner
+     grid has min-width:720 so the columns don't squash) — users wanted to swipe
+     to see all stats rather than a stripped card list. */
+  .saas-desktop-table { display: block !important; -webkit-overflow-scrolling: touch; }
+  .saas-mobile-cards { display: none !important; }
 
   /* Filter bar collapses to scrollable chip strip + Filters button visible */
   .saas-filter-bar { padding: 10px !important; }
@@ -371,4 +367,13 @@ body::before {
   .saas-main-content { overflow-x: clip; max-width: 100%; }
   .saas-main-content > * { max-width: 100%; }
   .saas-main-content table { display: block; overflow-x: auto; }
+}
+
+/* Hot strips stack on mobile (title row on top, leads below in one column) */
+@media (max-width: 760px) {
+  .saas-hotstrip { flex-direction: column !important; }
+  .saas-hotstrip-title { width: 100% !important; border-right: none !important; border-bottom: 1px solid var(--ts-border); }
+  .saas-hotstrip-leads { grid-template-columns: 1fr !important; }
+  .saas-hotstrip-leads > a > span,
+  .saas-hotstrip-leads > a span[style] { border-left: none !important; }
 }

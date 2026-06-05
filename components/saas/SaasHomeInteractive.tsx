@@ -2,11 +2,9 @@
 import { useState, useMemo, useEffect } from 'react'
 import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
-import KpiCard from './KpiCard'
 import FilterBar from './FilterBar'
 import PositionTable from './PositionTable'
-import HotStrikersRow from './HotStrikersRow'
-import MatchdayStandouts from './MatchdayStandouts'
+import HotStrips from './HotStrips'
 import Link from 'next/link'
 import { type PositionTabId, TAB_LABELS, TAB_ACCENT, extraStatList } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
@@ -25,15 +23,26 @@ const POS_ICON: Record<PositionTabId, string> = {
 // so the GK ranking would be too sparse to be useful.
 const POS_ORDER: PositionTabId[] = ['fw', 'ast', 'mf', 'df']
 
+// Big page title per position tab (uppercase).
+const POS_TITLE: Record<PositionTabId, { es: string; en: string }> = {
+  fw: { es: 'GOLEADORES', en: 'TOP SCORERS' },
+  ast: { es: 'ASISTENTES', en: 'TOP ASSISTERS' },
+  mf: { es: 'CENTROCAMPISTAS', en: 'MIDFIELDERS' },
+  df: { es: 'DEFENSAS', en: 'DEFENDERS' },
+  gk: { es: 'PORTEROS', en: 'GOALKEEPERS' },
+}
+
+interface NewsLite { title: string; link: string; source: string }
 interface Props {
   lang: Lang
   positionPools: Record<PositionTabId, PlayerData[]>
   defaultPos?: PositionTabId
   insights?: HomeInsights
   rumors?: HomeRumor[]
+  news?: NewsLite[]
 }
 
-export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [] }: Props) {
+export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [], news = [] }: Props) {
   const [pos, setPos] = useState<PositionTabId>(defaultPos ?? 'fw')
   const [league, setLeague] = useState<LeagueFilterValue>('big5')
   const [ageBand, setAgeBand] = useState<'all' | 'u23' | 'u21'>('all')
@@ -140,15 +149,17 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
     </div>
   )
 
+  const bigTitle = POS_TITLE[pos][lang === 'en' ? 'en' : 'es']
+
   return (
     <>
-      {/* Editorial: matchday standouts + hot rumour (real data) */}
-      {insights && (insights.standouts.length > 0 || rumors.length > 0) && (
-        <MatchdayStandouts standouts={insights.standouts} rumors={rumors} lang={lang === 'en' ? 'en' : 'es'} />
-      )}
+      {/* Big page title — changes with the position tab, uppercase */}
+      <h1 style={{ margin: 0, fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(30px, 5vw, 44px)', fontWeight: 800, letterSpacing: '0.01em', textTransform: 'uppercase', lineHeight: 1, color: 'var(--ts-text)' }}>
+        {bigTitle}
+      </h1>
 
-      {/* Hot striker + auto-insight banner (real derived data) */}
-      {insights && insights.standouts.length > 0 && <HotStrikersRow standouts={insights.standouts} lang={lang === 'en' ? 'en' : 'es'} />}
+      {/* Three compact hot strips: news · rumours · strikers (title left, leads right) */}
+      <HotStrips news={news} rumors={rumors} strikers={insights?.standouts ?? []} lang={lang === 'en' ? 'en' : 'es'} />
 
       {insights && insights.lines.length > 0 && !insightDismissed && (() => {
         const line = insights.lines[curio % insights.lines.length]
@@ -177,38 +188,6 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
           </div>
         )
       })()}
-
-      {/* KPIs */}
-      <div className="saas-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
-        <KpiCard
-          label={`${t.leader} · ${posLabel}`}
-          value={leaderMetric}
-          subline={leader ? `${leader.name} · ${leader.club}` : '—'}
-          tone={accent}
-          trend={{ delta: leaderMetricLabel, tone: accent }}
-        />
-        <KpiCard
-          label={t.topAssist}
-          value={topAssist?.asist ?? 0}
-          subline={topAssist ? `${topAssist.name} · ${topAssist.club}` : '—'}
-          tone="teal"
-          trend={{ delta: '↑ +1', tone: 'teal' }}
-        />
-        <KpiCard
-          label={lang === 'en' ? 'In scope' : 'En el filtro'}
-          value={filtered.length}
-          subline={`${posLabel} · ${leagueLabel}`}
-          tone="primary"
-          trend={{ delta: leagueLabel, tone: 'primary' }}
-        />
-        <KpiCard
-          label={t.avgAge}
-          value={avgAge || '—'}
-          subline={posLabel}
-          tone="teal"
-          trend={{ delta: lang === 'en' ? 'years' : 'años', tone: 'primary' }}
-        />
-      </div>
 
       {/* Position selector + filters, grouped right above the table */}
       {positionTabs}

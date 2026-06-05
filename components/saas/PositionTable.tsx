@@ -107,7 +107,7 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
       {/* Desktop table */}
       <div className="saas-desktop-table" style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, overflowX: 'auto' }}>
         <div style={{
-          display: 'grid', gridTemplateColumns: colTemplate, gap: 12, padding: '12px 16px', alignItems: 'center',
+          display: 'grid', gridTemplateColumns: colTemplate, gap: 12, padding: '12px 16px', alignItems: 'center', minWidth: 720,
           background: 'var(--ts-card2)', borderBottom: '1px solid var(--ts-border)',
           fontSize: 11, color: 'var(--ts-muted)', letterSpacing: '0.04em', fontWeight: 600, textTransform: 'uppercase',
         }}>
@@ -143,7 +143,7 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
               key={slug + i}
               href={`/${lang}/jugadores/${slug}`}
               style={{
-                display: 'grid', gridTemplateColumns: colTemplate, gap: 12, padding: '10px 16px', alignItems: 'center',
+                display: 'grid', gridTemplateColumns: colTemplate, gap: 12, padding: '10px 16px', alignItems: 'center', minWidth: 720,
                 borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit',
               }}
             >
