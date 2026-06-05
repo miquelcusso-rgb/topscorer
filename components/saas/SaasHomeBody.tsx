@@ -82,9 +82,16 @@ export default async function SaasHomeBody({
   // Editorial "rumor del día" — fetched at build (home is force-static); fully
   // defensive (null on any error), so it never breaks the build.
   const rumors = await getTopRumors(lang === 'en' ? 'en' : 'es', 3)
-  // Top 3 headlines for the HOT NEWS strip (defensive — empty on any error).
+  // Top 3 headlines for the HOT NEWS strip + the freshest "breaking" item for the
+  // home banner (defensive — empty on any error).
   let news: { title: string; link: string; source: string }[] = []
-  try { news = (await getNews(lang === 'en' ? 'en' : 'es', 'general', 3)).slice(0, 3).map(n => ({ title: n.title, link: n.link, source: n.source })) } catch { /* feeds down */ }
+  let breaking: { title: string; link: string; source: string } | null = null
+  try {
+    const all = await getNews(lang === 'en' ? 'en' : 'es', 'general', 14)
+    news = all.slice(0, 3).map(n => ({ title: n.title, link: n.link, source: n.source }))
+    const b = all.find(n => n.isBreaking)
+    if (b) breaking = { title: b.title, link: b.link, source: b.source }
+  } catch { /* feeds down */ }
 
   const breadcrumb = heading?.breadcrumb ?? (lang === 'en' ? ['Statistics', 'Players'] : ['Estadísticas', 'Jugadores'])
 
@@ -93,7 +100,7 @@ export default async function SaasHomeBody({
       activeKey="stats"
       breadcrumb={breadcrumb}
     >
-      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} />
+      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} breaking={breaking} />
     </SaasShell>
   )
 }

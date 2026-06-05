@@ -35,6 +35,7 @@ const POS_TITLE: Record<PositionTabId, { es: string; en: string }> = {
 
 interface NewsLite { title: string; link: string; source: string }
 interface Props {
+  breaking?: { title: string; link: string; source: string } | null
   lang: Lang
   positionPools: Record<PositionTabId, PlayerData[]>
   defaultPos?: PositionTabId
@@ -43,7 +44,7 @@ interface Props {
   news?: NewsLite[]
 }
 
-export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [], news = [] }: Props) {
+export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [], news = [], breaking = null }: Props) {
   const [pos, setPos] = useState<PositionTabId>(defaultPos ?? 'fw')
   const [league, setLeague] = useState<LeagueFilterValue>('big5')
   const [ageBand, setAgeBand] = useState<'all' | 'u23' | 'u21'>('all')
@@ -164,6 +165,28 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
 
   return (
     <>
+      {/* Breaking-news banner — only when a fresh (<90 min) high-signal headline exists */}
+      {breaking && (
+        <a
+          href={breaking.link}
+          target="_blank"
+          rel="nofollow noopener noreferrer"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none',
+            background: 'var(--ts-red, #c0392b)', color: '#fff', borderRadius: 8,
+            padding: '8px 12px', marginBottom: 12, fontSize: 13, lineHeight: 1.3,
+          }}
+        >
+          <span style={{ flexShrink: 0, fontWeight: 800, letterSpacing: '0.06em', fontSize: 11, background: 'rgba(0,0,0,.22)', padding: '3px 8px', borderRadius: 5, textTransform: 'uppercase' }}>
+            ⚡ {lang === 'en' ? 'Breaking' : 'Última hora'}
+          </span>
+          <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+            {breaking.title}
+          </span>
+          <span style={{ flexShrink: 0, opacity: 0.85, fontSize: 11 }}>{breaking.source} ↗</span>
+        </a>
+      )}
+
       {/* Big page title — "TOP <word>" with the second word in gold; changes with the position tab */}
       <h1 style={{ margin: 0, fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(30px, 5vw, 44px)', fontWeight: 800, letterSpacing: '0.01em', textTransform: 'uppercase', lineHeight: 1, color: 'var(--ts-text)' }}>
         TOP <span style={{ color: 'var(--ts-primary)' }}>{bigTitle}</span>
