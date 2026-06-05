@@ -116,7 +116,9 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
           <span>{lang === 'en' ? 'Player' : 'Jugador'}</span>
           <span>{lang === 'en' ? 'Team' : 'Equipo'}</span>
           {cols.map(c => {
-            const sortable = onSort && c.kind !== 'last5'
+            // Only performance/value columns sort (descending by value). The
+            // descriptive columns — Age and Games (PJ) — are not sortable.
+            const sortable = !!onSort && c.key !== 'age' && c.key !== 'pj'
             const isSorted = sort?.key === c.key
             return (
               <span

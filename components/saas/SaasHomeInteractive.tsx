@@ -6,7 +6,7 @@ import FilterBar from './FilterBar'
 import PositionTable from './PositionTable'
 import HotStrips from './HotStrips'
 import Link from 'next/link'
-import { type PositionTabId, TAB_LABELS, TAB_ACCENT, extraStatList } from '@/lib/position-stats'
+import { type PositionTabId, TAB_LABELS, TAB_ACCENT, extraStatList, last5Ratings } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
 import { iig, leagueCoef } from '@/lib/iig'
@@ -24,9 +24,10 @@ const POS_ICON: Record<PositionTabId, string> = {
 const POS_ORDER: PositionTabId[] = ['fw', 'ast', 'mf', 'df']
 
 // Big page title per position tab (uppercase).
+// Each title renders as "TOP <word>" with the second word in gold (--ts-primary).
 const POS_TITLE: Record<PositionTabId, { es: string; en: string }> = {
-  fw: { es: 'GOLEADORES', en: 'TOP SCORERS' },
-  ast: { es: 'ASISTENTES', en: 'TOP ASSISTERS' },
+  fw: { es: 'GOLEADORES', en: 'SCORERS' },
+  ast: { es: 'ASISTENTES', en: 'ASSISTERS' },
   mf: { es: 'CENTROCAMPISTAS', en: 'MIDFIELDERS' },
   df: { es: 'DEFENSAS', en: 'DEFENDERS' },
   gk: { es: 'PORTEROS', en: 'GOALKEEPERS' },
@@ -85,12 +86,21 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
     pacc: p => p.passAccuracy ?? 0, ga: p => (p.goles ?? 0) + (p.asist ?? 0),
     rec: p => p.interceptions ?? 0, tkl: p => p.tacklesTotal ?? 0, int: p => p.interceptions ?? 0,
     dw: p => p.duelsWon ?? 0, dwp: p => (p.duelsTotal ? (p.duelsWon ?? 0) / p.duelsTotal : 0),
+    sav: p => p.saves ?? 0, gc: p => p.goalsConceded ?? 0,
+    last5: p => last5Ratings(p).avg,
+  }
+  // Default ordering per tab: descending by the tab's headline value.
+  const DEFAULT_SORT: Record<PositionTabId, string> = {
+    fw: 'goles', ast: 'asist', mf: 'kp', df: 'tkl', gk: 'sav',
   }
   const sorted = useMemo(() => {
-    if (!sort || !SORT_ACCESSOR[sort.key]) return filtered
-    const acc = SORT_ACCESSOR[sort.key]
-    return [...filtered].sort((a, b) => (acc(b) - acc(a)) * sort.dir)
-  }, [filtered, sort])
+    const key = sort?.key ?? DEFAULT_SORT[pos]
+    const acc = SORT_ACCESSOR[key]
+    if (!acc) return filtered
+    const dir = sort?.dir ?? -1
+    return [...filtered].sort((a, b) => (acc(b) - acc(a)) * dir)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered, sort, pos])
   const players = sorted.slice(0, 20)
   const leader = players[0]
   const accent = TAB_ACCENT[pos]
@@ -153,9 +163,9 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
 
   return (
     <>
-      {/* Big page title — changes with the position tab, uppercase */}
+      {/* Big page title — "TOP <word>" with the second word in gold; changes with the position tab */}
       <h1 style={{ margin: 0, fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(30px, 5vw, 44px)', fontWeight: 800, letterSpacing: '0.01em', textTransform: 'uppercase', lineHeight: 1, color: 'var(--ts-text)' }}>
-        {bigTitle}
+        TOP <span style={{ color: 'var(--ts-primary)' }}>{bigTitle}</span>
       </h1>
 
       {/* Three compact hot strips: news · rumours · strikers (title left, leads right) */}

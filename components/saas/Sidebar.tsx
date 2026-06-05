@@ -46,12 +46,12 @@ function Wordmark() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 6,
+        gap: 0,
         width: '100%',
         fontFamily: 'Barlow Condensed, sans-serif',
         fontWeight: 800,
-        fontSize: 26,
-        letterSpacing: '0.06em',
+        fontSize: 33,
+        letterSpacing: '0.12em',
         color: 'var(--ts-text)',
         textTransform: 'uppercase',
       }}
@@ -60,11 +60,11 @@ function Wordmark() {
       <img
         src="/logo-ball-alpha.png"
         alt="TopScorers"
-        width={165}
-        height={165}
-        style={{ width: 165, height: 165, objectFit: 'contain', flexShrink: 0, marginBottom: -8 }}
+        width={150}
+        height={150}
+        style={{ width: 150, height: 150, objectFit: 'contain', flexShrink: 0, marginTop: -14, marginBottom: -14 }}
       />
-      <span style={{ lineHeight: 1 }}>
+      <span style={{ lineHeight: 1, whiteSpace: 'nowrap' }}>
         TOP<span style={{ color: 'var(--ts-primary)' }}>·SCORERS</span>
       </span>
     </span>
@@ -243,14 +243,14 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
-        padding: '20px 14px',
+        padding: '12px 14px',
         fontFamily: 'DM Sans, sans-serif',
         color: 'var(--ts-text)',
       }}
     >
       <div
         style={{
-          padding: '0 8px 8px',
+          padding: '0 4px 8px',
           borderBottom: '1px solid var(--ts-border-hot)',
           marginBottom: 10,
         }}

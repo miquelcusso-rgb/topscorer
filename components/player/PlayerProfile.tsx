@@ -19,14 +19,14 @@ type Tone = 'primary' | 'teal' | 'text'
 function StatGroup({ title, items }: { title: string; items: Array<[string, string | number, Tone]> }) {
   const color = (t: Tone) => t === 'primary' ? 'var(--ts-primary)' : t === 'teal' ? 'var(--ts-teal)' : 'var(--ts-text)'
   return (
-    <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, padding: 18 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 12 }}>
+    <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, padding: '12px 14px' }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 8 }}>
         {title}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', columnGap: 12, rowGap: 8 }}>
         {items.map(([label, value, tone], i) => (
-          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 26, lineHeight: 1, color: color(tone), fontVariantNumeric: 'tabular-nums' }}>
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 22, lineHeight: 1, color: color(tone), fontVariantNumeric: 'tabular-nums' }}>
               {value}
             </span>
             <span style={{ fontSize: 11, color: 'var(--ts-muted)' }}>{label}</span>
@@ -97,12 +97,12 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
         compareLabel={en ? '↗ Compare this player' : '↗ Comparar este jugador'}
         en={en}
         resumen={<>
-      <div className="saas-profile-grid" style={{ display: 'grid', gridTemplateColumns: '380px 1fr 320px', gap: 18 }}>
+      <div className="saas-profile-grid" style={{ display: 'grid', gridTemplateColumns: '400px 1fr 320px', gap: 16 }}>
         {player.apiId
           ? <PlayerRadar apiId={player.apiId} en={en} />
           : <RadarCard title={perf} subtitle={vsTop} axes={radarAxes} stats={radarStats} />}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <StatGroup title={en ? 'Attack' : 'Ataque'} items={[
             [en ? 'Goals' : 'Goles', player.goles ?? 0, 'primary'],
             [en ? 'Shots' : 'Tiros', player.shotsTotal ?? '—', 'text'],
@@ -123,7 +123,7 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
           ]} />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <StatGroup title={en ? 'General' : 'General'} items={[
             [en ? 'Apps' : 'PJ', player.pj ?? 0, 'text'],
             [en ? 'Minutes' : 'Minutos', player.minutes ?? '—', 'text'],

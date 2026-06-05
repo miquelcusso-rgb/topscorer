@@ -18,11 +18,16 @@ function toneColor(tone: 'primary' | 'teal' | 'text'): string {
   return 'var(--ts-text)'
 }
 
-export default function RadarCard({ title, subtitle, axes, stats, size = 320 }: RadarCardProps) {
+export default function RadarCard({ title, subtitle, axes, stats, size = 340 }: RadarCardProps) {
   const n = axes.length
   const cx = size / 2
   const cy = size / 2
   const r = size * 0.36
+  // Horizontal/vertical padding around the chart so the edge labels (e.g.
+  // "P. CLAVE", "ON TARGET") are never clipped at the SVG bounds, for every
+  // position's axis set.
+  const PAD_X = 64
+  const PAD_Y = 22
   const angle = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n
   const pt = (i: number, t: number): [number, number] => [
     cx + Math.cos(angle(i)) * r * t,
@@ -47,7 +52,7 @@ export default function RadarCard({ title, subtitle, axes, stats, size = 320 }: 
       <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 2 }}>{subtitle}</div>
       <div style={{ marginTop: 10 }}>
         <svg
-          viewBox={`0 0 ${size} ${size}`}
+          viewBox={`${-PAD_X} ${-PAD_Y} ${size + PAD_X * 2} ${size + PAD_Y * 2}`}
           style={{ width: '100%', height: 'auto', display: 'block' }}
         >
           {[0.25, 0.5, 0.75, 1].map((t, i) => (
@@ -98,20 +103,20 @@ export default function RadarCard({ title, subtitle, axes, stats, size = 320 }: 
                   dominantBaseline="middle"
                   fill="var(--ts-muted)"
                   fontFamily="JetBrains Mono, ui-monospace, monospace"
-                  fontSize={10}
-                  letterSpacing="0.06em"
+                  fontSize={11.5}
+                  letterSpacing="0.04em"
                 >
                   {v.label.toUpperCase()}
                 </text>
                 <text
                   x={lx}
-                  y={ly + 12}
+                  y={ly + 14}
                   textAnchor={anchor}
                   dominantBaseline="middle"
                   fill="var(--ts-primary)"
                   fontFamily="Barlow Condensed, sans-serif"
-                  fontWeight={600}
-                  fontSize={13}
+                  fontWeight={700}
+                  fontSize={15}
                 >
                   {v.value}
                 </text>
