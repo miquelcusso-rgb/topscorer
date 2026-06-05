@@ -2,6 +2,13 @@ import type { PlayerData } from '@/types'
 import { iig, leagueCoef } from './iig'
 import { slugify } from './slugify'
 import { playerSlug } from './player-slug'
+import { seasonsForPlayer } from './player-identity'
+
+// Canonical profile slug for a player: a `season` row may be a non-primary
+// duplicate (e.g. a curated "Erling Haaland" vs the generated "E. Haaland"), so
+// resolve to the primary entry's slug — the one the profile is actually served
+// at — to avoid 404 links.
+const canonSlug = (p: PlayerData) => playerSlug(seasonsForPlayer(p)[0] ?? p)
 
 // Small, serializable payloads computed server-side from the real PLAYERS
 // dataset and passed to the client (1-3 players only — keeps RSC payload tiny,
@@ -92,7 +99,7 @@ export function computeHomeInsights(season: PlayerData[]): HomeInsights {
     lines.push({
       es: `${leader.name} lidera el IIG con ${leader.goles ?? 0} goles · ${num1(lv)} IIG (coef. liga ×${num1(coef)})`,
       en: `${leader.name} leads the IIG with ${leader.goles ?? 0} goals · ${numEn1(lv)} IIG (league coef ×${numEn1(coef)})`,
-      slug: playerSlug(leader),
+      slug: canonSlug(leader),
     })
   }
 
@@ -106,7 +113,7 @@ export function computeHomeInsights(season: PlayerData[]): HomeInsights {
     lines.push({
       es: `${sharp.name} firma la mejor conversión: ${pctEs}% de sus tiros acaban en gol`,
       en: `${sharp.name} has the sharpest finishing: ${pctEn}% of shots converted`,
-      slug: playerSlug(sharp),
+      slug: canonSlug(sharp),
     })
   }
 
@@ -119,7 +126,7 @@ export function computeHomeInsights(season: PlayerData[]): HomeInsights {
     if (!p) return
     standouts.push({
       key, labelEs, labelEn, name: p.name, club: p.club, flag: p.flag,
-      photo: p.photo, slug: playerSlug(p), stat, statLabelEs, statLabelEn,
+      photo: p.photo, slug: canonSlug(p), stat, statLabelEs, statLabelEn,
     })
   }
   const byGoals = [...season].filter(p => p.tab === 's').sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0))[0]
