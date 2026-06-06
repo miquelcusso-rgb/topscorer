@@ -10,6 +10,7 @@ import { LOCALES, isLocale, type Lang } from '@/lib/i18n'
 import AddToHomeScreen from '@/components/AddToHomeScreen'
 import ServiceWorkerRegistrar from '@/components/ServiceWorkerRegistrar'
 import AppDownloadBanner from '@/components/AppDownloadBanner'
+import ConsentBanner from '@/components/ConsentBanner'
 import ChromeWrapper from '@/components/ChromeWrapper'
 import { GTMScript, GTMNoScript } from '@/components/GoogleTagManager'
 import '../globals.css'
@@ -139,6 +140,17 @@ export default async function RootLayout({
             href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@500;700&display=swap"
             rel="stylesheet"
           />
+          {/* Google Consent Mode v2 — defaults DENIED until the user accepts in
+              the cookie banner. Must run BEFORE AdSense/GTM load. Restores a
+              previously stored choice so returning visitors aren't re-prompted. */}
+          <script
+            id="consent-mode-init"
+            dangerouslySetInnerHTML={{ __html: `
+              window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+              gtag('consent','default',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',functionality_storage:'granted',security_storage:'granted',wait_for_update:500});
+              try{if(localStorage.getItem('ts-consent')==='granted'){gtag('consent','update',{ad_storage:'granted',analytics_storage:'granted',ad_user_data:'granted',ad_personalization:'granted'});}}catch(e){}
+            ` }}
+          />
           <script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6498215334315959"
@@ -165,6 +177,7 @@ export default async function RootLayout({
             </ThemeProvider>
           </LangProvider>
           <ServiceWorkerRegistrar />
+          <ConsentBanner />
           <AppDownloadBanner />
           <SpeedInsights />
         </body>

@@ -139,7 +139,14 @@ export default function Footer() {
           style={{ borderTop: `1px solid ${bottomBorder}` }}
         >
           <span style={{ fontSize: 12, color: textCopy }}>
-            © {new Date().getFullYear()} TopScorers. {t('footer_copy', lang)}
+            © {new Date().getFullYear()} TopScorers · {lang === 'es' ? 'por Furiosa Studio' : 'by Furiosa Studio'}. {' '}
+            <button
+              type="button"
+              onClick={() => { if (typeof window !== 'undefined') window.dispatchEvent(new Event('ts-open-consent')) }}
+              style={{ background: 'none', border: 'none', padding: 0, color: textCopy, textDecoration: 'underline', cursor: 'pointer', font: 'inherit', fontSize: 12 }}
+            >
+              {lang === 'es' ? 'Configuración de cookies' : 'Cookie settings'}
+            </button>
           </span>
           <span style={{ fontSize: 12, color: textCopy }}>
             <a href="mailto:support@top-scorers.com" style={{ color: textCopy }}>
