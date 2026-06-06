@@ -30,7 +30,7 @@ export default function LegalDoc({
         ))}
         <p style={{ fontSize: 12, color: 'var(--ts-faint)', marginTop: 32 }}>
           {lang === 'en' ? 'Operated by Furiosa Studio · ' : 'Operado por Furiosa Studio · '}
-          <a href="mailto:hello@top-scorers.com" style={{ color: 'var(--ts-primary)' }}>hello@top-scorers.com</a>
+          <a href="mailto:support@top-scorers.com" style={{ color: 'var(--ts-primary)' }}>support@top-scorers.com</a>
         </p>
       </main>
     </SaasShell>
