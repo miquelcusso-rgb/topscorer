@@ -2,6 +2,7 @@ import { PRIMARY_PLAYERS, playerKey } from '@/lib/player-identity'
 import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import SaasShell from './SaasShell'
+import Footer from '@/components/Footer'
 import SaasHomeInteractive from './SaasHomeInteractive'
 import { getNews } from '@/lib/news'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
@@ -101,6 +102,9 @@ export default async function SaasHomeBody({
       breadcrumb={breadcrumb}
     >
       <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} breaking={breaking} />
+      <div style={{ marginTop: 32, marginLeft: -24, marginRight: -24, marginBottom: -24 }}>
+        <Footer />
+      </div>
     </SaasShell>
   )
 }

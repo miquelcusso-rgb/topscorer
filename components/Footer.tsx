@@ -62,8 +62,16 @@ export default function Footer() {
         { href: lp('/encuestas'),     label: lang === 'es' ? 'Encuestas' : 'Polls' },
         { href: lp('/predicciones'),  label: lang === 'es' ? 'Predicciones' : 'Picks' },
         { href: lp('/about'),      label: t('footer_about', lang) },
-        { href: lp('/privacidad'), label: t('footer_privacy', lang) },
-        { href: lp('/legal'),      label: t('footer_legal', lang) },
+        { href: lp('/api-docs'),   label: 'API' },
+      ],
+    },
+    {
+      group: 'Legal',
+      items: [
+        { href: lp('/privacidad'), label: lang === 'es' ? 'Privacidad' : 'Privacy' },
+        { href: lp('/terminos'),   label: lang === 'es' ? 'Términos' : 'Terms' },
+        { href: lp('/cookies'),    label: 'Cookies' },
+        { href: lp('/aviso'),      label: lang === 'es' ? 'Aviso y fuentes' : 'Disclaimer & sources' },
       ],
     },
   ]
