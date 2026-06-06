@@ -41,6 +41,19 @@ const FEEDS: Feed[] = [
   { name: 'talkSPORT', url: 'https://talksport.com/football/feed/', lang: 'en' },
   { name: 'Football365', url: 'https://www.football365.com/rss', lang: 'en' },
   { name: 'The Independent', url: 'https://www.independent.co.uk/sport/football/rss', lang: 'en' },
+  // Per-league coverage via Google News RSS (each item links to the original
+  // publisher → clean link-back). Gives dedicated Serie A / Bundesliga / Ligue 1
+  // depth the outlet feeds lacked. Dedup-by-title collapses overlaps.
+  { name: 'LaLiga', url: 'https://news.google.com/rss/search?q=LaLiga+f%C3%BAtbol&hl=es&gl=ES&ceid=ES:es', lang: 'es' },
+  { name: 'Premier League', url: 'https://news.google.com/rss/search?q=Premier+League+f%C3%BAtbol&hl=es&gl=ES&ceid=ES:es', lang: 'es' },
+  { name: 'Serie A', url: 'https://news.google.com/rss/search?q=Serie+A+f%C3%BAtbol&hl=es&gl=ES&ceid=ES:es', lang: 'es' },
+  { name: 'Bundesliga', url: 'https://news.google.com/rss/search?q=Bundesliga+f%C3%BAtbol&hl=es&gl=ES&ceid=ES:es', lang: 'es' },
+  { name: 'Ligue 1', url: 'https://news.google.com/rss/search?q=Ligue+1+f%C3%BAtbol&hl=es&gl=ES&ceid=ES:es', lang: 'es' },
+  { name: 'LaLiga', url: 'https://news.google.com/rss/search?q=La+Liga+football&hl=en-GB&gl=GB&ceid=GB:en', lang: 'en' },
+  { name: 'Premier League', url: 'https://news.google.com/rss/search?q=Premier+League+football&hl=en-GB&gl=GB&ceid=GB:en', lang: 'en' },
+  { name: 'Serie A', url: 'https://news.google.com/rss/search?q=Serie+A+football&hl=en-GB&gl=GB&ceid=GB:en', lang: 'en' },
+  { name: 'Bundesliga', url: 'https://news.google.com/rss/search?q=Bundesliga+football&hl=en-GB&gl=GB&ceid=GB:en', lang: 'en' },
+  { name: 'Ligue 1', url: 'https://news.google.com/rss/search?q=Ligue+1+football&hl=en-GB&gl=GB&ceid=GB:en', lang: 'en' },
 ]
 
 // Internationally-followed clubs + marquee names → boosted to the top.
