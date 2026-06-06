@@ -59,7 +59,7 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
     tail: r.likelihood != null ? `${r.likelihood}%` : undefined,
     href: r.playerSlug ? `/${lang}/jugadores/${r.playerSlug}` : `/${lang}/rumores`,
   }))
-  const wanted = ['scorer', 'iig', 'rating']
+  const wanted = ['scorer', 'assister', 'rating']
   const strikerLeads: Lead[] = wanted.map(k => strikers.find(s => s.key === k)).filter(Boolean).slice(0, 3).map(s => ({
     label: s!.name, sub: s!.club, photo: s!.photo, tail: s!.stat,
     href: `/${lang}/jugadores/${s!.slug || slugify(s!.name)}`,

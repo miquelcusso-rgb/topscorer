@@ -58,7 +58,7 @@ function Wordmark() {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/logo-ball-alpha.png"
+        src="/logo-ball-alpha_2.png"
         alt="TopScorers"
         width={150}
         height={150}

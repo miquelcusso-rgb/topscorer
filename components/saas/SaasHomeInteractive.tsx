@@ -26,7 +26,7 @@ const POS_ORDER: PositionTabId[] = ['fw', 'ast', 'mf', 'df']
 // Big page title per position tab (uppercase).
 // Each title renders as "TOP <word>" with the second word in gold (--ts-primary).
 const POS_TITLE: Record<PositionTabId, { es: string; en: string }> = {
-  fw: { es: 'GOLEADORES', en: 'SCORERS' },
+  fw: { es: 'DELANTEROS', en: 'FORWARDS' },
   ast: { es: 'ASISTENTES', en: 'ASSISTERS' },
   mf: { es: 'CENTROCAMPISTAS', en: 'MIDFIELDERS' },
   df: { es: 'DEFENSAS', en: 'DEFENDERS' },
