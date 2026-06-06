@@ -4,11 +4,14 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LangContext'
 import { useTheme } from '@/contexts/ThemeContext'
+import Avatar from '@/components/saas/Avatar'
+import { clubLogo } from '@/lib/club-logos'
 
 interface Rumor {
   id: string
   player_name: string
   player_slug: string | null
+  player_photo: string | null
   from_club: string | null
   to_club: string | null
   league: string | null
@@ -154,6 +157,8 @@ export default function RumoresClient() {
                     style={{ display: 'block', padding: '14px 16px', textDecoration: 'none' }}
                   >
                     <div className="flex items-start justify-between gap-3 flex-wrap">
+                      {/* Player photo */}
+                      <Avatar name={r.player_name} photo={r.player_photo ?? undefined} size={46} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: 4 }}>
                           <span style={{
@@ -162,10 +167,28 @@ export default function RumoresClient() {
                             background: `${st.color}1f`, color: st.color, border: `1px solid ${st.color}55`,
                           }}>{st[lang]}</span>
                           {r.fee_estimate && (
-                            <span style={{ fontSize: 11, color: muted }}>{r.fee_estimate}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ts-primary)' }}>{r.fee_estimate}</span>
                           )}
                           {r.league && <span style={{ fontSize: 11, color: muted }}>· {r.league}</span>}
                         </div>
+                        {/* From → To clubs with crests + direction */}
+                        {(r.from_club || r.to_club) && (
+                          <div className="flex items-center gap-2" style={{ marginBottom: 6, flexWrap: 'wrap' }}>
+                            {r.from_club && (
+                              <span className="flex items-center gap-1" style={{ fontSize: 12, color: muted }}>
+                                {clubLogo(r.from_club) && /* eslint-disable-next-line @next/next/no-img-element */ <img src={clubLogo(r.from_club)!} alt="" width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain' }} />}
+                                {r.from_club}
+                              </span>
+                            )}
+                            <span style={{ color: st.color, fontWeight: 800, fontSize: 14 }}>→</span>
+                            {r.to_club && (
+                              <span className="flex items-center gap-1" style={{ fontSize: 12, fontWeight: 700, color: text1 }}>
+                                {clubLogo(r.to_club) && /* eslint-disable-next-line @next/next/no-img-element */ <img src={clubLogo(r.to_club)!} alt="" width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain' }} />}
+                                {r.to_club}
+                              </span>
+                            )}
+                          </div>
+                        )}
                         <h3 style={{
                           fontFamily: "'Barlow Condensed', sans-serif",
                           fontSize: 18, fontWeight: 700, color: text1,
