@@ -38,6 +38,7 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
         <input
           type="text"
           value={query}
+          aria-label="Buscar jugadores"
           placeholder="Buscar..."
           onChange={e => { setQuery(e.target.value); setOpen(true) }}
           className="w-full pl-8 pr-3 py-1.5 text-[12px] rounded outline-none transition-colors duration-150"
