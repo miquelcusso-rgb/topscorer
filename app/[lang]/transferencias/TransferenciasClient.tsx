@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
 import Avatar from '@/components/saas/Avatar'
+import CrestImg from '@/components/saas/CrestImg'
 
 const LEAGUES = ['La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1']
 
@@ -62,10 +63,10 @@ function TransferCard({ t, isLight, es }: { t: Transfer; isLight: boolean; es: b
           {t.player.name}
         </div>
         <div className="flex items-center gap-1.5">
-          <img src={t.teams.out.logo} alt="" width={14} height={14} style={{ borderRadius: 2 }} />
+          <CrestImg src={t.teams.out.logo} alt={t.teams.out.name} size={14} />
           <span style={{ fontSize: 10, color: textMuted }} className="truncate max-w-[70px]">{t.teams.out.name}</span>
           <span style={{ fontSize: 10, color: textMuted }}>→</span>
-          <img src={t.teams.in.logo} alt="" width={14} height={14} style={{ borderRadius: 2 }} />
+          <CrestImg src={t.teams.in.logo} alt={t.teams.in.name} size={14} />
           <span style={{ fontSize: 10, fontWeight: 600, color: textPrimary }} className="truncate max-w-[70px]">{t.teams.in.name}</span>
         </div>
       </div>

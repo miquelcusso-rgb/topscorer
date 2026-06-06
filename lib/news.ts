@@ -86,11 +86,40 @@ const pick = (block: string, tag: string) => {
   const m = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, 'i'))
   return m ? decode(m[1]) : ''
 }
+// Bump a thumbnail URL toward a larger render when the size is encoded in the
+// URL (cheap, no rehosting — still the publisher's own CDN image).
+function upgradeImageUrl(url: string): string {
+  return url
+    // BBC ichef: /news/240/cpsprodpb/... or /standard/240/ → request 800px wide
+    .replace(/\/(?:news|standard|ace)\/(?:cpsprodpb\/)?\d{2,4}\//, m => m.replace(/\d{2,4}/, '800'))
+    // Common query-param resizers: width=NN / w=NN / size=NN → 800
+    .replace(/([?&](?:width|w|size|imwidth)=)\d{2,4}/i, '$1800')
+    // Google/WordPress style -120x90 / -300x200 size suffix → drop it (full size)
+    .replace(/-\d{2,4}x\d{2,4}(\.(?:jpe?g|png|webp))/i, '$1')
+}
+
 function pickImage(block: string): string | undefined {
-  const enc = block.match(/<(?:enclosure|media:content|media:thumbnail)[^>]*url="([^"]+)"/i)
-  if (enc) return enc[1]
-  const img = block.match(/<img[^>]*src="([^"]+)"/i)
-  return img ? img[1] : undefined
+  // Gather every media candidate with any declared width, prefer the widest.
+  let best: { url: string; w: number } | undefined
+  const re = /<(?:enclosure|media:content|media:thumbnail)\b([^>]*)\/?>/gi
+  let m: RegExpExecArray | null
+  while ((m = re.exec(block))) {
+    const attrs = m[1]
+    const urlM = attrs.match(/url="([^"]+)"/i)
+    if (!urlM) continue
+    // Only consider image candidates (skip video/audio enclosures).
+    const typeM = attrs.match(/type="([^"]+)"/i)
+    if (typeM && !/^image\//i.test(typeM[1])) continue
+    const wM = attrs.match(/width="(\d+)"/i)
+    const w = wM ? Number(wM[1]) : 0
+    if (!best || w > best.w) best = { url: urlM[1], w }
+  }
+  if (best) return upgradeImageUrl(best.url)
+  // Fallback: first <img> embedded in the description/content. Descriptions are
+  // often HTML-entity-encoded (&lt;img…&gt;), so search a lightly-decoded copy.
+  const decoded = block.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?34;/g, '"')
+  const img = decoded.match(/<img[^>]*\bsrc=["']([^"']+)["']/i)
+  return img ? upgradeImageUrl(img[1]) : undefined
 }
 
 function parseFeed(xml: string, source: string): NewsItem[] {

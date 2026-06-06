@@ -6,6 +6,7 @@ import { useLang } from '@/contexts/LangContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import Avatar from '@/components/saas/Avatar'
 import { clubLogo } from '@/lib/club-logos'
+import CrestImg from '@/components/saas/CrestImg'
 
 interface Rumor {
   id: string
@@ -176,14 +177,14 @@ export default function RumoresClient() {
                           <div className="flex items-center gap-2" style={{ marginBottom: 6, flexWrap: 'wrap' }}>
                             {r.from_club && (
                               <span className="flex items-center gap-1" style={{ fontSize: 12, color: muted }}>
-                                {clubLogo(r.from_club) && /* eslint-disable-next-line @next/next/no-img-element */ <img src={clubLogo(r.from_club)!} alt="" width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain' }} />}
+                                <CrestImg src={clubLogo(r.from_club) ?? undefined} alt={r.from_club} size={16} />
                                 {r.from_club}
                               </span>
                             )}
                             <span style={{ color: st.color, fontWeight: 800, fontSize: 14 }}>→</span>
                             {r.to_club && (
                               <span className="flex items-center gap-1" style={{ fontSize: 12, fontWeight: 700, color: text1 }}>
-                                {clubLogo(r.to_club) && /* eslint-disable-next-line @next/next/no-img-element */ <img src={clubLogo(r.to_club)!} alt="" width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain' }} />}
+                                <CrestImg src={clubLogo(r.to_club) ?? undefined} alt={r.to_club} size={16} />
                                 {r.to_club}
                               </span>
                             )}
