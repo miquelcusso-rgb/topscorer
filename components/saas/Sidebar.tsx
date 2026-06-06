@@ -190,7 +190,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         { id: 'transfers', icon: '↔', label: L.transfers, count: '24', href: `/${lang}/transferencias` },
         { id: 'stats',     icon: '🗳', label: L.polls,                  href: `/${lang}/encuestas` },
         { id: 'stats',     icon: '🔮', label: L.predictions,           href: `/${lang}/predicciones` },
-        { id: 'stats',     icon: '🎮', label: L.fantasy,               href: `/${lang}/fantasy` },
+        { id: 'stats',     icon: '🎮', label: L.fantasy, count: en ? 'soon' : 'pronto', href: `/${lang}/fantasy` },
       ],
     },
   ]
