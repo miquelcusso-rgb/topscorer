@@ -16,6 +16,7 @@
  */
 import { readFileSync, writeFileSync } from 'fs'
 import { setTimeout as sleep } from 'timers/promises'
+import { fixMojibake } from './lib/fix-mojibake.mjs'
 
 function loadEnv(path) {
   try {
@@ -46,7 +47,7 @@ const LEAGUES = [
 
 const POS = { Goalkeeper: 'GK', Defender: 'DF', Midfielder: 'MF', Attacker: 'FW' }
 // API-Football sometimes HTML-encodes apostrophes etc. in names (e.g. "O&apos;Reilly").
-const dec = s => (s ?? '').replace(/&apos;/g, "'").replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+const dec = s => fixMojibake((s ?? '').replace(/&apos;/g, "'").replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"'))
 const nrmN = s => (s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
 const num = v => (v == null ? undefined : Number(v))
 
@@ -78,7 +79,7 @@ async function leaguePlayers(leagueId, leagueName) {
         id: num(p.id),
         name: dec(p.name),
         fullName: dec(fullName) || undefined,
-        club: st.team?.name ?? '',
+        club: dec(st.team?.name ?? ''),
         league: leagueName,
         photo: p.photo,
         pos: POS[st.games?.position] ?? undefined,

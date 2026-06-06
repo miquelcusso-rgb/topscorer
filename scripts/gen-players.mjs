@@ -13,6 +13,7 @@
  */
 
 import { readFileSync, writeFileSync } from 'fs'
+import { fixMojibake } from './lib/fix-mojibake.mjs'
 
 // ─── env ─────────────────────────────────────────────────────────────────────
 function loadEnv(path) {
@@ -140,7 +141,7 @@ function fullName(player) {
   const fn = (player.firstname ?? '').trim()
   const ln = (player.lastname ?? '').trim()
   const full = `${fn} ${ln}`.trim()
-  return full || player.name
+  return fixMojibake(full || player.name)
 }
 
 function transform(res, tab) {
@@ -151,7 +152,7 @@ function transform(res, tab) {
   const season = SEASON_MAP[stat.league.season] ?? '2526'
   const out = {
     name: fullName(res.player),
-    club: stat.team.name,
+    club: fixMojibake(stat.team.name),
     league: leagueName,
     age: res.player.age,
     pj: stat.games.appearences ?? 0,
