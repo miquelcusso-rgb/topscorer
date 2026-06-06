@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { toPng } from 'html-to-image'
 import Avatar from '@/components/saas/Avatar'
 import { iig } from '@/lib/iig'
@@ -28,8 +28,10 @@ interface Metric {
   // formatted display value
   da: string
   db: string
-  // higher is better? (always true here, but kept explicit)
-  higherWins: boolean
+  // true → value is a 0–100 percentage (gets a bar on an absolute 0–100 scale).
+  // false → single number (shown head-to-head, NO bar — a bar there would be
+  // misleading since there's no meaningful max).
+  isPct: boolean
 }
 
 // On-target shooting accuracy from real shotsOn / shotsTotal.
@@ -38,6 +40,16 @@ function shotPct(p: EnrichedPlayer): number {
   const on = p.shotsOn ?? 0
   if (total <= 0) return 0
   return Math.round((on / total) * 1000) / 10
+}
+function convPct(p: EnrichedPlayer): number {
+  const total = p.shotsTotal ?? 0
+  if (total <= 0) return 0
+  return Math.round(((p.goles ?? 0) / total) * 1000) / 10
+}
+function duelPct(p: EnrichedPlayer): number {
+  const total = p.duelsTotal ?? 0
+  if (total <= 0) return 0
+  return Math.round(((p.duelsWon ?? 0) / total) * 1000) / 10
 }
 
 // Key passes: generated dataset uses `keyPasses`, curated uses `passesKey`.
@@ -52,22 +64,41 @@ function buildMetrics(a: EnrichedPlayer, b: EnrichedPlayer, es: boolean): Metric
   const ratingB = typeof b.rating === 'number' ? b.rating : 0
   const iigA = iig(a)
   const iigB = iig(b)
-  const pctA = shotPct(a)
-  const pctB = shotPct(b)
+  const accA = a.passAccuracy ?? 0
+  const accB = b.passAccuracy ?? 0
 
-  return [
-    { label: es ? 'Goles' : 'Goals',          va: a.goles, vb: b.goles, da: String(a.goles), db: String(b.goles), higherWins: true },
-    { label: es ? 'Asist.' : 'Assists',        va: a.asist, vb: b.asist, da: String(a.asist), db: String(b.asist), higherWins: true },
-    { label: es ? 'Tiros' : 'Shots',           va: a.shotsTotal ?? 0, vb: b.shotsTotal ?? 0, da: String(a.shotsTotal ?? '—'), db: String(b.shotsTotal ?? '—'), higherWins: true },
-    { label: es ? '% Puerta' : 'Shot acc.',    va: pctA, vb: pctB, da: pctA ? `${pctA}%` : '—', db: pctB ? `${pctB}%` : '—', higherWins: true },
-    { label: es ? 'Pases clave' : 'Key passes', va: kpA, vb: kpB, da: kpA ? String(kpA) : '—', db: kpB ? String(kpB) : '—', higherWins: true },
-    { label: es ? 'Nota' : 'Rating',           va: ratingA, vb: ratingB, da: ratingA ? ratingA.toFixed(2) : '—', db: ratingB ? ratingB.toFixed(2) : '—', higherWins: true },
-    { label: 'IIG',                            va: iigA, vb: iigB, da: iigA.toFixed(1), db: iigB.toFixed(1), higherWins: true },
+  const all: Metric[] = [
+    // Single numbers — no bars.
+    { label: es ? 'Goles' : 'Goals',          va: a.goles, vb: b.goles, da: String(a.goles), db: String(b.goles), isPct: false },
+    { label: es ? 'Asist.' : 'Assists',        va: a.asist, vb: b.asist, da: String(a.asist), db: String(b.asist), isPct: false },
+    { label: es ? 'Tiros' : 'Shots',           va: a.shotsTotal ?? 0, vb: b.shotsTotal ?? 0, da: String(a.shotsTotal ?? '—'), db: String(b.shotsTotal ?? '—'), isPct: false },
+    { label: es ? 'Pases clave' : 'Key passes', va: kpA, vb: kpB, da: kpA ? String(kpA) : '—', db: kpB ? String(kpB) : '—', isPct: false },
+    { label: es ? 'Nota' : 'Rating',           va: ratingA, vb: ratingB, da: ratingA ? ratingA.toFixed(2) : '—', db: ratingB ? ratingB.toFixed(2) : '—', isPct: false },
+    { label: 'IIG',                            va: iigA, vb: iigB, da: iigA.toFixed(1), db: iigB.toFixed(1), isPct: false },
+    // Percentages (0–100) — bars on an absolute 100% scale.
+    { label: es ? '% Puerta' : 'Shot acc.',    va: shotPct(a), vb: shotPct(b), da: shotPct(a) ? `${shotPct(a)}%` : '—', db: shotPct(b) ? `${shotPct(b)}%` : '—', isPct: true },
+    { label: es ? 'Conversión' : 'Conversion', va: convPct(a), vb: convPct(b), da: convPct(a) ? `${convPct(a)}%` : '—', db: convPct(b) ? `${convPct(b)}%` : '—', isPct: true },
+    { label: es ? '% Acierto pase' : 'Pass acc.', va: accA, vb: accB, da: accA ? `${accA}%` : '—', db: accB ? `${accB}%` : '—', isPct: true },
+    { label: es ? '% Duelos' : 'Duels won',    va: duelPct(a), vb: duelPct(b), da: duelPct(a) ? `${duelPct(a)}%` : '—', db: duelPct(b) ? `${duelPct(b)}%` : '—', isPct: true },
   ]
+  // Drop rows we can't show (no data for either player).
+  return all.filter(m => m.da !== '—' || m.db !== '—')
 }
 
 const COLOR_A = 'var(--ts-primary)'
 const COLOR_B = 'var(--ts-teal)'
+
+function SectionTitle({ children }: { children: ReactNode }) {
+  return (
+    <div style={{
+      textAlign: 'center', fontSize: 12, fontWeight: 800, letterSpacing: 1.5,
+      textTransform: 'uppercase', color: 'var(--ts-muted)', fontFamily: "'Barlow Condensed', sans-serif",
+      padding: '14px 0 6px',
+    }}>
+      {children}
+    </div>
+  )
+}
 
 function PlayerHead({ p, color }: { p: EnrichedPlayer; color: string }) {
   const logo = clubLogo(p.club)
@@ -95,6 +126,8 @@ function PlayerHead({ p, color }: { p: EnrichedPlayer; color: string }) {
 
 export default function VersusCard({ a, b, es }: VersusCardProps) {
   const metrics = buildMetrics(a, b, es)
+  const numberMetrics = metrics.filter(m => !m.isPct)
+  const pctMetrics = metrics.filter(m => m.isPct)
   const [copied, setCopied] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -183,50 +216,57 @@ export default function VersusCard({ a, b, es }: VersusCardProps) {
         <PlayerHead p={b} color={COLOR_B} />
       </div>
 
-      {/* Metric rows */}
+      {/* Metric rows — HYBRID layout:
+          · Numbers  → head-to-head duel, NO bar (a bar with an arbitrary max
+            misleads). Label centred, the two values flank it, leader coloured.
+          · Percentages → two-sided bars on an ABSOLUTE 0–100% scale, so the bar
+            length is genuinely representative (full bar = 100%). */}
       <div style={{ padding: '4px 16px 16px' }}>
-        {metrics.map(m => {
-          const aWins = m.va > m.vb
-          const bWins = m.vb > m.va
-          const max = Math.max(m.va, m.vb, 1)
-          const wa = Math.round((m.va / max) * 100)
-          const wb = Math.round((m.vb / max) * 100)
-          return (
-            <div key={m.label} style={{ padding: '10px 0', borderBottom: '1px solid var(--ts-divider)' }}>
-              <div style={{
-                textAlign: 'center', fontSize: 11, fontWeight: 700, letterSpacing: 1,
-                textTransform: 'uppercase', color: 'var(--ts-faint)', marginBottom: 6,
-                fontFamily: "'Barlow Condensed', sans-serif",
-              }}>
-                {m.label}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                {/* A value + bar (right-aligned) */}
-                <span style={{
-                  width: 52, textAlign: 'right', flexShrink: 0,
-                  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16,
-                  color: aWins ? COLOR_A : 'var(--ts-text)',
-                }}>
-                  {m.da}
-                </span>
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', height: 8, background: 'var(--ts-hairline)', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ width: `${wa}%`, background: aWins ? COLOR_A : 'var(--ts-border-hot)', borderRadius: 4 }} />
+        {numberMetrics.length > 0 && (
+          <>
+            <SectionTitle>{es ? 'Números' : 'Numbers'}</SectionTitle>
+            {numberMetrics.map(m => {
+              const aWins = m.va > m.vb
+              const bWins = m.vb > m.va
+              return (
+                <div key={m.label} style={{ display: 'flex', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--ts-divider)' }}>
+                  <span style={{ flex: 1, textAlign: 'right', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 18, color: aWins ? COLOR_A : 'var(--ts-text)' }}>{m.da}</span>
+                  <span style={{ width: 150, textAlign: 'center', fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-faint)', fontFamily: "'Barlow Condensed', sans-serif" }}>{m.label}</span>
+                  <span style={{ flex: 1, textAlign: 'left', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 18, color: bWins ? COLOR_B : 'var(--ts-text)' }}>{m.db}</span>
                 </div>
-                <span style={{ width: 14, textAlign: 'center', flexShrink: 0, fontSize: 12, color: 'var(--ts-faint)' }}>·</span>
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', height: 8, background: 'var(--ts-hairline)', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ width: `${wb}%`, background: bWins ? COLOR_B : 'var(--ts-border-hot)', borderRadius: 4 }} />
+              )
+            })}
+          </>
+        )}
+        {pctMetrics.length > 0 && (
+          <>
+            <SectionTitle>{es ? 'Porcentajes' : 'Percentages'}</SectionTitle>
+            {pctMetrics.map(m => {
+              const aWins = m.va > m.vb
+              const bWins = m.vb > m.va
+              const wa = Math.max(0, Math.min(100, m.va))   // absolute 0–100 scale
+              const wb = Math.max(0, Math.min(100, m.vb))
+              return (
+                <div key={m.label} style={{ padding: '9px 0', borderBottom: '1px solid var(--ts-divider)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ width: 52, textAlign: 'right', flexShrink: 0, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: aWins ? COLOR_A : 'var(--ts-text)' }}>{m.da}</span>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', height: 8, background: 'var(--ts-hairline)', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ width: `${wa}%`, background: aWins ? COLOR_A : 'var(--ts-border-hot)', borderRadius: 4 }} />
+                    </div>
+                    <span style={{ width: 110, textAlign: 'center', flexShrink: 0, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.6, textTransform: 'uppercase', color: 'var(--ts-faint)', fontFamily: "'Barlow Condensed', sans-serif" }}>{m.label}</span>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', height: 8, background: 'var(--ts-hairline)', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ width: `${wb}%`, background: bWins ? COLOR_B : 'var(--ts-border-hot)', borderRadius: 4 }} />
+                    </div>
+                    <span style={{ width: 52, textAlign: 'left', flexShrink: 0, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: bWins ? COLOR_B : 'var(--ts-text)' }}>{m.db}</span>
+                  </div>
                 </div>
-                <span style={{
-                  width: 52, textAlign: 'left', flexShrink: 0,
-                  fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16,
-                  color: bWins ? COLOR_B : 'var(--ts-text)',
-                }}>
-                  {m.db}
-                </span>
-              </div>
-            </div>
-          )
-        })}
+              )
+            })}
+            <p style={{ textAlign: 'center', fontSize: 10, color: 'var(--ts-faint)', marginTop: 8 }}>
+              {es ? 'Barras a escala 0–100% (barra llena = 100%)' : 'Bars on a 0–100% scale (full bar = 100%)'}
+            </p>
+          </>
+        )}
       </div>
 
       {/* Share + download */}
