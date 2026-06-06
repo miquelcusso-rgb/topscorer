@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useLang } from '@/contexts/LangContext'
 import Avatar from '@/components/saas/Avatar'
 
 const LEAGUES = ['La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1']
@@ -16,16 +17,34 @@ interface Transfer {
   }
 }
 
-function TransferCard({ t, isLight }: { t: Transfer; isLight: boolean }) {
+// One distinct colour + label per action type. Loan and "return from loan"
+// share the same colour; free agent ≠ paid transfer. Shows the amount when the
+// API provides one (often it doesn't → "no revelado").
+function classifyTransfer(type: string, es: boolean): { label: string; color: string; amount: string | null } {
+  const s = (type ?? '').trim()
+  const low = s.toLowerCase()
+  const hasMoney = /[€$£]|\d+\s*(m|k|mill)/i.test(s)
+  if (low.includes('loan') || low.includes('cesi')) {
+    const back = low.includes('return') || low.includes('back') || low.includes('vuelve') || low.includes('fin')
+    return { label: back ? (es ? 'Vuelve de cesión' : 'Return from loan') : (es ? 'Cesión' : 'Loan'), color: '#00c8b0', amount: hasMoney ? s : null }
+  }
+  if (low === 'free' || low.includes('free') || low.includes('libre')) {
+    return { label: es ? 'Agente libre' : 'Free agent', color: '#38c47a', amount: null }
+  }
+  if (!s || low === 'n/a' || low === '-' || low === '?') {
+    return { label: es ? 'No revelado' : 'Undisclosed', color: '#9a917e', amount: null }
+  }
+  // A fee value → paid transfer.
+  return { label: es ? 'Traspaso' : 'Transfer', color: '#f0c040', amount: hasMoney ? s : null }
+}
+
+function TransferCard({ t, isLight, es }: { t: Transfer; isLight: boolean; es: boolean }) {
   const cardBg     = isLight ? '#ffffff' : 'rgba(255,255,255,.04)'
   const cardBorder = isLight ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.07)'
   const textPrimary = isLight ? '#1c1608' : '#f1e8d2'
   const textMuted   = isLight ? '#8a7f68' : '#9a917e'
 
-  const feeColor = t.type === 'Free' ? '#38c47a'
-    : t.type === 'N/A' ? '#9a917e'
-    : t.type.includes('Loan') ? '#00c8b0'
-    : '#f0c040'
+  const act = classifyTransfer(t.type, es)
 
   return (
     <div
@@ -50,18 +69,22 @@ function TransferCard({ t, isLight }: { t: Transfer; isLight: boolean }) {
           <span style={{ fontSize: 10, fontWeight: 600, color: textPrimary }} className="truncate max-w-[70px]">{t.teams.in.name}</span>
         </div>
       </div>
-      {/* Fee + date */}
+      {/* Action type chip + amount + date */}
       <div className="text-right shrink-0">
-        <div
-          style={{
-            fontSize: 12, fontWeight: 700, color: feeColor,
-            fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5,
-          }}
-        >
-          {t.type}
-        </div>
-        <div style={{ fontSize: 10, color: textMuted }}>
-          {new Date(t.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })}
+        <span style={{
+          display: 'inline-block', fontSize: 10, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase',
+          color: act.color, background: `${act.color}1f`, border: `1px solid ${act.color}55`,
+          borderRadius: 999, padding: '2px 8px', fontFamily: "'Barlow Condensed', sans-serif",
+        }}>
+          {act.label}
+        </span>
+        {act.amount && (
+          <div style={{ fontSize: 13, fontWeight: 800, color: act.color, fontFamily: "'Barlow Condensed', sans-serif", marginTop: 3, letterSpacing: 0.3 }}>
+            {act.amount}
+          </div>
+        )}
+        <div style={{ fontSize: 10, color: textMuted, marginTop: 2 }}>
+          {new Date(t.date).toLocaleDateString(es ? 'es-ES' : 'en-GB', { day: '2-digit', month: 'short', year: '2-digit' })}
         </div>
       </div>
     </div>
@@ -70,6 +93,8 @@ function TransferCard({ t, isLight }: { t: Transfer; isLight: boolean }) {
 
 export default function TransferenciasClient() {
   const { theme } = useTheme()
+  const { lang } = useLang()
+  const es = lang !== 'en'
   const isLight = theme === 'light'
   const [selectedLeague, setSelectedLeague] = useState('La Liga')
   const [selectedClub, setSelectedClub] = useState<string>('all')
@@ -188,7 +213,7 @@ export default function TransferenciasClient() {
         </div>
       ) : (
         <div className="gap-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))' }}>
-          {visibleTransfers.map((t, i) => <TransferCard key={i} t={t} isLight={isLight} />)}
+          {visibleTransfers.map((t, i) => <TransferCard key={i} t={t} isLight={isLight} es={es} />)}
         </div>
       )}
     </div>

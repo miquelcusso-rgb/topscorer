@@ -177,7 +177,6 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
       label: L.gComp,
       items: [
         { id: 'leagues', icon: '🏆', label: L.leagues,   count: '30+', href: `/${lang}/competiciones` },
-        { id: 'leagues', icon: '📋', label: L.standings,              href: `/${lang}/clasificacion` },
         { id: 'results', icon: '⚽', label: L.results,                 href: `/${lang}/resultados` },
         { id: 'leagues', icon: '🌍', label: L.wc,                      href: `/${lang}/mundial-2026` },
         { id: 'news',    icon: '📰', label: L.news,                    href: `/${lang}/noticias` },
@@ -188,6 +187,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
       label: L.gMarket,
       items: [
         { id: 'transfers', icon: '↔', label: L.transfers, count: '24', href: `/${lang}/transferencias` },
+        { id: 'leagues',   icon: '👥', label: en ? 'Community' : 'Comunidad', href: `/${lang}/clasificacion` },
         { id: 'stats',     icon: '🗳', label: L.polls,                  href: `/${lang}/encuestas` },
         { id: 'stats',     icon: '🔮', label: L.predictions,           href: `/${lang}/predicciones` },
         { id: 'stats',     icon: '🎮', label: L.fantasy, count: en ? 'soon' : 'pronto', href: `/${lang}/fantasy` },
