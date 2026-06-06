@@ -226,6 +226,23 @@ export const getStandings = unstable_cache(
   { revalidate: 21600, tags: ['api-football'] } // 6 h — standings update ~weekly
 )
 
+// International friendlies (league 10) in a date window — used for the World
+// Cup 2026 build-up "preview" section. Revalidates hourly so newly-played
+// matches and scores appear automatically. Defensive: any error → [].
+export const getFriendlies = unstable_cache(
+  async (from: string, to: string): Promise<ApiFixture[]> => {
+    try {
+      const data = await apiFetch<ApiFixture[]>(`/fixtures?league=10&season=2026&from=${from}&to=${to}`)
+      const list = data.response ?? []
+      return [...list].sort((a, b) => a.fixture.timestamp - b.fixture.timestamp)
+    } catch {
+      return []
+    }
+  },
+  ['api-football-friendlies'],
+  { revalidate: 3600, tags: ['api-football'] } // 1 h — picks up new results
+)
+
 // Full per-season career for one player (on-demand). Loops the seasons the API
 // lists, picks the club competition with the most appearances per season, and
 // returns dataset-shaped rows. Cached 24h. Used by the profile history + the

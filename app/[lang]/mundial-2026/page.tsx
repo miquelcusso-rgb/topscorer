@@ -2,6 +2,11 @@ import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
 import Mundial2026Client from './Mundial2026Client'
+import WorldCupFriendlies from '@/components/saas/WorldCupFriendlies'
+import { getFriendlies } from '@/lib/api-football'
+
+// Auto-refresh hourly so newly-played friendlies + scores appear on their own.
+export const revalidate = 3600
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -60,6 +65,8 @@ export default async function Mundial2026Page({ params }: { params: Promise<{ la
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const breadcrumb = lang === 'en' ? ['Competitions', 'World Cup 2026'] : ['Competiciones', 'Mundial 2026']
+  // Friendlies window: end of club seasons → World Cup kickoff (2026-06-11).
+  const friendlies = await getFriendlies('2026-05-15', '2026-06-11')
   return (
     <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
       <script
@@ -71,6 +78,7 @@ export default async function Mundial2026Page({ params }: { params: Promise<{ la
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <Mundial2026Client />
+      <WorldCupFriendlies fixtures={friendlies} lang={lang} />
     </SaasShell>
   )
 }
