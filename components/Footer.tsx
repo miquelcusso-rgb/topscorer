@@ -9,18 +9,20 @@ import { t } from '@/lib/i18n'
 export default function Footer() {
   const { lang } = useLang()
   const { theme } = useTheme()
-  const isLight = theme === 'light'
+  void theme
 
-  const footerBg = isLight ? '#e8edf8' : '#080910'
-  const footerBorder = isLight ? '#ddd5c2' : '#2a2620'
-  const bottomBorder = isLight ? '#ddd5c2' : '#1e1a38'
-  const textBrand = isLight ? '#1c1608' : '#eeeef5'
-  const textDesc = isLight ? '#8a7f68' : '#7070a0'
-  const textData = isLight ? '#7080a0' : '#525278'
-  const textGroup = isLight ? '#8a7f68' : '#5a5c88'
-  const textLink = isLight ? '#8a7f68' : '#7070a0'
-  const textLinkHover = isLight ? '#1c1608' : '#b0b0cc'
-  const textCopy = isLight ? '#8a7f68' : '#525278'
+  // Brand palette only (black / gold / turquoise). Uses --ts-* tokens so it
+  // matches the rest of the site in both themes — NO bluish legacy colours.
+  const footerBg = 'var(--ts-card2)'
+  const footerBorder = 'var(--ts-border)'
+  const bottomBorder = 'var(--ts-border)'
+  const textBrand = 'var(--ts-text)'
+  const textDesc = 'var(--ts-muted)'
+  const textData = 'var(--ts-faint)'
+  const textGroup = 'var(--ts-faint)'
+  const textLink = 'var(--ts-muted)'
+  const textLinkHover = 'var(--ts-text)'
+  const textCopy = 'var(--ts-muted)'
 
   // Locale-aware path builder
   const lp = (p: string) => (p === '/' ? `/${lang}` : `/${lang}${p}`)

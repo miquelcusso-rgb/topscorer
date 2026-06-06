@@ -128,7 +128,7 @@ export default async function RootLayout({
               the default dark theme on refresh for light-mode users. */}
           <script
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{var t=localStorage.getItem('ts-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`,
+              __html: `(function(){try{var t=localStorage.getItem('ts-theme');if(t!=='light'&&t!=='dark'){t='light'}document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}})()`,
             }}
           />
           <link rel="preconnect" href="https://fonts.googleapis.com" />

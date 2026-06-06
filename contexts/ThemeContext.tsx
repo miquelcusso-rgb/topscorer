@@ -8,7 +8,7 @@ interface ThemeCtx {
   toggle: () => void
 }
 
-const ThemeContext = createContext<ThemeCtx>({ theme: 'dark', toggle: () => {} })
+const ThemeContext = createContext<ThemeCtx>({ theme: 'light', toggle: () => {} })
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Initialise from the data-theme that the anti-flash inline script already set
@@ -19,16 +19,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const a = document.documentElement.getAttribute('data-theme')
       if (a === 'light' || a === 'dark') return a
     }
-    return 'dark'
+    return 'light'
   })
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+    // Default is ALWAYS light (brand decision). Only an explicit stored choice
+    // overrides it — system dark preference is ignored so the site never loads dark.
     const stored = localStorage.getItem('ts-theme') as Theme | null
-    const domTheme = document.documentElement.getAttribute('data-theme') as Theme | null
-    const preferred = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
-    setTheme(stored ?? domTheme ?? preferred)
+    setTheme(stored === 'dark' || stored === 'light' ? stored : 'light')
   }, [])
 
   useEffect(() => {
