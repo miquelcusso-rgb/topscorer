@@ -10,20 +10,27 @@ interface NewsLite { title: string; link: string; source: string }
 
 interface Lead { label: string; sub?: string; href: string; external?: boolean; photo?: string; crest?: string; tail?: string }
 
-function Strip({ icon, title, accent, leads, en }: { icon: string; title: string; accent: string; leads: Lead[]; en: boolean }) {
+function Strip({ icon, title, accent, leads, en, titleHref }: { icon: string; title: string; accent: string; leads: Lead[]; en: boolean; titleHref?: string }) {
   if (!leads.length) return null
+  const titleStyle = {
+    flexShrink: 0, width: 150, display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
+    borderRight: '1px solid var(--ts-border)', background: `${accent}14`, textDecoration: 'none',
+  } as const
+  const titleInner = (
+    <>
+      <span aria-hidden style={{ fontSize: 15 }}>{icon}</span>
+      <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: accent, lineHeight: 1.1 }}>{title}</span>
+      {titleHref && <span aria-hidden style={{ marginLeft: 'auto', color: accent, fontSize: 13, opacity: 0.75 }}>→</span>}
+    </>
+  )
   return (
     <div className="saas-hotstrip" style={{
       display: 'flex', alignItems: 'stretch', gap: 0,
       background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflow: 'hidden',
     }}>
-      <div className="saas-hotstrip-title" style={{
-        flexShrink: 0, width: 150, display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
-        borderRight: '1px solid var(--ts-border)', background: `${accent}14`,
-      }}>
-        <span aria-hidden style={{ fontSize: 15 }}>{icon}</span>
-        <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: accent, lineHeight: 1 }}>{title}</span>
-      </div>
+      {titleHref
+        ? <Link href={titleHref} className="saas-hotstrip-title" style={titleStyle}>{titleInner}</Link>
+        : <div className="saas-hotstrip-title" style={titleStyle}>{titleInner}</div>}
       <div className="saas-hotstrip-leads" style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
         {leads.slice(0, 3).map((l, i) => {
           const inner = (
@@ -68,8 +75,8 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
   if (!newsLeads.length && !rumorLeads.length && !strikerLeads.length) return null
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <Strip icon="📰" title={en ? 'Hot news' : 'Noticias'} accent="var(--ts-teal)" leads={newsLeads} en={en} />
-      <Strip icon="🔄" title={en ? 'Hot rumours' : 'Rumores'} accent="var(--ts-primary)" leads={rumorLeads} en={en} />
+      <Strip icon="📰" title={en ? 'Hot news' : 'Noticias'} accent="var(--ts-teal)" leads={newsLeads} en={en} titleHref={`/${lang}/noticias`} />
+      <Strip icon="🔄" title={en ? 'Hot rumours' : 'Rumores'} accent="var(--ts-primary)" leads={rumorLeads} en={en} titleHref={`/${lang}/rumores`} />
       <Strip icon="🔥" title={en ? 'Hot strikers' : 'En racha'} accent="var(--ts-primary)" leads={strikerLeads} en={en} />
     </div>
   )

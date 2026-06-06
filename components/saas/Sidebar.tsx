@@ -181,6 +181,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         { id: 'results', icon: '⚽', label: L.results,                 href: `/${lang}/resultados` },
         { id: 'leagues', icon: '🌍', label: L.wc,                      href: `/${lang}/mundial-2026` },
         { id: 'news',    icon: '📰', label: L.news,                    href: `/${lang}/noticias` },
+        { id: 'news',    icon: '🔄', label: en ? 'Rumours' : 'Rumores', href: `/${lang}/rumores` },
       ],
     },
     {
@@ -223,7 +224,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
   }, [plan, club, isLoaded])
 
   // Shared "card" look (matches the account/club cards) for the nav section boxes.
-  const cardBox: React.CSSProperties = { background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, padding: 8 }
+  const cardBox: React.CSSProperties = { background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, padding: 8, overflow: 'hidden' }
   const groupLabel: React.CSSProperties = { padding: '4px 8px 6px', fontSize: 10, color: 'var(--ts-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }
   const sectionDivider: React.CSSProperties = { borderTop: '1px solid var(--ts-border)', marginTop: 6, paddingTop: 6 }
 
