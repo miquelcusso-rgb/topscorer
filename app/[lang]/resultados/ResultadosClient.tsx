@@ -511,7 +511,7 @@ function MoreLeaguesDropdown({
 
 export default function ResultadosClient() {
   const [activeLeague, setActiveLeague] = useState(LEAGUES[0])
-  const [activeTab, setActiveTab] = useState<'standings' | 'fixtures' | 'rounds'>('standings')
+  const [activeTab, setActiveTab] = useState<'standings' | 'fixtures' | 'rounds'>('fixtures')
   const { theme } = useTheme()
   const isLight = theme === 'light'
 
@@ -608,7 +608,6 @@ export default function ResultadosClient() {
           {/* Sub-tabs: Standings · Last matches · Round-by-round */}
           <div className="flex gap-2 mb-5">
             {([
-              { id: 'standings', label: 'Clasificación' },
               { id: 'fixtures', label: 'Últimos partidos' },
               { id: 'rounds', label: 'Jornada a jornada' },
             ] as const).map(t => (
@@ -673,21 +672,6 @@ export default function ResultadosClient() {
             <AdSlot slot="5544332211" format="horizontal" className="px-4 py-3" />
           </div>
 
-          {/* Legend */}
-          {activeTab === 'standings' && (
-            <div className="flex flex-wrap gap-4 mt-4">
-              {[
-                { color: activeLeague.color, label: 'Champions League' },
-                { color: '#00c8b0', label: 'Europa League / Conference' },
-                { color: '#e03a3a', label: 'Descenso' },
-              ].map(({ color, label }) => (
-                <div key={label} className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-                  <span className="text-[10px]" style={{ color: textDim }}>{label}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </main>

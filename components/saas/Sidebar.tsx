@@ -178,7 +178,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
       items: [
         { id: 'leagues', icon: '🏆', label: L.leagues,   count: '30+', href: `/${lang}/competiciones` },
         { id: 'leagues', icon: '📋', label: L.standings,              href: `/${lang}/clasificacion` },
-        { id: 'results', icon: '⚽', label: L.results,    live: 3,     href: `/${lang}/resultados` },
+        { id: 'results', icon: '⚽', label: L.results,                 href: `/${lang}/resultados` },
         { id: 'leagues', icon: '🌍', label: L.wc,                      href: `/${lang}/mundial-2026` },
         { id: 'news',    icon: '📰', label: L.news,                    href: `/${lang}/noticias` },
       ],

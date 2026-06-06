@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, type CSSProperties } from 'react'
 import Link from 'next/link'
 import type { PlayerData } from '@/types'
 import Avatar from '@/components/saas/Avatar'
@@ -31,7 +31,72 @@ interface Props {
   players: PlayerData[]
 }
 
-type TabKey = 'resumen' | 'goleadores' | 'asistentes' | 'jovenes'
+type TabKey = 'resumen' | 'clasificacion' | 'goleadores' | 'asistentes' | 'jovenes'
+
+interface StandingRow {
+  rank: number
+  team: { id: number; name: string; logo: string }
+  points: number
+  goalsDiff: number
+  all: { played: number; win: number; draw: number; lose: number; goals: { for: number; against: number } }
+}
+
+// Real league standings — fetched on demand from the existing standings API
+// (football-data.org / API-Football). Shown on the league page next to the
+// scorers / assisters / young guns so everything for a league lives together.
+function StandingsView({ leagueId, leagueColor, lang }: { leagueId: number; leagueColor: string; lang: 'es' | 'en' }) {
+  const [rows, setRows] = useState<StandingRow[] | null>(null)
+  const [error, setError] = useState(false)
+  useEffect(() => {
+    let cancel = false
+    setRows(null); setError(false)
+    fetch(`/api/football/standings?league=${leagueId}`)
+      .then(r => r.json())
+      .then(j => { if (!cancel) { if (j.ok && Array.isArray(j.data)) setRows(j.data); else setError(true) } })
+      .catch(() => { if (!cancel) setError(true) })
+    return () => { cancel = true }
+  }, [leagueId])
+
+  if (error) return <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--ts-muted)', fontSize: 13 }}>{t(lang, 'Clasificación no disponible para esta liga.', 'Standings unavailable for this league.')}</div>
+  if (!rows) return <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--ts-faint)', fontSize: 13 }}>{t(lang, 'Cargando clasificación…', 'Loading standings…')}</div>
+  if (!rows.length) return <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--ts-muted)', fontSize: 13 }}>{t(lang, 'Clasificación no disponible para esta liga.', 'Standings unavailable for this league.')}</div>
+
+  const head: CSSProperties = { fontSize: 10.5, color: 'var(--ts-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'right', padding: '6px 6px' }
+  const cell: CSSProperties = { fontSize: 13, color: 'var(--ts-text)', textAlign: 'right', padding: '8px 6px', fontVariantNumeric: 'tabular-nums' }
+  return (
+    <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 480 }}>
+        <thead>
+          <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
+            <th style={{ ...head, textAlign: 'center', width: 34 }}>#</th>
+            <th style={{ ...head, textAlign: 'left' }}>{t(lang, 'Equipo', 'Team')}</th>
+            <th style={head}>PJ</th>
+            <th style={head}>G</th><th style={head}>E</th><th style={head}>P</th>
+            <th style={head}>DG</th>
+            <th style={{ ...head, color: leagueColor }}>{t(lang, 'Pts', 'Pts')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(r => (
+            <tr key={r.team.id} style={{ borderBottom: '1px solid var(--ts-divider)' }}>
+              <td style={{ ...cell, textAlign: 'center', color: 'var(--ts-muted)', fontWeight: 700 }}>{r.rank}</td>
+              <td style={{ padding: '8px 6px' }}>
+                <Link href={`/${lang}/competiciones`} style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: 'var(--ts-text)' }}>
+                  {r.team.logo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.team.logo} alt="" width={20} height={20} style={{ width: 20, height: 20, objectFit: 'contain', flexShrink: 0 }} />}
+                  <span style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.team.name}</span>
+                </Link>
+              </td>
+              <td style={cell}>{r.all.played}</td>
+              <td style={cell}>{r.all.win}</td><td style={cell}>{r.all.draw}</td><td style={cell}>{r.all.lose}</td>
+              <td style={{ ...cell, color: 'var(--ts-muted)' }}>{r.goalsDiff > 0 ? `+${r.goalsDiff}` : r.goalsDiff}</td>
+              <td style={{ ...cell, fontWeight: 800, color: leagueColor }}>{r.points}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
 const headingStyle = {
   fontFamily: "'Barlow Condensed', sans-serif",
@@ -357,6 +422,7 @@ export default function LeagueClient({
   // Tabs are gated on real data: "Jóvenes" only appears if U21 players exist.
   const tabs: { key: TabKey; label: string }[] = [
     { key: 'resumen', label: t(lang, 'Resumen', 'Overview') },
+    { key: 'clasificacion', label: t(lang, 'Clasificación', 'Standings') },
     { key: 'goleadores', label: t(lang, 'Goleadores', 'Scorers') },
     ...(assisters.length > 0 ? [{ key: 'asistentes' as const, label: t(lang, 'Asistentes', 'Assisters') }] : []),
     ...(youngsters.length > 0 ? [{ key: 'jovenes' as const, label: t(lang, 'Jóvenes promesas', 'Young guns') }] : []),
@@ -412,6 +478,16 @@ export default function LeagueClient({
         <>
           {/* ── View switcher ── */}
           <SegmentedControl tabs={tabs} active={tab} onChange={setTab} />
+
+          {/* ════════════ CLASIFICACIÓN (real league standings) ════════════ */}
+          {tab === 'clasificacion' && (
+            <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <h2 style={{ ...headingStyle, fontSize: 20, color: 'var(--ts-text)' }}>
+                {t(lang, 'Clasificación · 25/26', 'Standings · 25/26')}
+              </h2>
+              <StandingsView leagueId={leagueId} leagueColor={leagueColor} lang={lang} />
+            </section>
+          )}
 
           {/* ════════════ RESUMEN ════════════ */}
           {tab === 'resumen' && (

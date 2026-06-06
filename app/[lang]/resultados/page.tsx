@@ -9,10 +9,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/resultados'
   return {
-    title: 'Resultados y Clasificaciones — TopScorers',
-    description: 'Clasificaciones y últimos resultados de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más ligas europeas. Actualizado cada hora.',
+    title: 'Resultados de partidos — TopScorers',
+    description: 'Últimos resultados y jornada a jornada de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más ligas europeas. Actualizado cada hora.',
     openGraph: {
-      title: 'Resultados y Clasificaciones — TopScorers',
+      title: 'Resultados de partidos — TopScorers',
       description: 'Clasificaciones y últimos resultados de las principales ligas europeas.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
