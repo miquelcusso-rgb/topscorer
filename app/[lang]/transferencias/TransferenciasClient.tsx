@@ -93,10 +93,16 @@ export default function TransferenciasClient() {
       .finally(() => setLoading(false))
   }, [selectedLeague])
 
-  // Distinct clubs in the visible league (audit pass 1: club filter row)
-  const clubs = Array.from(
-    new Set(transfers.flatMap(t => [t.teams.in.name, t.teams.out.name]))
-  ).sort()
+  // Clubs OF the selected league only. A league feed includes the foreign
+  // counterparty of cross-border moves; those clubs appear just once, while the
+  // league's own clubs recur. So keep clubs seen ≥2 times (fallback to all if
+  // that filters everything on a thin feed) → the dropdown lists this league's
+  // clubs, not "every club at once".
+  const clubCounts = transfers
+    .flatMap(t => [t.teams.in.name, t.teams.out.name])
+    .reduce<Record<string, number>>((m, name) => { m[name] = (m[name] ?? 0) + 1; return m }, {})
+  const leagueClubs = Object.keys(clubCounts).filter(c => clubCounts[c] >= 2).sort()
+  const clubs = leagueClubs.length ? leagueClubs : Object.keys(clubCounts).sort()
   const visibleTransfers = selectedClub === 'all'
     ? transfers
     : transfers.filter(t => t.teams.in.name === selectedClub || t.teams.out.name === selectedClub)
