@@ -86,12 +86,11 @@ export default async function SaasHomeBody({
   // Top 3 headlines for the HOT NEWS strip + the freshest "breaking" item for the
   // home banner (defensive — empty on any error).
   let news: { title: string; link: string; source: string }[] = []
-  let breaking: { title: string; link: string; source: string } | null = null
+  let breaking: { title: string; link: string; source: string }[] = []
   try {
     const all = await getNews(lang === 'en' ? 'en' : 'es', 'general', 14)
     news = all.slice(0, 3).map(n => ({ title: n.title, link: n.link, source: n.source }))
-    const b = all.find(n => n.isBreaking)
-    if (b) breaking = { title: b.title, link: b.link, source: b.source }
+    breaking = all.filter(n => n.isBreaking).slice(0, 5).map(b => ({ title: b.title, link: b.link, source: b.source }))
   } catch { /* feeds down */ }
 
   const breadcrumb = heading?.breadcrumb ?? (lang === 'en' ? ['Statistics', 'Players'] : ['Estadísticas', 'Jugadores'])
