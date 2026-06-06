@@ -32,7 +32,7 @@ export default function SearchInput({ pool, pinned, onAdd }: Props) {
 
   return (
     <div className="relative" ref={ref} style={{ minWidth: 180, maxWidth: 260 }}>
-        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ fontSize: 16, color: '#4a6080', lineHeight: 1 }}>
+        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ fontSize: 16, color: '#8a8275', lineHeight: 1 }}>
           ⌕
         </span>
         <input

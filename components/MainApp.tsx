@@ -71,17 +71,17 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
   const { theme } = useTheme()
   const isLight = theme === 'light'
 
-  // Hero siempre sobre fondo oscuro (gris en claro, oscuro en dark)
+  // Hero siempre sobre fondo oscuro (negro de marca en ambos temas)
   const heroTitleColor = '#f8f7f3'
-  const heroMidText    = isLight ? 'rgba(195,210,235,.72)' : '#6888aa'
+  const heroMidText    = 'rgba(235,232,222,.66)'
   const heroBg   = isLight
-    ? 'linear-gradient(180deg, rgba(42,56,88,.84) 0%, rgba(32,46,78,.80) 100%)'
-    : 'linear-gradient(180deg, rgba(8,16,32,.95) 0%, rgba(10,9,8,.88) 100%)'
+    ? 'linear-gradient(180deg, rgba(26,24,20,.94) 0%, rgba(16,15,13,.90) 100%)'
+    : 'linear-gradient(180deg, rgba(8,8,7,.95) 0%, rgba(10,9,8,.88) 100%)'
   const heroBorder = 'rgba(255,255,255,.07)'
 
   // Colores adaptativos para zonas claras (tabla, etc.)
-  const dimBorder = isLight ? 'rgba(58,82,112,.2)' : 'rgba(255,255,255,.08)'
-  const dimBg    = isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.03)'
+  const dimBorder = 'rgba(255,255,255,.12)'
+  const dimBg    = 'rgba(255,255,255,.05)'
 
   return (
     <main className="relative z-10 min-h-screen">
@@ -133,7 +133,7 @@ export default function MainApp({ initialPlayers }: { initialPlayers?: PlayerDat
                 }}>{t('hero_realtime', lang)}</span>
                 <span style={{
                   fontSize: 10.5, fontWeight: 700, letterSpacing: '1.5px',
-                  textTransform: 'uppercase', color: '#7888aa',
+                  textTransform: 'uppercase', color: 'rgba(235,232,222,.62)',
                   padding: '4px 10px', borderRadius: 20,
                   border: `1px solid ${dimBorder}`,
                   background: dimBg,

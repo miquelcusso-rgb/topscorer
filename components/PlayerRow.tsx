@@ -28,7 +28,7 @@ interface Props {
 const POS_STYLE: Record<string, { color: string; bg: string }> = {
   FW: { color: '#e05a30', bg: 'rgba(224,90,48,.12)' },
   MF: { color: '#00c8b0', bg: 'rgba(0,200,176,.1)'  },
-  DF: { color: '#6080d0', bg: 'rgba(96,128,208,.1)'  },
+  DF: { color: '#8a8275', bg: 'rgba(138,130,117,.12)'  },
   GK: { color: '#f0c040', bg: 'rgba(240,192,64,.1)'  },
 }
 
@@ -44,7 +44,7 @@ export default function PlayerRow({
 
   const rankColor =
     rank === 1 ? '#f0c040' :
-    rank <= 3   ? '#9090b8' :
+    rank <= 3   ? '#b8b0a0' :
     '#8a7f68'
 
   const isTop1 = rank === 1
@@ -171,7 +171,7 @@ export default function PlayerRow({
             </div>
             <div className="flex items-center gap-1 leading-tight">
               {player.isFiller && !player.isPinned && (
-                <span style={{ fontSize: 8, color: '#585880' }}>(relleno)</span>
+                <span style={{ fontSize: 8, color: '#8a7f68' }}>(relleno)</span>
               )}
             </div>
           </div>
@@ -228,7 +228,7 @@ export default function PlayerRow({
 
       {/* PJ */}
       {showPj && (
-        <td className="pr-3 text-right pj-cell tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#585880' }}>
+        <td className="pr-3 text-right pj-cell tabular" style={{ fontFamily: "'Bebas Neue', cursive", fontSize: 16, color: '#8a7f68' }}>
           {player.pj}
         </td>
       )}
@@ -281,7 +281,7 @@ export default function PlayerRow({
           <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 800, color: '#f0c040', lineHeight: 1 }}>
             {player.val_con}
           </span>
-          <small className="ml-1" style={{ fontSize: 8, color: '#585880' }}>×{player.coef}</small>
+          <small className="ml-1" style={{ fontSize: 8, color: '#8a7f68' }}>×{player.coef}</small>
         </td>
       )}
 

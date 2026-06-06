@@ -42,7 +42,7 @@ function Th({ label, sortKey, currentSort, dir, onSort, align = 'left', width }:
         letterSpacing: '1.5px',
         textTransform: 'uppercase',
         textAlign: align,
-        color: active ? '#f0c040' : '#6868a0',
+        color: active ? '#f0c040' : '#8a8275',
         cursor: sortKey ? 'pointer' : 'default',
         fontFamily: "'Barlow Condensed', sans-serif",
         ...(width ? { width } : {}),

@@ -229,7 +229,7 @@ export default function MidfielderPanel() {
                     style={{
                       fontSize: 10, fontWeight: 700, letterSpacing: '1.5px',
                       textTransform: 'uppercase', textAlign: col.align,
-                      color: active ? '#00c8b0' : '#3d3e58',
+                      color: active ? '#00c8b0' : '#8a8275',
                       cursor: col.key ? 'pointer' : 'default',
                       fontFamily: "'Barlow Condensed', sans-serif",
                       ...(col.width ? { width: col.width } : {}),

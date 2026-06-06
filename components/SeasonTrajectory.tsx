@@ -94,7 +94,7 @@ export default function SeasonTrajectory({ goals, assists, matches }: Props) {
 
   if (data.length < 2) return null
 
-  const mutedColor = isLight ? '#9090b8' : '#9a917e'
+  const mutedColor = isLight ? '#9a917e' : '#9a917e'
   const tooltipBg = isLight ? '#f8f7f3' : '#15130f'
   const tooltipBorder = isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.08)'
 

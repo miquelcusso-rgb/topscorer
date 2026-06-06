@@ -223,7 +223,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
                 <div
                   style={{
                     fontSize: 14,
-                    color: '#9a9ab8',
+                    color: '#9a917e',
                     marginTop: 6,
                     fontWeight: 500,
                   }}

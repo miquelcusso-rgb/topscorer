@@ -92,9 +92,9 @@ export default function WatchlistPanel({ entries, open, onClose, onRemove, onNot
         <div className="flex-1 overflow-y-auto">
           {entries.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 px-6 text-center">
-              <div style={{ fontSize: 32, color: '#2a2a48' }}>☆</div>
-              <div className="text-[13px] font-semibold" style={{ color: '#36364e' }}>Sin jugadores guardados</div>
-              <div className="text-[11.5px]" style={{ color: '#2a2a48' }}>
+              <div style={{ fontSize: 32, color: '#2a2620' }}>☆</div>
+              <div className="text-[13px] font-semibold" style={{ color: '#5a5448' }}>Sin jugadores guardados</div>
+              <div className="text-[11.5px]" style={{ color: '#2a2620' }}>
                 Pasa el cursor por encima de cualquier jugador y haz clic en la estrella.
               </div>
             </div>
@@ -123,9 +123,9 @@ export default function WatchlistPanel({ entries, open, onClose, onRemove, onNot
                     <button
                       onClick={() => onRemove(entry)}
                       className="text-[10px] shrink-0 transition-colors duration-150 cursor-pointer"
-                      style={{ color: '#36364e', background: 'none', border: 'none', paddingTop: 2 }}
+                      style={{ color: '#5a5448', background: 'none', border: 'none', paddingTop: 2 }}
                       onMouseEnter={e => { e.currentTarget.style.color = '#e05a30' }}
-                      onMouseLeave={e => { e.currentTarget.style.color = '#36364e' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = '#5a5448' }}
                     >
                       ✕
                     </button>
@@ -145,7 +145,7 @@ export default function WatchlistPanel({ entries, open, onClose, onRemove, onNot
                         className="flex-1 text-[11.5px] px-2 py-1.5 rounded-sm resize-none"
                         style={{
                           background: '#15130f',
-                          border: '1px solid #3a3a5a',
+                          border: '1px solid #3a352c',
                           color: '#f1e8d2',
                           outline: 'none',
                         }}
@@ -158,9 +158,9 @@ export default function WatchlistPanel({ entries, open, onClose, onRemove, onNot
                       style={{
                         background: '#15130f',
                         border: '1px solid #2a2620',
-                        color: entry.note ? '#9090b0' : '#36364e',
+                        color: entry.note ? '#9a917e' : '#5a5448',
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#3a3a5a' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#3a352c' }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2620' }}
                     >
                       {entry.note || 'Añade una nota…'}
@@ -175,7 +175,7 @@ export default function WatchlistPanel({ entries, open, onClose, onRemove, onNot
         {/* Footer */}
         <div
           className="px-4 py-3 shrink-0 text-[10.5px]"
-          style={{ borderTop: '1px solid #2a2620', color: '#2a2a48' }}
+          style={{ borderTop: '1px solid #2a2620', color: '#2a2620' }}
         >
           Las notas se guardan automáticamente · Solo tú puedes verlas
         </div>

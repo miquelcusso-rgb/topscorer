@@ -112,17 +112,17 @@ export default function OnboardingPage() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
-      style={{ background: 'linear-gradient(160deg,#0a0908 0%,#0b0d22 100%)' }}
+      style={{ background: 'linear-gradient(160deg,#0a0908 0%,#100f0d 100%)' }}
     >
       {/* Card */}
       <div
         className="w-full max-w-[560px] rounded-lg overflow-hidden"
-        style={{ background: '#0d0e24', border: '1px solid #1a1c38' }}
+        style={{ background: '#15130f', border: '1px solid #2a2620' }}
       >
         {/* Header */}
         <div
           className="px-6 pt-7 pb-5 text-center"
-          style={{ borderBottom: '1px solid #1a1c38' }}
+          style={{ borderBottom: '1px solid #2a2620' }}
         >
           <div
             className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4"
@@ -154,7 +154,7 @@ export default function OnboardingPage() {
             className="w-full rounded text-[13px] px-3 py-2 outline-none"
             style={{
               background: '#0a0908',
-              border: '1px solid #1a1c38',
+              border: '1px solid #2a2620',
               color: '#f1e8d2',
             }}
           />
@@ -180,7 +180,7 @@ export default function OnboardingPage() {
                       className="flex flex-col items-center gap-1.5 py-3 px-1 rounded cursor-pointer transition-all duration-150"
                       style={{
                         background: active ? '#f0c04018' : 'transparent',
-                        border: `1px solid ${active ? '#f0c040' : '#1a1c38'}`,
+                        border: `1px solid ${active ? '#f0c040' : '#2a2620'}`,
                       }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -211,14 +211,14 @@ export default function OnboardingPage() {
         {/* Actions */}
         <div
           className="px-5 py-4 flex items-center gap-3"
-          style={{ borderTop: '1px solid #1a1c38' }}
+          style={{ borderTop: '1px solid #2a2620' }}
         >
           <button
             onClick={handleSave}
             disabled={!selected || saving}
             className="flex-1 py-2.5 rounded font-bold text-[13px] cursor-pointer transition-all duration-150"
             style={{
-              background: selected ? '#f0c040' : '#1a1c38',
+              background: selected ? '#f0c040' : '#2a2620',
               color: selected ? '#0a0908' : '#9a917e',
               fontFamily: "'Barlow Condensed', sans-serif",
               letterSpacing: 1,

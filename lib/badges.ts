@@ -40,8 +40,8 @@ export const BADGES: BadgeDef[] = [
     label:  { es: 'Amateur',                en: 'Amateur' },
     short:  { es: 'Amateur',                en: 'Amateur' },
     blurb:  { es: 'Recién aterrizado en la comunidad.', en: 'Just landed in the community.' },
-    color:  '#9aa6c8',
-    bg:     'rgba(154,166,200,.10)',
+    color:  '#a89f8c',
+    bg:     'rgba(168,159,140,.10)',
     icon:   '⚽',
   },
   {

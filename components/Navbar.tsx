@@ -49,8 +49,8 @@ export default function Navbar() {
   const lp = (p: string) => (p === '/' ? `/${lang}` : `/${lang}${p}`)
   const [showHint, setShowHint] = useState(false)
   const isLight = theme === 'light'
-  const navBg   = isLight ? 'rgba(248,250,255,.97)' : 'rgba(10,9,8,.96)'
-  const navText = isLight ? '#1a2a40' : '#7888aa'
+  const navBg   = isLight ? 'rgba(248,247,243,.97)' : 'rgba(10,9,8,.96)'
+  const navText = isLight ? '#2a2620' : '#9a917e'
   const navActive = isLight ? '#1c1608' : '#f8f7f3'
   const navActiveBg = isLight ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.06)'
 
@@ -169,7 +169,7 @@ export default function Navbar() {
                   background: path === href ? navActiveBg : 'transparent',
                   fontWeight: path === href ? 600 : 500,
                 }}
-                onMouseEnter={e => { if (path !== href) { e.currentTarget.style.color = isLight ? '#6e6655' : '#b8c8e0'; e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.04)' } }}
+                onMouseEnter={e => { if (path !== href) { e.currentTarget.style.color = isLight ? '#6e6655' : '#f1e8d2'; e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.04)' } }}
                 onMouseLeave={e => { if (path !== href) { e.currentTarget.style.color = navText; e.currentTarget.style.background = 'transparent' } }}
               >
                 {label}
@@ -210,13 +210,13 @@ export default function Navbar() {
                       className="block px-4 py-2.5 transition-colors duration-150"
                       style={{
                         fontSize: 13,
-                        color: path === href ? (isLight ? '#1c1608' : '#f8f7f3') : (isLight ? '#3a5070' : '#9a917e'),
+                        color: path === href ? (isLight ? '#1c1608' : '#f8f7f3') : (isLight ? '#6a6356' : '#9a917e'),
                         fontWeight: path === href ? 600 : 400,
                         background: path === href ? (isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.05)') : 'transparent',
                         textDecoration: 'none',
                       }}
                       onMouseEnter={e => { e.currentTarget.style.background = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.06)'; e.currentTarget.style.color = isLight ? '#1c1608' : '#f1e8d2' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = path === href ? (isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.05)') : 'transparent'; e.currentTarget.style.color = path === href ? (isLight ? '#1c1608' : '#f8f7f3') : (isLight ? '#3a5070' : '#9a917e') }}
+                      onMouseLeave={e => { e.currentTarget.style.background = path === href ? (isLight ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.05)') : 'transparent'; e.currentTarget.style.color = path === href ? (isLight ? '#1c1608' : '#f8f7f3') : (isLight ? '#6a6356' : '#9a917e') }}
                     >
                       {label}
                     </Link>
@@ -342,7 +342,7 @@ export default function Navbar() {
                 <span
                   key={i}
                   className="block w-[18px] h-[1.5px] rounded-full transition-all duration-150"
-                  style={{ background: '#606088' }}
+                  style={{ background: '#9a917e' }}
                 />
               ))}
             </button>
@@ -365,7 +365,7 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
               className="block px-5 py-3 text-[14px] font-medium border-b transition-colors duration-150"
               style={{
-                color: path === href ? (isLight ? '#1c1608' : '#f1e8d2') : (isLight ? '#3a5070' : '#8080a8'),
+                color: path === href ? (isLight ? '#1c1608' : '#f1e8d2') : (isLight ? '#6a6356' : '#9a917e'),
                 borderColor: isLight ? 'rgba(0,0,0,.08)' : '#15130f',
               }}
             >

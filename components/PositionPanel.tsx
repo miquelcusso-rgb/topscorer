@@ -230,7 +230,7 @@ export default function PositionPanel({ position, accentColor, proUser }: Props)
                     style={{
                       fontSize: 10, fontWeight: 700, letterSpacing: '1.5px',
                       textTransform: 'uppercase', textAlign: col.align,
-                      color: active ? accentColor : '#3d3e58',
+                      color: active ? accentColor : '#8a8275',
                       cursor: col.key ? 'pointer' : 'default',
                       fontFamily: "'Barlow Condensed', sans-serif",
                       ...(col.width ? { width: col.width } : {}),
