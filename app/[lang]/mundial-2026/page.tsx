@@ -54,6 +54,10 @@ const sportsEventJsonLd = {
   startDate: '2026-06-11',
   endDate: '2026-07-19',
   eventStatus: 'https://schema.org/EventScheduled',
+  image: [
+    'https://www.top-scorers.com/og-mundial-es.jpg',
+    'https://www.top-scorers.com/og-mundial-en.jpg',
+  ],
   location: [
     { '@type': 'Place', name: 'Estadio Azteca', address: { '@type': 'PostalAddress', addressLocality: 'Mexico City', addressCountry: 'MX' } },
     { '@type': 'Place', name: 'MetLife Stadium', address: { '@type': 'PostalAddress', addressLocality: 'New York/New Jersey', addressCountry: 'US' } },
