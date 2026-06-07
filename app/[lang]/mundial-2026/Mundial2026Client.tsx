@@ -6,6 +6,7 @@ import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
 import NewsFeed from '@/components/saas/NewsFeed'
 import type { ApiFixture, ApiPlayerResponse, ApiStandingEntry } from '@/lib/api-football'
+import { wcFaqs } from './wc-faqs'
 
 // ─── Country → flag emoji ─────────────────────────────────────────────────────
 // Small inline map covering the qualified / likely WC 2026 nations referenced on
@@ -134,6 +135,120 @@ function Countdown({ lang }: { lang: 'es' | 'en' }) {
   )
 }
 
+// ─── World Cup Golden Boot (Bota de Oro del Mundial) ──────────────────────────
+// The star section during the tournament: live top scorers of the World Cup
+// itself (league 1 = FIFA World Cup, season 2026). Used both as its own tab and
+// (compact) inside the Overview. FAQs live in ./wc-faqs (shared server+client).
+
+// Reusable scorer rows → player pages. Shared by the Golden Boot tab + Overview.
+function WcScorerList({ scorers, lang, limit }: { scorers: ApiPlayerResponse[]; lang: 'es' | 'en'; limit: number }) {
+  return (
+    <>
+      {scorers.slice(0, limit).map((p, i) => {
+        const stat = p.statistics[0]
+        return (
+          <Link
+            key={p.player.id}
+            href={`/${lang}/jugadores/${slugify(p.player.name)}`}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit' }}
+          >
+            <span style={{ fontSize: 13, fontWeight: 700, width: 22, flexShrink: 0, textAlign: 'center', color: i === 0 ? 'var(--ts-primary)' : 'var(--ts-muted)' }}>{i + 1}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={p.player.photo} alt={p.player.name} width={28} height={28} style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.player.name}</div>
+              <div style={{ fontSize: 10, color: 'var(--ts-faint)' }}>{stat?.team?.name}</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexShrink: 0 }}>
+              {stat?.goals?.assists ? <span style={{ fontSize: 11, color: 'var(--ts-muted)' }}>{stat.goals.assists} {t(lang, 'asist', 'ast')}</span> : null}
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>{stat?.goals?.total ?? 0}</span>
+                <span style={{ fontSize: 10, marginLeft: 4, color: 'var(--ts-muted)' }}>{t(lang, 'goles', 'goals')}</span>
+              </div>
+            </div>
+          </Link>
+        )
+      })}
+    </>
+  )
+}
+
+function GoldenBootPanel({ lang, initial }: { lang: 'es' | 'en'; initial: ApiPlayerResponse[] }) {
+  const [scorers, setScorers] = useState<ApiPlayerResponse[]>(initial)
+  const [loading, setLoading] = useState(initial.length === 0)
+
+  // Only client-fetch if the server didn't already seed us (keeps scorers in the
+  // initial HTML for SEO when data exists; refreshes live when it doesn't). When
+  // seeded, `loading` already starts false — no synchronous setState needed.
+  useEffect(() => {
+    if (initial.length > 0) return
+    let cancelled = false
+    fetch('/api/football/topscorers?league=1&season=2026')
+      .then(r => r.json())
+      .then(j => { if (!cancelled && j.ok && Array.isArray(j.data)) setScorers(j.data) })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [initial.length])
+
+  const leader = scorers[0]
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div>
+        <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 26, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
+          🥇 {t(lang, 'Bota de Oro del Mundial 2026', '2026 World Cup Golden Boot')}
+        </h2>
+        <p style={{ fontSize: 13, color: 'var(--ts-muted)', margin: 0, lineHeight: 1.6 }}>
+          {t(lang,
+            'Máximos goleadores del Mundial 2026 en tiempo real. La Bota de Oro premia al jugador con más goles del torneo; en caso de empate, decide quien dé más asistencias y juegue menos minutos.',
+            'Live top scorers of the 2026 World Cup. The Golden Boot goes to the tournament’s top scorer; ties are broken by most assists, then fewest minutes played.')}
+        </p>
+      </div>
+
+      {loading && <div style={{ padding: '48px 0', textAlign: 'center', fontSize: 12, color: 'var(--ts-faint)' }}>{t(lang, 'Cargando goleadores…', 'Loading scorers…')}</div>}
+
+      {!loading && scorers.length === 0 && (
+        <div style={{ borderRadius: 12, padding: '32px 20px', textAlign: 'center', background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: 'var(--ts-primary)' }}>
+            {t(lang, 'La carrera por la Bota de Oro arranca el 11 de junio', 'The Golden Boot race kicks off on June 11')}
+          </div>
+          <p style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--ts-muted)', maxWidth: 440, margin: '0 auto 14px' }}>
+            {t(lang,
+              'Los goleadores del Mundial 2026 aparecerán aquí en directo desde el primer partido. Mientras tanto, sigue la Bota de Oro europea de clubes.',
+              'The 2026 World Cup scorers will appear here live from the first match. Meanwhile, follow the European club Golden Shoe.')}
+          </p>
+          <Link href={`/${lang}/bota-de-oro`} style={{ fontSize: 12, fontWeight: 700, color: 'var(--ts-primary)', textDecoration: 'none' }}>
+            {t(lang, 'Bota de Oro europea (clubes) →', 'European club Golden Shoe →')}
+          </Link>
+        </div>
+      )}
+
+      {!loading && leader && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 18px', borderRadius: 14, background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={leader.player.photo} alt={leader.player.name} width={56} height={56} style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '2px solid var(--ts-primary)' }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ts-primary)', fontWeight: 700 }}>{t(lang, 'Líder · Bota de Oro', 'Leader · Golden Boot')}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--ts-text)', fontFamily: "'Barlow Condensed', sans-serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{leader.player.name}</div>
+            <div style={{ fontSize: 12, color: 'var(--ts-muted)' }}>{leader.statistics[0]?.team?.name}</div>
+          </div>
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div style={{ fontSize: 40, fontWeight: 800, lineHeight: 1, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>{leader.statistics[0]?.goals?.total ?? 0}</div>
+            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{t(lang, 'goles', 'goals')}</div>
+          </div>
+        </div>
+      )}
+
+      {!loading && scorers.length > 0 && (
+        <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflow: 'hidden' }}>
+          <WcScorerList scorers={scorers} lang={lang} limit={25} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Live data panel ──────────────────────────────────────────────────────────
 
 function LiveDataPanel({ lang }: { lang: 'es' | 'en' }) {
@@ -143,8 +258,8 @@ function LiveDataPanel({ lang }: { lang: 'es' | 'en' }) {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/football/fixtures?league=1&season=2024&last=8').then(r => r.json()),
-      fetch('/api/football/topscorers?league=1&season=2024').then(r => r.json()),
+      fetch('/api/football/fixtures?league=1&season=2026&last=8').then(r => r.json()),
+      fetch('/api/football/topscorers?league=1&season=2026').then(r => r.json()),
     ]).then(([fix, sc]) => {
       if (fix.ok) setFixtures(fix.data)
       if (sc.ok) setScorers(sc.data)
@@ -245,9 +360,10 @@ function LiveDataPanel({ lang }: { lang: 'es' | 'en' }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function Mundial2026Client() {
+export default function Mundial2026Client({ initialScorers = [], started = false }: { initialScorers?: ApiPlayerResponse[]; started?: boolean }) {
   const { lang } = useLang()
-  const [view, setView] = useState<'overview' | 'news' | 'groups' | 'calendar' | 'venues' | 'live'>('overview')
+  // During the tournament the Golden Boot is the headline → default to it.
+  const [view, setView] = useState<'overview' | 'golden' | 'news' | 'groups' | 'calendar' | 'venues' | 'live'>(started ? 'golden' : 'overview')
 
   return (
     <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh' }}>
@@ -298,11 +414,12 @@ export default function Mundial2026Client() {
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             {([
               { id: 'overview', es: 'Resumen', en: 'Overview' },
-              { id: 'news', es: 'Noticias', en: 'News' },
+              { id: 'golden', es: '🥇 Bota de Oro', en: '🥇 Golden Boot' },
               { id: 'groups', es: 'Grupos', en: 'Groups' },
               { id: 'calendar', es: 'Calendario', en: 'Calendar' },
+              { id: 'live', es: 'Resultados', en: 'Results' },
+              { id: 'news', es: 'Noticias', en: 'News' },
               { id: 'venues', es: 'Sedes', en: 'Venues' },
-              { id: 'live', es: 'En vivo', en: 'Live' },
             ] as const).map(tab => {
               const active = view === tab.id
               return (
@@ -326,7 +443,8 @@ export default function Mundial2026Client() {
       {/* Content */}
       <div style={{ background: 'var(--ts-bg)' }}>
         <div style={{ maxWidth: 1500, margin: '0 auto', padding: '24px 20px 80px' }}>
-          {view === 'overview' && <OverviewPanel lang={lang} onGoGroups={() => setView('groups')} onGoCalendar={() => setView('calendar')} />}
+          {view === 'overview' && <OverviewPanel lang={lang} scorers={initialScorers} onGoGroups={() => setView('groups')} onGoCalendar={() => setView('calendar')} onGoGolden={() => setView('golden')} />}
+          {view === 'golden' && <GoldenBootPanel lang={lang} initial={initialScorers} />}
           {view === 'news' && <NewsFeed scope="worldcup" lang={lang} />}
           {view === 'groups' && <GroupsPanel lang={lang} />}
           {view === 'calendar' && <CalendarPanel lang={lang} />}
@@ -340,7 +458,7 @@ export default function Mundial2026Client() {
 
 // ─── Overview panel ───────────────────────────────────────────────────────────
 
-function OverviewPanel({ lang, onGoGroups, onGoCalendar }: { lang: 'es' | 'en'; onGoGroups: () => void; onGoCalendar: () => void }) {
+function OverviewPanel({ lang, scorers, onGoGroups, onGoCalendar, onGoGolden }: { lang: 'es' | 'en'; scorers: ApiPlayerResponse[]; onGoGroups: () => void; onGoCalendar: () => void; onGoGolden: () => void }) {
   const stats = [
     { label: t(lang, 'Selecciones', 'Teams'), value: '48', desc: t(lang, 'Primer mundial con 48 equipos', 'First 48-team World Cup') },
     { label: t(lang, 'Grupos', 'Groups'), value: '12', desc: t(lang, 'Grupos de 4 — top 2 + mejores 8 terceros', 'Groups of 4 — top 2 + best 8 thirds') },
@@ -371,8 +489,25 @@ function OverviewPanel({ lang, onGoGroups, onGoCalendar }: { lang: 'es' | 'en'; 
     { name: t(lang, 'Países Bajos', 'Netherlands'), country: 'Netherlands', odds: '11.0' },
   ]
 
+  const faqs = wcFaqs(lang, scorers[0]?.player?.name)
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* Golden Boot leaders — the headline section (server-rendered when live) */}
+      {scorers.length > 0 && (
+        <div style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--ts-card)', border: '1px solid var(--ts-border-hot)' }}>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--ts-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--ts-primary-soft)' }}>
+            <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>
+              🥇 {t(lang, 'Bota de Oro del Mundial', 'World Cup Golden Boot')}
+            </span>
+            <button type="button" onClick={onGoGolden} style={{ fontSize: 10, color: 'var(--ts-primary)', background: 'transparent', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: 0.5, fontFamily: 'inherit' }}>
+              {t(lang, 'Ver tabla completa →', 'See full table →')}
+            </button>
+          </div>
+          <WcScorerList scorers={scorers} lang={lang} limit={8} />
+        </div>
+      )}
+
       {/* Key stats grid */}
       <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
         {stats.map(s => (
@@ -445,6 +580,22 @@ function OverviewPanel({ lang, onGoGroups, onGoCalendar }: { lang: 'es' | 'en'; 
             <span style={{ fontSize: 13, color: 'var(--ts-text)' }}>{f.name}</span>
             <span style={{ fontSize: 11, marginLeft: 'auto', color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>x{f.odds}</span>
           </Link>
+        ))}
+      </div>
+
+      {/* FAQ — visible answers mirror the FAQPage JSON-LD (GEO citable content) */}
+      <div style={{ borderRadius: 12, padding: '18px 20px', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, color: 'var(--ts-text)', fontFamily: "'Barlow Condensed', sans-serif" }}>
+          {t(lang, 'Preguntas frecuentes — Mundial 2026', 'FAQ — 2026 World Cup')}
+        </h2>
+        {faqs.map(({ q, a }) => (
+          <details key={q} style={{ borderTop: '1px solid var(--ts-divider)', padding: '12px 0' }}>
+            <summary style={{ color: 'var(--ts-text)', fontWeight: 600, cursor: 'pointer', fontSize: 14, listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+              {q}
+              <span style={{ color: 'var(--ts-primary)', fontSize: 18, fontWeight: 400, flexShrink: 0 }}>+</span>
+            </summary>
+            <p style={{ color: 'var(--ts-muted)', marginTop: 8, lineHeight: 1.7, fontSize: 13 }}>{a}</p>
+          </details>
         ))}
       </div>
     </div>
