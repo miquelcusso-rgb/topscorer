@@ -650,6 +650,142 @@ function apiPhotoUrl(id: number, kind: 'players' | 'coachs' = 'players'): string
   return `https://media.api-sports.io/football/${kind}/${id}.png`
 }
 
+// ─── National-team recent XI (who actually plays the big matches) ─────────────
+// Builds a per-player profile from the team's last ~10 finished fixtures: how
+// often each player started, total minutes, and the most-used formation. This
+// powers a "probable XI" that reflects reality (regular starters) rather than
+// shirt numbers. Cached 24h, fully defensive (→ null on any failure).
+
+export interface RecentLineupPlayer {
+  id: number
+  starts: number     // times in the starting XI across recent matches
+  minutes: number    // total minutes across recent matches
+  position?: string  // grid position line from lineups (G/D/M/F) when available
+}
+
+export interface RecentLineups {
+  /** player id → aggregated recent usage */
+  byPlayer: Record<number, RecentLineupPlayer>
+  /** most-used recent formation, e.g. "4-3-3" (null if none reported) */
+  formation: string | null
+  /** number of finished fixtures actually analysed */
+  matches: number
+}
+
+export const getNationalTeamRecentLineups = unstable_cache(
+  async (teamId: number): Promise<RecentLineups | null> => {
+    try {
+      const fxRes = await apiFetch<ApiFixture[]>(`/fixtures?team=${teamId}&last=10`)
+      const finished = (fxRes.response ?? []).filter(f =>
+        ['FT', 'AET', 'PEN'].includes(f.fixture?.status?.short),
+      )
+      if (!finished.length) return null
+
+      const byPlayer: Record<number, RecentLineupPlayer> = {}
+      const formationCount = new Map<string, number>()
+
+      // Lineups give us starters + formation; player stats give minutes. We fetch
+      // both per fixture (parallel within a fixture), serialising fixtures to be
+      // gentle on the rate limit. Each fixture is best-effort.
+      for (const f of finished) {
+        const fid = f.fixture.id
+        try {
+          const [luRes, plRes] = await Promise.all([
+            apiFetch<Array<{ team: { id: number }; formation: string | null; startXI: Array<{ player: { id: number; pos: string | null } }> }>>(
+              `/fixtures/lineups?fixture=${fid}`,
+            ),
+            apiFetch<Array<{ team: { id: number }; players: Array<{ player: { id: number }; statistics: Array<{ games?: { minutes: number | null } }> }> }>>(
+              `/fixtures/players?fixture=${fid}`,
+            ),
+          ])
+          const lu = (luRes.response ?? []).find(l => l.team?.id === teamId)
+          if (lu?.formation) formationCount.set(lu.formation, (formationCount.get(lu.formation) ?? 0) + 1)
+          for (const s of lu?.startXI ?? []) {
+            const pid = s.player?.id
+            if (!pid) continue
+            const rec = (byPlayer[pid] ??= { id: pid, starts: 0, minutes: 0 })
+            rec.starts++
+            if (s.player.pos && !rec.position) rec.position = s.player.pos
+          }
+          const pl = (plRes.response ?? []).find(p => p.team?.id === teamId)
+          for (const p of pl?.players ?? []) {
+            const pid = p.player?.id
+            if (!pid) continue
+            const mins = Number(p.statistics?.[0]?.games?.minutes ?? 0) || 0
+            const rec = (byPlayer[pid] ??= { id: pid, starts: 0, minutes: 0 })
+            rec.minutes += mins
+          }
+        } catch { /* skip a fixture that errors */ }
+      }
+
+      if (Object.keys(byPlayer).length === 0) return null
+      const formation = [...formationCount.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
+      return { byPlayer, formation, matches: finished.length }
+    } catch {
+      return null
+    }
+  },
+  ['api-football-recent-lineups'],
+  { revalidate: 86400, tags: ['api-football'] }, // 24 h
+)
+
+// ─── National-team aggregate stats (FootyStats-style %) ───────────────────────
+// Aggregated from the same recent finished fixtures: win/draw/loss %, clean
+// sheets, goals for/against per match, plus form string (last 5, newest last).
+// Cached 24h, defensive (→ null).
+
+export interface TeamAggregateStats {
+  played: number
+  winPct: number
+  drawPct: number
+  lossPct: number
+  cleanSheetPct: number
+  goalsForAvg: number
+  goalsAgainstAvg: number
+  bttsPct: number          // both teams to score %
+  form: string             // e.g. "WWDLW" (oldest → newest)
+}
+
+export const getNationalTeamAggregateStats = unstable_cache(
+  async (teamId: number): Promise<TeamAggregateStats | null> => {
+    try {
+      const fxRes = await apiFetch<ApiFixture[]>(`/fixtures?team=${teamId}&last=10`)
+      const finished = (fxRes.response ?? [])
+        .filter(f => ['FT', 'AET', 'PEN'].includes(f.fixture?.status?.short))
+        .sort((a, b) => a.fixture.timestamp - b.fixture.timestamp) // oldest → newest
+      const n = finished.length
+      if (!n) return null
+
+      let win = 0, draw = 0, loss = 0, cs = 0, gf = 0, ga = 0, btts = 0
+      let form = ''
+      for (const f of finished) {
+        const home = f.teams.home.id === teamId
+        const us = (home ? f.goals.home : f.goals.away) ?? 0
+        const them = (home ? f.goals.away : f.goals.home) ?? 0
+        gf += us; ga += them
+        if (them === 0) cs++
+        if (us > 0 && them > 0) btts++
+        if (us > them) { win++; form += 'W' }
+        else if (us < them) { loss++; form += 'L' }
+        else { draw++; form += 'D' }
+      }
+      const pct = (x: number) => Math.round((x / n) * 100)
+      return {
+        played: n,
+        winPct: pct(win), drawPct: pct(draw), lossPct: pct(loss),
+        cleanSheetPct: pct(cs), bttsPct: pct(btts),
+        goalsForAvg: Math.round((gf / n) * 100) / 100,
+        goalsAgainstAvg: Math.round((ga / n) * 100) / 100,
+        form: form.slice(-5),
+      }
+    } catch {
+      return null
+    }
+  },
+  ['api-football-team-agg-stats'],
+  { revalidate: 86400, tags: ['api-football'] }, // 24 h
+)
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getLeague(id: number): LeagueMeta | undefined {

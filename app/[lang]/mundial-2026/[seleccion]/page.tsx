@@ -2,12 +2,13 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
-import { getNationalTeamId, getSquad, getCoach, type SquadPlayer } from '@/lib/api-football'
+import { getNationalTeamId, getSquad, getCoach, getNationalTeamRecentLineups, getNationalTeamAggregateStats, type SquadPlayer } from '@/lib/api-football'
 import { resolveNation, nationName, nationFact, nationSlug, WC_NATIONS } from '@/lib/wc-nations'
 import { flagFor } from '@/lib/flags'
 import { PLAYERS } from '@/data/players'
 import { iig } from '@/lib/iig'
 import { playerSlug } from '@/lib/player-slug'
+import { slugify } from '@/lib/slugify'
 import type { PlayerData } from '@/types'
 
 // Squads/coaches change rarely → revalidate daily. Defensive everywhere: no data
@@ -111,6 +112,22 @@ interface Enriched extends SquadPlayer {
   data?: PlayerData
   impact: number        // ranking metric: IIG when available, else seniority proxy
   hasMetric: boolean
+  recentStarts: number  // starts in the team's recent finished matches
+  recentMinutes: number // minutes in those recent matches
+  /** XI selection score: dominated by recent starts+minutes, IIG as tiebreak. */
+  xiScore: number
+}
+
+// Parse the digits of a formation string ("4-3-3" → [4,3,3] meaning DEF/MID/ATT).
+function parseFormation(f: string | null): { def: number; mid: number; att: number } {
+  const parts = (f ?? '').split('-').map(n => parseInt(n, 10)).filter(n => n > 0)
+  if (parts.length >= 3) {
+    const def = parts[0]
+    const att = parts[parts.length - 1]
+    const mid = parts.slice(1, -1).reduce((s, n) => s + n, 0)
+    return { def, mid, att }
+  }
+  return { def: 4, mid: 3, att: 3 }
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -127,40 +144,67 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
 
   // ── Data (all defensive) ──
   const teamId = await getNationalTeamId(nation.api)
-  const [squad, coach] = teamId
-    ? await Promise.all([getSquad(teamId), getCoach(teamId)])
-    : [[] as SquadPlayer[], null]
+  const [squad, coach, recent, teamStats] = teamId
+    ? await Promise.all([
+        getSquad(teamId),
+        getCoach(teamId),
+        getNationalTeamRecentLineups(teamId),
+        getNationalTeamAggregateStats(teamId),
+      ])
+    : [[] as SquadPlayer[], null, null, null]
 
-  // Enrich each squad member with our dataset row + an "impact" ranking value.
+  // Do we have real recent-match usage? If so, the XI is "based on recent XI";
+  // otherwise we fall back to the squad heuristic ("based on squad").
+  const hasRecent = !!(recent && Object.keys(recent.byPlayer).length > 0)
+
+  // Enrich each squad member with our dataset row, an "impact" ranking value, and
+  // recent national-team usage (starts + minutes in the last ~10 matches).
   const enriched: Enriched[] = squad.map(p => {
     const data = matchDataset(p)
     const hasMetric = !!(data && data.rating != null)
     // IIG when we have a dataset row; otherwise a seniority proxy (lower shirt
     // numbers tend to be established starters) so standouts still surface.
     const impact = data ? iig(data) : (p.number ? 100 - p.number : 0)
-    return { ...p, data, impact, hasMetric }
+    const r = recent?.byPlayer[p.id]
+    const recentStarts = r?.starts ?? 0
+    const recentMinutes = r?.minutes ?? 0
+    // XI selection score: starts dominate (each start ≈ 1000 pts), minutes add
+    // granularity, IIG breaks ties / ranks players with equal recent usage.
+    // Players with NO recent national-team minutes fall to the bottom (only IIG).
+    const xiScore = recentStarts * 1000 + recentMinutes + impact / 1000
+    return { ...p, data, impact, hasMetric, recentStarts, recentMinutes, xiScore }
   })
 
-  // Standouts: prefer players we actually have a metric for; fall back to all.
-  const ranked = [...enriched].sort((a, b) => Number(b.hasMetric) - Number(a.hasMetric) || b.impact - a.impact)
+  // Standouts: when we have recent-match data, rank by who actually plays
+  // (recent usage), then dataset metric; otherwise fall back to metric/impact.
+  const ranked = hasRecent
+    ? [...enriched].sort((a, b) => b.xiScore - a.xiScore)
+    : [...enriched].sort((a, b) => Number(b.hasMetric) - Number(a.hasMetric) || b.impact - a.impact)
   const standouts = ranked.slice(0, 3)
 
-  // Grouped full squad.
+  // Grouped full squad (shirt-number order for readability).
   const byLine: Record<Line, Enriched[]> = { GK: [], DEF: [], MID: [], ATT: [] }
   for (const p of enriched) byLine[lineOf(p.position)].push(p)
   for (const k of Object.keys(byLine) as Line[]) {
     byLine[k].sort((a, b) => (a.number ?? 99) - (b.number ?? 99))
   }
 
-  // Potential lineup (4-3-3): top N per line by impact.
-  const topBy = (line: Line, n: number) =>
-    [...byLine[line]].sort((a, b) => b.impact - a.impact).slice(0, n)
+  // Potential XI: pick per line by recent starts+minutes (xiScore) when we have
+  // recent data — this surfaces real starters (Pedri, Vinícius…) over shirt
+  // numbers — falling back to dataset impact otherwise. Formation from the
+  // most-used recent shape, else 4-3-3.
+  const sortKey: (a: Enriched, b: Enriched) => number = hasRecent
+    ? (a, b) => b.xiScore - a.xiScore
+    : (a, b) => b.impact - a.impact
+  const topBy = (line: Line, n: number) => [...byLine[line]].sort(sortKey).slice(0, n)
+  const shape = parseFormation(recent?.formation ?? null)
   const lineup = {
     GK: topBy('GK', 1),
-    DEF: topBy('DEF', 4),
-    MID: topBy('MID', 3),
-    ATT: topBy('ATT', 3),
+    DEF: topBy('DEF', shape.def),
+    MID: topBy('MID', shape.mid),
+    ATT: topBy('ATT', shape.att),
   }
+  const formationLabel = `${shape.def}-${shape.mid}-${shape.att}`
   const hasLineup = lineup.GK.length + lineup.DEF.length + lineup.MID.length + lineup.ATT.length >= 7
 
   // Stats strip.
@@ -172,6 +216,14 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
   const valueTotal = enriched.reduce((s, p) => s + parseMarketValue(p.data?.marketValue), 0)
 
   const dataAvailable = size > 0
+
+  // Squad top scorer (from our dataset rows, club-season goals) — an "extra".
+  const topScorer = [...enriched]
+    .filter(p => p.data?.goles != null)
+    .sort((a, b) => (b.data!.goles ?? 0) - (a.data!.goles ?? 0))[0]
+
+  // Form string → coloured chips (newest last). W gold, D muted, L red.
+  const formColor = (c: string) => (c === 'W' ? 'var(--ts-primary)' : c === 'L' ? 'var(--ts-red)' : 'var(--ts-muted)')
 
   // ── Small presentational helpers (server, inline styles, --ts tokens) ──
   const PlayerCard = ({ p, big }: { p: Enriched; big?: boolean }) => {
@@ -201,9 +253,13 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
       border: `1px solid ${big ? 'var(--ts-border-hot)' : 'var(--ts-border)'}`,
       textDecoration: 'none', color: 'inherit',
     }
-    return p.data
-      ? <Link href={`/${lang}/jugadores/${playerSlug(p.data)}`} style={style}>{inner}</Link>
-      : <div style={style}>{inner}</div>
+    // Every squad member is clickable: use the canonical dataset slug when we
+    // have a match, otherwise a name-derived slug (the player profile resolves
+    // names via its search index, so these still land on a profile).
+    const slug = p.data ? playerSlug(p.data) : slugify(p.name)
+    return (
+      <Link href={`/${lang}/jugadores/${slug}`} style={{ ...style, cursor: 'pointer' }}>{inner}</Link>
+    )
   }
 
   return (
@@ -282,14 +338,79 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
             </section>
           )}
 
+          {/* Team performance — cross-% block (FootyStats-style), from recent
+              finished matches. Defensive: whole section hidden without data. */}
+          {teamStats && teamStats.played > 0 && (
+            <section>
+              <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
+                📊 {t(lang, 'Rendimiento del equipo', 'Team performance')}
+              </h2>
+              <p style={{ fontSize: 11, color: 'var(--ts-faint)', margin: '0 0 12px' }}>
+                {t(lang,
+                  `Promedios de los últimos ${teamStats.played} partidos oficiales.`,
+                  `Averages from the last ${teamStats.played} competitive matches.`)}
+              </p>
+              <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}>
+                {[
+                  { v: `${teamStats.winPct}%`, l: t(lang, 'Victorias', 'Win rate') },
+                  { v: `${teamStats.drawPct}%`, l: t(lang, 'Empates', 'Draws') },
+                  { v: `${teamStats.lossPct}%`, l: t(lang, 'Derrotas', 'Losses') },
+                  { v: `${teamStats.cleanSheetPct}%`, l: t(lang, 'Portería a cero', 'Clean sheets') },
+                  { v: `${teamStats.bttsPct}%`, l: t(lang, 'Ambos marcan', 'Both teams score') },
+                  { v: teamStats.goalsForAvg.toFixed(2), l: t(lang, 'Goles a favor/partido', 'Goals for / match') },
+                  { v: teamStats.goalsAgainstAvg.toFixed(2), l: t(lang, 'Goles en contra/partido', 'Goals against / match') },
+                ].map(s => (
+                  <div key={s.l} style={{ borderRadius: 12, padding: '14px 16px', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>{s.v}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, marginTop: 6, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{s.l}</div>
+                  </div>
+                ))}
+                {/* Form chips */}
+                {teamStats.form.length > 0 && (
+                  <div style={{ borderRadius: 12, padding: '14px 16px', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
+                    <div style={{ display: 'flex', gap: 5 }}>
+                      {teamStats.form.split('').map((c, i) => (
+                        <span key={i} style={{
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          width: 22, height: 22, borderRadius: 6, fontSize: 11, fontWeight: 800,
+                          color: 'var(--ts-bg)', background: formColor(c), fontFamily: "'Barlow Condensed', sans-serif",
+                        }}>{c}</span>
+                      ))}
+                    </div>
+                    <div style={{ fontSize: 10, fontWeight: 700, marginTop: 8, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{t(lang, 'Forma (últimos 5)', 'Form (last 5)')}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Extra data lines (titles/ranking from the editorial fact + squad top scorer) */}
+              {(fact || topScorer) && (
+                <div style={{ marginTop: 12, borderRadius: 12, padding: '14px 16px', background: 'var(--ts-card)', border: '1px solid var(--ts-border)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {topScorer?.data && (
+                    <div style={{ fontSize: 13, color: 'var(--ts-text)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{t(lang, 'Máximo goleador de la plantilla', 'Squad top scorer')}:</span>
+                      <Link href={`/${lang}/jugadores/${playerSlug(topScorer.data)}`} style={{ color: 'var(--ts-primary)', fontWeight: 700, textDecoration: 'none' }}>{topScorer.name}</Link>
+                      <span style={{ color: 'var(--ts-muted)' }}>· {topScorer.data.goles} {t(lang, 'goles (club, temporada)', 'goals (club, season)')}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+          )}
+
           {/* Potential lineup */}
           {hasLineup && (
             <section>
               <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
-                {t(lang, 'Once probable', 'Potential lineup')}
+                {t(lang, 'Once probable', 'Potential lineup')} <span style={{ fontSize: 14, color: 'var(--ts-muted)' }}>· {formationLabel}</span>
               </h2>
               <p style={{ fontSize: 11, color: 'var(--ts-faint)', margin: '0 0 12px' }}>
-                {t(lang, 'Estimación (4-3-3) basada en nuestra valoración y la convocatoria. No es la alineación oficial.', 'Estimate (4-3-3) based on our rating and the squad list. Not the official lineup.')}
+                {hasRecent
+                  ? t(lang,
+                      `Once probable (${formationLabel}) basado en quién juega los últimos partidos de la selección (titularidades y minutos recientes). No es la alineación oficial.`,
+                      `Probable XI (${formationLabel}) based on who actually plays the team's recent matches (recent starts and minutes). Not the official lineup.`)
+                  : t(lang,
+                      `Estimación (${formationLabel}) basada en nuestra valoración y la convocatoria. No es la alineación oficial.`,
+                      `Estimate (${formationLabel}) based on our rating and the squad list. Not the official lineup.`)}
               </p>
               <div style={{
                 borderRadius: 16, padding: '22px 16px',
@@ -300,13 +421,17 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
                 {(['ATT', 'MID', 'DEF', 'GK'] as Line[]).map(line => (
                   <div key={line} style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(8px, 3vw, 28px)', flexWrap: 'wrap' }}>
                     {lineup[line].map(p => (
-                      <div key={p.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, width: 64 }}>
+                      <Link
+                        key={p.id}
+                        href={`/${lang}/jugadores/${p.data ? playerSlug(p.data) : slugify(p.name)}`}
+                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, width: 64, textDecoration: 'none', cursor: 'pointer' }}
+                      >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={p.photo} alt={p.name} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--ts-primary)', background: '#fff' }} />
                         <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.2, textShadow: '0 1px 2px rgba(0,0,0,0.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 64 }}>
                           {p.number != null ? `${p.number} ` : ''}{lastName(p.name)}
                         </span>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 ))}
