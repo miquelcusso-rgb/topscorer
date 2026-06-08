@@ -26,8 +26,13 @@ body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
   padding: 0;
 }
 
-html { -webkit-font-smoothing: antialiased; overflow-x: hidden; font-size: 17px; }
-body { overflow-x: hidden; }
+/* Single natural document scroll on the <html> element. `overflow-x: clip`
+   prevents sideways overflow WITHOUT turning html/body into a scroll container
+   (which `hidden` does, and which on mobile caused momentum/"stuck" bounce as if
+   the page had no more content). `overscroll-behavior-y: none` kills the
+   rubber-band glow at the ends so the page feels like one continuous scroll. */
+html { -webkit-font-smoothing: antialiased; overflow-x: clip; font-size: 17px; }
+body { overflow-x: clip; overscroll-behavior-y: none; }
 
 body {
   background-color: #0a0908;
@@ -384,4 +389,38 @@ body::before {
   .saas-hotstrip-leads { grid-template-columns: 1fr !important; }
   .saas-hotstrip-leads > a > span,
   .saas-hotstrip-leads > a span[style] { border-left: none !important; }
+}
+
+/* ── Footer (faldón) — responsive ─────────────────────────────────────────────
+   Desktop keeps the flex row; below 768px the link groups become a tidy 2-col
+   grid (then 1-col under 420px), padding shrinks, and the brand block + bottom
+   bar wrap cleanly. No horizontal overflow at 360px. */
+@media (max-width: 768px) {
+  .ts-footer-inner { padding-left: 18px !important; padding-right: 18px !important; padding-top: 36px !important; padding-bottom: 32px !important; }
+  .ts-footer-top { gap: 28px !important; }
+  .ts-footer-brand { flex: 1 1 100% !important; max-width: 100% !important; }
+  .ts-footer-cols {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 24px 20px !important;
+    width: 100% !important;
+  }
+  .ts-footer-cols > div { min-width: 0 !important; }
+  .ts-footer-bottom { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+}
+@media (max-width: 420px) {
+  .ts-footer-cols { grid-template-columns: 1fr !important; }
+}
+
+/* ── Mobile leaderboard compaction (≤1023) ───────────────────────────────────
+   Tighten the landing top area + table rows so more rows fit per screen without
+   feeling cramped. Targets the home/leaderboard chrome only. */
+@media (max-width: 1023px) {
+  /* Smaller big page title + tighter stack between the top widgets */
+  .saas-main-content { gap: 10px !important; }
+  .saas-main-content > h1 { font-size: clamp(26px, 7vw, 32px) !important; }
+
+  /* Desktop-grid table (shown on mobile, scrolls sideways): shorter rows */
+  .saas-desktop-table > a { padding-top: 8px !important; padding-bottom: 8px !important; }
+  .saas-desktop-table > div:first-child { padding-top: 9px !important; padding-bottom: 9px !important; }
 }
