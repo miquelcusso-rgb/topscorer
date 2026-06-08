@@ -1,4 +1,5 @@
 'use client'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Avatar from './Avatar'
 import { clubLogo } from '@/lib/club-logos'
@@ -6,7 +7,83 @@ import { slugify } from '@/lib/slugify'
 import type { Standout } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
 
-interface NewsLite { title: string; link: string; source: string }
+interface NewsLite { title: string; link: string; source: string; image?: string }
+
+// Mobile-only auto-sliding news carousel (Transfermarkt-style): one card at a
+// time with the article image + headline + source, auto-advancing every ~5s,
+// swipeable, with dot indicators. Desktop keeps the 3-up Strip below.
+function NewsCarousel({ news, en }: { news: NewsLite[]; en: boolean }) {
+  const items = news.slice(0, 6)
+  const [idx, setIdx] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const touchX = useRef<number | null>(null)
+  const n = items.length
+
+  useEffect(() => {
+    if (n < 2 || paused) return
+    const t = setInterval(() => setIdx(i => (i + 1) % n), 5000)
+    return () => clearInterval(t)
+  }, [n, paused])
+
+  if (!n) return null
+  const go = (d: number) => setIdx(i => ((i + d) % n + n) % n)
+
+  return (
+    <div
+      className="saas-news-carousel"
+      style={{
+        position: 'relative', background: 'var(--ts-card)', border: '1px solid var(--ts-border)',
+        borderRadius: 12, overflow: 'hidden',
+      }}
+      onTouchStart={e => { touchX.current = e.touches[0].clientX; setPaused(true) }}
+      onTouchEnd={e => {
+        if (touchX.current == null) return
+        const dx = e.changedTouches[0].clientX - touchX.current
+        if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1)
+        touchX.current = null
+        setPaused(false)
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: 'var(--ts-teal)14' }}>
+        <span aria-hidden style={{ fontSize: 14 }}>📰</span>
+        <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 14, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ts-teal)' }}>
+          {en ? 'Hot news' : 'Noticias'}
+        </span>
+        <Link href={en ? '/en/noticias' : '/es/noticias'} style={{ marginLeft: 'auto', color: 'var(--ts-teal)', fontSize: 13, opacity: 0.8, textDecoration: 'none' }} aria-label={en ? 'All news' : 'Todas las noticias'}>→</Link>
+      </div>
+
+      {(() => {
+        const it = items[idx]
+        return (
+          <a href={it.link} target="_blank" rel="noopener noreferrer" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', background: 'var(--ts-card2)' }}>
+              {it.image
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={it.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, opacity: 0.4 }} aria-hidden>📰</div>}
+            </div>
+            <div style={{ padding: '10px 12px' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                {it.title}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 5 }}>{it.source} ↗</div>
+            </div>
+          </a>
+        )
+      })()}
+
+      {n > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '0 0 10px' }} aria-hidden>
+          {items.map((_, i) => (
+            <button key={i} type="button" onClick={() => setIdx(i)} aria-label={`${i + 1}`}
+              style={{ width: i === idx ? 18 : 6, height: 6, borderRadius: 999, border: 'none', padding: 0, cursor: 'pointer',
+                background: i === idx ? 'var(--ts-teal)' : 'var(--ts-border)', transition: 'width 150ms ease' }} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 interface Lead { label: string; sub?: string; href: string; external?: boolean; photo?: string; crest?: string; tail?: string }
 
@@ -72,12 +149,50 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
     href: `/${lang}/jugadores/${s!.slug || slugify(s!.name)}`,
   }))
 
+  // Compact striker tiles for mobile (square-ish, single row, tight).
+  const strikerTiles = strikerLeads.length ? (
+    <div className="saas-hotstrikers-mobile" style={{ display: 'none' }}>
+      <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: 'var(--ts-primary)14' }}>
+          <span aria-hidden style={{ fontSize: 14 }}>🔥</span>
+          <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 14, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ts-primary)' }}>
+            {en ? 'Hot strikers' : 'En racha'}
+          </span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${strikerLeads.length}, 1fr)` }}>
+          {strikerLeads.map((l, i) => (
+            <Link key={i} href={l.href} style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '10px 6px',
+              borderLeft: i ? '1px solid var(--ts-hairline)' : 'none', textDecoration: 'none', color: 'inherit', minWidth: 0,
+            }}>
+              {l.photo && <Avatar name={l.label} photo={l.photo} size={34} />}
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>{l.label}</span>
+              {l.tail && <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 15, fontWeight: 800, color: 'var(--ts-primary)', fontVariantNumeric: 'tabular-nums' }}>{l.tail}</span>}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  ) : null
+
   if (!newsLeads.length && !rumorLeads.length && !strikerLeads.length) return null
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <Strip icon="📰" title={en ? 'Hot news' : 'Noticias'} accent="var(--ts-teal)" leads={newsLeads} en={en} titleHref={`/${lang}/noticias`} />
+      {/* Mobile: auto-sliding image carousel; Desktop: 3-up strip (hidden on mobile) */}
+      {newsLeads.length > 0 && (
+        <div className="saas-news-carousel-wrap" style={{ display: 'none' }}>
+          <NewsCarousel news={news} en={en} />
+        </div>
+      )}
+      <div className="saas-news-strip-desktop">
+        <Strip icon="📰" title={en ? 'Hot news' : 'Noticias'} accent="var(--ts-teal)" leads={newsLeads} en={en} titleHref={`/${lang}/noticias`} />
+      </div>
       <Strip icon="🔄" title={en ? 'Hot rumours' : 'Rumores'} accent="var(--ts-primary)" leads={rumorLeads} en={en} titleHref={`/${lang}/rumores`} />
-      <Strip icon="🔥" title={en ? 'Hot strikers' : 'En racha'} accent="var(--ts-primary)" leads={strikerLeads} en={en} />
+      {/* Strikers: desktop strip + compact mobile tiles (one shown per breakpoint) */}
+      <div className="saas-hotstrikers-desktop">
+        <Strip icon="🔥" title={en ? 'Hot strikers' : 'En racha'} accent="var(--ts-primary)" leads={strikerLeads} en={en} />
+      </div>
+      {strikerTiles}
     </div>
   )
 }

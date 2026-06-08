@@ -302,11 +302,10 @@ body::before {
   }
   .saas-position-tabs::-webkit-scrollbar { display: none; }
 
-  /* Keep the full stats table on mobile and let it scroll sideways (the inner
-     grid has min-width:720 so the columns don't squash) — users wanted to swipe
-     to see all stats rather than a stripped card list. */
-  .saas-desktop-table { display: block !important; -webkit-overflow-scrolling: touch; }
-  .saas-mobile-cards { display: none !important; }
+  /* Mobile shows the compact card list (rank · name · crest · stat) so many more
+     rows fit per screen; the full sideways-scrolling stats table is desktop-only. */
+  .saas-desktop-table { display: none !important; }
+  .saas-mobile-cards { display: flex !important; }
 
   /* Filter bar collapses to scrollable chip strip + Filters button visible */
   .saas-filter-bar { padding: 10px !important; }
@@ -389,6 +388,14 @@ body::before {
   .saas-hotstrip-leads { grid-template-columns: 1fr !important; }
   .saas-hotstrip-leads > a > span,
   .saas-hotstrip-leads > a span[style] { border-left: none !important; }
+
+  /* News: swap the 3-up strip for the auto-sliding image carousel */
+  .saas-news-strip-desktop { display: none !important; }
+  .saas-news-carousel-wrap { display: block !important; }
+
+  /* Strikers: swap the stacked strip for compact single-row tiles */
+  .saas-hotstrikers-desktop { display: none !important; }
+  .saas-hotstrikers-mobile { display: block !important; }
 }
 
 /* ── Footer (faldón) — responsive ─────────────────────────────────────────────
@@ -399,17 +406,30 @@ body::before {
   .ts-footer-inner { padding-left: 18px !important; padding-right: 18px !important; padding-top: 36px !important; padding-bottom: 32px !important; }
   .ts-footer-top { gap: 28px !important; }
   .ts-footer-brand { flex: 1 1 100% !important; max-width: 100% !important; }
+
+  /* Clean two columns: left-side groups left-aligned, right-side right-aligned. */
   .ts-footer-cols {
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 24px 20px !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 26px 16px !important;
     width: 100% !important;
   }
   .ts-footer-cols > div { min-width: 0 !important; }
-  .ts-footer-bottom { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+  .ts-footer-cols > div:nth-child(odd)  { text-align: left !important; align-items: flex-start !important; }
+  .ts-footer-cols > div:nth-child(even) { text-align: right !important; align-items: flex-end !important; }
+
+  /* Bottom bar + network line: centered + unified style. */
+  .ts-footer-bottom {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 8px !important;
+  }
+  .ts-footer-bottom > span { text-align: center !important; }
+  .ts-footer-net { text-align: center !important; }
 }
 @media (max-width: 420px) {
-  .ts-footer-cols { grid-template-columns: 1fr !important; }
+  .ts-footer-cols { gap: 22px 12px !important; }
 }
 
 /* ── Mobile leaderboard compaction (≤1023) ───────────────────────────────────
@@ -419,8 +439,10 @@ body::before {
   /* Smaller big page title + tighter stack between the top widgets */
   .saas-main-content { gap: 10px !important; }
   .saas-main-content > h1 { font-size: clamp(26px, 7vw, 32px) !important; }
+}
 
-  /* Desktop-grid table (shown on mobile, scrolls sideways): shorter rows */
-  .saas-desktop-table > a { padding-top: 8px !important; padding-bottom: 8px !important; }
-  .saas-desktop-table > div:first-child { padding-top: 9px !important; padding-bottom: 9px !important; }
+/* ── Mobile filters (≤640px): replace pill tabs + chip bar with <select>s ───── */
+@media (max-width: 640px) {
+  .saas-desktop-filters { display: none !important; }
+  .saas-mobile-filters { display: flex !important; }
 }

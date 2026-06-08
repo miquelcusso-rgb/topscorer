@@ -33,7 +33,7 @@ const POS_TITLE: Record<PositionTabId, { es: string; en: string }> = {
   gk: { es: 'PORTEROS', en: 'GOALKEEPERS' },
 }
 
-interface NewsLite { title: string; link: string; source: string }
+interface NewsLite { title: string; link: string; source: string; image?: string }
 interface Props {
   breaking?: { title: string; link: string; source: string }[]
   lang: Lang
@@ -170,6 +170,61 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
 
   const bigTitle = POS_TITLE[pos][lang === 'en' ? 'en' : 'es']
 
+  // Mobile (≤640px) replaces the scrolling pill rectangle with real <select>
+  // dropdowns: one for position + one each for league / age / min-games.
+  const selStyle: React.CSSProperties = {
+    appearance: 'none', WebkitAppearance: 'none',
+    width: '100%', padding: '9px 28px 9px 10px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+    background: 'var(--ts-card)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)',
+    fontFamily: 'inherit', cursor: 'pointer',
+    backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 9 9\' fill=\'none\' stroke=\'%23999\' stroke-width=\'1.5\'><path d=\'M2 3l2.5 2.5L7 3\'/></svg>")',
+    backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center',
+  }
+  const fieldLabel: React.CSSProperties = { fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 4, display: 'block' }
+  const mobileFilters = (
+    <div className="saas-mobile-filters" style={{ display: 'none', flexDirection: 'column', gap: 10, background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, padding: 12 }}>
+      <label>
+        <span style={fieldLabel}>{t.position}</span>
+        <select value={pos} onChange={e => setPos(e.target.value as PositionTabId)} style={selStyle} aria-label={t.position}>
+          {POS_ORDER.map(id => <option key={id} value={id}>{TAB_LABELS[lang === 'en' ? 'en' : 'es'][id]}</option>)}
+        </select>
+      </label>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+        <label>
+          <span style={fieldLabel}>{t.league}</span>
+          <select value={league} onChange={e => setLeague(e.target.value as LeagueFilterValue)} style={selStyle} aria-label={t.league}>
+            <option value="big5">{lang === 'en' ? 'Top 5 Europe' : 'Top 5 Europa'}</option>
+            <option value="big5pt">Top 5 + Portugal</option>
+            <option value="all">{lang === 'en' ? 'All leagues' : 'Todas las ligas'}</option>
+          </select>
+        </label>
+        <label>
+          <span style={fieldLabel}>{t.age}</span>
+          <select value={ageBand} onChange={e => setAgeBand(e.target.value as 'all' | 'u23' | 'u21')} style={selStyle} aria-label={t.age}>
+            <option value="all">{lang === 'en' ? 'All ages' : 'Todas'}</option>
+            <option value="u23">Sub-23</option>
+            <option value="u21">Sub-21</option>
+          </select>
+        </label>
+        <label>
+          <span style={fieldLabel}>{t.minpj}</span>
+          <select value={String(minPj)} onChange={e => setMinPj(Number(e.target.value))} style={selStyle} aria-label={t.minpj}>
+            <option value="3">3+</option>
+            <option value="5">5+</option>
+            <option value="10">10+</option>
+          </select>
+        </label>
+        <label>
+          <span style={fieldLabel}>{t.season}</span>
+          <select value="2526" disabled style={{ ...selStyle, opacity: 0.7 }} aria-label={t.season}>
+            <option value="2526">25/26</option>
+          </select>
+        </label>
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--ts-muted)', textAlign: 'right' }}>{players.length} / {filtered.length}</div>
+    </div>
+  )
+
   return (
     <>
       {/* Breaking-news banner — rotates through up to 5 fresh (<90 min) headlines in one slot */}
@@ -204,11 +259,6 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         )
       })()}
 
-      {/* Big page title — "TOP <word>" with the second word in gold; changes with the position tab */}
-      <h1 style={{ margin: 0, fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(30px, 5vw, 44px)', fontWeight: 800, letterSpacing: '0.01em', textTransform: 'uppercase', lineHeight: 1, color: 'var(--ts-text)' }}>
-        TOP <span style={{ color: 'var(--ts-primary)' }}>{bigTitle}</span>
-      </h1>
-
       {/* Three compact hot strips: news · rumours · strikers (title left, leads right) */}
       <HotStrips news={news} rumors={rumors} strikers={insights?.standouts ?? []} lang={lang === 'en' ? 'en' : 'es'} />
 
@@ -240,7 +290,18 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         )
       })()}
 
-      {/* Position selector + filters, grouped right above the table */}
+      {/* Big page title — "TOP <word>" with the second word in gold; changes with the
+          position tab. Sits directly above the tabs + filters + grid so it introduces
+          the leaderboard in context (not decontextualized at the very top of the page). */}
+      <h1 style={{ margin: '4px 0 -2px', fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(30px, 5vw, 44px)', fontWeight: 800, letterSpacing: '0.01em', textTransform: 'uppercase', lineHeight: 1, color: 'var(--ts-text)' }}>
+        TOP <span style={{ color: 'var(--ts-primary)' }}>{bigTitle}</span>
+      </h1>
+
+      {/* Position selector + filters, grouped right above the table.
+          Desktop: pill tabs + chip filter bar. Mobile (≤640px): <select> dropdowns. */}
+      {mobileFilters}
+
+      <div className="saas-desktop-filters" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {positionTabs}
 
       <FilterBar
@@ -270,6 +331,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         onAddStat={v => setExtraStats(s => (s.includes(v) ? s : [...s, v]))}
         count={{ current: players.length, total: filtered.length }}
       />
+      </div>
 
       <PositionTable
         players={players}

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { PlayerData } from '@/types'
 import Avatar from './Avatar'
 import LeagueChip from './LeagueChip'
+import { clubLogo } from '@/lib/club-logos'
 import { playerSlug } from '@/lib/player-slug'
 import { shortName } from '@/lib/player-name'
 import {
@@ -183,45 +184,41 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
         })}
       </div>
 
-      {/* Mobile cards */}
-      <div className="saas-mobile-cards" style={{ flexDirection: 'column', gap: 6 }}>
+      {/* Mobile cards — ultra-compact rows: rank · avatar · name + club-crest · stat.
+          One tap target ≥44px tall but visually dense, so many fit per screen. */}
+      <div className="saas-mobile-cards" style={{ flexDirection: 'column', gap: 0, background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, overflow: 'hidden' }}>
         {players.map((p, i) => {
           const rank = i + 1
           const slug = playerSlug(p)
-          const { avg } = last5Ratings(p)
           const primaryCol = cols.find(c => c.accent && c.kind !== 'last5') ?? cols.find(c => c.kind !== 'last5') ?? cols[0]
+          const crest = clubLogo(p.club)
           return (
             <Link
               key={slug + i}
               href={`/${lang}/jugadores/${slug}`}
               style={{
-                display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
-                background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 8,
-                textDecoration: 'none', color: 'inherit', minHeight: 52,
+                display: 'flex', alignItems: 'center', gap: 9, padding: '6px 10px',
+                borderTop: i ? '1px solid var(--ts-divider)' : 'none',
+                textDecoration: 'none', color: 'inherit', minHeight: 44,
               }}
             >
-              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 16, width: 22, textAlign: 'right', color: rank <= 3 ? `var(--ts-${accent})` : 'var(--ts-muted)' }}>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 14, width: 18, textAlign: 'right', flexShrink: 0, color: rank <= 3 ? `var(--ts-${accent})` : 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>
                 {String(rank).padStart(2, '0')}
               </span>
-              <Avatar name={p.name} size={40} photo={p.photo} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {shortName(p)}
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 2, display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.club}</span>
-                  <LeagueChip code={code(p.league)} />
-                </div>
+              <Avatar name={p.name} size={28} photo={p.photo} />
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>
+                  {p.flag ? `${p.flag} ` : ''}{shortName(p)}
+                </span>
+                {crest
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={crest} alt={p.club} title={p.club} width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain', flexShrink: 0 }} />
+                  : <LeagueChip code={code(p.league)} />}
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 18, color: `var(--ts-${accent})` }}>
-                  {primaryCol.value(p)}
-                  <span style={{ fontSize: 10, color: 'var(--ts-muted)', marginLeft: 3 }}>{primaryCol.label}</span>
-                </div>
-                <div style={{ fontSize: 11, color: ratingColor(avg), fontWeight: 600, marginTop: 2 }}>
-                  {avg.toFixed(1)} <span style={{ color: 'var(--ts-faint)' }}>{lang === 'en' ? 'avg' : 'med'}</span>
-                </div>
-              </div>
+              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 16, color: `var(--ts-${accent})`, flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
+                {primaryCol.value(p)}
+                <span style={{ fontSize: 9, color: 'var(--ts-muted)', marginLeft: 3, fontFamily: 'inherit' }}>{primaryCol.label}</span>
+              </span>
             </Link>
           )
         })}
