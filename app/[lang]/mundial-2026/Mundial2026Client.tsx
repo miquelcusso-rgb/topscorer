@@ -609,7 +609,7 @@ function OverviewPanel({ lang, scorers, onGoGroups, onGoCalendar, onGoGolden }: 
         {favourites.map((f, i) => (
           <Link
             key={f.name}
-            href={`/${lang}/records`}
+            href={`/${lang}/mundial-2026/${slugify(f.country)}`}
             style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: i < favourites.length - 1 ? '1px solid var(--ts-divider)' : 'none', textDecoration: 'none', color: 'inherit' }}
           >
             <span style={{ fontSize: 12, fontWeight: 700, width: 20, flexShrink: 0, color: i === 0 ? 'var(--ts-primary)' : 'var(--ts-muted)' }}>{i + 1}</span>
@@ -683,13 +683,13 @@ function GroupsPanel({ lang }: { lang: 'es' | 'en' }) {
                 {started && <span style={{ fontSize: 10, color: 'var(--ts-muted)' }}>{t(lang, 'Pts', 'Pts')}</span>}
               </div>
               {g.map((row, ti) => (
-                <div key={row.team.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: ti < g.length - 1 ? '1px solid var(--ts-divider)' : 'none' }}>
+                <Link key={row.team.id} href={`/${lang}/mundial-2026/${slugify(row.team.name)}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: ti < g.length - 1 ? '1px solid var(--ts-divider)' : 'none', textDecoration: 'none', color: 'inherit' }}>
                   {started && <span style={{ width: 14, fontSize: 11, color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>{row.rank}</span>}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={row.team.logo} alt="" width={18} height={18} style={{ objectFit: 'contain', flexShrink: 0 }} />
                   <span style={{ fontSize: 12, color: 'var(--ts-text)', flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.team.name}</span>
                   {started && <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums' }}>{row.points}</span>}
-                </div>
+                </Link>
               ))}
             </div>
           ))}

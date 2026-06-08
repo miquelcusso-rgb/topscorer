@@ -3,6 +3,7 @@ import { PLAYERS } from '@/data/players'
 import { slugify } from '@/lib/slugify'
 import { playerSlug } from '@/lib/player-slug'
 import { allLeagueSlugs } from '@/lib/league-data'
+import { WC_NATIONS, nationSlug } from '@/lib/wc-nations'
 import { LOCALES } from '@/lib/i18n'
 
 const BASE = 'https://www.top-scorers.com'
@@ -78,5 +79,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     .filter(p => p.season === '2526')
     .flatMap(p => localized(`/jugadores/${playerSlug(p)}`, 'weekly', 0.7))
 
-  return [...staticUrls, ...competicionUrls, ...playerUrls]
+  // World Cup 2026 national-team profiles (hosts + favourites with hand-written
+  // facts). Late qualifiers still work by slug but aren't pre-listed here.
+  const nationUrls = WC_NATIONS.flatMap(n =>
+    localized(`/mundial-2026/${nationSlug(n)}`, 'weekly', 0.75),
+  )
+
+  return [...staticUrls, ...competicionUrls, ...playerUrls, ...nationUrls]
 }

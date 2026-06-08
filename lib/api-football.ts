@@ -555,6 +555,101 @@ export async function getTransfersByTeam(teamId: number): Promise<ApiTransfer[]>
   )()
 }
 
+// ─── National teams (World Cup 2026 squad profiles) ──────────────────────────
+// Resolve a country name → its national team id, then squad + coach. All cached
+// long (squads/coaches change rarely) and fully defensive: any error → null/[]
+// so the page degrades to a "coming soon / data unavailable" state, never 500.
+
+export interface SquadPlayer {
+  id: number
+  name: string
+  age: number | null
+  number: number | null
+  position: string   // "Goalkeeper" | "Defender" | "Midfielder" | "Attacker"
+  photo: string
+}
+
+export interface NationalCoach {
+  id: number
+  name: string
+  age: number | null
+  nationality: string | null
+  photo: string
+}
+
+// Country → national team id. API-Football tags national sides with
+// `national:true`; among matches for a country name we pick that one.
+export const getNationalTeamId = unstable_cache(
+  async (country: string): Promise<number | null> => {
+    try {
+      const data = await apiFetch<Array<{ team: { id: number; name: string; national: boolean } }>>(
+        `/teams?name=${encodeURIComponent(country)}`
+      )
+      const list = data.response ?? []
+      const national = list.find(t => t.team?.national) ?? list[0]
+      return national?.team?.id ?? null
+    } catch {
+      return null
+    }
+  },
+  ['api-football-national-team-id'],
+  { revalidate: 604800, tags: ['api-football'] } // 7 d — team ids are stable
+)
+
+export const getSquad = unstable_cache(
+  async (teamId: number): Promise<SquadPlayer[]> => {
+    try {
+      const data = await apiFetch<Array<{ players: Array<{ id: number; name: string; age: number | null; number: number | null; position: string; photo: string }> }>>(
+        `/players/squads?team=${teamId}`
+      )
+      const players = data.response?.[0]?.players ?? []
+      return players.map(p => ({
+        id: p.id,
+        name: p.name,
+        age: p.age ?? null,
+        number: p.number ?? null,
+        position: p.position ?? '',
+        photo: p.photo || apiPhotoUrl(p.id),
+      }))
+    } catch {
+      return []
+    }
+  },
+  ['api-football-squad'],
+  { revalidate: 86400, tags: ['api-football'] } // 24 h — squads change rarely
+)
+
+export const getCoach = unstable_cache(
+  async (teamId: number): Promise<NationalCoach | null> => {
+    try {
+      const data = await apiFetch<Array<{ id: number; name: string; age: number | null; nationality: string | null; photo: string; team?: { id: number }; career?: Array<{ team?: { id: number }; end: string | null }> }>>(
+        `/coachs?team=${teamId}`
+      )
+      const list = data.response ?? []
+      // The endpoint can return past coaches too; prefer the one whose current
+      // (end === null) career entry is this team, else first match.
+      const current = list.find(c => (c.career ?? []).some(s => s.team?.id === teamId && s.end == null)) ?? list[0]
+      if (!current) return null
+      return {
+        id: current.id,
+        name: current.name,
+        age: current.age ?? null,
+        nationality: current.nationality ?? null,
+        photo: current.photo || apiPhotoUrl(current.id, 'coachs'),
+      }
+    } catch {
+      return null
+    }
+  },
+  ['api-football-coach'],
+  { revalidate: 86400, tags: ['api-football'] } // 24 h
+)
+
+// media.api-sports.io photo URL for a player (or coach) id.
+function apiPhotoUrl(id: number, kind: 'players' | 'coachs' = 'players'): string {
+  return `https://media.api-sports.io/football/${kind}/${id}.png`
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getLeague(id: number): LeagueMeta | undefined {
