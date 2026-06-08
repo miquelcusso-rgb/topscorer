@@ -1,4 +1,5 @@
 import { slugify } from './slugify'
+import { withPhoto } from './player-photo'
 import { PRIMARY_PLAYERS, playerKey, seasonsForPlayer } from './player-identity'
 import type { PlayerData } from '@/types'
 
@@ -49,7 +50,7 @@ export function playersForSlug(slug: string): PlayerData[] {
   const base = findPlayerBySlug(slug)
   if (!base) return []
   const seasons = seasonsForPlayer(base)
-  return seasons.length ? seasons : [base]
+  return (seasons.length ? seasons : [base]).map(withPhoto)
 }
 
 /** Every season row for the player with this apiId (newest first), or []. */
@@ -57,7 +58,7 @@ export function playersForId(apiId: number): PlayerData[] {
   const base = PRIMARY_PLAYERS.find(p => p.apiId === apiId)
   if (!base) return []
   const seasons = seasonsForPlayer(base)
-  return seasons.length ? seasons : [base]
+  return (seasons.length ? seasons : [base]).map(withPhoto)
 }
 
 export { playerKey }

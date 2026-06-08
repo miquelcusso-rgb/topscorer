@@ -104,6 +104,13 @@ const CURRENT_SEASON_FLOOR = 2324
 /** Exactly one entry per real player — the most recent (current) season. */
 export const PRIMARY_PLAYERS: PlayerData[] = (() => {
   const out: PlayerData[] = []
-  for (const arr of GROUPS.values()) if (arr[0] && seasonRank(arr[0].season) >= CURRENT_SEASON_FLOOR) out.push(arr[0])
+  // Fill photo from apiId so every player with an id always renders a headshot
+  // (not initials), regardless of whether the dataset row stored a photo URL.
+  for (const arr of GROUPS.values()) {
+    const p = arr[0]
+    if (p && seasonRank(p.season) >= CURRENT_SEASON_FLOOR) {
+      out.push(p.photo || !p.apiId ? p : { ...p, photo: `https://media.api-sports.io/football/players/${p.apiId}.png` })
+    }
+  }
   return out
 })()
