@@ -368,6 +368,28 @@ export default function Mundial2026Client({ initialScorers = [], started = false
   return (
     <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh' }}>
 
+      {/* Golden Boot — special-event floating button pinned to the right edge.
+          Replaces the old Golden Boot tab; activates the same view state. */}
+      <button
+        type="button"
+        onClick={() => { setView('golden'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+        aria-label={t(lang, 'Ver la Bota de Oro del Mundial 2026', 'View the 2026 World Cup Golden Boot')}
+        className="wc-golden-fab"
+        style={{
+          position: 'fixed', right: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 60,
+          display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+          padding: '12px 16px', borderRadius: '12px 0 0 12px',
+          background: 'linear-gradient(135deg, var(--ts-primary), color-mix(in srgb, var(--ts-primary) 75%, #fff))',
+          color: '#1a1300', border: '1px solid var(--ts-primary)', borderRight: 'none',
+          boxShadow: '0 6px 20px rgba(0,0,0,0.22)', fontFamily: "'Barlow Condensed', sans-serif",
+          fontSize: 14, fontWeight: 800, letterSpacing: 0.6, textTransform: 'uppercase',
+          ...(view === 'golden' ? { outline: '2px solid #fff', outlineOffset: -3 } : {}),
+        }}
+      >
+        <span aria-hidden style={{ fontSize: 18, lineHeight: 1 }}>🏆</span>
+        <span className="wc-golden-fab-label">{t(lang, 'Bota de Oro', 'Golden Boot')}</span>
+      </button>
+
       {/* Hero header */}
       <div style={{ background: 'linear-gradient(180deg, var(--ts-primary-soft), var(--ts-bg))', borderBottom: '1px solid var(--ts-border)' }}>
         <div style={{ maxWidth: 1500, margin: '0 auto', padding: '0 20px' }}>
@@ -411,10 +433,25 @@ export default function Mundial2026Client({ initialScorers = [], started = false
           </div>
 
           {/* Nav tabs */}
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            {/* Friendlies: scroll-jump (NOT a tab view) to the build-up section
+                rendered by page.tsx below — only present before the tournament. */}
+            {!started && (
+              <button
+                type="button"
+                onClick={() => document.getElementById('wc-friendlies')?.scrollIntoView({ behavior: 'smooth' })}
+                style={{
+                  fontSize: 11, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1.5, fontWeight: 700, textTransform: 'uppercase',
+                  color: 'var(--ts-teal)', background: 'transparent', border: 'none', cursor: 'pointer',
+                  borderBottom: '2px solid transparent', padding: '9px 18px', marginBottom: -1, flexShrink: 0,
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                }}
+              >
+                <span aria-hidden>🤝</span>{t(lang, 'Amistosos', 'Friendlies')} <span aria-hidden style={{ opacity: 0.7 }}>↓</span>
+              </button>
+            )}
             {([
               { id: 'overview', es: 'Resumen', en: 'Overview' },
-              { id: 'golden', es: '🥇 Bota de Oro', en: '🥇 Golden Boot' },
               { id: 'groups', es: 'Grupos', en: 'Groups' },
               { id: 'calendar', es: 'Calendario', en: 'Calendar' },
               { id: 'live', es: 'Resultados', en: 'Results' },

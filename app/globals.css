@@ -360,6 +360,12 @@ body::before {
   .saas-wc-float { display: none !important; }
 }
 
+/* World Cup Golden Boot floating button — compact (icon-only) on mobile */
+@media (max-width: 560px) {
+  .wc-golden-fab { padding: 10px 11px !important; gap: 0 !important; }
+  .wc-golden-fab .wc-golden-fab-label { display: none !important; }
+}
+
 /* Breaking-news LIVE dot pulse (NewsFeed banner) */
 @keyframes ts-live-pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
 .ts-live-dot { animation: ts-live-pulse 1.2s ease-in-out infinite; }

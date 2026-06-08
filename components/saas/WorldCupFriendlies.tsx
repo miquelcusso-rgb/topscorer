@@ -47,7 +47,7 @@ export default function WorldCupFriendlies({ fixtures, lang }: { fixtures: ApiFi
   const played = playedAll.slice(0, 24)
 
   return (
-    <section style={{ marginTop: 28 }}>
+    <section id="wc-friendlies" style={{ marginTop: 28, scrollMarginTop: 80 }}>
       <h2 style={{ fontFamily: 'Barlow Condensed, sans-serif', fontSize: 24, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.02em', color: 'var(--ts-text)', margin: '0 0 4px' }}>
         {en ? 'Build-up · Friendlies' : 'Previa · Amistosos'}
       </h2>
