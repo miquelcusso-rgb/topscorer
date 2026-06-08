@@ -32,7 +32,11 @@ export async function GET(req: NextRequest) {
         // then renders an Avatar initials fallback.
         player: {
           ...t.player,
-          photo: t.player.photo || photoForName(t.player.name) || '',
+          // 1) feed photo → 2) static dataset by name → 3) derive from the
+          // API-Football player id (media URLs are predictable: …/players/<id>.png),
+          // which recovers most players the feed/dataset miss (Morata, Saravia…).
+          photo: t.player.photo || photoForName(t.player.name)
+            || (t.player.id ? `https://media.api-sports.io/football/players/${t.player.id}.png` : ''),
         },
         ...tr,
       })))
