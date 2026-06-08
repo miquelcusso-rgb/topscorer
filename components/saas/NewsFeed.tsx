@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import NewsPlaceholder from './NewsPlaceholder'
 
 interface NewsItem { title: string; link: string; source: string; date: string; image?: string; isPriority?: boolean }
 
@@ -13,10 +14,17 @@ function dayBucket(iso: string, en: boolean): string {
 }
 const fmtTime = (iso: string, en: boolean) => new Date(iso).toLocaleTimeString(en ? 'en-US' : 'es-ES', { hour: '2-digit', minute: '2-digit' })
 
-// Image that simply disappears on load error (no broken-image icon).
-function NewsImg({ src, w, h, radius = 6, fill }: { src?: string; w: number; h: number; radius?: number; fill?: boolean }) {
+// News thumbnail: shows the RSS image when present; otherwise (or on load error)
+// falls back to a branded, ToS-safe placeholder instead of leaving a blank box.
+function NewsImg({ src, w, h, radius = 6, fill, source }: { src?: string; w: number; h: number; radius?: number; fill?: boolean; source?: string }) {
   const [broken, setBroken] = useState(false)
-  if (!src || broken) return null
+  if (!src || broken) {
+    return (
+      <div style={{ width: fill ? '100%' : w, height: h, borderRadius: radius, flexShrink: 0, overflow: 'hidden' }}>
+        <NewsPlaceholder source={source} compact={!fill && w < 120} rounded={radius} />
+      </div>
+    )
+  }
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={src} alt="" loading="lazy" onError={() => setBroken(true)}
     style={{ width: fill ? '100%' : w, height: h, objectFit: 'cover', borderRadius: radius, flexShrink: 0, background: 'var(--ts-card2)' }} />
@@ -87,11 +95,9 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
 
       {/* Hero story — ~2.5× a normal card */}
       <a href={hero.link} target="_blank" rel="noopener noreferrer" className="saas-news-hero"
-        style={{ display: 'grid', gridTemplateColumns: hero.image ? 'minmax(0, 1.4fr) 1fr' : '1fr', gap: 0,
+        style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) 1fr', gap: 0,
           background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 14, overflow: 'hidden', textDecoration: 'none', color: 'inherit', minHeight: 200 }}>
-        {hero.image && (
-          <NewsImg src={hero.image} w={0} h={260} radius={0} fill />
-        )}
+        <NewsImg src={hero.image} w={0} h={260} radius={0} fill source={hero.source} />
         <div style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)' }}>
             {hero.isPriority ? (en ? '★ Top story' : '★ Destacada') : (en ? 'Featured' : 'Destacada')}
@@ -112,7 +118,7 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
             {g.items.map((it, i) => (
               <a key={i} href={it.link} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'flex', gap: 12, padding: 10, background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, textDecoration: 'none', color: 'inherit', minWidth: 0 }}>
-                <NewsImg src={it.image} w={84} h={64} />
+                <NewsImg src={it.image} w={84} h={64} source={it.source} />
                 <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 4 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {it.isPriority && <span style={{ color: 'var(--ts-primary)' }}>★ </span>}{it.title}

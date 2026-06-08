@@ -6,6 +6,7 @@ import { clubLogo } from '@/lib/club-logos'
 import { slugify } from '@/lib/slugify'
 import type { Standout } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
+import NewsPlaceholder from './NewsPlaceholder'
 
 interface NewsLite { title: string; link: string; source: string; image?: string }
 
@@ -60,7 +61,7 @@ function NewsCarousel({ news, en }: { news: NewsLite[]; en: boolean }) {
               {it.image
                 // eslint-disable-next-line @next/next/no-img-element
                 ? <img src={it.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, opacity: 0.4 }} aria-hidden>📰</div>}
+                : <NewsPlaceholder source={it.source} />}
             </div>
             <div style={{ padding: '10px 12px' }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
