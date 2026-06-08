@@ -1,6 +1,7 @@
 import { PLAYERS } from '@/data/players'
 import { CURATED_IDS } from '@/data/curated-ids'
 import type { PlayerData } from '@/types'
+import { withPhoto } from './player-photo'
 
 // Unified player identity. The generated current-season rows carry a real
 // API-Football `apiId`; curated/historical rows of the SAME player do not, so we
@@ -108,9 +109,7 @@ export const PRIMARY_PLAYERS: PlayerData[] = (() => {
   // (not initials), regardless of whether the dataset row stored a photo URL.
   for (const arr of GROUPS.values()) {
     const p = arr[0]
-    if (p && seasonRank(p.season) >= CURRENT_SEASON_FLOOR) {
-      out.push(p.photo || !p.apiId ? p : { ...p, photo: `https://media.api-sports.io/football/players/${p.apiId}.png` })
-    }
+    if (p && seasonRank(p.season) >= CURRENT_SEASON_FLOOR) out.push(withPhoto(p))
   }
   return out
 })()
