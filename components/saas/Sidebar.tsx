@@ -236,9 +236,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
         width: 232,
         flexShrink: 0,
         position: 'sticky',
-        top: 0,
-        maxHeight: '100dvh',
-        overflowY: 'auto',
+        top: stickyTop,
         alignSelf: 'flex-start',
         background: 'var(--ts-sidebar)',
         borderRight: '1px solid var(--ts-border)',
@@ -380,6 +378,7 @@ export default function Sidebar({ activeKey, plan = 'free', primaryCta }: Sideba
             borderRadius: 8,
             border: '1px solid var(--ts-border-hot)',
             marginTop: 14,
+            overflow: 'hidden',
           }}
         >
           <div

@@ -88,6 +88,14 @@ body::before {
   background: rgba(248,250,255,.97) !important;
   border-bottom-color: rgba(0,0,0,.08) !important;
 }
+/* The sidebar wraps its nav card in a <nav>; the blanket navbar background above
+   must NOT show behind the card's rounded corners (it looked like a grey box
+   poking out at the corners). Keep the sidebar <nav> wrapper transparent so the
+   aside background shows through the rounding, like the account card above it. */
+[data-theme="light"] .saas-sidebar nav {
+  background: transparent !important;
+  border-color: transparent !important;
+}
 
 /* ── Filter toolbar ──────────────────────────────────────────────────────── */
 [data-theme="light"] .filter-toolbar {
