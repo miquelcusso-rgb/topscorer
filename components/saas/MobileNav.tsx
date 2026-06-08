@@ -18,17 +18,20 @@ export default function MobileNav({ open, onClose, activeKey, lang }: Props) {
   const { lang: _lang } = useLang()
 
   const labels = lang === 'en'
-    ? { stats: 'Statistics', leagues: 'Competitions', players: 'Players',
+    ? { players: 'Players', boot: 'Golden Boot', leagues: 'Competitions',
         compare: 'Compare', transfers: 'Transfers', results: 'Results',
         more: 'More', pricing: 'Pricing', account: 'Account' }
-    : { stats: 'Estadísticas', leagues: 'Competiciones', players: 'Jugadores',
+    : { players: 'Jugadores', boot: 'Bota de Oro', leagues: 'Competiciones',
         compare: 'Comparador', transfers: 'Transferencias', results: 'Resultados',
         more: 'Más', pricing: 'Pricing', account: 'Mi cuenta' }
 
+  // Mirrors the desktop Sidebar nav ids so the active item highlights correctly.
+  // The landing (`/${lang}`) is the Players leaderboard (id `players`), and the
+  // Golden Boot page is the `stats` item — same mapping as the desktop sidebar.
   const primary: Array<{ id: SidebarActiveKey; icon: string; label: string; href: string }> = [
-    { id: 'stats',     icon: '📊', label: labels.stats,     href: `/${lang}` },
+    { id: 'players',   icon: '👤', label: labels.players,   href: `/${lang}` },
+    { id: 'stats',     icon: '🥇', label: labels.boot,      href: `/${lang}/bota-de-oro` },
     { id: 'leagues',   icon: '🏆', label: labels.leagues,   href: `/${lang}/competiciones` },
-    { id: 'players',   icon: '👤', label: labels.players,   href: `/${lang}/jugadores` },
     { id: 'compare',   icon: '⚖',  label: labels.compare,   href: `/${lang}/comparador` },
     { id: 'transfers', icon: '↔',  label: labels.transfers, href: `/${lang}/transferencias` },
     { id: 'results',   icon: '⚽', label: labels.results,   href: `/${lang}/resultados` },

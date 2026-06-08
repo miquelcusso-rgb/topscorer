@@ -46,7 +46,7 @@ export default async function RumorPage({ params }: { params: Promise<{ lang: st
   const en = (isLocale(raw) ? raw : 'es') === 'en'
   const breadcrumb = en ? ['Transfers', 'Rumours'] : ['Transferencias', 'Rumores']
   return (
-    <SaasShell activeKey="transfers" breadcrumb={breadcrumb}>
+    <SaasShell activeKey="news" breadcrumb={breadcrumb}>
       <RumorDetailClient id={id} />
     </SaasShell>
   )

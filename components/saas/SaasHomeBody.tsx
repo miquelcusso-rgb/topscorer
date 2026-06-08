@@ -97,7 +97,7 @@ export default async function SaasHomeBody({
 
   return (
     <SaasShell
-      activeKey="stats"
+      activeKey="players"
       breadcrumb={breadcrumb}
     >
       <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} breaking={breaking} />

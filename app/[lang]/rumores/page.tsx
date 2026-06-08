@@ -52,7 +52,7 @@ export default async function RumoresPage({ params }: { params: Promise<{ lang: 
   const breadcrumb = lang === 'en' ? ['Transfers', 'Rumours'] : ['Transferencias', 'Rumores']
 
   return (
-    <SaasShell activeKey="transfers" breadcrumb={breadcrumb}>
+    <SaasShell activeKey="news" breadcrumb={breadcrumb}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
