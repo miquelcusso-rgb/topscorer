@@ -184,7 +184,7 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
       </div>
 
       {/* Mobile cards */}
-      <div className="saas-mobile-cards" style={{ flexDirection: 'column', gap: 8 }}>
+      <div className="saas-mobile-cards" style={{ flexDirection: 'column', gap: 6 }}>
         {players.map((p, i) => {
           const rank = i + 1
           const slug = playerSlug(p)
@@ -195,9 +195,9 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
               key={slug + i}
               href={`/${lang}/jugadores/${slug}`}
               style={{
-                display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
-                background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10,
-                textDecoration: 'none', color: 'inherit', minHeight: 64,
+                display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
+                background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 8,
+                textDecoration: 'none', color: 'inherit', minHeight: 52,
               }}
             >
               <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 16, width: 22, textAlign: 'right', color: rank <= 3 ? `var(--ts-${accent})` : 'var(--ts-muted)' }}>
