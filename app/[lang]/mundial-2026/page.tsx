@@ -64,6 +64,14 @@ const sportsEventJsonLd = {
     { '@type': 'Place', name: 'BC Place', address: { '@type': 'PostalAddress', addressLocality: 'Vancouver', addressCountry: 'CA' } },
   ],
   organizer: { '@type': 'Organization', name: 'FIFA', url: 'https://www.fifa.com' },
+  // performer: schema.org permite un subconjunto (no exige los 48). Las anfitrionas
+  // están 100% confirmadas → dato seguro que satisface el campo. NO añadimos `offers`:
+  // no vendemos entradas (tracker gratuito) y un offers ficticio sería markup engañoso.
+  performer: [
+    { '@type': 'SportsTeam', name: 'United States' },
+    { '@type': 'SportsTeam', name: 'Canada' },
+    { '@type': 'SportsTeam', name: 'Mexico' },
+  ],
   description: 'The 2026 FIFA World Cup is the 23rd edition of the tournament, the first with 48 teams, co-hosted by the United States, Canada and Mexico.',
   url: 'https://www.top-scorers.com/mundial-2026',
 }
