@@ -368,28 +368,6 @@ export default function Mundial2026Client({ initialScorers = [], started = false
   return (
     <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh' }}>
 
-      {/* Golden Boot — special-event floating button pinned to the right edge.
-          Replaces the old Golden Boot tab; activates the same view state. */}
-      <button
-        type="button"
-        onClick={() => { setView('golden'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-        aria-label={t(lang, 'Ver la Bota de Oro del Mundial 2026', 'View the 2026 World Cup Golden Boot')}
-        className="wc-golden-fab"
-        style={{
-          position: 'fixed', right: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 60,
-          display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer',
-          padding: '12px 16px', borderRadius: '12px 0 0 12px',
-          background: 'linear-gradient(135deg, var(--ts-primary), color-mix(in srgb, var(--ts-primary) 75%, #fff))',
-          color: '#1a1300', border: '1px solid var(--ts-primary)', borderRight: 'none',
-          boxShadow: '0 6px 20px rgba(0,0,0,0.22)', fontFamily: "'Barlow Condensed', sans-serif",
-          fontSize: 14, fontWeight: 800, letterSpacing: 0.6, textTransform: 'uppercase',
-          ...(view === 'golden' ? { outline: '2px solid #fff', outlineOffset: -3 } : {}),
-        }}
-      >
-        <span aria-hidden style={{ fontSize: 18, lineHeight: 1 }}>🏆</span>
-        <span className="wc-golden-fab-label">{t(lang, 'Bota de Oro', 'Golden Boot')}</span>
-      </button>
-
       {/* Hero header */}
       <div style={{ background: 'linear-gradient(180deg, var(--ts-primary-soft), var(--ts-bg))', borderBottom: '1px solid var(--ts-border)' }}>
         <div style={{ maxWidth: 1500, margin: '0 auto', padding: '0 20px' }}>
@@ -473,6 +451,28 @@ export default function Mundial2026Client({ initialScorers = [], started = false
                 </button>
               )
             })}
+
+            {/* Golden Boot — gold button pinned to the FAR-RIGHT end of the tab
+                row (margin-left:auto). Activates the same Golden Boot view. */}
+            <button
+              type="button"
+              onClick={() => setView('golden')}
+              aria-label={t(lang, 'Ver la Bota de Oro del Mundial 2026', 'View the 2026 World Cup Golden Boot')}
+              className="wc-golden-tab"
+              style={{
+                marginLeft: 'auto', marginBottom: 4, flexShrink: 0,
+                display: 'inline-flex', alignItems: 'center', gap: 7, cursor: 'pointer',
+                padding: '8px 16px', borderRadius: 8,
+                background: 'linear-gradient(135deg, var(--ts-primary), color-mix(in srgb, var(--ts-primary) 75%, #fff))',
+                color: '#1a1300', border: '1px solid var(--ts-primary)',
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: 12, fontWeight: 800, letterSpacing: 0.6, textTransform: 'uppercase',
+                ...(view === 'golden' ? { outline: '2px solid var(--ts-primary)', outlineOffset: 2 } : {}),
+              }}
+            >
+              <span aria-hidden style={{ fontSize: 15, lineHeight: 1 }}>🏆</span>
+              <span className="wc-golden-tab-label">{t(lang, 'Bota de Oro', 'Golden Boot')}</span>
+            </button>
           </div>
         </div>
       </div>

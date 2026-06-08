@@ -360,10 +360,10 @@ body::before {
   .saas-wc-float { display: none !important; }
 }
 
-/* World Cup Golden Boot floating button — compact (icon-only) on mobile */
+/* World Cup Golden Boot tab-row button — compact (icon-only) on mobile */
 @media (max-width: 560px) {
-  .wc-golden-fab { padding: 10px 11px !important; gap: 0 !important; }
-  .wc-golden-fab .wc-golden-fab-label { display: none !important; }
+  .wc-golden-tab { padding: 8px 11px !important; gap: 0 !important; }
+  .wc-golden-tab .wc-golden-tab-label { display: none !important; }
 }
 
 /* Breaking-news LIVE dot pulse (NewsFeed banner) */
