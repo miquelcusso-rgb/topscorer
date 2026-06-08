@@ -86,11 +86,11 @@ export default function Footer() {
       {/* Gold gradient top bar */}
       <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, #f0c040 30%, #f0c040 70%, transparent)' }} />
 
-      <div className="max-w-[1100px] mx-auto px-5 py-12">
-        <div className="flex flex-wrap gap-10 justify-between mb-10">
+      <div className="ts-footer-inner max-w-[1100px] mx-auto px-5 py-12">
+        <div className="ts-footer-top flex flex-wrap gap-10 justify-between mb-10">
 
           {/* Brand */}
-          <div className="flex flex-col gap-3">
+          <div className="ts-footer-brand flex flex-col gap-3">
             <div className="flex items-center gap-2.5">
               <Image src="/logo.png" alt="TopScorers" width={22} height={22} unoptimized style={{ borderRadius: 3 }} />
               <span
@@ -109,7 +109,7 @@ export default function Footer() {
           </div>
 
           {/* Nav groups */}
-          <div className="flex flex-wrap gap-10">
+          <div className="ts-footer-cols flex flex-wrap gap-10">
             {LINKS.map(group => (
               <div key={group.group} className="flex flex-col gap-2">
                 <div
@@ -137,7 +137,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div
-          className="flex flex-wrap items-center justify-between gap-3 pt-6"
+          className="ts-footer-bottom flex flex-wrap items-center justify-between gap-3 pt-6"
           style={{ borderTop: `1px solid ${bottomBorder}` }}
         >
           <span style={{ fontSize: 12, color: textCopy }}>
