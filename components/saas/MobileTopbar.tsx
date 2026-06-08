@@ -47,7 +47,7 @@ export default function MobileTopbar({ activeKey, lang, primaryCta }: Props) {
           display: 'none', // toggled to flex by media query
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '10px 14px',
+          padding: '8px 10px',
           background: 'var(--ts-surface)',
           borderBottom: '1px solid var(--ts-border)',
           position: 'sticky',
@@ -78,18 +78,21 @@ export default function MobileTopbar({ activeKey, lang, primaryCta }: Props) {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 4,
             fontFamily: 'Barlow Condensed, sans-serif',
             fontWeight: 800,
-            letterSpacing: '0.10em',
+            letterSpacing: '0.08em',
             fontSize: 20,
             color: 'var(--ts-text)',
             textDecoration: 'none',
+            marginLeft: -4,
           }}
         >
+          {/* Ball gets equal optical spacing around it; the wordmark is nudged
+              left (small gap + negative marginLeft) so the lockup reads centred. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-ball-alpha_2.png" alt="" width={40} height={40} style={{ width: 40, height: 40, objectFit: 'contain' }} />
-          <span>TOP·SCORERS</span>
+          <img src="/logo-ball-alpha_2.png" alt="" width={36} height={36} style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }} />
+          <span style={{ marginLeft: -2 }}>TOP·SCORERS</span>
         </Link>
 
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>

@@ -11,23 +11,24 @@ export default function ThemeTogglePill() {
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       style={{
         position: 'relative',
-        width: 56,
-        height: 28,
-        borderRadius: 14,
+        width: 44,
+        height: 24,
+        borderRadius: 12,
         border: '1px solid var(--ts-border)',
         background: 'var(--ts-card2)',
         padding: 2,
         cursor: 'pointer',
         fontFamily: 'inherit',
+        flexShrink: 0,
       }}
     >
       <span
         style={{
           position: 'absolute',
           top: 2,
-          left: dark ? 2 : 30,
-          width: 22,
-          height: 22,
+          left: dark ? 2 : 22,
+          width: 18,
+          height: 18,
           borderRadius: '50%',
           background: 'var(--ts-surface)',
           boxShadow: '0 1px 2px rgba(0,0,0,.18)',

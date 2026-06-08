@@ -29,13 +29,13 @@ export default function LangTogglePill() {
       aria-label="Language"
       style={{
         display: 'inline-flex',
-        height: 28,
+        height: 24,
         border: '1px solid var(--ts-border)',
-        borderRadius: 6,
+        borderRadius: 5,
         padding: 2,
         fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-        fontSize: 10,
-        letterSpacing: '0.08em',
+        fontSize: 9,
+        letterSpacing: '0.06em',
         background: 'var(--ts-card2)',
       }}
     >
@@ -47,8 +47,8 @@ export default function LangTogglePill() {
             type="button"
             onClick={() => handle(code)}
             style={{
-              padding: '0 9px',
-              borderRadius: 4,
+              padding: '0 7px',
+              borderRadius: 3,
               border: 'none',
               cursor: 'pointer',
               background: active ? 'var(--ts-surface)' : 'transparent',
