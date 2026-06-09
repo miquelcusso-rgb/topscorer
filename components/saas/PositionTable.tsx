@@ -79,9 +79,11 @@ interface Props {
   onSort?: (key: string) => void
   /** Extra stat columns appended via the "+ Añadir stat" menu. */
   extraStats?: string[]
+  /** Remove an appended stat column (receives the extraStats value, e.g. 'kp'). */
+  onRemoveStat?: (value: string) => void
 }
 
-export default function PositionTable({ players, tab, lang = 'es', sort, onSort, extraStats = [] }: Props) {
+export default function PositionTable({ players, tab, lang = 'es', sort, onSort, extraStats = [], onRemoveStat }: Props) {
   const cols = [
     ...COLUMNS_FOR[tab],
     ...extraStats.map(k => EXTRA_STAT_COLUMNS[k]).filter(Boolean),
@@ -121,18 +123,35 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
             // descriptive columns — Age and Games (PJ) — are not sortable.
             const sortable = !!onSort && c.key !== 'age' && c.key !== 'pj'
             const isSorted = sort?.key === c.key
+            // Extra (appended) columns carry an "x_" key prefix and get a small
+            // ✕ above the label to remove them.
+            const removable = c.key.startsWith('x_') && !!onRemoveStat
             return (
               <span
                 key={c.key}
-                onClick={sortable ? () => onSort!(c.key) : undefined}
                 style={{
-                  textAlign: 'right',
-                  cursor: sortable ? 'pointer' : 'default',
-                  color: isSorted ? `var(--ts-${accent})` : undefined,
-                  userSelect: 'none',
+                  display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1,
+                  textAlign: 'right', color: isSorted ? `var(--ts-${accent})` : undefined, userSelect: 'none',
                 }}
               >
-                {c.kind === 'last5' ? last5Label : c.label}{isSorted ? (sort!.dir === -1 ? ' ↓' : ' ↑') : ''}
+                {removable ? (
+                  <button
+                    type="button"
+                    aria-label={lang === 'en' ? `Remove ${c.label}` : `Quitar ${c.label}`}
+                    title={lang === 'en' ? 'Remove column' : 'Quitar columna'}
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); onRemoveStat!(c.key.replace(/^x_/, '')) }}
+                    style={{
+                      border: 'none', background: 'none', padding: 0, cursor: 'pointer', lineHeight: 1,
+                      fontSize: 11, color: 'var(--ts-faint)',
+                    }}
+                  >✕</button>
+                ) : null}
+                <span
+                  onClick={sortable ? () => onSort!(c.key) : undefined}
+                  style={{ cursor: sortable ? 'pointer' : 'default' }}
+                >
+                  {c.kind === 'last5' ? last5Label : c.label}{isSorted ? (sort!.dir === -1 ? ' ↓' : ' ↑') : ''}
+                </span>
               </span>
             )
           })}

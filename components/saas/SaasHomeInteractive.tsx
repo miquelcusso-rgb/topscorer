@@ -492,6 +492,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         sort={sort}
         onSort={key => setSort({ key, dir: -1 })}
         extraStats={extraStats}
+        onRemoveStat={v => setExtraStats(s => s.filter(x => x !== v))}
       />
     </>
   )
