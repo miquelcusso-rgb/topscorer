@@ -1010,6 +1010,68 @@ export const getFixturePrediction = unstable_cache(
   { revalidate: 3600, tags: ['api-football'] } // 1 h
 )
 
+// ─── Head-to-head (/fixtures/headtohead) ──────────────────────────────────────
+// Recent meetings between two teams + an aggregate W/D/L tally from this team's
+// perspective (relative to teamAId). Used in a match preview/summary. Defensive
+// (→ null). Cached 24 h (past meetings never change).
+
+export interface HeadToHead {
+  total: number
+  aWins: number            // wins for teamAId
+  bWins: number            // wins for teamBId
+  draws: number
+  recent: {                // most recent meetings (newest first)
+    date: string
+    league: string
+    homeId: number
+    homeName: string
+    awayId: number
+    awayName: string
+    homeGoals: number | null
+    awayGoals: number | null
+  }[]
+}
+
+export const getHeadToHead = unstable_cache(
+  async (teamAId: number, teamBId: number): Promise<HeadToHead | null> => {
+    try {
+      const data = await apiFetch<ApiFixture[]>(`/fixtures/headtohead?h2h=${teamAId}-${teamBId}&last=20`)
+      const list = (data.response ?? []).filter(f =>
+        ['FT', 'AET', 'PEN'].includes(f.fixture?.status?.short),
+      )
+      if (!list.length) return null
+      let aWins = 0, bWins = 0, draws = 0
+      for (const f of list) {
+        const h = f.goals.home ?? 0, a = f.goals.away ?? 0
+        const aIsHome = f.teams.home.id === teamAId
+        const aGoals = aIsHome ? h : a
+        const bGoals = aIsHome ? a : h
+        if (aGoals > bGoals) aWins++
+        else if (aGoals < bGoals) bWins++
+        else draws++
+      }
+      const recent = [...list]
+        .sort((x, y) => y.fixture.timestamp - x.fixture.timestamp)
+        .slice(0, 6)
+        .map(f => ({
+          date: f.fixture.date,
+          league: f.league.name,
+          homeId: f.teams.home.id,
+          homeName: f.teams.home.name,
+          awayId: f.teams.away.id,
+          awayName: f.teams.away.name,
+          homeGoals: f.goals.home,
+          awayGoals: f.goals.away,
+        }))
+      return { total: list.length, aWins, bWins, draws, recent }
+    } catch {
+      return null
+    }
+  },
+  ['api-football-h2h'],
+  { revalidate: 86400, tags: ['api-football'] } // 24 h
+)
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getLeague(id: number): LeagueMeta | undefined {

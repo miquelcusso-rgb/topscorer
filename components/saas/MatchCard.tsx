@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Avatar from './Avatar'
+import H2HMini from './H2HMini'
 
 interface Summary {
   date: string; status: string; venue?: string; league: string; round?: string
@@ -98,6 +99,9 @@ export default function MatchCard({ fixtureId, lang }: { fixtureId: number; lang
           <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 20, color: 'var(--ts-primary)', fontVariantNumeric: 'tabular-nums' }}>{s.mvp.rating.toFixed(2)}</div>
         </div>
       )}
+
+      {/* Head-to-head (renders only when these two teams have a meeting history) */}
+      <H2HMini teamAId={s.home.id} teamBId={s.away.id} aName={s.home.name} bName={s.away.name} en={en} />
     </div>
   )
 }
