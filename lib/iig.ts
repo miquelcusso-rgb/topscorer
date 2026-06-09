@@ -84,7 +84,27 @@ export const IIG_EXPLAINER: Record<'es' | 'en', string> = {
   en: 'IIG = goals × league coef + (rating − 6) × 3 + assists × 0.5. A derived index built from real season stats.',
 }
 
-// Convenience: sort a list of players by IIG, descending.
+// Ranking score for the cross-league "scouter" leaderboards. Now that ALL
+// positions carry real stats (GKs/DFs/MFs with 0 goals but a real rating), a
+// pure goals-based IIG would rank them at 0. So: use IIG when it is meaningful
+// (> 0), otherwise fall back to a league-weighted rating term so a high-rated
+// non-scorer still ranks above a 0-rated one. The fallback is scaled to stay
+// BELOW any positive IIG (an IIG of 0.1 should still beat a pure-rating row),
+// so scorers always lead, but non-scorers are ordered sensibly instead of tied
+// at zero.
+export function rankScore(player: PlayerData): number {
+  const v = iig(player)
+  if (v > 0) return v
+  const rating = typeof player.rating === 'number' && player.rating > 0 ? player.rating : 0
+  if (!rating) return 0
+  // (rating − 6) × coef, clamped ≥ 0, then compressed into (0, ~1] so it sits
+  // just under the lowest real IIG values.
+  const r = Math.max(0, (rating - 6) * leagueCoef(player.league))
+  return Math.min(0.99, r / 3)
+}
+
+// Convenience: sort a list of players by ranking score (IIG, else rating·coef),
+// descending. Used by the cross-league scouter leaderboards.
 export function byIig(a: PlayerData, b: PlayerData): number {
-  return iig(b) - iig(a)
+  return rankScore(b) - rankScore(a)
 }

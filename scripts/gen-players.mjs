@@ -25,8 +25,10 @@
  *    minutes anyway (so small leagues still get coverage).
  *  - Dedup across leagues by API id (mid-season movers): keep the row with the
  *    most minutes (their main club this season).
- *  - Exclude names already curated in data/players.ts so hand-curated rich rows
- *    (marketValue, elo, fantasy…) are never overwritten.
+ *  - Generate EVERYONE, curated stars included. The curated-only extras
+ *    (marketValue, elo, fantasy…) are FIELD-MERGED onto this stats-rich row in
+ *    lib/player-identity.ts, so generating curated names does not lose anything
+ *    — it gives the stars their missing rating/shots/keyPasses.
  *  - Season 2025 (API) → '2526' (site). tab = 's' (scorer) when goals >=
  *    assists, else 'a' — preserves the existing dataset contract.
  *
@@ -126,32 +128,6 @@ const FLAG_MAP = {
   'Cape Verde Islands': '🇨🇻', 'Cape Verde': '🇨🇻', 'Guinea-Bissau': '🇬🇼',
   Montenegro: '🇲🇪', Israel: '🇮🇱', Armenia: '🇦🇲', Uzbekistan: '🇺🇿', Iran: '🇮🇷',
   Jamaica: '🇯🇲', Honduras: '🇭🇳', Panama: '🇵🇦', 'Costa Rica': '🇨🇷',
-}
-
-// ─── name-equality helpers (to exclude players already curated) ───────────────
-const PARTICLES = new Set([
-  'de', 'del', 'da', 'do', 'dos', 'das', 'der', 'van', 'von', 'el', 'al', 'la', 'le',
-  'di', 'bin', 'jr', 'junior', 'júnior', 'the',
-])
-function normTokens(name) {
-  return name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .split(/[\s-]+/)
-    .filter(t => t && !PARTICLES.has(t))
-}
-function sameName(a, b) {
-  const ta = normTokens(a), tb = normTokens(b)
-  if (!ta.length || !tb.length) return false
-  // 1) one token-set fully contained in the other — handles full legal names
-  //    like "Luis Fernando Díaz Marulanda" ⊇ curated "Luis Diaz".
-  const sa = new Set(ta), sb = new Set(tb)
-  if (ta.every(t => sb.has(t)) || tb.every(t => sa.has(t))) return true
-  // 2) same surname (last significant token) + shared first token / initial
-  if (ta[ta.length - 1] !== tb[tb.length - 1]) return false
-  return ta[0] === tb[0] || ta[0][0] === tb[0][0]
 }
 
 // ─── fetch (with 429 backoff) ─────────────────────────────────────────────────
@@ -294,15 +270,6 @@ function pickMainStat(player, statistics, leagueId) {
   return chosen ?? null
 }
 
-// ─── existing names (from RAW + EXT in data/players.ts) ───────────────────────
-function existingNames() {
-  const src = readFileSync('data/players.ts', 'utf8')
-  const names = new Set()
-  for (const m of src.matchAll(/name\s*:\s*'([^']+)'/g)) names.add(m[1])
-  for (const m of src.matchAll(/^\s*'([^']+)'\s*:\s*\{/gm)) names.add(m[1])
-  return [...names]
-}
-
 // ─── ingest one league (all pages) ────────────────────────────────────────────
 async function leaguePlayers(leagueId) {
   const out = []
@@ -328,9 +295,13 @@ async function leaguePlayers(leagueId) {
 
 // ─── main ─────────────────────────────────────────────────────────────────--
 async function main() {
-  const curated = existingNames()
-  console.log(`Curated names in data/players.ts (will skip matches): ${curated.length}`)
-  const isCurated = name => curated.some(c => sameName(c, name))
+  // NOTE: we deliberately do NOT exclude curated names anymore. Curated stars
+  // (Kane, Olise, Bruno Fernandes, Lamine Yamal…) MUST also get a generated row
+  // with full statistics (shots, keyPasses, passes, rating…), otherwise their
+  // sparse curated stub wins the identity merge and the leaderboard shows "—".
+  // lib/player-identity.ts now FIELD-MERGES the stats-rich generated row with the
+  // curated-only extras (marketValue, elo, fantasy…), so generating everyone is
+  // both safe and required.
 
   // Collect per-league, applying the minutes threshold + per-league floor BEFORE
   // global dedup so a small league keeps its top players even if under threshold.
@@ -380,17 +351,9 @@ async function main() {
       }
     }
   }
-  const merged = [...byId.values(), ...byName.values()]
-
-  // Exclude curated players (so hand-curated rich rows are never overwritten).
-  const skipped = []
-  const all = merged.filter(p => {
-    if (isCurated(p.name) || (p.fullName && isCurated(p.fullName))) { skipped.push(p.name); return false }
-    return true
-  })
-
-  const uniqSkipped = [...new Set(skipped)]
-  console.log(`\nSkipped (already curated): ${uniqSkipped.length}`)
+  // Generate EVERYONE, curated stars included — their stats-rich row is merged
+  // with the curated extras downstream in lib/player-identity.ts.
+  const all = [...byId.values(), ...byName.values()]
 
   all.sort((a, b) =>
     a.league === b.league
@@ -430,7 +393,7 @@ async function main() {
 // Source: API-Football /players?league=&season=${SEASON} (→ '2526'), ALL positions.
 // Minutes threshold: ${MIN_MINUTES} (per-league floor: top ${LEAGUE_FLOOR} by minutes).
 // Generated: ${new Date().toISOString()}
-// Players already curated in data/players.ts (RAW) are intentionally excluded.
+// ALL players (curated stars included); curated-only extras are field-merged in lib/player-identity.ts.
 import type { PlayerData } from '@/types'
 
 // NOTE: wrapped in JSON.parse(stringLiteral) on purpose — a raw 6k-element
