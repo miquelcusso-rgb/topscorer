@@ -89,10 +89,15 @@ export function apiDetailToPlayer(d: ApiPlayerDetail): PlayerData | null {
     foulsDrawn: num(st.fouls?.drawn),
     foulsCommitted: num(st.fouls?.committed),
     yellowCards: num(st.cards?.yellow),
+    yellowRed: num(st.cards?.yellowred),
     redCards: num(st.cards?.red),
     goalsConceded: num(st.goals?.conceded),
     saves: num(st.goals?.saves),
+    penaltyWon: num(st.penalty?.won),
     penaltiesScored: num(st.penalty?.scored),
+    penaltyMissed: num(st.penalty?.missed),
+    penaltySaved: num(st.penalty?.saved),
+    captain: st.games?.captain === true ? true : undefined,
   }
 }
 

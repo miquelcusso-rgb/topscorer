@@ -1072,6 +1072,41 @@ export const getHeadToHead = unstable_cache(
   { revalidate: 86400, tags: ['api-football'] } // 24 h
 )
 
+// ─── Most-booked ranking (/players/topyellowcards) ────────────────────────────
+// Top yellow-carded players in a league/season. Defensive (→ []). Cached 6 h.
+
+export interface BookedPlayer {
+  id: number
+  name: string
+  photo: string
+  team: string
+  yellow: number
+  red: number
+}
+
+export const getTopYellowCards = unstable_cache(
+  async (leagueId: number, season: number = 2025): Promise<BookedPlayer[]> => {
+    try {
+      const data = await apiFetch<ApiPlayerDetail[]>(`/players/topyellowcards?league=${leagueId}&season=${season}`)
+      return (data.response ?? []).slice(0, 10).map(r => {
+        const st = r.statistics?.[0]
+        return {
+          id: r.player?.id,
+          name: r.player?.name ?? '',
+          photo: r.player?.photo ?? '',
+          team: st?.team?.name ?? '',
+          yellow: Number(st?.cards?.yellow ?? 0) + Number(st?.cards?.yellowred ?? 0),
+          red: Number(st?.cards?.red ?? 0),
+        }
+      })
+    } catch {
+      return []
+    }
+  },
+  ['api-football-topyellowcards'],
+  { revalidate: 21600, tags: ['api-football'] } // 6 h
+)
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getLeague(id: number): LeagueMeta | undefined {

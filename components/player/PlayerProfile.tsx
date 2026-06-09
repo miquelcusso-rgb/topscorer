@@ -96,9 +96,16 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
   const val = (v: number | string | null | undefined, suffix = ''): string | number =>
     v == null || v === '' ? '—' : (typeof v === 'number' ? `${v}${suffix}` : v)
   const pct = (v: number | null | undefined): string => (v == null ? '—' : `${Math.round(v)}%`)
+  const fmtBirth = (iso: string): string => {
+    const d = new Date(iso)
+    return isNaN(d.getTime()) ? iso : d.toLocaleDateString(en ? 'en-US' : 'es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
   const dribblePct = player.dribblesAttempts ? Math.round(((player.dribblesSuccess ?? 0) / player.dribblesAttempts) * 100) : null
   const duelPct = player.duelsTotal ? Math.round(((player.duelsWon ?? 0) / player.duelsTotal) * 100) : null
   const concededPer90 = (player.goalsConceded != null && player.minutes) ? Math.round((player.goalsConceded / player.minutes) * 90 * 100) / 100 : null
+  // Show the Discipline group only when at least one of its fields is present.
+  const hasDiscipline = [player.yellowCards, player.redCards, player.penaltiesScored, player.penaltyMissed, player.penaltySaved]
+    .some(v => v != null)
 
   // Fallback radar (only when a player has no apiId → no percentile radar). Bars
   // are RELATIVE to the best in the same broad position within our dataset, so a
@@ -133,6 +140,11 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
       />
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: -4 }}>
         <AvailabilityBadge apiId={apiId} en={en} />
+        {player.captain && (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 9px', borderRadius: 999, fontSize: 11, fontWeight: 700, letterSpacing: '0.02em', background: 'var(--ts-primary-soft)', color: 'var(--ts-primary)' }}>
+            🅒 {en ? 'Captain' : 'Capitán'}
+          </div>
+        )}
       </div>
       <ProfileTabbed
         compareHref={`/${lang}/estadisticas/comparador?p1=${slug}`}
@@ -175,12 +187,22 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
             [en ? 'Duels won' : 'Duelos gan.', val(player.duelsWon), 'text'],
             [en ? 'Duel %' : '% Duelos', duelPct == null ? '—' : `${duelPct}%`, 'text'],
           ]} />
-          {!gk && (player.dribblesAttempts != null || player.foulsDrawn != null) && (
-            <StatGroup title={en ? 'Dribbling & discipline' : 'Regate y disciplina'} items={[
+          {!gk && player.dribblesAttempts != null && (
+            <StatGroup title={en ? 'Dribbling' : 'Regate'} items={[
               [en ? 'Dribbles' : 'Regates', val(player.dribblesSuccess), 'teal'],
               [en ? 'Dribble %' : '% Regate', dribblePct == null ? '—' : `${dribblePct}%`, 'text'],
               [en ? 'Fouls drawn' : 'Faltas recib.', val(player.foulsDrawn), 'text'],
+              [en ? 'Fouls committed' : 'Faltas comet.', val(player.foulsCommitted), 'text'],
+            ]} />
+          )}
+          {hasDiscipline && (
+            <StatGroup title={en ? 'Discipline' : 'Disciplina'} items={[
               [en ? 'Yellow' : 'Amarillas', val(player.yellowCards), 'text'],
+              [en ? 'Red' : 'Rojas', val(player.redCards), 'text'],
+              [en ? 'Pen. scored' : 'Pen. marcados', val(player.penaltiesScored), 'teal'],
+              gk
+                ? [en ? 'Pen. saved' : 'Pen. parados', val(player.penaltySaved), 'primary']
+                : [en ? 'Pen. missed' : 'Pen. fallados', val(player.penaltyMissed), 'text'],
             ]} />
           )}
         </div>
@@ -201,6 +223,10 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
               [en ? 'League' : 'Liga', player.league],
               [en ? 'Position' : 'Posición', player.position ?? '—'],
               [en ? 'Nationality' : 'Nacionalidad', `${player.flag ?? ''} ${player.nationality ?? '—'}`.trim()],
+              ...(player.birthDate ? [[en ? 'Born' : 'Nacimiento', fmtBirth(player.birthDate)]] : []),
+              ...(player.birthPlace ? [[en ? 'Birthplace' : 'Lugar nac.', player.birthPlace]] : []),
+              ...(player.height ? [[en ? 'Height' : 'Altura', player.height]] : []),
+              ...(player.weight ? [[en ? 'Weight' : 'Peso', player.weight]] : []),
               ...(player.marketValue ? [[en ? 'Market value' : 'Valor mercado', player.marketValue]] : []),
             ] as Array<[string, string]>).map(([k, v], idx) => (
               <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '8px 0', borderBottom: '1px solid var(--ts-hairline)', fontSize: 13 }}>
