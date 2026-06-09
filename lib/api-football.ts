@@ -637,17 +637,87 @@ export interface NationalCoach {
   photo: string
 }
 
+// API-Football expects a specific country name in /teams?name=, but our slugs
+// arrive in many forms: the editorial WC table's `api` field, a slugified
+// Spanish/English display name, or a slugified API *team* name coming straight
+// from a standings/fixtures row ("Korea Republic", "IR Iran", "USA"). Map the
+// common variants to the name(s) API-Football actually indexes, so every real
+// nation resolves instead of 404-ing. Keyed by normalized lowercase.
+const _nnorm = (s: string) =>
+  s.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+
+// alias → ordered list of names to try against /teams?name= (best first).
+const NATIONAL_TEAM_ALIASES: Record<string, string[]> = {}
+const aliasNation = (canonical: string, ...aliases: string[]) => {
+  for (const a of [canonical, ...aliases]) NATIONAL_TEAM_ALIASES[_nnorm(a)] = [canonical, ...aliases]
+}
+aliasNation('USA', 'United States', 'United States of America', 'Estados Unidos', 'US')
+aliasNation('South Korea', 'Korea Republic', 'Republic of Korea', 'Corea del Sur', 'Korea South')
+aliasNation('North Korea', 'Korea DPR', 'Korea North')
+aliasNation('Ivory Coast', "Cote d'Ivoire", 'Côte d’Ivoire', 'Costa de Marfil')
+aliasNation('DR Congo', 'Congo DR', 'Democratic Republic of Congo', 'Congo Kinshasa')
+aliasNation('Congo', 'Congo Republic', 'Republic of Congo', 'Congo Brazzaville')
+aliasNation('Bosnia and Herzegovina', 'Bosnia', 'Bosnia & Herzegovina', 'Bosnia-Herzegovina')
+aliasNation('Turkey', 'Türkiye', 'Turkiye', 'Turquia', 'Turquía')
+aliasNation('Iran', 'IR Iran', 'Islamic Republic of Iran')
+aliasNation('Saudi Arabia', 'Arabia Saudi', 'Arabia Saudí', 'KSA', 'Saudi')
+aliasNation('Czech Republic', 'Czechia', 'Czech-Republic', 'Chequia')
+aliasNation('Tunisia', 'Túnez', 'Tunez')
+aliasNation('Egypt', 'Egipto')
+aliasNation('Iraq', 'Irak')
+aliasNation('Austria', 'Österreich', 'Osterreich')
+aliasNation('Croatia', 'Hrvatska', 'Croacia')
+aliasNation('Switzerland', 'Suiza', 'Schweiz', 'Svizzera')
+aliasNation('Cape Verde', 'Cabo Verde')
+aliasNation('North Macedonia', 'Macedonia', 'FYR Macedonia')
+aliasNation('Netherlands', 'Holland', 'Holanda', 'Paises Bajos', 'Países Bajos')
+aliasNation('England', 'Inglaterra')
+aliasNation('Wales', 'Gales')
+aliasNation('Germany', 'Alemania', 'Deutschland')
+aliasNation('Spain', 'España', 'Espana')
+aliasNation('France', 'Francia')
+aliasNation('Brazil', 'Brasil')
+aliasNation('Mexico', 'México')
+aliasNation('Canada', 'Canadá')
+aliasNation('Japan', 'Japón', 'Japon')
+
+// Build the ordered list of candidate /teams?name= queries for an input.
+function nationCandidates(country: string): string[] {
+  const out: string[] = []
+  const seen = new Set<string>()
+  const push = (s?: string) => { const v = (s ?? '').trim(); const k = _nnorm(v); if (v && !seen.has(k)) { seen.add(k); out.push(v) } }
+  push(country)                                  // as given (usually the right one)
+  for (const alt of NATIONAL_TEAM_ALIASES[_nnorm(country)] ?? []) push(alt)
+  return out
+}
+
 // Country → national team id. API-Football tags national sides with
-// `national:true`; among matches for a country name we pick that one.
+// `national:true`; among matches for a country name we pick that one. Robust to
+// name variants: we try the given name, then known aliases, and only accept a
+// team flagged `national:true` (so "Saudi Arabia" doesn't resolve to a club).
 export const getNationalTeamId = unstable_cache(
   async (country: string): Promise<number | null> => {
+    for (const name of nationCandidates(country)) {
+      try {
+        const data = await apiFetch<Array<{ team: { id: number; name: string; national: boolean } }>>(
+          `/teams?name=${encodeURIComponent(name)}`
+        )
+        const list = data.response ?? []
+        if (list.length === 0) continue
+        // Prefer the actual national side; fall back to the first match only when
+        // we exhausted aliases (avoids accidentally returning a same-named club).
+        const national = list.find(t => t.team?.national)
+        if (national?.team?.id != null) return national.team.id
+      } catch {
+        // try the next candidate
+      }
+    }
+    // Last resort: take whatever the primary name returned, national or not.
     try {
       const data = await apiFetch<Array<{ team: { id: number; name: string; national: boolean } }>>(
-        `/teams?name=${encodeURIComponent(country)}`
+        `/teams?name=${encodeURIComponent(nationCandidates(country)[0] ?? country)}`
       )
-      const list = data.response ?? []
-      const national = list.find(t => t.team?.national) ?? list[0]
-      return national?.team?.id ?? null
+      return data.response?.[0]?.team?.id ?? null
     } catch {
       return null
     }
