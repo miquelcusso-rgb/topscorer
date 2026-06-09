@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import type { Lang } from '@/lib/i18n'
 import type { PlayerData } from '@/types'
 import FilterBar from './FilterBar'
@@ -9,12 +9,16 @@ import Link from 'next/link'
 import { type PositionTabId, TAB_LABELS, TAB_ACCENT, extraStatList, last5Ratings } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
-import { iig, leagueCoef } from '@/lib/iig'
+import { iig, leagueCoef, rankScore } from '@/lib/iig'
+import { leaguePickerLabel, leagueCountry } from '@/lib/league-data'
 
-type LeagueFilterValue = 'big5' | 'big5pt' | 'all'
+// Scope of the cross-league scouter ranking:
+//   • 'all'    → every league present in the dataset (global)
+//   • 'big5'   → Top-5 Europe preset (the legacy default)
+//   • 'custom' → an arbitrary set of leagues the user ticks (see `customLeagues`)
+type ScopeMode = 'big5' | 'all' | 'custom'
 
 const BIG5 = ['La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1']
-const BIG5_PT = [...BIG5, 'Primeira Liga']
 
 const POS_ICON: Record<PositionTabId, string> = {
   fw: '⚽', ast: '🅰', mf: '⇄', df: '🛡', gk: '🧤',
@@ -31,6 +35,109 @@ const POS_TITLE: Record<PositionTabId, { es: string; en: string }> = {
   mf: { es: 'CENTROCAMPISTAS', en: 'MIDFIELDERS' },
   df: { es: 'DEFENSAS', en: 'DEFENDERS' },
   gk: { es: 'PORTEROS', en: 'GOALKEEPERS' },
+}
+
+// ── Scope selector ──────────────────────────────────────────────────────────
+// A compact popover replacing the old fixed "Top 5 Europe" dropdown. Offers two
+// presets (All leagues / Top 5 Europe) plus a scrollable checkbox list of every
+// league in the dataset for an arbitrary custom selection. Brand-token styled,
+// 44px-min touch targets, popover capped to the viewport width on mobile so it
+// never forces horizontal scroll.
+function ScopeSelector({
+  lang, mode, label, allLeagues, customLeagues,
+  onPreset, onToggleLeague, onClearCustom,
+}: {
+  lang: Lang
+  mode: ScopeMode
+  label: string
+  allLeagues: string[]
+  customLeagues: Set<string>
+  onPreset: (m: 'big5' | 'all') => void
+  onToggleLeague: (name: string) => void
+  onClearCustom: () => void
+}) {
+  const en = lang === 'en'
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    function h(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+  const active = mode !== 'big5'
+  const presetBtn = (m: 'big5' | 'all', text: string) => (
+    <button type="button" onClick={() => onPreset(m)}
+      style={{
+        flex: 1, minHeight: 44, padding: '8px 10px', fontSize: 12, fontWeight: mode === m ? 700 : 500,
+        background: mode === m ? 'var(--ts-primary-soft)' : 'var(--ts-card2)',
+        color: mode === m ? 'var(--ts-primary)' : 'var(--ts-text)',
+        border: `1px solid ${mode === m ? 'var(--ts-border-hot)' : 'var(--ts-border)'}`,
+        borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit',
+      }}>
+      {text}
+    </button>
+  )
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 38, padding: '6px 10px', fontSize: 12,
+          background: active ? 'var(--ts-primary-soft)' : 'transparent',
+          color: active ? 'var(--ts-primary)' : 'var(--ts-text)',
+          border: `1px solid ${active ? 'var(--ts-border-hot)' : 'var(--ts-border)'}`,
+          borderRadius: 6, cursor: 'pointer', fontFamily: 'inherit',
+        }}>
+        <span style={{ color: 'var(--ts-muted)', fontWeight: 500 }}>{en ? 'League' : 'Liga'}:</span>
+        <span style={{ fontWeight: 600 }}>{label}</span>
+        <svg width={9} height={9} viewBox="0 0 9 9" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
+          <path d="M2 3l2.5 2.5L7 3" />
+        </svg>
+      </button>
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 60,
+          width: 280, maxWidth: 'calc(100vw - 32px)',
+          background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10,
+          boxShadow: '0 12px 32px rgba(0,0,0,.18)', padding: 10,
+        }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            {presetBtn('big5', en ? 'Top 5 Europe' : 'Top 5 Europa')}
+            {presetBtn('all', en ? 'All leagues' : 'Todas')}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ts-muted)' }}>
+              {en ? 'Custom' : 'Personalizado'}
+            </span>
+            {mode === 'custom' && customLeagues.size > 0 && (
+              <button type="button" onClick={onClearCustom}
+                style={{ fontSize: 11, color: 'var(--ts-teal)', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '2px 4px' }}>
+                {en ? 'Clear' : 'Limpiar'}
+              </button>
+            )}
+          </div>
+          <div style={{ maxHeight: 240, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {allLeagues.map(name => {
+              const checked = mode === 'custom' && customLeagues.has(name)
+              return (
+                <label key={name}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8, minHeight: 36, padding: '6px 8px',
+                    borderRadius: 6, cursor: 'pointer', fontSize: 12.5, color: 'var(--ts-text)',
+                    background: checked ? 'var(--ts-primary-soft)' : 'transparent',
+                  }}>
+                  <input type="checkbox" checked={checked} onChange={() => onToggleLeague(name)}
+                    style={{ width: 15, height: 15, accentColor: 'var(--ts-primary)', cursor: 'pointer', flexShrink: 0 }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {leaguePickerLabel(name)}
+                  </span>
+                </label>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 interface NewsLite { title: string; link: string; source: string; image?: string }
@@ -53,7 +160,10 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
     const t = setInterval(() => setBreakIdx(i => (i + 1) % breaking.length), 5000)
     return () => clearInterval(t)
   }, [breaking.length])
-  const [league, setLeague] = useState<LeagueFilterValue>('big5')
+  const [scopeMode, setScopeMode] = useState<ScopeMode>('big5')
+  // Custom multi-select: the set of raw dataset `player.league` strings the user
+  // ticked. Only consulted when scopeMode === 'custom'.
+  const [customLeagues, setCustomLeagues] = useState<Set<string>>(() => new Set(BIG5))
   const [ageBand, setAgeBand] = useState<'all' | 'u23' | 'u21'>('all')
   const [minPj, setMinPj] = useState<number>(3)
   const [sort, setSort] = useState<{ key: string; dir: 1 | -1 } | null>(null)
@@ -67,11 +177,27 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
   }, [curioCount])
   const [extraStats, setExtraStats] = useState<string[]>([])
 
+  // Every distinct league present across ALL position pools — the complete,
+  // dataset-driven registry the custom multi-select offers. Big-5 first (in a
+  // stable order), then the rest sorted by country label so the popover reads
+  // sensibly. Derived from the real data, so it never lists a league with no
+  // players nor invents one.
+  const allLeagues = useMemo(() => {
+    const set = new Set<string>()
+    for (const tab of POS_ORDER) for (const p of positionPools[tab] ?? []) set.add(p.league)
+    const names = Array.from(set)
+    const rest = names.filter(n => !BIG5.includes(n))
+      .sort((a, b) => (leagueCountry(a) ?? a).localeCompare(leagueCountry(b) ?? b))
+    return [...BIG5.filter(n => set.has(n)), ...rest]
+  }, [positionPools])
+
   const leagueMatch = useMemo(() => {
-    if (league === 'big5') return (p: PlayerData) => BIG5.includes(p.league)
-    if (league === 'big5pt') return (p: PlayerData) => BIG5_PT.includes(p.league)
-    return () => true
-  }, [league])
+    if (scopeMode === 'big5') return (p: PlayerData) => BIG5.includes(p.league)
+    if (scopeMode === 'all') return () => true
+    // custom: empty selection behaves like "all" so the table is never blank
+    if (customLeagues.size === 0) return () => true
+    return (p: PlayerData) => customLeagues.has(p.league)
+  }, [scopeMode, customLeagues])
 
   const pool = positionPools[pos] ?? []
   const filtered = useMemo(() => {
@@ -97,14 +223,14 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
     sav: p => p.saves ?? 0, gc: p => p.goalsConceded ?? 0,
     last5: p => last5Ratings(p).avg,
   }
-  // Default ordering per tab: descending by the tab's headline value.
-  const DEFAULT_SORT: Record<PositionTabId, string> = {
-    fw: 'goles', ast: 'asist', mf: 'kp', df: 'tkl', gk: 'sav',
-  }
   const sorted = useMemo(() => {
-    const key = sort?.key ?? DEFAULT_SORT[pos]
-    const acc = SORT_ACCESSOR[key]
-    if (!acc) return filtered
+    // DEFAULT ordering (no explicit column sort) = rankScore: IIG when it is
+    // meaningful, else compressed rating·coef. This is the "scouter" order, so a
+    // high-rated non-scorer (defender, GK, playmaker) ranks in the cross-league
+    // Top-20 instead of being buried by pure goal volume.
+    if (!sort) return [...filtered].sort((a, b) => rankScore(b) - rankScore(a))
+    const acc = SORT_ACCESSOR[sort.key]
+    if (!acc) return [...filtered].sort((a, b) => rankScore(b) - rankScore(a))
     // ALWAYS descending — best stat on top. No ascending toggle (ascending would
     // surface players with 0 of the stat, which is noise on a leaderboard).
     return [...filtered].sort((a, b) => acc(b) - acc(a))
@@ -121,9 +247,14 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         leader: 'Líder', topAssist: 'Asist. top', avgAge: 'Edad media' }
 
   const posLabel = TAB_LABELS[lang === 'en' ? 'en' : 'es'][pos]
-  const leagueLabel = league === 'big5' ? (lang === 'en' ? 'Top 5 Europe' : 'Top 5 Europa')
-    : league === 'big5pt' ? 'Top 5 + Portugal'
-    : (lang === 'en' ? 'All leagues' : 'Todas las ligas')
+  const customCount = customLeagues.size
+  const scopeLabel = scopeMode === 'big5'
+    ? (lang === 'en' ? 'Top 5 Europe' : 'Top 5 Europa')
+    : scopeMode === 'all'
+      ? (lang === 'en' ? 'All leagues' : 'Todas las ligas')
+      : customCount === 0
+        ? (lang === 'en' ? 'All leagues' : 'Todas las ligas')
+        : (lang === 'en' ? `${customCount} leagues` : `${customCount} ligas`)
 
   const topAssist = [...filtered].sort((a, b) => (b.asist ?? 0) - (a.asist ?? 0))[0]
   const avgAge = filtered.length
@@ -136,9 +267,15 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
     : pos === 'df' || pos === 'gk' ? (lang === 'en' ? 'apps' : 'PJ')
     : (lang === 'en' ? 'goals' : 'goles')
 
-  function cycleLeague() {
-    const order: LeagueFilterValue[] = ['big5', 'big5pt', 'all']
-    setLeague(order[(order.indexOf(league) + 1) % order.length])
+  // Toggle a single league in the custom set (and switch into custom mode).
+  function toggleCustomLeague(name: string) {
+    setScopeMode('custom')
+    setCustomLeagues(prev => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
   }
 
   // Position selector (Forwards/Assisters/…) — rendered next to the filters.
@@ -190,14 +327,19 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         </select>
       </label>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-        <label>
+        <div>
           <span style={fieldLabel}>{t.league}</span>
-          <select value={league} onChange={e => setLeague(e.target.value as LeagueFilterValue)} style={selStyle} aria-label={t.league}>
-            <option value="big5">{lang === 'en' ? 'Top 5 Europe' : 'Top 5 Europa'}</option>
-            <option value="big5pt">Top 5 + Portugal</option>
-            <option value="all">{lang === 'en' ? 'All leagues' : 'Todas las ligas'}</option>
-          </select>
-        </label>
+          <ScopeSelector
+            lang={lang}
+            mode={scopeMode}
+            label={scopeLabel}
+            allLeagues={allLeagues}
+            customLeagues={customLeagues}
+            onPreset={m => setScopeMode(m)}
+            onToggleLeague={toggleCustomLeague}
+            onClearCustom={() => setCustomLeagues(new Set())}
+          />
+        </div>
         <label>
           <span style={fieldLabel}>{t.age}</span>
           <select value={ageBand} onChange={e => setAgeBand(e.target.value as 'all' | 'u23' | 'u21')} style={selStyle} aria-label={t.age}>
@@ -304,33 +446,43 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
       <div className="saas-desktop-filters" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {positionTabs}
 
-      <FilterBar
-        filters={[
-          { key: 'league', label: t.league, value: leagueLabel, active: league !== 'big5', options: [
-            { value: 'big5', label: lang === 'en' ? 'Top 5 Europe' : 'Top 5 Europa' },
-            { value: 'big5pt', label: 'Top 5 + Portugal' },
-            { value: 'all', label: lang === 'en' ? 'All leagues' : 'Todas las ligas' },
-          ] },
-          { key: 'season', label: t.season, value: '25/26', options: [{ value: '2526', label: '25/26' }] },
-          { key: 'age', label: t.age, value: ageBand === 'u21' ? 'Sub-21' : ageBand === 'u23' ? 'Sub-23' : (lang === 'en' ? 'All' : 'Todas'), active: ageBand !== 'all', options: [
-            { value: 'all', label: lang === 'en' ? 'All' : 'Todas' },
-            { value: 'u23', label: 'Sub-23' },
-            { value: 'u21', label: 'Sub-21' },
-          ] },
-          { key: 'minpj', label: t.minpj, value: `${minPj}+`, active: minPj > 3, options: [
-            { value: '3', label: '3+' }, { value: '5', label: '5+' }, { value: '10', label: '10+' },
-          ] },
-        ]}
-        onFilterSelect={(key, value) => {
-          if (key === 'league') setLeague(value as LeagueFilterValue)
-          else if (key === 'position') setPos(value as PositionTabId)
-          else if (key === 'age') setAgeBand(value as 'all' | 'u23' | 'u21')
-          else if (key === 'minpj') setMinPj(Number(value))
-        }}
-        statOptions={extraStatList(lang === 'en' ? 'en' : 'es').filter(o => !extraStats.includes(o.value))}
-        onAddStat={v => setExtraStats(s => (s.includes(v) ? s : [...s, v]))}
-        count={{ current: players.length, total: filtered.length }}
-      />
+      {/* League SCOPE selector (All / Top-5 / custom multi-select) — replaces the
+          old fixed "Top 5 Europe" chip — sits inline ahead of the other filters. */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
+        <ScopeSelector
+          lang={lang}
+          mode={scopeMode}
+          label={scopeLabel}
+          allLeagues={allLeagues}
+          customLeagues={customLeagues}
+          onPreset={m => setScopeMode(m)}
+          onToggleLeague={toggleCustomLeague}
+          onClearCustom={() => setCustomLeagues(new Set())}
+        />
+        <div style={{ flex: 1, minWidth: 240 }}>
+          <FilterBar
+            filters={[
+              { key: 'season', label: t.season, value: '25/26', options: [{ value: '2526', label: '25/26' }] },
+              { key: 'age', label: t.age, value: ageBand === 'u21' ? 'Sub-21' : ageBand === 'u23' ? 'Sub-23' : (lang === 'en' ? 'All' : 'Todas'), active: ageBand !== 'all', options: [
+                { value: 'all', label: lang === 'en' ? 'All' : 'Todas' },
+                { value: 'u23', label: 'Sub-23' },
+                { value: 'u21', label: 'Sub-21' },
+              ] },
+              { key: 'minpj', label: t.minpj, value: `${minPj}+`, active: minPj > 3, options: [
+                { value: '3', label: '3+' }, { value: '5', label: '5+' }, { value: '10', label: '10+' },
+              ] },
+            ]}
+            onFilterSelect={(key, value) => {
+              if (key === 'position') setPos(value as PositionTabId)
+              else if (key === 'age') setAgeBand(value as 'all' | 'u23' | 'u21')
+              else if (key === 'minpj') setMinPj(Number(value))
+            }}
+            statOptions={extraStatList(lang === 'en' ? 'en' : 'es').filter(o => !extraStats.includes(o.value))}
+            onAddStat={v => setExtraStats(s => (s.includes(v) ? s : [...s, v]))}
+            count={{ current: players.length, total: filtered.length }}
+          />
+        </div>
+      </div>
       </div>
 
       <PositionTable

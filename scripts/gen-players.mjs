@@ -373,7 +373,10 @@ async function main() {
   let prevCount = 0
   try {
     const prev = readFileSync('data/players-generated.ts', 'utf8')
-    prevCount = (prev.match(/"name":/g) || []).length
+    // Match both the raw literal ("name":) and the JSON.parse(stringLiteral)
+    // format where quotes are escaped (\"name\":), so the anti-wipe baseline
+    // is real and not 0 (which would defeat the regression guard).
+    prevCount = (prev.match(/\\?"name\\?":/g) || []).length
   } catch { /* no prior file */ }
 
   console.log(`\nTotal players: ${all.length} (previous file: ${prevCount}). API page calls: ${totalCalls}.`)

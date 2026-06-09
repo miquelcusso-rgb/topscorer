@@ -90,6 +90,40 @@ export function findLeagueBySlug(slug: string): LeagueMeta | undefined {
   return SLUG_TO_LEAGUE.get(slug)
 }
 
+/**
+ * Reverse lookup: a raw dataset `player.league` string → catalog metadata
+ * (country + short code). Built from LEAGUE_DATA_ALIASES (id → dataset strings)
+ * joined to ALL_LEAGUES (id → { name, country, short }). The first catalog
+ * league claiming a dataset string wins, which is correct because the dataset
+ * carries at most one competition per display string. Used to label the home
+ * scope multi-select (e.g. "Süper Lig" → Turkey) without inventing anything.
+ */
+const DATASET_LEAGUE_META: Map<string, LeagueMeta> = (() => {
+  const m = new Map<string, LeagueMeta>()
+  const byId = new Map<number, LeagueMeta>(ALL_LEAGUES.map(l => [l.id, l]))
+  for (const [idStr, names] of Object.entries(LEAGUE_DATA_ALIASES)) {
+    const meta = byId.get(Number(idStr))
+    if (!meta) continue
+    for (const name of names) if (!m.has(name)) m.set(name, meta)
+  }
+  return m
+})()
+
+/** Catalog country for a raw dataset league string (undefined if unknown). */
+export function leagueCountry(datasetLeague: string): string | undefined {
+  return DATASET_LEAGUE_META.get(datasetLeague)?.country
+}
+
+/**
+ * Human label for a dataset league string in the scope picker: the league name
+ * plus its country when known (e.g. "Süper Lig · Turkey", "Super League ·
+ * Greece"), which disambiguates the several "Super League"/"Premiership" names.
+ */
+export function leaguePickerLabel(datasetLeague: string): string {
+  const country = leagueCountry(datasetLeague)
+  return country ? `${datasetLeague} · ${country}` : datasetLeague
+}
+
 /** Real players in this league for a season, sorted by goals desc. */
 export function playersForLeague(league: LeagueMeta, season: PlayerData['season'] = '2526'): PlayerData[] {
   const accepted = new Set(LEAGUE_DATA_ALIASES[league.id] ?? [league.name])

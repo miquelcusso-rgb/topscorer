@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import SaasHomeInteractive from './SaasHomeInteractive'
 import { getNews } from '@/lib/news'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
+import { rankScore } from '@/lib/iig'
 import { computeHomeInsights } from '@/lib/home-insights'
 import { getTopRumors } from '@/lib/home-rumor'
 import { flagFor } from '@/lib/flags'
@@ -37,10 +38,17 @@ function trim(p: PlayerData): PlayerData {
 const BIG5_LEAGUES = ['La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1']
 const PT = 'Primeira Liga'
 
-// Per-position pools. The home league filter cycles Big-5 → Big-5+PT → All, so
-// each scope must have ≥12 rows. We therefore guarantee representation by
-// taking the top of EACH scope (not a single global top-N where weaker-league
-// high-scorers like Messi/MLS would crowd out the Big-5). Deduped, trimmed.
+// Per-position pools for the cross-league "scouter". The home scope selector
+// supports All leagues (global) · Top-5 Europe · a custom multi-select of any
+// league in the dataset, so each league that appears must carry enough rows for
+// its own Top-20 once a user filters to it. We therefore guarantee league
+// representation by taking the top-N of EACH league present (ordered by
+// rankScore — IIG when meaningful, else rating·coef, so high-rated non-scorers
+// rank too), then merge with the Big-5 + global top. Deduped, trimmed.
+//   • PER_LEAGUE_N covers any single custom league (its full Top-20 view).
+//   • the global slice keeps the cross-league "All leagues" ranking honest.
+const PER_LEAGUE_N = 22
+const GLOBAL_N = 40
 function buildPositionPools(season: PlayerData[]): Record<PositionTabId, PlayerData[]> {
   const tabs: PositionTabId[] = ['fw', 'ast', 'mf', 'df', 'gk']
   const out = {} as Record<PositionTabId, PlayerData[]>
@@ -48,12 +56,20 @@ function buildPositionPools(season: PlayerData[]): Record<PositionTabId, PlayerD
     const all = season
       .filter(POSITION_FILTER[tab])
       .sort((a, b) => sortValue(tab, b) - sortValue(tab, a))
+    // Top-N per league (every league present in the dataset for this position),
+    // ranked by rankScore so non-scorers are ordered sensibly, not by raw goals.
+    const byLeague = new Map<string, PlayerData[]>()
+    for (const p of [...all].sort((a, b) => rankScore(b) - rankScore(a))) {
+      const arr = byLeague.get(p.league) ?? []
+      if (arr.length < PER_LEAGUE_N) { arr.push(p); byLeague.set(p.league, arr) }
+    }
+    const perLeague = Array.from(byLeague.values()).flat()
     const big5 = all.filter(p => BIG5_LEAGUES.includes(p.league)).slice(0, 20)
     const pt = all.filter(p => p.league === PT).slice(0, 6)
-    const rest = all.slice(0, 20) // global top (covers "All leagues" scope)
+    const rest = all.slice(0, GLOBAL_N) // global top (covers "All leagues" scope)
     const seen = new Set<string>()
     const merged: PlayerData[] = []
-    for (const p of [...big5, ...pt, ...rest]) {
+    for (const p of [...big5, ...pt, ...rest, ...perLeague]) {
       const k = playerKey(p)
       if (seen.has(k)) continue
       seen.add(k)
