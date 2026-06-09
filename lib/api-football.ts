@@ -516,6 +516,66 @@ export async function getPlayerDetails(
   )()
 }
 
+// ─── Injuries (current season) + sidelined (injury/suspension history) ───────
+// `/injuries?player=&season=` → current-season injury records (type, reason,
+// the fixture/league/date it was reported). `/sidelined?player=` → the player's
+// full sidelined timeline (injuries AND suspensions, with start/end dates).
+// Both fully defensive (→ []), so the UI hides the section on any error or when
+// the player has no records. Season data: revalidate 6 h.
+
+export interface PlayerInjury {
+  type: string            // e.g. "Knee Injury", "Suspended"
+  reason: string          // free-text reason from the API
+  date: string            // ISO fixture date the record refers to
+  league: string
+}
+
+export interface SidelinedEntry {
+  type: string            // "Knee Surgery", "Suspended", "Calf Injury"…
+  start: string           // ISO date (YYYY-MM-DD)
+  end: string | null      // ISO date or null if ongoing
+}
+
+export const getPlayerInjuries = unstable_cache(
+  async (playerId: number, season: number = 2025): Promise<PlayerInjury[]> => {
+    try {
+      const data = await apiFetch<Array<{
+        player?: { type?: string; reason?: string }
+        fixture?: { date?: string }
+        league?: { name?: string }
+      }>>(`/injuries?player=${playerId}&season=${season}`)
+      return (data.response ?? []).map(r => ({
+        type: r.player?.type ?? '',
+        reason: r.player?.reason ?? '',
+        date: r.fixture?.date ?? '',
+        league: r.league?.name ?? '',
+      }))
+    } catch {
+      return []
+    }
+  },
+  ['api-football-injuries'],
+  { revalidate: 21600, tags: ['api-football'] } // 6 h
+)
+
+export const getPlayerSidelined = unstable_cache(
+  async (playerId: number): Promise<SidelinedEntry[]> => {
+    try {
+      const data = await apiFetch<Array<{ type?: string; start?: string; end?: string | null }>>(
+        `/sidelined?player=${playerId}`
+      )
+      return (data.response ?? [])
+        .map(r => ({ type: r.type ?? '', start: r.start ?? '', end: r.end ?? null }))
+        .filter(r => r.type || r.start)
+        .sort((a, b) => (b.start || '').localeCompare(a.start || '')) // newest first
+    } catch {
+      return []
+    }
+  },
+  ['api-football-sidelined'],
+  { revalidate: 86400, tags: ['api-football'] } // 24 h — history changes rarely
+)
+
 export async function searchPlayer(name: string, season: number = 2025): Promise<ApiPlayerResponse[]> {
   return unstable_cache(
     async () => {

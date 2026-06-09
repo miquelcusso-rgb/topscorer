@@ -38,6 +38,13 @@ export function playerPhoto(p: Pick<PlayerData, 'photo' | 'apiId' | 'name' | 'fu
   return p.photo || apiPhoto(p.apiId) || apiPhoto(idByName(p))
 }
 
+/** A player's raw API-Football id: stored apiId → search-index id by name.
+ *  Used by features that need the numeric id (injuries, sidelined, predictions)
+ *  for players who carry no apiId on the dataset row. */
+export function playerApiId(p: Pick<PlayerData, 'apiId' | 'name' | 'fullName'>): number | undefined {
+  return p.apiId ?? idByName(p)
+}
+
 /** Return the player with `photo` guaranteed-filled when resolvable. */
 export function withPhoto<T extends Pick<PlayerData, 'photo' | 'apiId' | 'name' | 'fullName'>>(p: T): T {
   const photo = playerPhoto(p)

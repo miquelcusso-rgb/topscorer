@@ -10,8 +10,10 @@ import ScoutPanel from '@/components/player/ScoutPanel'
 import BioPanel from '@/components/player/BioPanel'
 import ProfileTabbed from '@/components/player/ProfileTabbed'
 import RadarCard from '@/components/player/RadarCard'
+import { AvailabilityBadge, InjuryHistory } from '@/components/player/PlayerInjuries'
 import type { Plan } from '@/types'
 import { shortName } from '@/lib/player-name'
+import { playerApiId } from '@/lib/player-photo'
 import { iig, IIG_NAME, IIG_EXPLAINER } from '@/lib/iig'
 import { playerAttributes, isGoalkeeper } from '@/lib/player-attributes'
 
@@ -77,6 +79,9 @@ interface Props {
 // (no live per-player API call → free + fast). Used by /jugadores/[slug].
 export default function PlayerProfile({ player, lang, slug, userPlan, seasons = [] }: Props) {
   const en = lang === 'en'
+  // Raw API-Football id (apiId on the row, else resolved by name via SEARCH_INDEX)
+  // — needed for live injury / sidelined lookups, which key on the numeric id.
+  const apiId = playerApiId(player)
   const breadcrumb = en ? ['Players', player.club, shortName(player)] : ['Jugadores', player.club, shortName(player)]
   const cta = en ? 'Share' : 'Compartir'
   const perf = en ? 'Performance profile' : 'Perfil de rendimiento'
@@ -126,6 +131,9 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
         player={player}
         iigBadge={{ value: iig(player), title: `${IIG_NAME[lang]} · ${IIG_EXPLAINER[lang]}` }}
       />
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: -4 }}>
+        <AvailabilityBadge apiId={apiId} en={en} />
+      </div>
       <ProfileTabbed
         compareHref={`/${lang}/estadisticas/comparador?p1=${slug}`}
         compareLabel={en ? '↗ Compare this player' : '↗ Comparar este jugador'}
@@ -211,6 +219,7 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
         historico={<>
           <MarketValueChart name={player.fullName || player.name} en={en} />
           <PlayerHonors apiId={player.apiId} en={en} />
+          <InjuryHistory apiId={apiId} en={en} />
           <PlayerCareer apiId={player.apiId} seasons={seasons} en={en} />
         </>}
       />
