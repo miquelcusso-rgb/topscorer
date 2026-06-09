@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
-import { getNationalTeamId, getSquad, getCoach, getNationalTeamRecentLineups, getNationalTeamAggregateStats, type SquadPlayer } from '@/lib/api-football'
+import { getNationalTeamId, getSquad, getCoach, getNationalTeamRecentLineups, getNationalTeamAggregateStats, getNationalTeamSeasonStats, type SquadPlayer } from '@/lib/api-football'
 import { resolveNation, nationName, nationFact, nationSlug, WC_NATIONS } from '@/lib/wc-nations'
 import { flagFor } from '@/lib/flags'
 import { PLAYERS } from '@/data/players'
@@ -144,14 +144,15 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
 
   // ── Data (all defensive) ──
   const teamId = await getNationalTeamId(nation.api)
-  const [squad, coach, recent, teamStats] = teamId
+  const [squad, coach, recent, teamStats, seasonStats] = teamId
     ? await Promise.all([
         getSquad(teamId),
         getCoach(teamId),
         getNationalTeamRecentLineups(teamId),
         getNationalTeamAggregateStats(teamId),
+        getNationalTeamSeasonStats(teamId),
       ])
-    : [[] as SquadPlayer[], null, null, null]
+    : [[] as SquadPlayer[], null, null, null, null]
 
   // Do we have real recent-match usage? If so, the XI is "based on recent XI";
   // otherwise we fall back to the squad heuristic ("based on squad").
@@ -381,6 +382,45 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
                   </div>
                 )}
               </div>
+
+              {/* Real season statistics (/teams/statistics): clean sheets, biggest
+                  win, win streak, formations used, W/D/L home/away split. Richer
+                  and more accurate than the recent-fixture aggregate above. */}
+              {seasonStats && (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-teal)', marginBottom: 8, fontFamily: "'Barlow Condensed', sans-serif" }}>
+                    {t(lang, 'Estadísticas de temporada', 'Season statistics')}
+                    {seasonStats.leagueName ? <span style={{ color: 'var(--ts-faint)', fontWeight: 600, textTransform: 'none', letterSpacing: 0 }}> · {seasonStats.leagueName} {seasonStats.season}</span> : null}
+                  </div>
+                  <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}>
+                    {[
+                      { v: String(seasonStats.cleanSheet.total), l: t(lang, 'Porterías a cero', 'Clean sheets') },
+                      { v: String(seasonStats.failedToScore.total), l: t(lang, 'Sin marcar', 'Failed to score') },
+                      ...(seasonStats.biggestWinHome || seasonStats.biggestWinAway
+                        ? [{ v: (seasonStats.biggestWinHome ?? seasonStats.biggestWinAway) as string, l: t(lang, 'Mayor victoria', 'Biggest win') }]
+                        : []),
+                      ...(seasonStats.biggestStreak.wins > 0
+                        ? [{ v: String(seasonStats.biggestStreak.wins), l: t(lang, 'Racha victorias', 'Win streak') }]
+                        : []),
+                      { v: `${seasonStats.fixtures.wins.home}-${seasonStats.fixtures.draws.home}-${seasonStats.fixtures.loses.home}`, l: t(lang, 'Local (V-E-D)', 'Home (W-D-L)') },
+                      { v: `${seasonStats.fixtures.wins.away}-${seasonStats.fixtures.draws.away}-${seasonStats.fixtures.loses.away}`, l: t(lang, 'Visitante (V-E-D)', 'Away (W-D-L)') },
+                    ].map(s => (
+                      <div key={s.l} style={{ borderRadius: 12, padding: '14px 16px', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
+                        <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>{s.v}</div>
+                        <div style={{ fontSize: 10, fontWeight: 700, marginTop: 6, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{s.l}</div>
+                      </div>
+                    ))}
+                    {seasonStats.lineups.length > 0 && (
+                      <div style={{ borderRadius: 12, padding: '14px 16px', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
+                        <div style={{ fontSize: 16, fontWeight: 800, lineHeight: 1.2, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>
+                          {seasonStats.lineups.slice(0, 2).map(l => l.formation).join(' · ')}
+                        </div>
+                        <div style={{ fontSize: 10, fontWeight: 700, marginTop: 6, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{t(lang, 'Formaciones usadas', 'Formations used')}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Extra data lines (titles/ranking from the editorial fact + squad top scorer) */}
               {(fact || topScorer) && (

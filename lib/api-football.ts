@@ -846,6 +846,116 @@ export const getNationalTeamAggregateStats = unstable_cache(
   { revalidate: 86400, tags: ['api-football'] }, // 24 h
 )
 
+// ─── Team season statistics (/teams/statistics) ───────────────────────────────
+// Far richer than aggregating fixtures: form string, W/D/L split home/away/total,
+// goals for/against averages, clean-sheet & failed-to-score counts, biggest wins
+// and streaks, cards by minute interval, and which lineups (formations) were used.
+// Requires team + league + season. Fully defensive (→ null). Cached 24 h.
+
+export interface TeamSeasonStats {
+  form: string                       // e.g. "WWDLW" (chronological)
+  fixtures: {
+    played: { home: number; away: number; total: number }
+    wins: { home: number; away: number; total: number }
+    draws: { home: number; away: number; total: number }
+    loses: { home: number; away: number; total: number }
+  }
+  goalsForAvg: { home: string; away: string; total: string }
+  goalsAgainstAvg: { home: string; away: string; total: string }
+  cleanSheet: { home: number; away: number; total: number }
+  failedToScore: { home: number; away: number; total: number }
+  biggestWinHome: string | null      // "4-0"
+  biggestWinAway: string | null
+  biggestStreak: { wins: number; draws: number; loses: number }
+  cardsYellow: Record<string, number>  // minute bucket "0-15" → count
+  cardsRed: Record<string, number>
+  lineups: { formation: string; played: number }[]  // formations used, most-used first
+  leagueName: string
+  season: number
+}
+
+export const getTeamSeasonStats = unstable_cache(
+  async (teamId: number, leagueId: number, season: number = 2025): Promise<TeamSeasonStats | null> => {
+    try {
+      const data = await apiFetch<Record<string, any>>(
+        `/teams/statistics?team=${teamId}&league=${leagueId}&season=${season}`
+      )
+      const r = data.response as Record<string, any> | undefined
+      if (!r || !r.fixtures) return null
+      // A team that played zero matches in this league/season → not useful.
+      if ((r.fixtures?.played?.total ?? 0) === 0) return null
+      const cardBuckets = (obj: Record<string, any> | undefined): Record<string, number> => {
+        const out: Record<string, number> = {}
+        for (const [k, v] of Object.entries(obj ?? {})) {
+          const total = (v as { total?: number | null })?.total
+          if (total != null) out[k] = total
+        }
+        return out
+      }
+      const lineups = ((r.lineups ?? []) as Array<{ formation?: string; played?: number }>)
+        .filter(l => l.formation && (l.played ?? 0) > 0)
+        .map(l => ({ formation: l.formation as string, played: l.played as number }))
+        .sort((a, b) => b.played - a.played)
+      return {
+        form: typeof r.form === 'string' ? r.form : '',
+        fixtures: {
+          played: r.fixtures?.played ?? { home: 0, away: 0, total: 0 },
+          wins: r.fixtures?.wins ?? { home: 0, away: 0, total: 0 },
+          draws: r.fixtures?.draws ?? { home: 0, away: 0, total: 0 },
+          loses: r.fixtures?.loses ?? { home: 0, away: 0, total: 0 },
+        },
+        goalsForAvg: r.goals?.for?.average ?? { home: '0', away: '0', total: '0' },
+        goalsAgainstAvg: r.goals?.against?.average ?? { home: '0', away: '0', total: '0' },
+        cleanSheet: r.clean_sheet ?? { home: 0, away: 0, total: 0 },
+        failedToScore: r.failed_to_score ?? { home: 0, away: 0, total: 0 },
+        biggestWinHome: r.biggest?.wins?.home ?? null,
+        biggestWinAway: r.biggest?.wins?.away ?? null,
+        biggestStreak: r.biggest?.streak ?? { wins: 0, draws: 0, loses: 0 },
+        cardsYellow: cardBuckets(r.cards?.yellow),
+        cardsRed: cardBuckets(r.cards?.red),
+        lineups,
+        leagueName: r.league?.name ?? '',
+        season: r.league?.season ?? season,
+      }
+    } catch {
+      return null
+    }
+  },
+  ['api-football-team-statistics'],
+  { revalidate: 86400, tags: ['api-football'] } // 24 h
+)
+
+// National-team season stats: discover the most-recent league+season the team
+// actually competed in (WC qualifiers, Nations League, friendlies league, etc.)
+// from its recent fixtures, then call /teams/statistics for it. National sides
+// have no single "domestic league", so this picks the most-played competition
+// in the latest season seen. Defensive (→ null). One discovery call + one stats
+// call, both cached. Cached 24 h.
+export const getNationalTeamSeasonStats = unstable_cache(
+  async (teamId: number): Promise<TeamSeasonStats | null> => {
+    try {
+      const fxRes = await apiFetch<ApiFixture[]>(`/fixtures?team=${teamId}&last=30`)
+      const finished = (fxRes.response ?? []).filter(f =>
+        ['FT', 'AET', 'PEN'].includes(f.fixture?.status?.short),
+      )
+      if (!finished.length) return null
+      // Latest season among recent fixtures, then the competition played most in it.
+      const seasonOf = (f: ApiFixture) => new Date(f.fixture.date).getUTCFullYear()
+      const latestSeason = Math.max(...finished.map(seasonOf))
+      const inSeason = finished.filter(f => seasonOf(f) === latestSeason)
+      const byLeague = new Map<number, number>()
+      for (const f of inSeason) byLeague.set(f.league.id, (byLeague.get(f.league.id) ?? 0) + 1)
+      const leagueId = [...byLeague.entries()].sort((a, b) => b[1] - a[1])[0]?.[0]
+      if (!leagueId) return null
+      return await getTeamSeasonStats(teamId, leagueId, latestSeason)
+    } catch {
+      return null
+    }
+  },
+  ['api-football-national-team-statistics'],
+  { revalidate: 86400, tags: ['api-football'] } // 24 h
+)
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getLeague(id: number): LeagueMeta | undefined {
