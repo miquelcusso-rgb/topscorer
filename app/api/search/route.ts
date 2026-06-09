@@ -68,6 +68,21 @@ const PLAYER_INDEX = (() => {
   const noId: IndexedHit[] = []               // unresolvable rows (kept as-is)
   const slugSeen = new Set<string>()
 
+  // Nationality → flag is only known on the curated dataset (PRIMARY_PLAYERS);
+  // the server-only SEARCH_INDEX carries NO nationality, so index-only players
+  // (the bulk of hits) would render WITHOUT a flag — the exact inconsistency the
+  // dropdown shows (some rows flagged, some not). Build a FLAG_BY_ID map from the
+  // curated rows so we can backfill a flag onto a matching search-index hit by
+  // its API id. (Rows with no curated nationality still resolve gracefully — the
+  // UI reserves the flag column and shows a neutral placeholder.)
+  const flagById = new Map<number, string>()
+  for (const p of PRIMARY_PLAYERS) {
+    const f = p.flag ?? flagFor(p.nationality)
+    if (!f) continue
+    const id = playerApiId(p)
+    if (id != null && !flagById.has(id)) flagById.set(id, f)
+  }
+
   // Score a candidate so the richer/canonical one wins a same-id collision.
   const cand = (h: IndexedHit) => (h._hasId ? 1e9 : 0) + (h.photo ? 1e6 : 0) + (h._rich ? 1e3 : 0) + h._mins
 
@@ -113,6 +128,7 @@ const PLAYER_INDEX = (() => {
     add(p.id, {
       name: p.name, fullName: p.fullName, slug,
       club: p.club, league: p.league, photo: p.photo, age: p.age, pos: p.pos,
+      flag: flagById.get(p.id),
       _n: norm(p.name), _c: norm(p.club), _f: norm(p.fullName ?? ''),
       _sn: surname(norm(p.name)), _fsn: surname(norm(p.fullName ?? '')),
       _rich: false, _mins: p.mins ?? 0, _hasId: true,

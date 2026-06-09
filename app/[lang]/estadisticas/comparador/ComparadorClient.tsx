@@ -293,14 +293,16 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = rowHoverBg }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none' }}
               >
-                {p.flag && <span>{p.flag}</span>}
-                <span style={{ fontWeight: 600 }}>{p.name}</span>
-                <span style={{ fontSize: 11, color: textMuted, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
+                {/* Uniform row: reserved flag column + photo + name + club + position */}
+                <span style={{ width: 16, flexShrink: 0, textAlign: 'center', fontSize: 13, lineHeight: 1 }} aria-hidden>{p.flag ?? '🏳️'}</span>
+                <Avatar name={p.name} photo={p.photo} size={22} />
+                <span style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{p.name}</span>
+                <span style={{ fontSize: 11, color: textMuted, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                   <ClubLogo club={p.club} size={14} />
                   {p.club}
                 </span>
                 {p.pos && (
-                  <span style={{ fontSize: 10, fontWeight: 700, color: posAccent(p.pos as Position), background: `${posAccent(p.pos as Position)}22`, padding: '2px 5px', borderRadius: 3 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: posAccent(p.pos as Position), background: `${posAccent(p.pos as Position)}22`, padding: '2px 5px', borderRadius: 3, flexShrink: 0 }}>
                     {p.pos}
                   </span>
                 )}

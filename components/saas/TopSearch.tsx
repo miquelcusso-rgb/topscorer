@@ -230,12 +230,19 @@ export default function TopSearch({ placeholder }: Props) {
                 return (
                   <button key={'p' + p.slug} type="button" onMouseEnter={() => setActive(idx)}
                     onClick={() => go(`/${lang}/jugadores/${p.slug}`)} style={rowStyle(active === idx)}>
+                    {/* Reserved flag column → every row aligns, flagged or not */}
+                    <span style={{ width: 18, flexShrink: 0, textAlign: 'center', fontSize: 14, lineHeight: 1 }} aria-hidden>
+                      {p.flag ?? '🏳️'}
+                    </span>
                     <Avatar name={p.name} size={28} photo={p.photo} />
                     <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, textAlign: 'left' }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {p.flag ? `${p.flag} ` : ''}{p.name}
+                        {p.name}
                       </span>
-                      <span style={{ fontSize: 11, color: 'var(--ts-muted)' }}>{p.club} · {p.league}</span>
+                      <span style={{ fontSize: 11, color: 'var(--ts-muted)', display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.club} · {p.league}</span>
+                        {p.pos && <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--ts-faint)', flexShrink: 0 }}>{p.pos}</span>}
+                      </span>
                     </span>
                   </button>
                 )
