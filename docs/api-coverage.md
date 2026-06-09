@@ -26,12 +26,12 @@ Ejecuta el checker para ver qué devuelve en vivo en nuestro plan:
 | `/fixtures/players` | ✅ | Stats por jugador en un partido | Minutos recientes selección | — |
 | `/transfers` | ✅ | Fichajes | Página Transferencias | — |
 | `/trophies` | ✅ | Palmarés | Honores en ficha | — |
-| **`/injuries`** | ❌ | **Lesionados** (jugador/liga/fixture/fecha) | **Estado de lesión en ficha + "parte de bajas" del Mundial** | **Alto** |
-| **`/sidelined`** | ❌ | **Historial de lesiones y sanciones** de un jugador | **Sección "lesiones/sanciones" en la ficha** | **Alto** |
-| **`/predictions`** | ❌ | **Probabilidad de victoria + consejo + comparativa** por partido | **Previa de partido, picks, Mundial** | **Alto** |
-| **`/fixtures/headtohead`** | ❌ | **Historial H2H** entre dos equipos | **Previa de partido + comparador de equipos** | Medio-Alto |
-| **`/teams/statistics`** | ❌ | Stats de temporada de un equipo: forma, **porterías a cero**, mayores victorias, **tarjetas por minuto**, formaciones usadas, racha | **Página de equipo/selección mucho más rica (FootyStats-style con posesión real)** | **Alto** |
-| **`/players/topyellowcards`** | ❌ | Top amonestados por liga | **Ranking de tarjetas / "más sancionados"** | Medio |
+| **`/injuries`** | ✅ | **Lesionados** (jugador/liga/fixture/fecha) | Badge disponible/lesionado en la ficha (`getPlayerInjuries`) | **Alto** |
+| **`/sidelined`** | ✅ | **Historial de lesiones y sanciones** de un jugador | Sección "Lesiones y sanciones" en la pestaña Histórico (`getPlayerSidelined`) | **Alto** |
+| **`/predictions`** | ✅ | **Probabilidad de victoria + consejo + comparativa** por partido | Barra win/draw/loss en los amistosos próximos del Mundial (`getFixturePrediction`). Se ilumina al haber fixtures futuros | **Alto** |
+| **`/fixtures/headtohead`** | ✅ | **Historial H2H** entre dos equipos | `H2HMini` en la tarjeta de partido (`getHeadToHead`). Comparador de jugadores pendiente (faltan team ids) | Medio-Alto |
+| **`/teams/statistics`** | ✅ | Stats de temporada de un equipo: forma, **porterías a cero**, mayores victorias, tarjetas por minuto, formaciones usadas, racha | Bloque "Estadísticas de temporada" en la ficha de selección (`getTeamSeasonStats`/`getNationalTeamSeasonStats`). ⚠️ Este endpoint NO trae posesión (solo `/fixtures/statistics` por partido) | **Alto** |
+| **`/players/topyellowcards`** | 🟡 | Top amonestados por liga | Fetcher `getTopYellowCards` listo; UI en records pendiente (página estática multi-liga) | Medio |
 | **`/players/topredcards`** | ❌ | Top expulsados por liga | Ranking de disciplina | Bajo-Medio |
 | `/players/profiles` | ❌ | Búsqueda/ficha base de jugador (bio) | Ya cubrimos bio con Wikipedia | Bajo |
 | `/venues` | 🟡 | Estadios (aforo, ciudad, imagen) | Pestaña Venues del Mundial podría enriquecerse | Bajo-Medio |
@@ -56,15 +56,15 @@ Ejecuta el checker para ver qué devuelve en vivo en nuestro plan:
 | `tackles.total` / `.blocks` / `.interceptions` | ✅ | (blocks sin usar → bloqueos) |
 | `duels.total` / `.won` | ✅ | — |
 | `dribbles.attempts` / `.success` | ✅ | — |
-| **`cards.yellow` / `.red`** | 🟡 | **Disciplina en la ficha (amarillas/rojas)** |
-| **`fouls.drawn` / `.committed`** | ❌ | **Faltas recibidas/cometidas** (útil para perfil) |
-| **`penalty.won` / `.committed` / `.scored` / `.missed` / `.saved`** | 🟡 | **Penaltis (marcados/fallados; parados GK)** |
+| **`cards.yellow` / `.red`** | ✅ | Grupo "Disciplina" en la ficha (amarillas/rojas) |
+| **`fouls.drawn` / `.committed`** | ✅ | Faltas recibidas/cometidas en el grupo "Regate" |
+| **`penalty.won` / `.committed` / `.scored` / `.missed` / `.saved`** | ✅ | Penaltis (marcados/fallados; parados GK) en "Disciplina" |
 | **`games.rating`** | ✅ | Nota |
-| **`games.captain`** | ❌ | Marcar capitán |
+| **`games.captain`** | ✅ | Pill "Capitán" en la ficha |
 | `games.minutes` / `.appearences` / `.lineups` | ✅/🟡 | `lineups` (titularidades) poco usado |
-| **`player.injured`** | ❌ | **Disponible/lesionado en la ficha** |
-| **`player.birth` (date/place/country)** | ❌ | **Fecha y lugar de nacimiento en bio** |
-| **`player.height` / `.weight`** | 🟡 | Altura/peso en ficha |
+| **`player.injured`** | ✅ | Badge disponible/lesionado (vía `/injuries`, más fiable que este flag) |
+| **`player.birth` (date/place/country)** | ✅ | Fecha y lugar de nacimiento en la ficha |
+| **`player.height` / `.weight`** | ✅ | Altura/peso en la ficha |
 
 ---
 
