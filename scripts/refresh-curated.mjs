@@ -42,6 +42,8 @@ const MANUAL = {
   'mateo retegui': 6420,    // Al-Qadisiyah FC (Saudi) — not in our indexed leagues
   'luis diaz': 2489,        // Bayern München (Colombian); index has homonyms
   'nicolas gonzalez': 26315,// Atlético Madrid (Argentine winger)
+  'christos tzolis': 161800,// Club Brugge — curated "Christos Tzolis" vs index "C. Tzolis"
+  'samu omorodion': 358628, // FC Porto — curated "Samu Omorodion" vs index "Samu" (Samuel Omorodion Aghehowa)
 }
 
 // Index lookup tables.
