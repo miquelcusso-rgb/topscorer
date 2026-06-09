@@ -15,3 +15,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Default theme is LIGHT.** The site must always load in light mode (no dark
   flash). Anti-flash script + ThemeContext default to `light`; only an explicit
   stored `ts-theme` choice overrides it (system dark preference is ignored).
+
+## Player data quality (search dedup) — run the guardrail
+
+- Before shipping any dataset (`data/players.ts`, `data/curated-ids.ts`) or
+  search change, run `node scripts/data-quality-check.mjs` (read-only; exits
+  non-zero on duplicate players). It guards the recurring "same player listed
+  twice in search" bug. See `docs/data-quality.md` for the root cause and fix.
