@@ -956,6 +956,60 @@ export const getNationalTeamSeasonStats = unstable_cache(
   { revalidate: 86400, tags: ['api-football'] } // 24 h
 )
 
+// ─── Match prediction (/predictions) ──────────────────────────────────────────
+// Win/draw/loss percentages, a textual advice, and a compact form comparison for
+// an UPCOMING fixture. The API only returns meaningful predictions for fixtures
+// that haven't been played; for finished/absent fixtures we return null and the
+// UI shows nothing. Defensive (→ null). Cached 1 h (predictions can shift as the
+// match approaches).
+
+export interface FixturePrediction {
+  homePct: number          // win probability home (0–100)
+  drawPct: number
+  awayPct: number
+  advice: string           // e.g. "Combo Double chance : Spain or draw"
+  winnerName: string | null
+  homeName: string
+  awayName: string
+  homeForm: string | null  // recent form % string from the API ("60%")
+  awayForm: string | null
+}
+
+const pctNum = (s: unknown): number => {
+  const n = parseInt(String(s ?? '').replace('%', ''), 10)
+  return Number.isFinite(n) ? n : 0
+}
+
+export const getFixturePrediction = unstable_cache(
+  async (fixtureId: number): Promise<FixturePrediction | null> => {
+    try {
+      const data = await apiFetch<Array<{
+        predictions?: { percent?: { home?: string; draw?: string; away?: string }; advice?: string; winner?: { name?: string | null } | null }
+        teams?: { home?: { name?: string; last_5?: { form?: string } }; away?: { name?: string; last_5?: { form?: string } } }
+      }>>(`/predictions?fixture=${fixtureId}`)
+      const r = data.response?.[0]
+      const pc = r?.predictions?.percent
+      if (!r || !pc) return null
+      const homePct = pctNum(pc.home), drawPct = pctNum(pc.draw), awayPct = pctNum(pc.away)
+      // No usable probabilities → nothing to show.
+      if (homePct + drawPct + awayPct === 0) return null
+      return {
+        homePct, drawPct, awayPct,
+        advice: r.predictions?.advice ?? '',
+        winnerName: r.predictions?.winner?.name ?? null,
+        homeName: r.teams?.home?.name ?? '',
+        awayName: r.teams?.away?.name ?? '',
+        homeForm: r.teams?.home?.last_5?.form ?? null,
+        awayForm: r.teams?.away?.last_5?.form ?? null,
+      }
+    } catch {
+      return null
+    }
+  },
+  ['api-football-prediction'],
+  { revalidate: 3600, tags: ['api-football'] } // 1 h
+)
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getLeague(id: number): LeagueMeta | undefined {

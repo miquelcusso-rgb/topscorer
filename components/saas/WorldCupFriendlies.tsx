@@ -1,4 +1,5 @@
 import type { ApiFixture } from '@/lib/api-football'
+import WinProbabilityBar from '@/components/saas/WinProbabilityBar'
 
 // World Cup 2026 build-up section: international friendlies played between the
 // end of the club season and the tournament kickoff. Server component — data is
@@ -63,7 +64,13 @@ export default function WorldCupFriendlies({ fixtures, lang }: { fixtures: ApiFi
             {en ? 'Upcoming' : 'Próximos'}
           </div>
           <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflow: 'hidden' }}>
-            {upcoming.map(f => <Row key={f.fixture.id} f={f} lang={lang} />)}
+            {upcoming.map(f => (
+              <div key={f.fixture.id}>
+                <Row f={f} lang={lang} />
+                {/* Win-probability bar (only renders once /predictions has data) */}
+                <WinProbabilityBar fixtureId={f.fixture.id} en={en} />
+              </div>
+            ))}
           </div>
         </>
       )}
