@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   if (!player) return { title: 'Jugador — TopScorers' }
   const description = `Estadísticas de ${player.name}: goles, asistencias, valoración y más. Temporada 2025/26.`
   const path = `/jugadores/${slug}`
+  const ogImage = `/api/og/jugador?slug=${encodeURIComponent(slug)}&lang=${lang}`
   return {
     title: `${player.name} — Estadísticas | TopScorers`,
     description,
@@ -46,12 +47,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
       type: 'profile',
-      images: [{ url: `https://www.top-scorers.com/og-player-${lang}.jpg`, width: 1200, height: 630 }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${player.name} — TopScorers` }],
     },
     twitter: {
       card: 'summary_large_image',
       title: `${player.name} — Estadísticas | TopScorers`,
       description,
+      images: [ogImage],
     },
   }
 }

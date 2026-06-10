@@ -183,7 +183,7 @@ export default function GoleadoresPremierLeaguePage() {
           </div>
           <p style={{ marginTop: 10, color: 'var(--ts-faint)', fontSize: 13 }}>
             Datos actualizados. Fuente: API-Football. Ver{' '}
-            <Link href="/competiciones/eng" style={{ color: 'var(--ts-primary)', textDecoration: 'none' }}>la Premier League en tiempo real →</Link>
+            <Link href="/competiciones/premier-league" style={{ color: 'var(--ts-primary)', textDecoration: 'none' }}>la Premier League en tiempo real →</Link>
           </p>
         </section>
 
@@ -252,7 +252,7 @@ export default function GoleadoresPremierLeaguePage() {
               { href: '/goleadores-ligue-1', label: 'Goleadores Ligue 1' },
               { href: '/bota-de-oro', label: 'Bota de Oro' },
               { href: '/records', label: 'Records y líderes' },
-              { href: '/competiciones/eng', label: 'Premier League en directo' },
+              { href: '/competiciones/premier-league', label: 'Premier League en directo' },
               { href: '/', label: 'Top 25 en tiempo real' },
             ].map(({ href, label }) => (
               <Link

@@ -1,7 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { PLAYERS } from '@/data/players'
-import { slugify } from '@/lib/slugify'
-import { playerSlug } from '@/lib/player-slug'
+import { allPlayerSlugs } from '@/lib/player-slug'
 import { allLeagueSlugs } from '@/lib/league-data'
 import { WC_NATIONS, nationSlug } from '@/lib/wc-nations'
 import { LOCALES } from '@/lib/i18n'
@@ -71,16 +69,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     localized(`/competiciones/${slug}`, 'weekly', 0.8),
   )
 
-  const playerUrls = PLAYERS
-    .filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i)
-    .filter(p => p.season === '2526')
-    .flatMap(p => localized(`/jugadores/${playerSlug(p)}`, 'weekly', 0.7))
+  // Only the slugs the player page actually resolves (same canonical set +
+  // slug fn as resolvePlayerProfile), so the sitemap never lists a /jugadores
+  // URL that 404s. See lib/player-slug.ts → allPlayerSlugs().
+  const playerUrls = allPlayerSlugs()
+    .flatMap(slug => localized(`/jugadores/${slug}`, 'weekly', 0.7))
 
-  // World Cup 2026 national-team profiles (hosts + favourites with hand-written
-  // facts). Late qualifiers still work by slug but aren't pre-listed here.
-  const nationUrls = WC_NATIONS.flatMap(n =>
-    localized(`/mundial-2026/${nationSlug(n)}`, 'weekly', 0.75),
-  )
+  // World Cup 2026 national-team profiles (hosts + favourites/likely qualifiers
+  // with hand-written facts). Late qualifiers still work by slug but aren't
+  // pre-listed here. Deduped by canonical slug — WC_NATIONS lists a couple of
+  // teams twice with the same slug, which would otherwise emit duplicate URLs.
+  // High priority (0.85): this is the seasonal traffic surface we want indexed
+  // ahead of the tournament. Daily changeFrequency — squads/lineups update live.
+  const seenNation = new Set<string>()
+  const nationUrls = WC_NATIONS.flatMap(n => {
+    const slug = nationSlug(n)
+    if (seenNation.has(slug)) return []
+    seenNation.add(slug)
+    return localized(`/mundial-2026/${slug}`, 'daily', 0.85)
+  })
 
   return [...staticUrls, ...competicionUrls, ...playerUrls, ...nationUrls]
 }

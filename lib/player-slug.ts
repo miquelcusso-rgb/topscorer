@@ -30,6 +30,16 @@ const BY_SLUG = (() => {
   return m
 })()
 
+/**
+ * Every resolvable player slug — exactly the keys `findPlayerBySlug` /
+ * `resolvePlayerProfile` resolve from the static dataset. The sitemap MUST use
+ * this (not a PLAYERS-by-name dedup) so it never emits a slug the player page
+ * 404s on: same canonical set (PRIMARY_PLAYERS), same slug function.
+ */
+export function allPlayerSlugs(): string[] {
+  return Array.from(BY_SLUG.keys())
+}
+
 /** Resolve a slug to the canonical (current-season) player. */
 export function findPlayerBySlug(slug: string): PlayerData | undefined {
   const exact = BY_SLUG.get(slug)

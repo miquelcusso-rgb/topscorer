@@ -146,3 +146,68 @@ Regla de oro de las 6 semanas: **todo lo que sea Mundial va primero** (la ventan
 3. Launch **"Scouter Top-20" pages per league** (built on IIG/`rankScore`) + a weekly card to **X @Furiosadata** via the content-distributor pipeline.
 
 _Internal strategy doc. Not linked from the public footer. Operated by **Furiosa Studio**._
+
+---
+
+## Recuperar terreno donde perdemos
+
+> Análisis con los pies en el suelo de los campos donde HOY perdemos (matriz 1.2). Para cada uno: (a) por qué perdemos, (b) qué habilita **realmente** nuestro plan licenciado de API-Football (ver `docs/api-coverage.md`), (c) un build concreto y respetuoso con ToS que podríamos enviar, (d) esfuerzo/impacto + **veredicto** (Perseguir / Parcial / Descartar). Toda afirmación de capacidad traza al repo o va marcada como _planificada_. **Informativo, nunca apuestas ni consejo financiero.** Por Furiosa Studio.
+
+### 1. Marcadores en vivo (vs SofaScore) — Veredicto: **Parcial**
+
+- **(a) Por qué perdemos hoy.** SofaScore tiene un feed en tiempo real licenciado con push minuto a minuto, momentum, lineups vivos y eventos al instante; su moat es la latencia y la app móvil. Nosotros no tenemos ❌ en la matriz porque no servimos una superficie en-vivo dedicada.
+- **(b) Qué habilita nuestro plan.** `/fixtures` (last/next/live/by-league/by-team) ✅, `/fixtures/events` (goles, tarjetas, cambios) ✅, `/fixtures/lineups` ✅, `/fixtures/statistics` 🟡 (tiros, posesión, córners), `/fixtures/players` ✅. Es suficiente para una **superficie de jornada con refresco por polling**, NO para push real-time sub-segundo.
+- **(c) Build concreto y ToS-safe.** Una página `/es/en-directo` (planificada): partidos del día por liga del dataset, marcador + minuto + goleadores vía `/fixtures` + `/fixtures/events`, con **refresco por polling cada 30–60 s** (cacheado con `unstable_cache`, respetando rate-limit). Encadenar al resumen de partido que ya tenemos (`/fixtures/events`). Posicionar como **"resultados de jornada + contexto de datos"**, no como "live tracker". Enlazar cada partido a las fichas de jugador (nuestro moat).
+- **(d) Esfuerzo/impacto + techo realista.** Esfuerzo medio (UI nueva + presupuesto de llamadas; en plan free 100/día es inviable, requiere Starter ~7.5k/día). Impacto medio. **Techo:** nunca igualaremos la sensación real-time de SofaScore — su latencia es producto, no dato. **Veredicto: Parcial** — construir un "matchday surface" decente que retenga al usuario y alimente SEO de `[partido] resultado`, sin pretender ser un live-tracker. No es la batalla principal.
+
+### 2. Valor de mercado (vs Transfermarkt) — Veredicto: **Perseguir (como diferenciador, no como competición directa)**
+
+- **(a) Por qué perdemos hoy.** El valor de mercado es el moat de 20 años de Transfermarkt (crowdsourcing + editorial). Nosotros solo lo **mostramos** (`components/player/MarketValueChart.tsx`, `ValuationCard.tsx`) — 🟡 en la matriz. Pelear por el dato de valor es imposible y absurdo.
+- **(b) Qué habilita nuestro plan.** Aquí está el giro: Transfermarkt tiene el **valor** pero su rendimiento es secundario y sin métrica de impacto. Nosotros tenemos lo contrario — un dataset de rendimiento global, todas las posiciones, con **IIG** (`lib/iig.ts`: `goles × leagueCoef + (rating − 6) × 3 + asist × 0.5`) y radar de percentiles. Cruzar **valor (mostrado) × rendimiento (IIG/percentil)** es un ángulo que Transfermarkt NO ofrece.
+- **(c) Build concreto y ToS-safe.** Un **"Índice de chollos / Bargain Index"** (planificado, extiende el `HiddenGemSeal` que YA existe — variante `gem` = "JOYA OCULTA"): ratio IIG-por-millón-de-valor, o percentil de rendimiento vs percentil de valor. Páginas tipo "delanteros que rinden por encima de su valor en [liga]". **Marco estrictamente informativo/analítico** (rendimiento-vs-valor mostrado), NUNCA "compra/vende" ni consejo financiero. El valor sigue siendo dato mostrado de Transfermarkt-style; la inteligencia es nuestra.
+- **(d) Esfuerzo/impacto.** Esfuerzo bajo-medio (la lógica de seal e IIG ya existe; falta la página-índice y el cruce con valor). Impacto **alto**: convierte una debilidad (no tenemos el valor) en un ángulo único, muy compartible ("¿quién es el chollo de [liga]?") y citable por IA. **Veredicto: Perseguir** — es de los pocos sitios donde una debilidad se voltea en diferenciador real.
+
+### 3. % masivo de equipo, popularidad y comunidad (vs FootyStats / votos de SofaScore) — Veredicto: **Perseguir**
+
+- **(a) Por qué perdemos hoy.** FootyStats domina los % de equipo (BTTS, over/under, córners) y SofaScore tiene el loop de votos/atributos de comunidad a escala. Nosotros no tenemos el volumen de tráfico para "sabiduría de masas" pura por número.
+- **(b) Qué habilita nuestro plan + el repo.** Tenemos ya una **infraestructura de comunidad real, no planificada**: `components/CommentsThread.tsx` (comentarios sobre `targetType: 'rumor' | 'poll'` → **encuestas existen**), `lib/user-stats.ts` (`votes_count`), `lib/badges.ts` (sistema de 5 niveles: `votes × 1 + comments × 2 + picks_correct × 3 + days/10` → hay **picks/predicciones de usuario puntuadas por acierto**), `WatchlistButton`/`WatchlistPanel`. Más el lado dato: IIG transparente + `/teams/statistics` ✅ (porterías a cero, racha, formaciones) y `/predictions` ✅ (win/draw/loss algorítmico).
+- **(c) Build concreto y ToS-safe.** El ángulo **"sabiduría de masas vs algoritmo"** (planificado, ensamblando piezas que ya existen): en cada partido/predicción mostrar lado a lado **(i)** el pronóstico algorítmico de `/predictions` y **(ii)** el voto agregado de nuestra comunidad (poll + picks). "El algoritmo dice X, la gente dice Y — ¿quién acierta más?". Cerrar el loop con el badge de `picks_correct` (ya puntúa aciertos): leaderboard de "mejores pronosticadores", debate, retorno. Es comunidad **con piel en el juego informativa**, sin cuotas ni dinero.
+- **(d) Esfuerzo/impacto.** Esfuerzo bajo-medio (los ladrillos — polls, votos, picks, badges, predictions — ya están en repo; falta el ensamblaje "algoritmo vs gente" y el leaderboard). Impacto **alto** en retención y viralidad (debate recurrente cada jornada). **Veredicto: Perseguir** — no copiamos el % masivo de FootyStats; creamos una capa de comunidad+algoritmo transparente que ninguno de los dos ofrece junta. Es defendible porque combina activos que ya tenemos.
+
+### 4. Cuotas / apuestas — Veredicto: **Descartar (cuotas) / Parcial (adyacente informativo)**
+
+- **(a) Por qué "perdemos".** No competimos ni queremos: `/odds` y `/odds/live` están **vetados** (🚫 en `api-coverage.md`) por ToS, riesgo legal/gambling y porque no es nuestro foco. No es una pérdida que recuperar — es una línea que no cruzamos.
+- **(b) Qué SÍ habilita nuestro plan sin ser sitio de apuestas.** `/predictions` ✅ da **probabilidad de victoria/empate/derrota + comparativa** (ya lo usamos en la barra win/draw/loss de amistosos del Mundial, `getFixturePrediction`). Es **información**, no cuota: no hay stake, ni casa, ni retorno monetario.
+- **(c) Build concreto y ToS-safe.** Reforzar el **adyacente informativo**: previas de partido con `/predictions` (probabilidad + forma de `/teams/statistics` + H2H de `/fixtures/headtohead`), siempre con disclaimer "datos informativos, no consejo de apuestas" (la cabecera del doc y la audiencia 2.1 ya lo fijan). Combinar con la capa comunidad del punto 3 ("algoritmo vs gente").
+- **(d) Veredicto.** **Cuotas = Descartar (definitivo, no negociable).** **Predicciones informativas = Parcial**, ya en marcha, refuerza el Mundial y la audiencia "info-apuestas (solo informativo)" sin convertirnos en sitio de gambling. Cero ambición de batir a una casa de apuestas o a FootyStats en su ángulo info-apuestas de pago.
+
+### 5. Otros campos marcados como pérdida en la matriz (1.2)
+
+- **Lesiones / sanciones** (rival fuerte: Transfermarkt ✅; nosotros 🟡). **Veredicto: Perseguir-cerrar.** Ya tenemos `AvailabilityBadge` + `InjuryHistory` vía `/injuries` ✅ y `/sidelined` ✅ (y `components/player/PlayerInjuries.tsx`). El gap es de cobertura, no de capacidad: cerrar disponibilidad en fichas clave + un **"parte de bajas del Mundial"** (planificado) nos pone a la par en un campo muy demandado (gancho fantasy "¿juega el finde?"). Esfuerzo bajo-medio, impacto medio-alto. Ya está en la checklist 2.5 #6.
+- **API / widgets** (FootyStats ✅💰; nosotros 🟡). **Veredicto: Parcial / diferir.** Tenemos `/embed` y la API está planificada para el tier Scout ("próximamente"). No es prioridad hasta tener demanda de pago probada. Esfuerzo alto, impacto incierto hoy → **diferir** al post-Mundial.
+- **Profundidad B2B (agentes/clubes)** (moat de Transfermarkt). **Veredicto: Descartar.** Fuera de alcance, sin datos propietarios ni licencia para ello. No es nuestro mercado.
+- **Noticias / frescura** (todos 🟡). **Veredicto: Parcial.** Tenemos RSS multi-fuente + breaking banner 🟡; suficiente como apoyo a SEO/Discover, no como producto de noticias. Mantener, no invertir fuerte.
+
+### Tesis "superar" (surpass) — 1-2 campos donde podemos LIDERAR, no seguir
+
+Combinando nuestros activos únicos —**dataset global de todas las posiciones + IIG transparente + radar de percentiles + hub del Mundial 2026 + bilingüe ES/EN + GEO/citabilidad por IA + comunidad real (polls/votos/picks/badges en repo)**— hay dos campos donde podemos liderar en vez de seguir:
+
+1. **El "Bargain Index" rendimiento-vs-valor (informativo).** Nadie lo lidera: Transfermarkt tiene el valor pero no la métrica de impacto transparente ni el radar; SofaScore/FBref tienen rendimiento pero no cruzan con valor de forma limpia, compartible y bilingüe. Cruzar IIG/percentil × valor mostrado, sobre la base del `HiddenGemSeal` que ya existe, crea una categoría propia: **"el sitio que te dice quién rinde por encima de su precio"** — citable por IA, viral por liga, y defendible porque exige nuestro dataset multi-posición + IIG. Marco siempre informativo, jamás consejo financiero.
+
+2. **"Algoritmo vs sabiduría de masas" transparente.** SofaScore tiene votos pero opacos y sin algoritmo lado a lado; FootyStats tiene algoritmo (% de equipo) pero sin comunidad; las casas de apuestas tienen cuotas pero no transparencia ni comunidad abierta. Nosotros podemos poner **`/predictions` (algoritmo) junto al voto/picks de la comunidad (ya en repo) + badge de aciertos**, todo explicado y bilingüe. Es un loop de retención y debate que ningún rival ofrece **combinado y transparente**, y encaja con nuestro ADN (IIG público, fórmula abierta). Cero apuestas: piel en el juego = puntos de acierto, no dinero.
+
+Ambas tesis comparten el mismo principio: no batimos a nadie en su feed licenciado; **ganamos en la intersección** que solo nosotros ocupamos (rendimiento transparente × valor mostrado × comunidad × bilingüe × GEO).
+
+---
+
+## EN — Reclaiming ground where we lose (mirror)
+
+Clear-eyed verdicts per lost field (full analysis in the ES section above; every capability claim traces to the repo or is marked _planned_; informational only, no betting/financial advice — by Furiosa Studio):
+
+1. **Live scores (vs SofaScore) — Partial.** We have `/fixtures` + `/fixtures/events` + `/fixtures/lineups`. Build a polling-based matchday surface (planned `/en/live`, 30–60s refresh, needs Starter plan), not a real-time push tracker. Ceiling: we never match SofaScore's latency — that's product, not data. Worth a decent retention+SEO surface, not the main fight.
+2. **Market value (vs Transfermarkt) — Pursue (as differentiator).** We can't beat their value data, so don't. Instead cross performance (IIG/percentile) × displayed value into a **"Bargain Index"** (extends the existing `HiddenGemSeal`). An angle Transfermarkt doesn't offer. Low-medium effort, high impact. Strictly informational — never buy/sell advice.
+3. **Mass team-% / popularity & community (vs FootyStats / SofaScore votes) — Pursue.** We already ship real community infra in-repo: polls (`CommentsThread` `targetType:'poll'`), votes (`user-stats.votes_count`), scored user picks + a 5-tier badge system (`lib/badges.ts`). Combine our community vote with the `/predictions` algorithm into an **"algorithm vs crowd"** layer + a best-forecasters leaderboard. Skin-in-the-game is points, not money. Low-medium effort, high impact.
+4. **Odds / betting — Skip (odds) / Partial (informational adjacent).** `/odds` stays **vetoed** (ToS/gambling). We CAN do `/predictions` (win/draw/loss probability) as pure information, already live in the WC friendlies bar, with a "not betting advice" disclaimer. No ambition to be a betting site.
+5. **Other losses.** Injuries/suspensions — **Pursue-close** (capability exists via `/injuries`+`/sidelined`; just widen coverage + a WC injury report). API/widgets — **Partial/defer** (Scout tier, post-WC). B2B agents — **Skip** (out of scope). News/freshness — **Partial** (keep RSS, don't over-invest).
+
+**Surpass thesis.** Two fields where, by combining our unique assets (global all-position dataset + transparent IIG + percentile radar + WC 2026 hub + ES/EN + GEO + real community), we could **lead** rather than follow: (1) the **performance-vs-value "Bargain Index"** (no rival owns the value × impact-metric × bilingual × AI-citable intersection); (2) **transparent "algorithm vs wisdom-of-crowds"** prediction layer (no rival combines an open algorithm + open community + explained methodology). We don't beat anyone's licensed feed — we win the intersection only we occupy.

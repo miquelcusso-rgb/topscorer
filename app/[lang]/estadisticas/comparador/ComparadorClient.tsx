@@ -456,6 +456,9 @@ export default function ComparadorClient() {
   // user touching the selector locks their choice (won't auto-flip after that).
   const [statSet, setStatSet] = useState<StatSetId>('compare')
   const [statSetTouched, setStatSetTouched] = useState(false)
+  // Share UX: brief "Copied" toast after clipboard fallback (Web Share API has
+  // its own native sheet, so it needs no toast).
+  const [shareCopied, setShareCopied] = useState(false)
 
   // Per-position percentile radars (handoff schema: Understat + API-Football).
   type RadarResp = { position: string; leagueHasUnderstat: boolean; axes: { axisId: string; label: string; percentile: number | null; isProxy: boolean }[]; understat?: { xG: number; npxG: number; xA: number; keyPasses: number } | null }
@@ -539,6 +542,22 @@ export default function ComparadorClient() {
     if (pA) params.set('a', playerSlug(pA))
     if (pB) params.set('b', playerSlug(pB))
     router.replace(`/estadisticas/comparador?${params.toString()}`, { scroll: false })
+  }
+
+  // Share the current comparison: native Web Share sheet when available, else
+  // copy the URL to the clipboard with a brief "Copied/Copiado" toast.
+  async function handleShare() {
+    if (typeof window === 'undefined') return
+    const url = window.location.href
+    const title = playerA && playerB ? `${playerA.name} vs ${playerB.name} — TopScorers` : 'TopScorers'
+    if (navigator.share) {
+      try { await navigator.share({ title, url }); return } catch { /* user cancelled / unsupported */ }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    } catch { /* clipboard blocked — no-op */ }
   }
 
   const accentA = posAccent(playerA?.position)
@@ -749,6 +768,42 @@ export default function ComparadorClient() {
 
             {/* Head-to-head VERSUS card (real metrics + shareable) — BELOW radar */}
             <VersusCard a={playerA} b={playerB} es={lang === 'es'} />
+
+            {/* Share this comparison (Web Share API → clipboard fallback) */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+              <button
+                type="button"
+                onClick={handleShare}
+                aria-label={es ? 'Compartir comparación' : 'Share comparison'}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  minHeight: 44, padding: '0 18px', borderRadius: 8, cursor: 'pointer',
+                  background: 'var(--ts-primary)', color: '#0a0908',
+                  border: '1px solid var(--ts-primary)',
+                  fontSize: 14, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+                  transition: 'opacity 150ms ease',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+              >
+                {shareCopied ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="18" cy="5" r="3" />
+                    <circle cx="6" cy="12" r="3" />
+                    <circle cx="18" cy="19" r="3" />
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                  </svg>
+                )}
+                {shareCopied
+                  ? (es ? 'Copiado' : 'Copied')
+                  : (es ? 'Compartir' : 'Share')}
+              </button>
+            </div>
 
             {/* Stats comparison table */}
             <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 8, marginBottom: 40, overflow: 'hidden' }}>

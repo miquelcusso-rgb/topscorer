@@ -15,6 +15,23 @@ import type { PlayerData } from '@/types'
 // for a section just hides it (graceful "coming soon"), the page never 500s.
 export const revalidate = 86400
 
+// Pre-render every WC nation at build time (ISR). The parent `[lang]` layout
+// already emits both locales, so Next builds the lang × seleccion product — i.e.
+// every nation page in both es/en is SSG. We return the canonical (ES-derived)
+// slug per nation, deduped because WC_NATIONS lists a couple of teams twice with
+// the same slug. Unlisted late qualifiers still render on demand (ISR fallback).
+export function generateStaticParams() {
+  const seen = new Set<string>()
+  const params: { seleccion: string }[] = []
+  for (const n of WC_NATIONS) {
+    const slug = nationSlug(n)
+    if (seen.has(slug)) continue
+    seen.add(slug)
+    params.push({ seleccion: slug })
+  }
+  return params
+}
+
 const t = (lang: 'es' | 'en', es: string, en: string) => (lang === 'en' ? en : es)
 
 // ─── Metadata (canonical + hreflang, same shape as sibling WC pages) ──────────
@@ -263,8 +280,46 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
     )
   }
 
+  // ── Structured data: SportsTeam (+ BreadcrumbList), using only data the page
+  //    actually has. Squad → athlete members when available; coach → SportsTeam
+  //    coach. No fabricated fields. The English name is the canonical `name`. ──
+  const canonicalUrl = `https://www.top-scorers.com/${lang}/mundial-2026/${seleccion}`
+  const sportsTeamJsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'SportsTeam',
+    name,
+    alternateName: nation.en !== name ? nation.en : undefined,
+    sport: 'Soccer',
+    url: canonicalUrl,
+    memberOf: { '@type': 'SportsOrganization', name: 'FIFA World Cup 2026' },
+    ...(coach ? { coach: { '@type': 'Person', name: coach.name } } : {}),
+    ...(squad.length > 0
+      ? { athlete: squad.map(p => ({ '@type': 'Person', name: p.name })) }
+      : {}),
+  }
+  // Drop undefined keys so the emitted JSON-LD stays clean.
+  for (const k of Object.keys(sportsTeamJsonLd)) {
+    if (sportsTeamJsonLd[k] === undefined) delete sportsTeamJsonLd[k]
+  }
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: lang === 'en' ? 'Home' : 'Inicio', item: 'https://www.top-scorers.com' },
+      { '@type': 'ListItem', position: 2, name: lang === 'en' ? 'World Cup 2026' : 'Mundial 2026', item: `https://www.top-scorers.com/${lang}/mundial-2026` },
+      { '@type': 'ListItem', position: 3, name, item: canonicalUrl },
+    ],
+  }
+
+  const ld = (obj: object) => (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(obj).replace(/</g, '\\u003c') }} />
+  )
+
   return (
     <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
+      {ld(sportsTeamJsonLd)}
+      {ld(breadcrumbJsonLd)}
       <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh', background: 'var(--ts-bg)' }}>
         {/* Header */}
         <div style={{ background: 'linear-gradient(180deg, var(--ts-primary-soft), var(--ts-bg))', borderBottom: '1px solid var(--ts-border)' }}>
