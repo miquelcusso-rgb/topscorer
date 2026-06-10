@@ -22,35 +22,80 @@ import type { PlayerData } from '@/types'
  * goals + assists figure — still honest, never fabricated.
  */
 
-// League difficulty coefficients. Covers every distinct `league` value present
-// in the dataset, mapped to the difficulty tiers from `lib/api-football.ts`:
-//   Top-5 Europe (LEAGUES Big-5)        → 1.0
-//   Strong-but-second-tier strength     → 0.8 (Primeira Liga, Eredivisie, …)
-//   Everything else                     → 0.6
+/**
+ * League-strength coefficient — SINGLE SOURCE OF TRUTH for "how hard is this
+ * competition" across the whole app. A multiplier in ~0.6–1.0, keyed by the RAW
+ * `player.league` strings as they appear in `data/*` (resolved through the
+ * registry in `lib/api-football.ts` / `lib/league-data.ts`, so every league the
+ * dataset ships maps to a value here).
+ *
+ * Proxy / rationale (UEFA association-coefficient tiers + broad consensus):
+ *   1.00  Big-5 Europe top flight (ENG/ESP/ITA/GER/FRA)
+ *   0.92  Eredivisie / Primeira Liga — strongest "best of the rest" in Europe
+ *   0.85  Süper Lig, Belgium Pro League, Championship (England 2), Scotland,
+ *         Greece, Brazil — strong second-tier-strength competitions
+ *   0.80  Big-5 second divisions (2.Bundesliga, Serie B, Ligue 2, Segunda) +
+ *         Austria/Switzerland top flights
+ *   0.75  Liga MX, Liga Profesional (Argentina), Ekstraklasa, Scandinavian top
+ *         flights (Superligaen/Allsvenskan/Eliteserien)
+ *   0.70  J1 League, K League, MLS, Eerste Divisie, Liga Portugal 2, 1. Lig
+ *   0.65  Other Americas / Asia / Oceania top flights, Greek 2nd division
+ *
+ * Unknown / unlisted leagues default to DEFAULT_LEAGUE_COEF (a sensible mid-low
+ * ~0.72) so a never-before-seen league string is treated as mid-pack, never
+ * given Big-5 weight by accident.
+ */
 export const LEAGUE_COEF: Record<string, number> = {
-  // Top-5 Europe
+  // ── Big-5 Europe (1.00) ──────────────────────────────────────────────────
   'La Liga': 1.0,
   'LaLiga': 1.0,
   'Premier League': 1.0,
-  'Bundesliga': 1.0,
-  'Serie A': 1.0,
+  'Bundesliga': 1.0,        // Germany (id 78). Austria's also ships as "Bundesliga"
+  'Serie A': 1.0,           // Italy (id 135)
   'Ligue 1': 1.0,
-  // Second tier of difficulty (UEFA mid-ranked top divisions)
-  'Primeira Liga': 0.8,
-  'Eredivisie': 0.8,
-  'Süper Lig': 0.8,
-  'Pro League': 0.8,
-  'Premiership': 0.8,
-  // Remaining European / rest
-  'Super League': 0.6,
-  'Bundesliga (Austria)': 0.6,
-  'Ekstraklasa': 0.6,
-  'Superligaen': 0.6,
-  'Allsvenskan': 0.6,
-  'Eliteserien': 0.6,
+  // ── Strongest "best of the rest" in Europe (0.92) ────────────────────────
+  'Eredivisie': 0.92,
+  'Primeira Liga': 0.92,
+  // ── Strong second-tier strength (0.85) ───────────────────────────────────
+  'Süper Lig': 0.85,
+  'Pro League': 0.85,       // Belgium (id 144). Saudi also ships as "Pro League"
+  'Belgian Pro League': 0.85,
+  'Championship': 0.85,     // England 2nd division — strong, near top-flight level
+  'Premiership': 0.85,      // Scotland
+  'Scottish Premiership': 0.85,
+  'Super League': 0.85,     // Greece (id 197, the one with dataset coverage)
+  'Brasileirão Serie A': 0.85,
+  // ── Big-5 second divisions + Austria/Switzerland top flights (0.80) ──────
+  '2. Bundesliga': 0.8,
+  'Serie B': 0.8,
+  'Ligue 2': 0.8,
+  'Segunda División': 0.8,
+  'Swiss Super League': 0.8,
+  'Austrian Bundesliga': 0.8,
+  // ── Solid mid leagues (0.75) ──────────────────────────────────────────────
+  'Liga MX': 0.75,
+  'Liga Profesional': 0.75, // Argentina
+  'Ekstraklasa': 0.75,
+  'Superligaen': 0.75,
+  'Allsvenskan': 0.75,
+  'Eliteserien': 0.75,
+  // ── Developing / growing leagues (0.70) ──────────────────────────────────
+  'J1 League': 0.7,
+  'K League 1': 0.7,
+  'MLS': 0.7,
+  'Eerste Divisie': 0.7,    // Netherlands 2nd division
+  'Liga Portugal 2': 0.7,
+  '1. Lig': 0.7,            // Turkey 2nd division
+  // ── Other top flights / lower second divisions (0.65) ────────────────────
+  'Primera División': 0.65, // Chile / Uruguay
+  'Categoría Primera A': 0.65, // Colombia
+  'A-League': 0.65,         // Australia
+  'Super League (China)': 0.65,
+  'Super League 2': 0.65,   // Greece 2nd division
+  'Scottish Championship': 0.65,
 }
 
-export const DEFAULT_LEAGUE_COEF = 0.6
+export const DEFAULT_LEAGUE_COEF = 0.72
 
 export function leagueCoef(league: string): number {
   return LEAGUE_COEF[league] ?? DEFAULT_LEAGUE_COEF
