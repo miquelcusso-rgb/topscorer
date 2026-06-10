@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { allPlayerSlugs } from '@/lib/player-slug'
-import { allLeagueSlugs } from '@/lib/league-data'
+import { allLeagueSlugs, leaguesWithData } from '@/lib/league-data'
 import { WC_NATIONS, nationSlug } from '@/lib/wc-nations'
 import { LOCALES } from '@/lib/i18n'
 
@@ -69,6 +69,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     localized(`/competiciones/${slug}`, 'weekly', 0.8),
   )
 
+  // Scouter Top-20 programmatic pages: an index + one page per league that has
+  // tracked players (same set generateStaticParams produces, so no listed URL
+  // 404s). Both locales + hreflang via localized().
+  const scouterUrls = [
+    ...localized('/scouter', 'weekly', 0.8),
+    ...leaguesWithData().flatMap(({ slug }) =>
+      localized(`/scouter/${slug}`, 'weekly', 0.75),
+    ),
+  ]
+
   // Only the slugs the player page actually resolves (same canonical set +
   // slug fn as resolvePlayerProfile), so the sitemap never lists a /jugadores
   // URL that 404s. See lib/player-slug.ts → allPlayerSlugs().
@@ -89,5 +99,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return localized(`/mundial-2026/${slug}`, 'daily', 0.85)
   })
 
-  return [...staticUrls, ...competicionUrls, ...playerUrls, ...nationUrls]
+  return [...staticUrls, ...competicionUrls, ...scouterUrls, ...playerUrls, ...nationUrls]
 }
