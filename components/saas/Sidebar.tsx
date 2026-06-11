@@ -119,10 +119,19 @@ function MenuRow({ item, active }: { item: NavItem; active: boolean }) {
   )
 }
 
-export default function Sidebar({ activeKey, plan = 'free', primaryCta }: SidebarProps) {
+export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta }: SidebarProps) {
   const { lang } = useLang()
   const { theme } = useTheme()
   const { user, isLoaded } = useUser()
+
+  // Plan resolved CLIENT-SIDE from Clerk when the user is loaded, so pages no
+  // longer need a server-side currentUser() call just to render the plan badge.
+  // That keeps the ~12k player pages static/CDN (huge Fluid Active CPU saving).
+  // Falls back to the server-provided prop for pages that still pass a plan.
+  const clientPlan = isLoaded && user
+    ? ((user.publicMetadata?.plan as Plan) || 'free')
+    : null
+  const plan = clientPlan ?? planProp
 
   const pathname = usePathname() ?? ''
   const en = lang === 'en'

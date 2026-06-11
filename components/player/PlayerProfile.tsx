@@ -69,7 +69,9 @@ interface Props {
   player: PlayerData
   lang: 'es' | 'en'
   slug: string
-  userPlan: Plan
+  /** Optional. Omit on static pages — the sidebar resolves the plan client-side
+   *  from Clerk, so the page needs no server-side auth (keeps it CDN-static). */
+  userPlan?: Plan
   /** All season rows for this player (newest first), for the history table. */
   seasons?: PlayerData[]
 }
@@ -78,6 +80,8 @@ interface Props {
 // Canonical SaaS player profile — real season stats from the static dataset
 // (no live per-player API call → free + fast). Used by /jugadores/[slug].
 export default function PlayerProfile({ player, lang, slug, userPlan, seasons = [] }: Props) {
+  // userPlan may be undefined on static pages; SaasShell/Sidebar then resolves
+  // the real plan client-side from Clerk. Default keeps the badge sane pre-hydration.
   const en = lang === 'en'
   // Raw API-Football id (apiId on the row, else resolved by name via SEARCH_INDEX)
   // — needed for live injury / sidelined lookups, which key on the numeric id.

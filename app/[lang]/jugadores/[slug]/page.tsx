@@ -1,17 +1,18 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
 import { PLAYERS } from '@/data/players'
 import { playerSlug } from '@/lib/player-slug'
 import { resolvePlayerProfile } from '@/lib/resolve-player'
 import { isLocale } from '@/lib/i18n'
-import { getUserPlan } from '@/lib/plans'
 import PlayerProfile from '@/components/player/PlayerProfile'
 
-// Reads only the static dataset (real season stats) + Clerk user (for Pro
-// gating) — no live per-player API call. Dynamic because of currentUser(),
-// same as the rest of the authed pages. Payload is a single small player
-// object (the /es 500 was a large-array serialization issue, fixed).
+// Reads ONLY the static dataset (real season stats) — no live per-player API
+// call and no server-side auth. The page is therefore fully static/ISR and is
+// served from the CDN (critical: ~12k player pages must not run a serverless
+// function per visit — that was the main Fluid Active CPU burn). The Pro plan
+// badge in the sidebar is resolved client-side from Clerk (see Sidebar.tsx).
+export const revalidate = 86400 // 24h ISR — dataset only changes on deploy
+export const dynamicParams = true // slugs beyond the prebuilt set render once, then cache
 
 export async function generateStaticParams() {
   return PLAYERS
@@ -66,9 +67,6 @@ export default async function PlayerPage({ params }: { params: Promise<{ lang: s
   if (!resolved) notFound()
   const { base: basePlayer, seasons: staticPlayers } = resolved
 
-  const user = await currentUser()
-  const userPlan = getUserPlan(user?.publicMetadata as Record<string, unknown> | undefined)
-
   const personJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -98,7 +96,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ lang: s
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
-      <PlayerProfile player={basePlayer} lang={lang} slug={slug} userPlan={userPlan} seasons={staticPlayers} />
+      <PlayerProfile player={basePlayer} lang={lang} slug={slug} seasons={staticPlayers} />
     </>
   )
 }
