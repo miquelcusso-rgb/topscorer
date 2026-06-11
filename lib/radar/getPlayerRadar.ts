@@ -10,11 +10,15 @@ export interface UnderstatRaw {
   xGChain: number; xGBuildup: number; npg: number
 }
 export interface PlayerRadar {
-  position: PositionTag
+  position: PositionTag       // template actually applied (auto-detected or overridden)
+  autoPosition: PositionTag   // the auto-detected template (for the selector default)
   leagueHasUnderstat: boolean
   axes: RadarPoint[]
   understat?: UnderstatRaw | null  // raw Understat numbers when matched
 }
+
+// Templates a user may manually pick from the radar profile selector.
+export const SELECTABLE_TAGS: PositionTag[] = ['ST', 'WAM', 'AMF', 'MID', 'DMF', 'DEF', 'POR']
 
 // ── name match (US ↔ our dataset) ────────────────────────────────────────────
 const norm = (s?: string) => (s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.'’-]/g, ' ').replace(/\s+/g, ' ').trim()
@@ -22,10 +26,41 @@ const initLast = (s?: string) => { const t = norm(s).split(' ').filter(Boolean);
 
 // ── position tags ─────────────────────────────────────────────────────────────
 type Broad = 'POR' | 'DEF' | 'MID' | 'FWD'
-function tagFor(p: PlayerData): PositionTag {
+// Auto-detect a midfield sub-profile from real season stats so the radar axes
+// match how the player actually plays:
+//   AMF (attacking mid)   → high key passes / assists / shots per game
+//   DMF (defensive mid)   → high tackles + interceptions + duels, low shots
+//   MID (central / b2b)    → the balanced default
+export function mfSubProfile(p: PlayerData): PositionTag {
+  const pj = Math.max(1, p.pj ?? 1)
+  const keyPg = (p.keyPasses ?? p.passesKey ?? 0) / pj
+  const astPg = (p.asist ?? 0) / pj
+  const shotPg = (p.shotsTotal ?? 0) / pj
+  const golPg = (p.goles ?? 0) / pj
+  const tklIntPg = ((p.tacklesTotal ?? 0) + (p.interceptions ?? 0)) / pj
+  const duelWonPg = (p.duelsWon ?? 0) / pj
+
+  // Attacking signal: chance creation + goal threat.
+  let att = 0
+  if (keyPg >= 1.5) att += 2; else if (keyPg >= 1.0) att += 1
+  if (astPg >= 0.25) att += 1
+  if (shotPg >= 1.8 || golPg >= 0.25) att += 1
+
+  // Defensive signal: ball-winning volume with little shooting.
+  let def = 0
+  if (tklIntPg >= 3.5) def += 2; else if (tklIntPg >= 2.5) def += 1
+  if (duelWonPg >= 4) def += 1
+  if (shotPg < 1.0 && golPg < 0.12) def += 1
+
+  if (att >= 3 && att > def) return 'AMF'
+  if (def >= 3 && def > att) return 'DMF'
+  return 'MID'
+}
+
+export function tagFor(p: PlayerData): PositionTag {
   if (p.position === 'GK') return 'POR'
   if (p.position === 'DF') return 'DEF'
-  if (p.position === 'MF') return 'MID'
+  if (p.position === 'MF') return mfSubProfile(p)
   // FW split into winger/attacking-mid (WAM) vs out-and-out striker (ST).
   // A pure striker is goal-dominant AND high shot volume; a WAM creates/carries
   // more (assists, key passes, dribbles) relative to finishing. We score several
@@ -50,7 +85,7 @@ function tagFor(p: PlayerData): PositionTag {
   }
   return 'ST'
 }
-const broad = (t: PositionTag): Broad => (t === 'POR' ? 'POR' : t === 'DEF' ? 'DEF' : t === 'MID' ? 'MID' : 'FWD')
+const broad = (t: PositionTag): Broad => (t === 'POR' ? 'POR' : t === 'DEF' ? 'DEF' : (t === 'MID' || t === 'AMF' || t === 'DMF') ? 'MID' : 'FWD')
 const afBroad = (p: PlayerData): Broad => (p.position === 'GK' ? 'POR' : p.position === 'DF' ? 'DEF' : p.position === 'MF' ? 'MID' : 'FWD')
 function usBroad(pos: string): Broad | null {
   const u = pos.toUpperCase()
@@ -93,12 +128,18 @@ function rawFromUS(u: UnderstatRow, tag: PositionTag): PlayerSeasonRaw {
 const pctRank = (values: number[], target: number) =>
   values.length ? Math.round((values.filter(v => v <= target).length / values.length) * 100) : null
 
-/** Build the per-position radar for an API-Football player id (current season). */
-export async function getPlayerRadar(apiId: number): Promise<PlayerRadar | null> {
+/** Build the per-position radar for an API-Football player id (current season).
+ *  `override` forces a specific positional template (manual profile selector);
+ *  otherwise the template is auto-detected from the player's stats. */
+export async function getPlayerRadar(apiId: number, override?: PositionTag): Promise<PlayerRadar | null> {
   const player = PRIMARY_PLAYERS.find(p => p.apiId === apiId)
   if (!player) return null
-  const tag = tagFor(player)
-  const tgtBroad = broad(tag)
+  const autoTag = tagFor(player)
+  const tag = override ?? autoTag
+  // Percentile population is keyed off the BROAD position the player truly is
+  // (auto-detected), not the chosen template — so e.g. viewing a striker through
+  // the "Winger" template still ranks them against forwards.
+  const tgtBroad = broad(autoTag)
   const leagueHasUS = understatCovers(player.league)
 
   const usRows = leagueHasUS ? await getUnderstatLeague(player.league, player.season) : []
@@ -130,5 +171,5 @@ export async function getPlayerRadar(apiId: number): Promise<PlayerRadar | null>
     xGChain: usTarget.xGChain, xGBuildup: usTarget.xGBuildup, npg: usTarget.npg,
   } : null
 
-  return { position: tag, leagueHasUnderstat: leagueHasUS, axes, understat }
+  return { position: tag, autoPosition: autoTag, leagueHasUnderstat: leagueHasUS, axes, understat }
 }

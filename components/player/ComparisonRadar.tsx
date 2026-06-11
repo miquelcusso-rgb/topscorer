@@ -14,6 +14,20 @@ export interface ComparisonAxis {
   bVal: string | number
 }
 
+// Wrap a long label across up to 2 lines so it fits inside the padded viewBox.
+function wrapLabel(label: string, maxChars = 12): string[] {
+  if (label.length <= maxChars) return [label]
+  const words = label.split(' ')
+  if (words.length === 1) return [label]
+  const lines: string[] = ['', '']
+  let li = 0
+  for (const w of words) {
+    if (lines[li] && (lines[li] + ' ' + w).length > maxChars && li === 0) li = 1
+    lines[li] = lines[li] ? `${lines[li]} ${w}` : w
+  }
+  return lines.filter(Boolean)
+}
+
 interface ComparisonRadarProps {
   axes: ComparisonAxis[]
   colorA: string
@@ -35,6 +49,10 @@ export default function ComparisonRadar({
   const cx = size / 2
   const cy = size / 2
   const r = size * 0.34
+  // Padding around the chart so edge labels + per-player value rows are never
+  // clipped at the SVG bounds (left labels are end-anchored and push outward).
+  const PAD_X = 96
+  const PAD_Y = 30
   const angle = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n
   const pt = (i: number, t: number): [number, number] => [
     cx + Math.cos(angle(i)) * r * t,
@@ -73,8 +91,8 @@ export default function ComparisonRadar({
       </div>
 
       <svg
-        viewBox={`0 0 ${size} ${size}`}
-        style={{ width: '100%', height: 'auto', display: 'block', maxWidth: size, margin: '0 auto' }}
+        viewBox={`${-PAD_X} ${-PAD_Y} ${size + PAD_X * 2} ${size + PAD_Y * 2}`}
+        style={{ width: '100%', height: 'auto', display: 'block', maxWidth: size + PAD_X * 2, margin: '0 auto' }}
       >
         {/* grid rings */}
         {[0.25, 0.5, 0.75, 1].map((t, i) => (
@@ -136,6 +154,8 @@ export default function ComparisonRadar({
           const [lx, ly] = pt(i, 1.16)
           const anchor =
             Math.abs(lx - cx) < 6 ? 'middle' : lx < cx ? 'end' : 'start'
+          const lines = wrapLabel(v.label.toUpperCase())
+          const startDy = -((lines.length - 1) * 10) / 2
           return (
             <g key={`lbl-${i}`}>
               <text
@@ -146,13 +166,15 @@ export default function ComparisonRadar({
                 fill="var(--ts-muted)"
                 fontFamily="JetBrains Mono, ui-monospace, monospace"
                 fontSize={9}
-                letterSpacing="0.05em"
+                letterSpacing="0.03em"
               >
-                {v.label.toUpperCase()}
+                {lines.map((line, li) => (
+                  <tspan key={li} x={lx} dy={li === 0 ? startDy : 10}>{line}</tspan>
+                ))}
               </text>
               <text
                 x={lx}
-                y={ly + 12}
+                y={ly + startDy + (lines.length - 1) * 10 + 12}
                 textAnchor={anchor}
                 dominantBaseline="middle"
                 fontFamily="Barlow Condensed, sans-serif"

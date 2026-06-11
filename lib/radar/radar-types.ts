@@ -2,7 +2,10 @@
 // Tipos del esquema de radares de jugador. Sincronizados con radar-schema.json (v3).
 // Fuentes activas: Understat + API-Football. EXT (Opta/Sportmonks) desactivada.
 
-export type PositionTag = "POR" | "DEF" | "MID" | "ST" | "WAM";
+// MID is the central / box-to-box default. AMF (attacking mid) and DMF
+// (defensive mid / pivot) are auto-detected sub-profiles and can also be picked
+// manually via the radar profile selector.
+export type PositionTag = "POR" | "DEF" | "MID" | "AMF" | "DMF" | "ST" | "WAM";
 
 export type Source = "understat" | "api_football" | "external_advanced" | "fbref";
 
@@ -21,6 +24,8 @@ export interface PriorityTier {
 export interface AxisDef {
   id: string;
   label: string;
+  /** English label for the axis (radar/comparator render by `lang`). */
+  labelEn?: string;
   ideal: string;
   priority: PriorityTier[];
 }
@@ -97,7 +102,8 @@ export interface PlayerSeasonRaw {
 /** Resultado de resolver un eje: valor crudo + metadatos para UI. */
 export interface ResolvedAxis {
   axisId: string;
-  label: string;
+  label: string;     // Spanish label
+  labelEn: string;   // English label (falls back to `label` if schema lacks it)
   rawValue: number | null;     // valor crudo en su unidad; null si no resoluble
   source: Source | null;
   tier: number | null;

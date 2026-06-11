@@ -461,7 +461,7 @@ export default function ComparadorClient() {
   const [shareCopied, setShareCopied] = useState(false)
 
   // Per-position percentile radars (handoff schema: Understat + API-Football).
-  type RadarResp = { position: string; leagueHasUnderstat: boolean; axes: { axisId: string; label: string; percentile: number | null; isProxy: boolean }[]; understat?: { xG: number; npxG: number; xA: number; keyPasses: number } | null }
+  type RadarResp = { position: string; leagueHasUnderstat: boolean; axes: { axisId: string; label: string; labelEn?: string; percentile: number | null; isProxy: boolean }[]; understat?: { xG: number; npxG: number; xA: number; keyPasses: number } | null }
   const [radarA, setRadarA] = useState<RadarResp | null>(null)
   const [radarB, setRadarB] = useState<RadarResp | null>(null)
   useEffect(() => {
@@ -581,8 +581,9 @@ export default function ComparadorClient() {
         .map(a => {
           const b = bMap.get(a.axisId)
           if (a.percentile == null || !b || b.percentile == null) return null
+          const axisLabel = es ? a.label : (a.labelEn ?? a.label)
           return {
-            label: a.label + (a.isProxy || b.isProxy ? ' *' : ''),
+            label: axisLabel + (a.isProxy || b.isProxy ? ' *' : ''),
             aVal: a.percentile, bVal: b.percentile, aPct: a.percentile, bPct: b.percentile,
           } as ComparisonAxis
         })

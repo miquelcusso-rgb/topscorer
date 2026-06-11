@@ -114,7 +114,12 @@ function Countdown({ lang }: { lang: 'es' | 'en' }) {
   return (
     <div style={{ padding: '14px 0 6px' }}>
       <div style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ts-faint)', marginBottom: 10, textAlign: 'center' }}>
-        {t(lang, 'Comienza en — 11 jun 2026 · Estadio Azteca', 'Kicks off in — Jun 11, 2026 · Estadio Azteca')}
+        {/* Kickoff shown in the user's LOCAL time (client-only branch), so a
+            European viewer doesn't see "Jun 11" while the timer runs into Jun 12
+            their time. The match itself is the opener at Estadio Azteca. */}
+        {t(lang,
+          `Comienza — ${KICKOFF.toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} (tu hora) · Estadio Azteca`,
+          `Kicks off — ${KICKOFF.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} (your time) · Estadio Azteca`)}
       </div>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
         {units.map(u => (

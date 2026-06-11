@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 export interface RadarAxis {
   label: string
   value: string | number
@@ -10,6 +12,24 @@ interface RadarCardProps {
   axes: RadarAxis[]
   stats: Array<{ value: string | number; label: string; tone?: 'primary' | 'teal' | 'text' }>
   size?: number
+  /** Optional control rendered top-right of the card header (e.g. profile selector). */
+  toolbar?: ReactNode
+}
+
+// Split a label so it wraps across up to 2 SVG <tspan> lines when it's long,
+// keeping each line short enough to fit inside the padded viewBox. Short labels
+// stay on a single line.
+function wrapLabel(label: string, maxChars = 11): string[] {
+  if (label.length <= maxChars) return [label]
+  const words = label.split(' ')
+  if (words.length === 1) return [label] // single long token — let it ride (rare)
+  const lines: string[] = ['', '']
+  let li = 0
+  for (const w of words) {
+    if (lines[li] && (lines[li] + ' ' + w).length > maxChars && li === 0) li = 1
+    lines[li] = lines[li] ? `${lines[li]} ${w}` : w
+  }
+  return lines.filter(Boolean)
 }
 
 function toneColor(tone: 'primary' | 'teal' | 'text'): string {
@@ -18,16 +38,19 @@ function toneColor(tone: 'primary' | 'teal' | 'text'): string {
   return 'var(--ts-text)'
 }
 
-export default function RadarCard({ title, subtitle, axes, stats, size = 340 }: RadarCardProps) {
+export default function RadarCard({ title, subtitle, axes, stats, size = 340, toolbar }: RadarCardProps) {
   const n = axes.length
   const cx = size / 2
   const cy = size / 2
   const r = size * 0.36
   // Horizontal/vertical padding around the chart so the edge labels (e.g.
-  // "P. CLAVE", "ON TARGET") are never clipped at the SVG bounds, for every
-  // position's axis set.
-  const PAD_X = 64
-  const PAD_Y = 22
+  // "SHOT VOLUME", "CHANCE CREATION") are never clipped at the SVG bounds, for
+  // every position's axis set. Labels render in a monospace ~6.7px/char at
+  // fontSize 11; the longest single-line label we allow is ~11 chars (~74px),
+  // and end/start anchoring pushes that fully outside the chart on the left/right
+  // axes — so we need ≥ ~96px of horizontal breathing room.
+  const PAD_X = 104
+  const PAD_Y = 30
   const angle = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n
   const pt = (i: number, t: number): [number, number] => [
     cx + Math.cos(angle(i)) * r * t,
@@ -46,10 +69,15 @@ export default function RadarCard({ title, subtitle, axes, stats, size = 340 }: 
         padding: 18,
       }}
     >
-      <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--ts-text)' }}>
-        {title}
-      </h3>
-      <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 2 }}>{subtitle}</div>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ minWidth: 0 }}>
+          <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--ts-text)' }}>
+            {title}
+          </h3>
+          <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 2 }}>{subtitle}</div>
+        </div>
+        {toolbar}
+      </div>
       <div style={{ marginTop: 10 }}>
         <svg
           viewBox={`${-PAD_X} ${-PAD_Y} ${size + PAD_X * 2} ${size + PAD_Y * 2}`}
@@ -94,6 +122,9 @@ export default function RadarCard({ title, subtitle, axes, stats, size = 340 }: 
             const [lx, ly] = pt(i, 1.18)
             const anchor =
               Math.abs(lx - cx) < 5 ? 'middle' : lx < cx ? 'end' : 'start'
+            const lines = wrapLabel(v.label.toUpperCase())
+            // Vertical offset so a 2-line label stays centred on its vertex.
+            const startDy = -((lines.length - 1) * 12) / 2
             return (
               <g key={i}>
                 <text
@@ -103,14 +134,16 @@ export default function RadarCard({ title, subtitle, axes, stats, size = 340 }: 
                   dominantBaseline="middle"
                   fill="var(--ts-muted)"
                   fontFamily="JetBrains Mono, ui-monospace, monospace"
-                  fontSize={11.5}
-                  letterSpacing="0.04em"
+                  fontSize={11}
+                  letterSpacing="0.02em"
                 >
-                  {v.label.toUpperCase()}
+                  {lines.map((line, li) => (
+                    <tspan key={li} x={lx} dy={li === 0 ? startDy : 12}>{line}</tspan>
+                  ))}
                 </text>
                 <text
                   x={lx}
-                  y={ly + 14}
+                  y={ly + startDy + (lines.length - 1) * 12 + 15}
                   textAnchor={anchor}
                   dominantBaseline="middle"
                   fill="var(--ts-primary)"
