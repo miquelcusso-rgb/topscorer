@@ -296,10 +296,12 @@ function PlayerSelector({ label, selected, onSelect, isLight }: PlayerSelectorPr
                 {/* Uniform row: reserved flag column + photo + name + club + position */}
                 <span style={{ width: 16, flexShrink: 0, textAlign: 'center', fontSize: 13, lineHeight: 1 }} aria-hidden>{p.flag ?? '🏳️'}</span>
                 <Avatar name={p.name} photo={p.photo} size={22} />
-                <span style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{p.name}</span>
-                <span style={{ fontSize: 11, color: textMuted, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                {/* Name takes priority for space; the club (less critical) is the
+                    one that truncates, so full player names show whenever possible. */}
+                <span style={{ flex: 1, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{p.name}</span>
+                <span style={{ fontSize: 11, color: textMuted, marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, minWidth: 0, maxWidth: 92 }}>
                   <ClubLogo club={p.club} size={14} />
-                  {p.club}
+                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{p.club}</span>
                 </span>
                 {p.pos && (
                   <span style={{ fontSize: 10, fontWeight: 700, color: posAccent(p.pos as Position), background: `${posAccent(p.pos as Position)}22`, padding: '2px 5px', borderRadius: 3, flexShrink: 0 }}>
