@@ -535,20 +535,8 @@ function OverviewPanel({ lang, scorers, onGoGroups, onGoCalendar, onGoGolden }: 
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Golden Boot leaders — the headline section (server-rendered when live) */}
-      {scorers.length > 0 && (
-        <div style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--ts-card)', border: '1px solid var(--ts-border-hot)' }}>
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--ts-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--ts-primary-soft)' }}>
-            <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>
-              🥇 {t(lang, 'Bota de Oro del Mundial', 'World Cup Golden Boot')}
-            </span>
-            <button type="button" onClick={onGoGolden} style={{ fontSize: 10, color: 'var(--ts-primary)', background: 'transparent', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: 0.5, fontFamily: 'inherit' }}>
-              {t(lang, 'Ver tabla completa →', 'See full table →')}
-            </button>
-          </div>
-          <WcScorerList scorers={scorers} lang={lang} limit={8} />
-        </div>
-      )}
+      {/* Golden Boot lives ONLY on its own tab/page — the Overview leads with the
+          tournament format + favourites, not the scorer table. */}
 
       {/* Key stats grid */}
       <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
@@ -660,9 +648,13 @@ function GroupsPanel({ lang }: { lang: 'es' | 'en' }) {
   }, [])
 
   // Real draw groups only (Group A–L) — exclude the "third-placed ranking" table.
+  // Tolerant to the API's label format, which is "Group Stage - Group A"
+  // (it used to be just "Group A"); we extract the trailing group letter so a
+  // label change can't silently blank the whole tab again.
+  const groupLetter = (name?: string) => (name ?? '').match(/group\s+([a-l])\s*$/i)?.[1]?.toUpperCase()
   const realGroups = groups
-    .filter(g => g.length >= 2 && /^group\s+[a-z]$/i.test(g[0]?.group ?? ''))
-    .sort((a, b) => (a[0]!.group ?? '').localeCompare(b[0]!.group ?? ''))
+    .filter(g => g.length >= 2 && groupLetter(g[0]?.group))
+    .sort((a, b) => (groupLetter(a[0]?.group) ?? '').localeCompare(groupLetter(b[0]?.group) ?? ''))
   // Whether the tournament has begun (any matches played) → show points table.
   const started = realGroups.some(g => g.some(r => (r.all?.played ?? 0) > 0))
 
@@ -684,7 +676,7 @@ function GroupsPanel({ lang }: { lang: 'es' | 'en' }) {
                 borderBottom: '1px solid var(--ts-border)', borderLeft: '3px solid var(--ts-primary)',
                 display: 'flex', justifyContent: 'space-between',
               }}>
-                <span>{(g[0]!.group ?? '').replace(/^Group/i, t(lang, 'Grupo', 'Group'))}</span>
+                <span>{t(lang, 'Grupo', 'Group')} {groupLetter(g[0]?.group)}</span>
                 {started && <span style={{ fontSize: 10, color: 'var(--ts-muted)' }}>{t(lang, 'Pts', 'Pts')}</span>}
               </div>
               {g.map((row, ti) => (
