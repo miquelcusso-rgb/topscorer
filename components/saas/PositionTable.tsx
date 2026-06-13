@@ -210,6 +210,11 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
           const rank = i + 1
           const slug = playerSlug(p)
           const primaryCol = cols.find(c => c.accent && c.kind !== 'last5') ?? cols.find(c => c.kind !== 'last5') ?? cols[0]
+          // Secondary chips on mobile: always IIG + Nota (so it's not just goals),
+          // plus any columns the user appended via "+ Añadir stat".
+          const chipCols = cols.filter(c =>
+            c.kind !== 'last5' && c.key !== primaryCol.key &&
+            (c.key === 'iig' || c.key === 'rt' || c.key.startsWith('x_')))
           const crest = clubLogo(p.club)
           return (
             <Link
@@ -234,9 +239,17 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
                   ? <img src={crest} alt={p.club} title={p.club} width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain', flexShrink: 0 }} />
                   : <LeagueChip code={code(p.league)} />}
               </div>
-              <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 16, color: `var(--ts-${accent})`, flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
-                {primaryCol.value(p)}
-                <span style={{ fontSize: 9, color: 'var(--ts-muted)', marginLeft: 3, fontFamily: 'inherit' }}>{primaryCol.label}</span>
+              <span style={{ display: 'flex', alignItems: 'baseline', gap: 9, flexShrink: 0 }}>
+                {chipCols.map(c => (
+                  <span key={c.key} style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums' }}>
+                    {c.value(p)}
+                    <span style={{ fontSize: 8, color: 'var(--ts-faint)', marginLeft: 2, fontFamily: 'inherit', textTransform: 'uppercase' }}>{c.label}</span>
+                  </span>
+                ))}
+                <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 16, color: `var(--ts-${accent})`, fontVariantNumeric: 'tabular-nums' }}>
+                  {primaryCol.value(p)}
+                  <span style={{ fontSize: 9, color: 'var(--ts-muted)', marginLeft: 3, fontFamily: 'inherit' }}>{primaryCol.label}</span>
+                </span>
               </span>
             </Link>
           )
