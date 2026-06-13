@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getNews } from '@/lib/news'
+import LangBadge from './LangBadge'
 
 function ago(iso: string, en: boolean): string {
   const diff = Math.max(0, Date.now() - new Date(iso).getTime())
@@ -35,7 +36,9 @@ export default async function HomeNewsTeaser({ lang }: { lang: 'es' | 'en' }) {
             <span style={{ fontSize: 13, color: 'var(--ts-text)', lineHeight: 1.35, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {it.title}
             </span>
-            <span style={{ fontSize: 10, color: 'var(--ts-faint)', whiteSpace: 'nowrap' }}>{it.source} · {ago(it.date, en)}</span>
+            <span style={{ fontSize: 10, color: 'var(--ts-faint)', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <LangBadge itemLang={it.lang} siteLang={lang} />{it.source} · {ago(it.date, en)}
+            </span>
           </a>
         ))}
       </div>

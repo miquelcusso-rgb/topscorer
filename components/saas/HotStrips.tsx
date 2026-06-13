@@ -7,13 +7,14 @@ import { slugify } from '@/lib/slugify'
 import type { Standout } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
 import NewsPlaceholder from './NewsPlaceholder'
+import LangBadge from './LangBadge'
 
-interface NewsLite { title: string; link: string; source: string; image?: string }
+interface NewsLite { title: string; link: string; source: string; image?: string; lang: 'es' | 'en' }
 
 // Mobile-only auto-sliding news carousel (Transfermarkt-style): one card at a
 // time with the article image + headline + source, auto-advancing every ~5s,
 // swipeable, with dot indicators. Desktop keeps the 3-up Strip below.
-function NewsCarousel({ news, en }: { news: NewsLite[]; en: boolean }) {
+function NewsCarousel({ news, en, lang }: { news: NewsLite[]; en: boolean; lang: 'es' | 'en' }) {
   const items = news.slice(0, 6)
   const [idx, setIdx] = useState(0)
   const [paused, setPaused] = useState(false)
@@ -67,7 +68,9 @@ function NewsCarousel({ news, en }: { news: NewsLite[]; en: boolean }) {
               <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {it.title}
               </div>
-              <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 5 }}>{it.source} ↗</div>
+              <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <LangBadge itemLang={it.lang} siteLang={lang} />{it.source} ↗
+              </div>
             </div>
           </a>
         )
@@ -86,7 +89,7 @@ function NewsCarousel({ news, en }: { news: NewsLite[]; en: boolean }) {
   )
 }
 
-interface Lead { label: string; sub?: string; href: string; external?: boolean; photo?: string; crest?: string; tail?: string }
+interface Lead { label: string; sub?: string; href: string; external?: boolean; photo?: string; crest?: string; tail?: string; badge?: 'es' | 'en'; siteLang?: 'es' | 'en' }
 
 function Strip({ icon, title, accent, leads, en, titleHref }: { icon: string; title: string; accent: string; leads: Lead[]; en: boolean; titleHref?: string }) {
   if (!leads.length) return null
@@ -118,7 +121,9 @@ function Strip({ icon, title, accent, leads, en, titleHref }: { icon: string; ti
                 : null}
               <span style={{ minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
                 <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.label}</span>
-                {l.sub && <span style={{ fontSize: 10.5, color: 'var(--ts-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.sub}</span>}
+                {l.sub && <span style={{ fontSize: 10.5, color: 'var(--ts-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  {l.badge && l.siteLang && <LangBadge itemLang={l.badge} siteLang={l.siteLang} />}{l.sub}
+                </span>}
               </span>
               {l.tail && <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 800, color: accent, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>{l.tail}</span>}
             </span>
@@ -136,7 +141,7 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
   news?: NewsLite[]; rumors?: HomeRumor[]; strikers?: Standout[]; lang: 'es' | 'en'
 }) {
   const en = lang === 'en'
-  const newsLeads: Lead[] = news.slice(0, 3).map(n => ({ label: n.title, sub: n.source, href: n.link, external: true }))
+  const newsLeads: Lead[] = news.slice(0, 3).map(n => ({ label: n.title, sub: n.source, href: n.link, external: true, badge: n.lang, siteLang: lang }))
   const rumorLeads: Lead[] = rumors.slice(0, 3).map(r => ({
     label: r.headline,
     sub: r.toClub ?? r.fromClub ?? undefined,
@@ -182,7 +187,7 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
       {/* Mobile: auto-sliding image carousel; Desktop: 3-up strip (hidden on mobile) */}
       {newsLeads.length > 0 && (
         <div className="saas-news-carousel-wrap" style={{ display: 'none' }}>
-          <NewsCarousel news={news} en={en} />
+          <NewsCarousel news={news} en={en} lang={lang} />
         </div>
       )}
       <div className="saas-news-strip-desktop">

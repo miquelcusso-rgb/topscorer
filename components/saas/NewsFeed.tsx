@@ -1,8 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
 import NewsPlaceholder from './NewsPlaceholder'
+import LangBadge from './LangBadge'
 
-interface NewsItem { title: string; link: string; source: string; date: string; image?: string; isPriority?: boolean }
+interface NewsItem { title: string; link: string; source: string; date: string; lang: 'es' | 'en'; image?: string; isPriority?: boolean }
 
 function dayBucket(iso: string, en: boolean): string {
   const d = new Date(iso), now = new Date()
@@ -105,7 +106,9 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
           <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 27, fontWeight: 700, lineHeight: 1.1, color: 'var(--ts-text)' }}>
             {hero.title}
           </span>
-          <span style={{ fontSize: 12, color: 'var(--ts-muted)' }}>{hero.source} · {fmtTime(hero.date, en)}</span>
+          <span style={{ fontSize: 12, color: 'var(--ts-muted)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            <LangBadge itemLang={hero.lang} siteLang={lang} />{hero.source} · {fmtTime(hero.date, en)}
+          </span>
         </div>
       </a>
 
@@ -123,7 +126,9 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
                   <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {it.isPriority && <span style={{ color: 'var(--ts-primary)' }}>★ </span>}{it.title}
                   </span>
-                  <span style={{ fontSize: 11, color: 'var(--ts-muted)' }}>{it.source} · {fmtTime(it.date, en)}</span>
+                  <span style={{ fontSize: 11, color: 'var(--ts-muted)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                    <LangBadge itemLang={it.lang} siteLang={lang} />{it.source} · {fmtTime(it.date, en)}
+                  </span>
                 </span>
               </a>
             ))}

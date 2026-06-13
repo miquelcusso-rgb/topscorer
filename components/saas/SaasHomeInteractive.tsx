@@ -5,6 +5,7 @@ import type { PlayerData } from '@/types'
 import FilterBar from './FilterBar'
 import PositionTable from './PositionTable'
 import HotStrips from './HotStrips'
+import LangBadge from './LangBadge'
 import Link from 'next/link'
 import { type PositionTabId, TAB_LABELS, TAB_ACCENT, extraStatList, last5Ratings } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
@@ -140,9 +141,9 @@ function ScopeSelector({
   )
 }
 
-interface NewsLite { title: string; link: string; source: string; image?: string }
+interface NewsLite { title: string; link: string; source: string; image?: string; lang: 'es' | 'en' }
 interface Props {
-  breaking?: { title: string; link: string; source: string }[]
+  breaking?: { title: string; link: string; source: string; lang: 'es' | 'en' }[]
   lang: Lang
   positionPools: Record<PositionTabId, PlayerData[]>
   defaultPos?: PositionTabId
@@ -389,7 +390,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
             <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
               {b.title}
             </span>
-            <span style={{ flexShrink: 0, opacity: 0.85, fontSize: 11 }}>{b.source} ↗</span>
+            <span style={{ flexShrink: 0, opacity: 0.85, fontSize: 11, display: 'inline-flex', alignItems: 'center', gap: 4 }}><LangBadge itemLang={b.lang} siteLang={lang === 'en' ? 'en' : 'es'} />{b.source} ↗</span>
             {breaking.length > 1 && (
               <span style={{ flexShrink: 0, display: 'flex', gap: 4 }} aria-hidden>
                 {breaking.map((_, i) => (

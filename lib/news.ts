@@ -8,6 +8,7 @@ export interface NewsItem {
   link: string
   source: string
   date: string        // ISO
+  lang: 'es' | 'en'   // source-feed language (for the foreign-source badge)
   image?: string
   isPriority?: boolean
   isWorldCup?: boolean
@@ -122,7 +123,7 @@ function pickImage(block: string): string | undefined {
   return img ? upgradeImageUrl(img[1]) : undefined
 }
 
-function parseFeed(xml: string, source: string): NewsItem[] {
+function parseFeed(xml: string, source: string, lang: 'es' | 'en'): NewsItem[] {
   const blocks = xml.match(/<item[\s\S]*?<\/item>/gi) ?? xml.match(/<entry[\s\S]*?<\/entry>/gi) ?? []
   const out: NewsItem[] = []
   for (const b of blocks) {
@@ -132,7 +133,7 @@ function parseFeed(xml: string, source: string): NewsItem[] {
     const dateRaw = pick(b, 'pubDate') || pick(b, 'published') || pick(b, 'updated')
     const d = dateRaw ? new Date(dateRaw) : null
     if (!title || !link) continue
-    out.push({ title, link: link.trim(), source, date: (d && !isNaN(d.getTime()) ? d : new Date(0)).toISOString(), image: pickImage(b) })
+    out.push({ title, link: link.trim(), source, lang, date: (d && !isNaN(d.getTime()) ? d : new Date(0)).toISOString(), image: pickImage(b) })
   }
   return out
 }
@@ -141,21 +142,32 @@ const fetchOne = async (f: Feed): Promise<NewsItem[]> => {
   try {
     const res = await fetch(f.url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TopScorersBot/1.0)', 'Accept': 'application/rss+xml, application/xml, text/xml' } })
     if (!res.ok) return []
-    return parseFeed(await res.text(), f.name)
+    return parseFeed(await res.text(), f.name, f.lang)
   } catch { return [] }
 }
 
+// Same-as-site-language recency boost (ms). Modest vs the ~6h priority boost so
+// foreign-language sources still appear in the mix, but the site language keeps
+// the upper hand at similar freshness. ~3h.
+const SAME_LANG_BOOST_MS = 3 * 60 * 60 * 1000
+
 export const getNews = unstable_cache(
+  // `lang` is now the SITE language: it drives the same-language sort bias and
+  // the foreign-source badge — NOT a hard filter. We ingest ALL feeds (es + en).
   async (lang: 'es' | 'en', scope: 'general' | 'worldcup' = 'general', limit = 40): Promise<NewsItem[]> => {
-    const feeds = FEEDS.filter(f => f.lang === lang)
-    const results = await Promise.all(feeds.map(fetchOne))
+    const results = await Promise.all(FEEDS.map(fetchOne))
     const seen = new Set<string>()
-    let items = results.flat().filter(it => {
-      const k = it.title.toLowerCase().slice(0, 60)
-      if (seen.has(k)) return false
-      seen.add(k)
-      return true
-    })
+    // Dedup by title prefix, but visit site-language items first so that when the
+    // same headline appears in both languages the site-language copy is the one
+    // kept (cleaner UX — no badge on a story we have natively).
+    let items = results.flat()
+      .sort((a, b) => (a.lang === lang ? 0 : 1) - (b.lang === lang ? 0 : 1))
+      .filter(it => {
+        const k = it.title.toLowerCase().slice(0, 60)
+        if (seen.has(k)) return false
+        seen.add(k)
+        return true
+      })
     const nowMs = Date.now()
     for (const it of items) {
       const t = it.title.toLowerCase()
@@ -165,10 +177,12 @@ export const getNews = unstable_cache(
       it.isBreaking = ageMs >= 0 && ageMs <= BREAKING_WINDOW_MS && BREAKING.some(p => t.includes(p))
     }
     if (scope === 'worldcup') items = items.filter(it => it.isWorldCup)
-    // Sort by recency, nudging priority items up (~6h boost).
+    // Sort by recency, nudging priority items up (~6h boost) and same-as-site-
+    // language items up a bit (~3h) so the site language dominates while foreign
+    // sources still surface in the mix.
     items.sort((a, b) => {
-      const sa = new Date(a.date).getTime() + (a.isPriority ? 21600000 : 0)
-      const sb = new Date(b.date).getTime() + (b.isPriority ? 21600000 : 0)
+      const sa = new Date(a.date).getTime() + (a.isPriority ? 21600000 : 0) + (a.lang === lang ? SAME_LANG_BOOST_MS : 0)
+      const sb = new Date(b.date).getTime() + (b.isPriority ? 21600000 : 0) + (b.lang === lang ? SAME_LANG_BOOST_MS : 0)
       return sb - sa
     })
     return items.slice(0, limit)

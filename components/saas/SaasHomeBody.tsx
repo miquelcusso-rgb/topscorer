@@ -101,12 +101,12 @@ export default async function SaasHomeBody({
   const rumors = await getTopRumors(lang === 'en' ? 'en' : 'es', 3)
   // Top 3 headlines for the HOT NEWS strip + the freshest "breaking" item for the
   // home banner (defensive — empty on any error).
-  let news: { title: string; link: string; source: string; image?: string }[] = []
-  let breaking: { title: string; link: string; source: string }[] = []
+  let news: { title: string; link: string; source: string; image?: string; lang: 'es' | 'en' }[] = []
+  let breaking: { title: string; link: string; source: string; lang: 'es' | 'en' }[] = []
   try {
     const all = await getNews(lang === 'en' ? 'en' : 'es', 'general', 14)
-    news = all.slice(0, 6).map(n => ({ title: n.title, link: n.link, source: n.source, image: n.image }))
-    breaking = all.filter(n => n.isBreaking).slice(0, 5).map(b => ({ title: b.title, link: b.link, source: b.source }))
+    news = all.slice(0, 6).map(n => ({ title: n.title, link: n.link, source: n.source, image: n.image, lang: n.lang }))
+    breaking = all.filter(n => n.isBreaking).slice(0, 5).map(b => ({ title: b.title, link: b.link, source: b.source, lang: b.lang }))
   } catch { /* feeds down */ }
 
   const breadcrumb = heading?.breadcrumb ?? (lang === 'en' ? ['Statistics', 'Players'] : ['Estadísticas', 'Jugadores'])
