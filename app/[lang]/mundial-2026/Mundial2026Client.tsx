@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
 import NewsFeed from '@/components/saas/NewsFeed'
-import type { ApiFixture, ApiPlayerResponse, ApiStandingEntry } from '@/lib/api-football'
+import type { ApiFixture, ApiPlayerResponse, ApiStandingEntry, BookedPlayer, TeamInjuryGroup, FixturePrediction } from '@/lib/api-football'
 import { wcFaqs } from './wc-faqs'
 
 // ─── Country → flag emoji ─────────────────────────────────────────────────────
@@ -254,6 +254,245 @@ function GoldenBootPanel({ lang, initial }: { lang: 'es' | 'en'; initial: ApiPla
   )
 }
 
+// ─── Top assists (Asistentes) ─────────────────────────────────────────────────
+// Twin of the Golden Boot list but ranked by assists (the headline number).
+// Reuses the same row layout as WcScorerList; goals shown as the secondary stat.
+
+function WcAssistList({ players, lang, limit }: { players: ApiPlayerResponse[]; lang: 'es' | 'en'; limit: number }) {
+  return (
+    <>
+      {players.slice(0, limit).map((p, i) => {
+        const stat = p.statistics[0]
+        return (
+          <Link
+            key={p.player.id}
+            href={`/${lang}/jugadores/${slugify(p.player.name)}`}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit' }}
+          >
+            <span style={{ fontSize: 13, fontWeight: 700, width: 22, flexShrink: 0, textAlign: 'center', color: i === 0 ? 'var(--ts-primary)' : 'var(--ts-muted)' }}>{i + 1}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={p.player.photo} alt={p.player.name} width={28} height={28} style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.player.name}</div>
+              <div style={{ fontSize: 10, color: 'var(--ts-faint)' }}>{stat?.team?.name}</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexShrink: 0 }}>
+              {stat?.goals?.total ? <span style={{ fontSize: 11, color: 'var(--ts-muted)' }}>{stat.goals.total} {t(lang, 'goles', 'goals')}</span> : null}
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>{stat?.goals?.assists ?? 0}</span>
+                <span style={{ fontSize: 10, marginLeft: 4, color: 'var(--ts-muted)' }}>{t(lang, 'asist', 'ast')}</span>
+              </div>
+            </div>
+          </Link>
+        )
+      })}
+    </>
+  )
+}
+
+function AssistsPanel({ lang, initial }: { lang: 'es' | 'en'; initial: ApiPlayerResponse[] }) {
+  const [players, setPlayers] = useState<ApiPlayerResponse[]>(initial)
+  const [loading, setLoading] = useState(initial.length === 0)
+
+  useEffect(() => {
+    if (initial.length > 0) return
+    let cancelled = false
+    fetch('/api/football/topscorers?league=1&season=2026&type=assists')
+      .then(r => r.json())
+      .then(j => { if (!cancelled && j.ok && Array.isArray(j.data)) setPlayers(j.data) })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [initial.length])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div>
+        <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 26, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
+          🅰️ {t(lang, 'Máximos asistentes del Mundial 2026', '2026 World Cup top assists')}
+        </h2>
+        <p style={{ fontSize: 13, color: 'var(--ts-muted)', margin: 0, lineHeight: 1.6 }}>
+          {t(lang,
+            'Jugadores con más asistencias del Mundial 2026 en tiempo real. La asistencia es el último pase antes de un gol.',
+            'Players with the most assists at the 2026 World Cup, live. An assist is the final pass before a goal.')}
+        </p>
+      </div>
+
+      {loading && <div style={{ padding: '48px 0', textAlign: 'center', fontSize: 12, color: 'var(--ts-faint)' }}>{t(lang, 'Cargando asistentes…', 'Loading assists…')}</div>}
+
+      {!loading && players.length === 0 && (
+        <div style={{ borderRadius: 12, padding: '32px 20px', textAlign: 'center', background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: 'var(--ts-primary)' }}>
+            {t(lang, 'Los asistentes aparecerán desde el primer partido', 'Assists will appear from the first match')}
+          </div>
+          <p style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--ts-muted)', maxWidth: 440, margin: '0 auto' }}>
+            {t(lang,
+              'El ranking de asistencias del Mundial 2026 se actualiza en directo durante el torneo.',
+              'The 2026 World Cup assists ranking updates live throughout the tournament.')}
+          </p>
+        </div>
+      )}
+
+      {!loading && players.length > 0 && (
+        <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflow: 'hidden' }}>
+          <WcAssistList players={players} lang={lang} limit={25} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Discipline (Disciplina) ──────────────────────────────────────────────────
+// Most-booked ranking from /players/topyellowcards (yellows + reds).
+
+function DisciplinePanel({ lang }: { lang: 'es' | 'en' }) {
+  const [players, setPlayers] = useState<BookedPlayer[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/football/yellowcards?league=1&season=2026')
+      .then(r => r.json())
+      .then(j => { if (!cancelled && j.ok && Array.isArray(j.data)) setPlayers(j.data) })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div>
+        <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 26, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
+          🟨 {t(lang, 'Disciplina del Mundial 2026', '2026 World Cup discipline')}
+        </h2>
+        <p style={{ fontSize: 13, color: 'var(--ts-muted)', margin: 0, lineHeight: 1.6 }}>
+          {t(lang,
+            'Jugadores con más tarjetas del Mundial 2026. Una acumulación de amarillas conlleva sanción.',
+            'Most-booked players at the 2026 World Cup. Accumulated yellow cards lead to a suspension.')}
+        </p>
+      </div>
+
+      {loading && <div style={{ padding: '48px 0', textAlign: 'center', fontSize: 12, color: 'var(--ts-faint)' }}>{t(lang, 'Cargando tarjetas…', 'Loading cards…')}</div>}
+
+      {!loading && players.length === 0 && (
+        <div style={{ borderRadius: 12, padding: '32px 20px', textAlign: 'center', background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: 'var(--ts-primary)' }}>
+            {t(lang, 'Sin tarjetas todavía', 'No cards yet')}
+          </div>
+          <p style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--ts-muted)', maxWidth: 440, margin: '0 auto' }}>
+            {t(lang,
+              'El ranking de tarjetas del Mundial 2026 se llenará desde el primer partido.',
+              'The 2026 World Cup booking ranking will fill from the first match.')}
+          </p>
+        </div>
+      )}
+
+      {!loading && players.length > 0 && (
+        <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflow: 'hidden' }}>
+          {/* Header row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 16px', borderBottom: '1px solid var(--ts-border)', background: 'var(--ts-card2)' }}>
+            <span style={{ width: 22, flexShrink: 0 }} />
+            <span style={{ width: 28, flexShrink: 0 }} />
+            <span style={{ flex: 1, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-muted)' }}>{t(lang, 'Jugador', 'Player')}</span>
+            <span style={{ width: 38, flexShrink: 0, textAlign: 'center', fontSize: 10, fontWeight: 700, color: 'var(--ts-muted)' }}>🟨</span>
+            <span style={{ width: 38, flexShrink: 0, textAlign: 'center', fontSize: 10, fontWeight: 700, color: 'var(--ts-muted)' }}>🟥</span>
+          </div>
+          {players.map((p, i) => (
+            <Link
+              key={p.id}
+              href={`/${lang}/jugadores/${slugify(p.name)}`}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit' }}
+            >
+              <span style={{ fontSize: 13, fontWeight: 700, width: 22, flexShrink: 0, textAlign: 'center', color: i === 0 ? 'var(--ts-primary)' : 'var(--ts-muted)' }}>{i + 1}</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={p.photo} alt={p.name} width={28} height={28} style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                <div style={{ fontSize: 10, color: 'var(--ts-faint)' }}>{p.team}</div>
+              </div>
+              <span style={{ width: 38, flexShrink: 0, textAlign: 'center', fontSize: 16, fontWeight: 700, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif", fontVariantNumeric: 'tabular-nums' }}>{p.yellow}</span>
+              <span style={{ width: 38, flexShrink: 0, textAlign: 'center', fontSize: 16, fontWeight: 700, color: p.red > 0 ? 'var(--ts-red)' : 'var(--ts-faint)', fontFamily: "'Barlow Condensed', sans-serif", fontVariantNumeric: 'tabular-nums' }}>{p.red}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Injuries (Bajas) ─────────────────────────────────────────────────────────
+// League-wide injuries grouped by national team. Empty before the tournament →
+// graceful empty state that auto-fills as records appear.
+
+function InjuriesPanel({ lang }: { lang: 'es' | 'en' }) {
+  const [groups, setGroups] = useState<TeamInjuryGroup[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/football/injuries?league=1&season=2026')
+      .then(r => r.json())
+      .then(j => { if (!cancelled && j.ok && Array.isArray(j.data)) setGroups(j.data) })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div>
+        <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 26, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
+          🏥 {t(lang, 'Bajas del Mundial 2026', '2026 World Cup injuries')}
+        </h2>
+        <p style={{ fontSize: 13, color: 'var(--ts-muted)', margin: 0, lineHeight: 1.6 }}>
+          {t(lang,
+            'Jugadores lesionados o sancionados por selección, actualizado durante el torneo.',
+            'Injured or suspended players by national team, updated during the tournament.')}
+        </p>
+      </div>
+
+      {loading && <div style={{ padding: '48px 0', textAlign: 'center', fontSize: 12, color: 'var(--ts-faint)' }}>{t(lang, 'Cargando bajas…', 'Loading injuries…')}</div>}
+
+      {!loading && groups.length === 0 && (
+        <div style={{ borderRadius: 12, padding: '32px 20px', textAlign: 'center', background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: 'var(--ts-primary)' }}>
+            {t(lang, 'Sin bajas reportadas todavía', 'No injuries reported yet')}
+          </div>
+          <p style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--ts-muted)', maxWidth: 440, margin: '0 auto' }}>
+            {t(lang,
+              'Las bajas por lesión o sanción aparecerán aquí, agrupadas por selección, a medida que se confirmen durante el Mundial 2026.',
+              'Injury and suspension news will appear here, grouped by national team, as it is confirmed during the 2026 World Cup.')}
+          </p>
+        </div>
+      )}
+
+      {!loading && groups.length > 0 && (
+        <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
+          {groups.map(g => (
+            <div key={g.teamId} style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 14px', borderBottom: '1px solid var(--ts-border)', background: 'var(--ts-card2)' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {g.teamLogo ? <img src={g.teamLogo} alt="" width={20} height={20} style={{ objectFit: 'contain', flexShrink: 0 }} /> : null}
+                <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5, textTransform: 'uppercase' }}>{g.team}</span>
+              </div>
+              {g.players.map(pl => (
+                <div key={`${pl.playerId}-${pl.reason}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 14px', borderBottom: '1px solid var(--ts-divider)' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {pl.photo ? <img src={pl.photo} alt={pl.player} width={26} height={26} style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} /> : null}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pl.player}</div>
+                    <div style={{ fontSize: 10, color: 'var(--ts-faint)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{pl.reason || pl.type}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Live data panel ──────────────────────────────────────────────────────────
 
 function LiveDataPanel({ lang }: { lang: 'es' | 'en' }) {
@@ -365,10 +604,10 @@ function LiveDataPanel({ lang }: { lang: 'es' | 'en' }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function Mundial2026Client({ initialScorers = [], started = false }: { initialScorers?: ApiPlayerResponse[]; started?: boolean }) {
+export default function Mundial2026Client({ initialScorers = [], initialAssists = [], started = false }: { initialScorers?: ApiPlayerResponse[]; initialAssists?: ApiPlayerResponse[]; started?: boolean }) {
   const { lang } = useLang()
   // During the tournament the Golden Boot is the headline → default to it.
-  const [view, setView] = useState<'overview' | 'golden' | 'news' | 'groups' | 'calendar' | 'venues' | 'live'>(started ? 'golden' : 'overview')
+  const [view, setView] = useState<'overview' | 'golden' | 'assists' | 'discipline' | 'injuries' | 'news' | 'groups' | 'calendar' | 'venues' | 'live'>(started ? 'golden' : 'overview')
 
   return (
     <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh' }}>
@@ -438,6 +677,9 @@ export default function Mundial2026Client({ initialScorers = [], started = false
               { id: 'groups', es: 'Grupos', en: 'Groups' },
               { id: 'calendar', es: 'Calendario', en: 'Calendar' },
               { id: 'live', es: 'Resultados', en: 'Results' },
+              { id: 'assists', es: 'Asistentes', en: 'Assists' },
+              { id: 'discipline', es: 'Disciplina', en: 'Discipline' },
+              { id: 'injuries', es: 'Bajas', en: 'Injuries' },
               { id: 'news', es: 'Noticias', en: 'News' },
               { id: 'venues', es: 'Sedes', en: 'Venues' },
             ] as const).map(tab => {
@@ -487,6 +729,9 @@ export default function Mundial2026Client({ initialScorers = [], started = false
         <div style={{ maxWidth: 1500, margin: '0 auto', padding: '24px 20px 80px' }}>
           {view === 'overview' && <OverviewPanel lang={lang} scorers={initialScorers} onGoGroups={() => setView('groups')} onGoCalendar={() => setView('calendar')} onGoGolden={() => setView('golden')} />}
           {view === 'golden' && <GoldenBootPanel lang={lang} initial={initialScorers} />}
+          {view === 'assists' && <AssistsPanel lang={lang} initial={initialAssists} />}
+          {view === 'discipline' && <DisciplinePanel lang={lang} />}
+          {view === 'injuries' && <InjuriesPanel lang={lang} />}
           {view === 'news' && <NewsFeed scope="worldcup" lang={lang} />}
           {view === 'groups' && <GroupsPanel lang={lang} />}
           {view === 'calendar' && <CalendarPanel lang={lang} />}
@@ -748,13 +993,64 @@ function PhaseWindows({ lang }: { lang: 'es' | 'en' }) {
   )
 }
 
+// Compact, informational win/draw/loss probability bar for an upcoming fixture.
+// Pulls /predictions via our route. No betting/odds wording. Renders nothing if
+// the API has no usable prediction (e.g. finished match or pre-draw fixture).
+function PredictionBar({ fixtureId, lang }: { fixtureId: number; lang: 'es' | 'en' }) {
+  const [pred, setPred] = useState<FixturePrediction | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(`/api/football/prediction?fixture=${fixtureId}`)
+      .then(r => r.json())
+      .then(j => { if (!cancelled && j.ok && j.data) setPred(j.data) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [fixtureId])
+
+  if (!pred) return null
+
+  const segs: { pct: number; color: string; label: string }[] = [
+    { pct: pred.homePct, color: 'var(--ts-primary)', label: '1' },
+    { pct: pred.drawPct, color: 'var(--ts-muted)', label: 'X' },
+    { pct: pred.awayPct, color: 'var(--ts-teal)', label: '2' },
+  ]
+
+  return (
+    <div style={{ padding: '4px 14px 10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <span style={{ fontSize: 9, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-faint)', fontWeight: 700 }}>
+          {t(lang, 'Pronóstico', 'Forecast')}
+        </span>
+        <span style={{ fontSize: 10, color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>
+          {pred.homePct}% · {pred.drawPct}% · {pred.awayPct}%
+        </span>
+      </div>
+      <div style={{ display: 'flex', height: 8, borderRadius: 5, overflow: 'hidden', background: 'var(--ts-card2)' }} aria-hidden>
+        {segs.map((s, i) => s.pct > 0 ? (
+          <div key={i} style={{ width: `${s.pct}%`, background: s.color }} />
+        ) : null)}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
+        <span style={{ fontSize: 9, color: 'var(--ts-primary)', fontWeight: 700 }}>{t(lang, '1 · local', '1 · home')}</span>
+        <span style={{ fontSize: 9, color: 'var(--ts-muted)', fontWeight: 700 }}>{t(lang, 'X · empate', 'X · draw')}</span>
+        <span style={{ fontSize: 9, color: 'var(--ts-teal)', fontWeight: 700 }}>{t(lang, '2 · visitante', '2 · away')}</span>
+      </div>
+    </div>
+  )
+}
+
 function MatchRow({ f, lang }: { f: ApiFixture; lang: 'es' | 'en' }) {
   const locale = lang === 'en' ? 'en-US' : 'es-ES'
   const time = new Date(f.fixture.date).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
   const finished = ['FT', 'AET', 'PEN'].includes(f.fixture.status.short)
   const score = finished || f.goals.home != null
+  // Only upcoming matches (not started) get a forecast; the API returns nothing
+  // for finished fixtures anyway, but we gate to avoid the wasted request.
+  const upcoming = f.fixture.status.short === 'NS'
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: '1px solid var(--ts-divider)' }}>
+    <>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: upcoming ? 'none' : '1px solid var(--ts-divider)' }}>
       <span style={{ width: 46, flexShrink: 0, fontSize: 12, fontWeight: 700, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums' }}>{time}</span>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end', minWidth: 0 }}>
         <span style={{ fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.teams.home.name}</span>
@@ -773,6 +1069,8 @@ function MatchRow({ f, lang }: { f: ApiFixture; lang: 'es' | 'en' }) {
         {f.fixture.venue?.name ?? ''}
       </span>
     </div>
+    {upcoming && <PredictionBar fixtureId={f.fixture.id} lang={lang} />}
+    </>
   )
 }
 

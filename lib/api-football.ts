@@ -558,6 +558,64 @@ export const getPlayerInjuries = unstable_cache(
   { revalidate: 21600, tags: ['api-football'] } // 6 h
 )
 
+// League-wide injuries (e.g. World Cup 2026 = league 1) grouped by national
+// team. `/injuries?league=&season=` returns one record per affected player with
+// the team they belong to + the injury type/reason. Empty before the tournament
+// (the UI then shows a graceful empty state). Defensive (→ []). Cached 6 h.
+
+export interface TeamInjury {
+  playerId: number
+  player: string
+  photo: string
+  type: string            // "Missing Fixture" | "Questionable" | reason category
+  reason: string          // free-text reason from the API
+}
+
+export interface TeamInjuryGroup {
+  teamId: number
+  team: string
+  teamLogo: string
+  players: TeamInjury[]
+}
+
+export const getLeagueInjuries = unstable_cache(
+  async (leagueId: number, season: number = 2025): Promise<TeamInjuryGroup[]> => {
+    try {
+      const data = await apiFetch<Array<{
+        player?: { id?: number; name?: string; photo?: string; type?: string; reason?: string }
+        team?: { id?: number; name?: string; logo?: string }
+      }>>(`/injuries?league=${leagueId}&season=${season}`)
+      const byTeam = new Map<number, TeamInjuryGroup>()
+      const seen = new Set<string>() // dedupe player×reason rows the API can repeat per fixture
+      for (const r of data.response ?? []) {
+        const teamId = r.team?.id
+        const playerId = r.player?.id
+        if (teamId == null || playerId == null) continue
+        const key = `${playerId}|${r.player?.reason ?? ''}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        let g = byTeam.get(teamId)
+        if (!g) {
+          g = { teamId, team: r.team?.name ?? '', teamLogo: r.team?.logo ?? '', players: [] }
+          byTeam.set(teamId, g)
+        }
+        g.players.push({
+          playerId,
+          player: r.player?.name ?? '',
+          photo: r.player?.photo ?? '',
+          type: r.player?.type ?? '',
+          reason: r.player?.reason ?? '',
+        })
+      }
+      return [...byTeam.values()].sort((a, b) => a.team.localeCompare(b.team))
+    } catch {
+      return []
+    }
+  },
+  ['api-football-league-injuries'],
+  { revalidate: 21600, tags: ['api-football'] } // 6 h
+)
+
 export const getPlayerSidelined = unstable_cache(
   async (playerId: number): Promise<SidelinedEntry[]> => {
     try {

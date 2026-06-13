@@ -4,7 +4,7 @@ import SaasShell from '@/components/saas/SaasShell'
 import Mundial2026Client from './Mundial2026Client'
 import { wcFaqs } from './wc-faqs'
 import WorldCupFriendlies from '@/components/saas/WorldCupFriendlies'
-import { getFriendlies, getTopScorers, type ApiPlayerResponse } from '@/lib/api-football'
+import { getFriendlies, getTopScorers, getTopAssists, type ApiPlayerResponse } from '@/lib/api-football'
 
 // Auto-refresh hourly so the Golden Boot table, groups and results stay live and
 // the friendlies→group-stage transition flips on its own around kickoff.
@@ -87,6 +87,12 @@ export default async function Mundial2026Page({ params }: { params: Promise<{ la
   let scorers: ApiPlayerResponse[] = []
   try { scorers = await getTopScorers(1, 2026) } catch { scorers = [] }
 
+  // Top assists — server-seeded twin of scorers so the Assists tab lands in the
+  // initial HTML when data exists. Defensive: any error → [] (the client tab
+  // refetches if unseeded).
+  let assists: ApiPlayerResponse[] = []
+  try { assists = await getTopAssists(1, 2026) } catch { assists = [] }
+
   // Data-driven transition: the tournament is "started" once the API reports
   // World Cup scorers (i.e. the first goals are in). More robust than a hardcoded
   // kickoff date — no clock drift, reflects the real tournament. Until then the
@@ -146,7 +152,7 @@ export default async function Mundial2026Page({ params }: { params: Promise<{ la
       {ld(breadcrumbJsonLd)}
       {ld(faqJsonLd)}
       {scorersItemListJsonLd && ld(scorersItemListJsonLd)}
-      <Mundial2026Client initialScorers={scorers} started={started} />
+      <Mundial2026Client initialScorers={scorers} initialAssists={assists} started={started} />
       {!started && <WorldCupFriendlies fixtures={friendlies} lang={lang} />}
     </SaasShell>
   )
