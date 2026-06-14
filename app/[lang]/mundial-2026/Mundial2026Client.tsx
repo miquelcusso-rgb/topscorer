@@ -607,7 +607,9 @@ function LiveDataPanel({ lang }: { lang: 'es' | 'en' }) {
 export default function Mundial2026Client({ initialScorers = [], initialAssists = [], started = false }: { initialScorers?: ApiPlayerResponse[]; initialAssists?: ApiPlayerResponse[]; started?: boolean }) {
   const { lang } = useLang()
   // During the tournament the Golden Boot is the headline → default to it.
-  const [view, setView] = useState<'overview' | 'golden' | 'assists' | 'discipline' | 'injuries' | 'news' | 'groups' | 'calendar' | 'venues' | 'live'>(started ? 'golden' : 'overview')
+  // Always land on the Overview dashboard. The Golden Boot is only shown when the
+  // user explicitly clicks its button/tab (never the default, even mid-tournament).
+  const [view, setView] = useState<'overview' | 'golden' | 'assists' | 'discipline' | 'injuries' | 'news' | 'groups' | 'calendar' | 'venues' | 'live'>('overview')
 
   return (
     <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh' }}>
