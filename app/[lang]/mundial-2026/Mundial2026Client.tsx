@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
@@ -729,7 +729,7 @@ export default function Mundial2026Client({ initialScorers = [], initialAssists 
       {/* Content */}
       <div style={{ background: 'var(--ts-bg)' }}>
         <div style={{ maxWidth: 1500, margin: '0 auto', padding: '24px 20px 80px' }}>
-          {view === 'overview' && <OverviewPanel lang={lang} scorers={initialScorers} onGoGroups={() => setView('groups')} onGoCalendar={() => setView('calendar')} onGoGolden={() => setView('golden')} />}
+          {view === 'overview' && <OverviewPanel lang={lang} scorers={initialScorers} assists={initialAssists} onGoGroups={() => setView('groups')} onGoCalendar={() => setView('calendar')} onGoGolden={() => setView('golden')} onGoAssists={() => setView('assists')} onGoResults={() => setView('live')} onGoNews={() => setView('news')} />}
           {view === 'golden' && <GoldenBootPanel lang={lang} initial={initialScorers} />}
           {view === 'assists' && <AssistsPanel lang={lang} initial={initialAssists} />}
           {view === 'discipline' && <DisciplinePanel lang={lang} />}
@@ -745,9 +745,172 @@ export default function Mundial2026Client({ initialScorers = [], initialAssists 
   )
 }
 
+// ─── Overview dashboard teaser cards ──────────────────────────────────────────
+// Small, self-contained cards used only by the Overview dashboard. Each mirrors
+// the existing panels' "seed-or-fetch" / client-fetch pattern and the brand
+// `--ts-*` tokens. All player/team names are clickable to their pages.
+
+// Shared card shell: header (icon + title) + a "see more" link/button on the right.
+function DashCard({
+  title, icon, action, children,
+}: {
+  title: string
+  icon: ReactNode
+  action?: { label: string; onClick: () => void }
+  children: ReactNode
+}) {
+  return (
+    <div style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--ts-card)', border: '1px solid var(--ts-border)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--ts-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--ts-muted)', fontFamily: "'Barlow Condensed', sans-serif" }}>
+          <span style={{ color: 'var(--ts-primary)', display: 'inline-flex' }}>{icon}</span>
+          {title}
+        </span>
+        {action && (
+          <button
+            type="button"
+            onClick={action.onClick}
+            style={{ fontSize: 10, color: 'var(--ts-primary)', background: 'transparent', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 700, fontFamily: 'inherit', padding: '4px 2px', flexShrink: 0 }}
+          >
+            {action.label} →
+          </button>
+        )}
+      </div>
+      <div style={{ flex: 1 }}>{children}</div>
+    </div>
+  )
+}
+
+// Compact scorer/assist teaser row → player page. `metric` picks goals or assists
+// as the headline number; the other is shown as the small secondary stat.
+function TeaserStatRow({ p, i, lang, metric }: { p: ApiPlayerResponse; i: number; lang: 'es' | 'en'; metric: 'goals' | 'assists' }) {
+  const stat = p.statistics[0]
+  const goals = stat?.goals?.total ?? 0
+  const ast = stat?.goals?.assists ?? 0
+  const headline = metric === 'goals' ? goals : ast
+  const headlineLabel = metric === 'goals' ? t(lang, 'goles', 'goals') : t(lang, 'asist', 'ast')
+  return (
+    <Link
+      href={`/${lang}/jugadores/${slugify(p.player.name)}`}
+      style={{ display: 'flex', alignItems: 'center', gap: 10, minHeight: 44, padding: '8px 16px', borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit' }}
+    >
+      <span style={{ fontSize: 12, fontWeight: 700, width: 18, flexShrink: 0, textAlign: 'center', color: i === 0 ? 'var(--ts-primary)' : 'var(--ts-muted)' }}>{i + 1}</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={p.player.photo} alt={p.player.name} width={26} height={26} style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.player.name}</div>
+        <div style={{ fontSize: 10, color: 'var(--ts-faint)' }}>{stat?.team?.name}</div>
+      </div>
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>{headline}</span>
+        <span style={{ fontSize: 10, marginLeft: 4, color: 'var(--ts-muted)' }}>{headlineLabel}</span>
+      </div>
+    </Link>
+  )
+}
+
+// Latest results teaser — most-recent FINISHED World Cup fixtures (league 1,
+// season 2026). Client-fetch, mirroring LiveDataPanel. Renders nothing (card
+// hidden) until at least one match has actually finished.
+function ResultsTeaserCard({ lang, onGoResults }: { lang: 'es' | 'en'; onGoResults: () => void }) {
+  const [fixtures, setFixtures] = useState<ApiFixture[]>([])
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/football/fixtures?league=1&season=2026&last=8')
+      .then(r => r.json())
+      .then(j => { if (!cancelled && j.ok && Array.isArray(j.data)) setFixtures(j.data) })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoaded(true) })
+    return () => { cancelled = true }
+  }, [])
+
+  // Only FINISHED matches, newest first.
+  const finished = fixtures
+    .filter(f => ['FT', 'AET', 'PEN'].includes(f.fixture.status.short))
+    .sort((a, b) => b.fixture.timestamp - a.fixture.timestamp)
+    .slice(0, 4)
+
+  // Hide gracefully until data exists (pre-tournament / no finished matches yet).
+  if (!loaded || finished.length === 0) return null
+
+  return (
+    <DashCard
+      title={t(lang, 'Últimos resultados', 'Latest results')}
+      icon={<svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>}
+      action={{ label: t(lang, 'Ver todos', 'See all'), onClick: onGoResults }}
+    >
+      {finished.map(f => (
+        <Link
+          key={f.fixture.id}
+          href={`/${lang}/mundial-2026/${slugify(f.teams.home.name)}`}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 16px', borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit' }}
+        >
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 7, justifyContent: 'flex-end', minWidth: 0 }}>
+            <span style={{ fontSize: 12, color: f.teams.home.winner ? 'var(--ts-text)' : 'var(--ts-muted)', fontWeight: f.teams.home.winner ? 700 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.teams.home.name}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={f.teams.home.logo} alt="" width={16} height={16} style={{ objectFit: 'contain', flexShrink: 0 }} />
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 700, flexShrink: 0, fontVariantNumeric: 'tabular-nums', color: 'var(--ts-text)', width: 40, textAlign: 'center' }}>
+            {f.goals.home ?? 0}-{f.goals.away ?? 0}
+          </span>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={f.teams.away.logo} alt="" width={16} height={16} style={{ objectFit: 'contain', flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: f.teams.away.winner ? 'var(--ts-text)' : 'var(--ts-muted)', fontWeight: f.teams.away.winner ? 700 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.teams.away.name}</span>
+          </div>
+        </Link>
+      ))}
+    </DashCard>
+  )
+}
+
+// News teaser — 3–4 World Cup headlines via /api/news?scope=worldcup. Headline +
+// source + link only (ToS). Links out to the original article in a new tab.
+interface TeaserNewsItem { title: string; link: string; source: string; date: string }
+function NewsTeaserCard({ lang, onGoNews }: { lang: 'es' | 'en'; onGoNews: () => void }) {
+  const [items, setItems] = useState<TeaserNewsItem[]>([])
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(`/api/news?lang=${lang}&scope=worldcup`)
+      .then(r => r.json())
+      .then(j => { if (!cancelled && j.ok && Array.isArray(j.items)) setItems(j.items) })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoaded(true) })
+    return () => { cancelled = true }
+  }, [lang])
+
+  if (!loaded || items.length === 0) return null
+  const top = items.slice(0, 4)
+
+  return (
+    <DashCard
+      title={t(lang, 'Noticias', 'News')}
+      icon={<svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 4h16v16H4z" /><path d="M8 8h8M8 12h8M8 16h5" /></svg>}
+      action={{ label: t(lang, 'Más noticias', 'More news'), onClick: onGoNews }}
+    >
+      {top.map((it, i) => (
+        <a
+          key={i}
+          href={it.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: 'flex', flexDirection: 'column', gap: 3, minHeight: 44, justifyContent: 'center', padding: '8px 16px', borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit' }}
+        >
+          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{it.title}</span>
+          <span style={{ fontSize: 10, color: 'var(--ts-faint)' }}>{it.source}</span>
+        </a>
+      ))}
+    </DashCard>
+  )
+}
+
 // ─── Overview panel ───────────────────────────────────────────────────────────
 
-function OverviewPanel({ lang, scorers, onGoGroups, onGoCalendar, onGoGolden }: { lang: 'es' | 'en'; scorers: ApiPlayerResponse[]; onGoGroups: () => void; onGoCalendar: () => void; onGoGolden: () => void }) {
+function OverviewPanel({ lang, scorers, assists, onGoGroups, onGoCalendar, onGoGolden, onGoAssists, onGoResults, onGoNews }: { lang: 'es' | 'en'; scorers: ApiPlayerResponse[]; assists: ApiPlayerResponse[]; onGoGroups: () => void; onGoCalendar: () => void; onGoGolden: () => void; onGoAssists: () => void; onGoResults: () => void; onGoNews: () => void }) {
   const stats = [
     { label: t(lang, 'Selecciones', 'Teams'), value: '48', desc: t(lang, 'Primer mundial con 48 equipos', 'First 48-team World Cup') },
     { label: t(lang, 'Grupos', 'Groups'), value: '12', desc: t(lang, 'Grupos de 4 — top 2 + mejores 8 terceros', 'Groups of 4 — top 2 + best 8 thirds') },
@@ -858,6 +1021,38 @@ function OverviewPanel({ lang, scorers, onGoGroups, onGoCalendar, onGoGolden }: 
             <span style={{ fontSize: 11, marginLeft: 'auto', color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>x{f.odds}</span>
           </Link>
         ))}
+      </div>
+
+      {/* Dashboard grid — balanced teaser cards. Golden Boot is ONE card here
+          (not the hero): format + favourites lead above. All names clickable. */}
+      <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+        {/* Golden Boot teaser (data: `scorers` prop) — hidden until scorers exist. */}
+        {scorers.length > 0 && (
+          <DashCard
+            title={t(lang, 'Bota de Oro', 'Golden Boot')}
+            icon={<svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9a6 6 0 0 0 12 0V3H6Z" /><path d="M6 5H3v2a3 3 0 0 0 3 3M18 5h3v2a3 3 0 0 1-3 3M9 21h6M12 15v6" /></svg>}
+            action={{ label: t(lang, 'Ver completa', 'See full'), onClick: onGoGolden }}
+          >
+            {scorers.slice(0, 5).map((p, i) => <TeaserStatRow key={p.player.id} p={p} i={i} lang={lang} metric="goals" />)}
+          </DashCard>
+        )}
+
+        {/* Assists teaser (data: `assists` prop) — hidden until assists exist. */}
+        {assists.length > 0 && (
+          <DashCard
+            title={t(lang, 'Asistencias', 'Assists')}
+            icon={<svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M14 9V5a3 3 0 0 0-6 0v4M5 9h14l1 12H4Z" /></svg>}
+            action={{ label: t(lang, 'Ver completas', 'See full'), onClick: onGoAssists }}
+          >
+            {assists.slice(0, 5).map((p, i) => <TeaserStatRow key={p.player.id} p={p} i={i} lang={lang} metric="assists" />)}
+          </DashCard>
+        )}
+
+        {/* Latest results teaser (client-fetch) — self-hides until a match ends. */}
+        <ResultsTeaserCard lang={lang} onGoResults={onGoResults} />
+
+        {/* News teaser (client-fetch) — self-hides when no headlines. */}
+        <NewsTeaserCard lang={lang} onGoNews={onGoNews} />
       </div>
 
       {/* FAQ — visible answers mirror the FAQPage JSON-LD (GEO citable content) */}
