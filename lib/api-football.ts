@@ -211,8 +211,8 @@ export const getTopAssists = unstable_cache(
     )
     return data.response ?? []
   },
-  ['api-football-topassists'],
-  { revalidate: 10800, tags: ['api-football'] } // 3 h — assists change slowly
+  ['api-football-topassists-v2'], // v2: bust a stale pre-tournament empty cache
+  { revalidate: 1800, tags: ['api-football'] } // 30 min during the tournament
 )
 
 export const getStandings = unstable_cache(

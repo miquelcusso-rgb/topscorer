@@ -295,15 +295,15 @@ function AssistsPanel({ lang, initial }: { lang: 'es' | 'en'; initial: ApiPlayer
   const [loading, setLoading] = useState(initial.length === 0)
 
   useEffect(() => {
-    if (initial.length > 0) return
+    // Always refetch live — don't trust a possibly-stale empty seed baked at build.
     let cancelled = false
     fetch('/api/football/topscorers?league=1&season=2026&type=assists')
       .then(r => r.json())
-      .then(j => { if (!cancelled && j.ok && Array.isArray(j.data)) setPlayers(j.data) })
+      .then(j => { if (!cancelled && j.ok && Array.isArray(j.data) && j.data.length) setPlayers(j.data) })
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [initial.length])
+  }, [])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -658,22 +658,7 @@ export default function Mundial2026Client({ initialScorers = [], initialAssists 
 
           {/* Nav tabs */}
           <div style={{ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-            {/* Friendlies: scroll-jump (NOT a tab view) to the build-up section
-                rendered by page.tsx below — only present before the tournament. */}
-            {!started && (
-              <button
-                type="button"
-                onClick={() => document.getElementById('wc-friendlies')?.scrollIntoView({ behavior: 'smooth' })}
-                style={{
-                  fontSize: 11, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1.5, fontWeight: 700, textTransform: 'uppercase',
-                  color: 'var(--ts-teal)', background: 'transparent', border: 'none', cursor: 'pointer',
-                  borderBottom: '2px solid transparent', padding: '9px 18px', marginBottom: -1, flexShrink: 0,
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                }}
-              >
-                <span aria-hidden>🤝</span>{t(lang, 'Amistosos', 'Friendlies')} <span aria-hidden style={{ opacity: 0.7 }}>↓</span>
-              </button>
-            )}
+            {/* Friendlies tab removed — pre-tournament build-up is no longer current. */}
             {([
               { id: 'overview', es: 'Resumen', en: 'Overview' },
               { id: 'groups', es: 'Grupos', en: 'Groups' },
