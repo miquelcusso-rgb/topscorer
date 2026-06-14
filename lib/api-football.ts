@@ -1235,6 +1235,253 @@ export const getTopYellowCards = unstable_cache(
   { revalidate: 21600, tags: ['api-football'] } // 6 h
 )
 
+// ─── Single-fixture detail (match page) ───────────────────────────────────────
+// Lineups, timeline events, per-player match stats/ratings and team statistics
+// for ONE fixture. All short TTL (300 s) since a match can be live. All fully
+// defensive (→ [] / null), so a scheduled match (no data yet) or a transient API
+// error degrades to a graceful empty state and never 500s the page.
+
+export interface FixtureTeamRef {
+  id: number
+  name: string
+  logo: string
+  winner: boolean | null
+}
+
+// One starting-XI / bench entry from /fixtures/lineups.
+export interface LineupPlayer {
+  id: number | null
+  name: string
+  number: number | null
+  pos: string | null        // "G" | "D" | "M" | "F"
+  grid: string | null       // "1:1" row:col on the pitch (startXI only)
+}
+
+export interface FixtureLineup {
+  teamId: number
+  teamName: string
+  teamLogo: string
+  formation: string | null
+  coach: string | null
+  startXI: LineupPlayer[]
+  substitutes: LineupPlayer[]
+}
+
+export const getFixtureLineups = unstable_cache(
+  async (fixtureId: number): Promise<FixtureLineup[]> => {
+    try {
+      const data = await apiFetch<Array<{
+        team?: { id?: number; name?: string; logo?: string }
+        formation?: string | null
+        coach?: { name?: string | null }
+        startXI?: Array<{ player?: { id?: number | null; name?: string; number?: number | null; pos?: string | null; grid?: string | null } }>
+        substitutes?: Array<{ player?: { id?: number | null; name?: string; number?: number | null; pos?: string | null; grid?: string | null } }>
+      }>>(`/fixtures/lineups?fixture=${fixtureId}`)
+      const mapP = (x: { player?: { id?: number | null; name?: string; number?: number | null; pos?: string | null; grid?: string | null } }): LineupPlayer => ({
+        id: x.player?.id ?? null,
+        name: x.player?.name ?? '',
+        number: x.player?.number ?? null,
+        pos: x.player?.pos ?? null,
+        grid: x.player?.grid ?? null,
+      })
+      return (data.response ?? []).map(l => ({
+        teamId: l.team?.id ?? 0,
+        teamName: l.team?.name ?? '',
+        teamLogo: l.team?.logo ?? '',
+        formation: l.formation ?? null,
+        coach: l.coach?.name ?? null,
+        startXI: (l.startXI ?? []).map(mapP),
+        substitutes: (l.substitutes ?? []).map(mapP),
+      }))
+    } catch {
+      return []
+    }
+  },
+  ['api-football-fixture-lineups'],
+  { revalidate: 300, tags: ['api-football'] } // 5 min — can be live
+)
+
+// One timeline event from /fixtures/events (goal, card, subst, VAR).
+export interface FixtureEvent {
+  minute: number
+  extra: number | null      // added-time minutes (e.g. 90+3 → 3)
+  teamId: number
+  teamName: string
+  player: string
+  assist: string | null     // assist (goal) OR player coming ON (subst)
+  type: string              // "Goal" | "Card" | "subst" | "Var"
+  detail: string            // "Normal Goal" | "Yellow Card" | "Substitution 1"…
+  comments: string | null
+}
+
+export const getFixtureEvents = unstable_cache(
+  async (fixtureId: number): Promise<FixtureEvent[]> => {
+    try {
+      const data = await apiFetch<Array<{
+        time?: { elapsed?: number | null; extra?: number | null }
+        team?: { id?: number; name?: string }
+        player?: { name?: string | null }
+        assist?: { name?: string | null }
+        type?: string
+        detail?: string
+        comments?: string | null
+      }>>(`/fixtures/events?fixture=${fixtureId}`)
+      return (data.response ?? [])
+        .map(e => ({
+          minute: e.time?.elapsed ?? 0,
+          extra: e.time?.extra ?? null,
+          teamId: e.team?.id ?? 0,
+          teamName: e.team?.name ?? '',
+          player: e.player?.name ?? '',
+          assist: e.assist?.name ?? null,
+          type: e.type ?? '',
+          detail: e.detail ?? '',
+          comments: e.comments ?? null,
+        }))
+        .sort((a, b) => (a.minute + (a.extra ?? 0)) - (b.minute + (b.extra ?? 0)))
+    } catch {
+      return []
+    }
+  },
+  ['api-football-fixture-events'],
+  { revalidate: 300, tags: ['api-football'] } // 5 min — can be live
+)
+
+// Per-player match stats/ratings from /fixtures/players, grouped by team.
+export interface FixturePlayerStat {
+  id: number | null
+  name: string
+  number: number | null
+  photo: string
+  rating: number | null
+  minutes: number | null
+  goals: number | null
+  assists: number | null
+  shotsTotal: number | null
+  shotsOn: number | null
+  passes: number | null
+  passAccuracy: number | null
+  captain: boolean
+}
+
+export interface FixturePlayersGroup {
+  teamId: number
+  teamName: string
+  teamLogo: string
+  players: FixturePlayerStat[]
+}
+
+export const getFixturePlayers = unstable_cache(
+  async (fixtureId: number): Promise<FixturePlayersGroup[]> => {
+    try {
+      const data = await apiFetch<Array<{
+        team?: { id?: number; name?: string; logo?: string }
+        players?: Array<{
+          player?: { id?: number | null; name?: string; photo?: string }
+          statistics?: Array<Record<string, any>>
+        }>
+      }>>(`/fixtures/players?fixture=${fixtureId}`)
+      return (data.response ?? []).map(g => ({
+        teamId: g.team?.id ?? 0,
+        teamName: g.team?.name ?? '',
+        teamLogo: g.team?.logo ?? '',
+        players: (g.players ?? []).map(p => {
+          const s = p.statistics?.[0] ?? {}
+          const r = s.games?.rating != null ? Number(s.games.rating) : null
+          return {
+            id: p.player?.id ?? null,
+            name: p.player?.name ?? '',
+            number: s.games?.number ?? null,
+            photo: p.player?.photo ?? '',
+            rating: r != null && Number.isFinite(r) ? Math.round(r * 100) / 100 : null,
+            minutes: s.games?.minutes ?? null,
+            goals: s.goals?.total ?? null,
+            assists: s.goals?.assists ?? null,
+            shotsTotal: s.shots?.total ?? null,
+            shotsOn: s.shots?.on ?? null,
+            passes: s.passes?.total ?? null,
+            passAccuracy: s.passes?.accuracy != null ? Number(s.passes.accuracy) : null,
+            captain: !!s.games?.captain,
+          }
+        }),
+      }))
+    } catch {
+      return []
+    }
+  },
+  ['api-football-fixture-players'],
+  { revalidate: 300, tags: ['api-football'] } // 5 min — can be live
+)
+
+// Raw per-team statistics array from /fixtures/statistics (type/value pairs).
+export interface FixtureTeamStatistics {
+  teamId: number
+  teamName: string
+  teamLogo: string
+  stats: { type: string; value: string | number | null }[]
+}
+
+export const getFixtureStatistics = unstable_cache(
+  async (fixtureId: number): Promise<FixtureTeamStatistics[]> => {
+    try {
+      const data = await apiFetch<Array<{
+        team?: { id?: number; name?: string; logo?: string }
+        statistics?: Array<{ type?: string; value?: string | number | null }>
+      }>>(`/fixtures/statistics?fixture=${fixtureId}`)
+      return (data.response ?? []).map(t => ({
+        teamId: t.team?.id ?? 0,
+        teamName: t.team?.name ?? '',
+        teamLogo: t.team?.logo ?? '',
+        stats: (t.statistics ?? []).map(s => ({ type: s.type ?? '', value: s.value ?? null })),
+      }))
+    } catch {
+      return []
+    }
+  },
+  ['api-football-fixture-statistics'],
+  { revalidate: 300, tags: ['api-football'] } // 5 min — can be live
+)
+
+// Single fixture header (teams, score, status, venue, league/round/date).
+export const getFixtureById = unstable_cache(
+  async (fixtureId: number): Promise<ApiFixture | null> => {
+    try {
+      const data = await apiFetch<ApiFixture[]>(`/fixtures?id=${fixtureId}`)
+      return data.response?.[0] ?? null
+    } catch {
+      return null
+    }
+  },
+  ['api-football-fixture-by-id'],
+  { revalidate: 300, tags: ['api-football'] } // 5 min — can be live
+)
+
+// One round-trip for the match-detail page: header + lineups + events + per-player
+// stats + team statistics. All pieces independently defensive; `fixture: null`
+// signals "fixture not found" so the page can render a graceful not-found state.
+export interface MatchDetail {
+  fixture: ApiFixture | null
+  lineups: FixtureLineup[]
+  events: FixtureEvent[]
+  players: FixturePlayersGroup[]
+  statistics: FixtureTeamStatistics[]
+}
+
+export const getMatchDetail = unstable_cache(
+  async (fixtureId: number): Promise<MatchDetail> => {
+    const [fixture, lineups, events, players, statistics] = await Promise.all([
+      getFixtureById(fixtureId),
+      getFixtureLineups(fixtureId),
+      getFixtureEvents(fixtureId),
+      getFixturePlayers(fixtureId),
+      getFixtureStatistics(fixtureId),
+    ])
+    return { fixture, lineups, events, players, statistics }
+  },
+  ['api-football-match-detail'],
+  { revalidate: 300, tags: ['api-football'] } // 5 min — can be live
+)
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getLeague(id: number): LeagueMeta | undefined {

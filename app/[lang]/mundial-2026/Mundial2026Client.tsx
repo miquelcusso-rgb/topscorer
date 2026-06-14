@@ -548,21 +548,21 @@ function LiveDataPanel({ lang }: { lang: 'es' | 'en' }) {
         </div>
         {fixtures.slice().reverse().map(f => (
           <div key={f.fixture.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: '1px solid var(--ts-divider)' }}>
-            <span style={{ fontSize: 10, flexShrink: 0, color: 'var(--ts-muted)', width: 32 }}>
+            <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} aria-label={t(lang, 'Ver detalle del partido', 'View match detail')} style={{ fontSize: 10, flexShrink: 0, color: 'var(--ts-muted)', width: 32, textDecoration: 'none', cursor: 'pointer' }}>
               {['FT', 'AET', 'PEN'].includes(f.fixture.status.short) ? 'FIN' : f.fixture.status.short}
-            </span>
+            </Link>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
-              <span style={{ fontSize: 11, color: f.teams.home.winner ? 'var(--ts-text)' : 'var(--ts-muted)' }}>{f.teams.home.name}</span>
+              <Link href={`/${lang}/mundial-2026/${slugify(f.teams.home.name)}`} style={{ fontSize: 11, color: f.teams.home.winner ? 'var(--ts-text)' : 'var(--ts-muted)', textDecoration: 'none', cursor: 'pointer' }}>{f.teams.home.name}</Link>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={f.teams.home.logo} alt="" width={14} height={14} style={{ objectFit: 'contain', flexShrink: 0 }} />
             </div>
-            <span style={{ fontSize: 12, fontWeight: 700, flexShrink: 0, fontVariantNumeric: 'tabular-nums', color: 'var(--ts-text)', width: 40, textAlign: 'center' }}>
+            <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} style={{ fontSize: 12, fontWeight: 700, flexShrink: 0, fontVariantNumeric: 'tabular-nums', color: 'var(--ts-text)', width: 40, textAlign: 'center', textDecoration: 'none', cursor: 'pointer' }}>
               {f.goals.home} - {f.goals.away}
-            </span>
+            </Link>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={f.teams.away.logo} alt="" width={14} height={14} style={{ objectFit: 'contain', flexShrink: 0 }} />
-              <span style={{ fontSize: 11, color: f.teams.away.winner ? 'var(--ts-text)' : 'var(--ts-muted)' }}>{f.teams.away.name}</span>
+              <Link href={`/${lang}/mundial-2026/${slugify(f.teams.away.name)}`} style={{ fontSize: 11, color: f.teams.away.winner ? 'var(--ts-text)' : 'var(--ts-muted)', textDecoration: 'none', cursor: 'pointer' }}>{f.teams.away.name}</Link>
             </div>
           </div>
         ))}
@@ -827,25 +827,24 @@ function ResultsTeaserCard({ lang, onGoResults }: { lang: 'es' | 'en'; onGoResul
       action={{ label: t(lang, 'Ver todos', 'See all'), onClick: onGoResults }}
     >
       {finished.map(f => (
-        <Link
+        <div
           key={f.fixture.id}
-          href={`/${lang}/mundial-2026/${slugify(f.teams.home.name)}`}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 16px', borderBottom: '1px solid var(--ts-divider)', textDecoration: 'none', color: 'inherit' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 44, padding: '8px 16px', borderBottom: '1px solid var(--ts-divider)', color: 'inherit' }}
         >
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 7, justifyContent: 'flex-end', minWidth: 0 }}>
-            <span style={{ fontSize: 12, color: f.teams.home.winner ? 'var(--ts-text)' : 'var(--ts-muted)', fontWeight: f.teams.home.winner ? 700 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.teams.home.name}</span>
+            <Link href={`/${lang}/mundial-2026/${slugify(f.teams.home.name)}`} style={{ fontSize: 12, color: f.teams.home.winner ? 'var(--ts-text)' : 'var(--ts-muted)', fontWeight: f.teams.home.winner ? 700 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: 'none', cursor: 'pointer' }}>{f.teams.home.name}</Link>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={f.teams.home.logo} alt="" width={16} height={16} style={{ objectFit: 'contain', flexShrink: 0 }} />
           </div>
-          <span style={{ fontSize: 13, fontWeight: 700, flexShrink: 0, fontVariantNumeric: 'tabular-nums', color: 'var(--ts-text)', width: 40, textAlign: 'center' }}>
+          <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} aria-label={t(lang, 'Ver detalle del partido', 'View match detail')} style={{ fontSize: 13, fontWeight: 700, flexShrink: 0, fontVariantNumeric: 'tabular-nums', color: 'var(--ts-text)', width: 40, textAlign: 'center', textDecoration: 'none', cursor: 'pointer' }}>
             {f.goals.home ?? 0}-{f.goals.away ?? 0}
-          </span>
+          </Link>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={f.teams.away.logo} alt="" width={16} height={16} style={{ objectFit: 'contain', flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: f.teams.away.winner ? 'var(--ts-text)' : 'var(--ts-muted)', fontWeight: f.teams.away.winner ? 700 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.teams.away.name}</span>
+            <Link href={`/${lang}/mundial-2026/${slugify(f.teams.away.name)}`} style={{ fontSize: 12, color: f.teams.away.winner ? 'var(--ts-text)' : 'var(--ts-muted)', fontWeight: f.teams.away.winner ? 700 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: 'none', cursor: 'pointer' }}>{f.teams.away.name}</Link>
           </div>
-        </Link>
+        </div>
       ))}
     </DashCard>
   )
@@ -1230,26 +1229,29 @@ function MatchRow({ f, lang }: { f: ApiFixture; lang: 'es' | 'en' }) {
   // Only upcoming matches (not started) get a forecast; the API returns nothing
   // for finished fixtures anyway, but we gate to avoid the wasted request.
   const upcoming = f.fixture.status.short === 'NS'
+  // Country names link to nation pages; the score/time + venue link to the match
+  // detail page. (Sibling <a>s, never nested — nested anchors are invalid HTML.)
+  const teamNameStyle: React.CSSProperties = { fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: 'none', cursor: 'pointer' }
   return (
     <>
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: upcoming ? 'none' : '1px solid var(--ts-divider)' }}>
-      <span style={{ width: 46, flexShrink: 0, fontSize: 12, fontWeight: 700, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums' }}>{time}</span>
+      <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} aria-label={t(lang, 'Ver detalle del partido', 'View match detail')} style={{ width: 46, flexShrink: 0, fontSize: 12, fontWeight: 700, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums', textDecoration: 'none', cursor: 'pointer' }}>{time}</Link>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end', minWidth: 0 }}>
-        <span style={{ fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.teams.home.name}</span>
+        <Link href={`/${lang}/mundial-2026/${slugify(f.teams.home.name)}`} style={teamNameStyle}>{f.teams.home.name}</Link>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={f.teams.home.logo} alt="" width={18} height={18} style={{ objectFit: 'contain', flexShrink: 0 }} />
       </div>
-      <span style={{ width: 44, textAlign: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>
+      <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} style={{ width: 44, textAlign: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums', textDecoration: 'none', cursor: 'pointer' }}>
         {score ? `${f.goals.home ?? 0}-${f.goals.away ?? 0}` : 'vs'}
-      </span>
+      </Link>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={f.teams.away.logo} alt="" width={18} height={18} style={{ objectFit: 'contain', flexShrink: 0 }} />
-        <span style={{ fontSize: 13, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.teams.away.name}</span>
+        <Link href={`/${lang}/mundial-2026/${slugify(f.teams.away.name)}`} style={teamNameStyle}>{f.teams.away.name}</Link>
       </div>
-      <span className="wc-venue" style={{ width: 150, flexShrink: 0, textAlign: 'right', fontSize: 11, color: 'var(--ts-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+      <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} className="wc-venue" style={{ width: 150, flexShrink: 0, textAlign: 'right', fontSize: 11, color: 'var(--ts-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: 'none', cursor: 'pointer' }}>
         {f.fixture.venue?.name ?? ''}
-      </span>
+      </Link>
     </div>
     {upcoming && <PredictionBar fixtureId={f.fixture.id} lang={lang} />}
     </>
