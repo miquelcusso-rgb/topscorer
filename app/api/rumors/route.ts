@@ -18,8 +18,8 @@ export async function GET(req: NextRequest) {
     .select('*')
     .eq('is_active', true)
     .gte('likelihood', minL)
+    .order('last_seen_at', { ascending: false }) // freshness first → newest rumours surface/rotate
     .order('likelihood', { ascending: false })
-    .order('last_seen_at', { ascending: false })
     .limit(limit)
 
   if (status) q = q.eq('status', status)

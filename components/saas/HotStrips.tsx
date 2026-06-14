@@ -142,7 +142,43 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
 }) {
   const en = lang === 'en'
   const newsLeads: Lead[] = news.slice(0, 3).map(n => ({ label: n.title, sub: n.source, href: n.link, external: true, badge: n.lang, siteLang: lang }))
-  const rumorLeads: Lead[] = rumors.slice(0, 3).map(r => ({
+
+  // The home is force-static, so the build-time `rumors` prop always shows the
+  // same 3. Refresh client-side from a larger fresh pool and rotate a window of
+  // 3 every 6h, so visitors see different rumours through the day. Cron-added
+  // transfer rows carry no headline_es/en → synthesize one (player: from → to).
+  const [pool, setPool] = useState<HomeRumor[]>(rumors)
+  useEffect(() => {
+    let cancel = false
+    fetch('/api/rumors?limit=18')
+      .then(r => r.json())
+      .then((j: { data?: Array<Record<string, unknown>> }) => {
+        if (cancel || !Array.isArray(j.data) || !j.data.length) return
+        const mapped = j.data.map((d): HomeRumor => {
+          const hl = (en ? d.headline_en : d.headline_es) || d.headline_es || d.headline_en
+          const synth = [d.player_name, [d.from_club, d.to_club].filter(Boolean).join(' → ')].filter(Boolean).join(': ')
+          return {
+            id: String(d.id),
+            headline: String(hl || synth || ''),
+            fromClub: (d.from_club as string) ?? null,
+            toClub: (d.to_club as string) ?? null,
+            likelihood: typeof d.likelihood === 'number' ? d.likelihood : null,
+            playerName: (d.player_name as string) ?? null,
+            playerSlug: (d.player_slug as string) ?? null,
+            playerPhoto: (d.player_photo as string) ?? null,
+          }
+        }).filter(r => r.headline)
+        if (mapped.length) setPool(mapped)
+      })
+      .catch(() => {})
+    return () => { cancel = true }
+  }, [en])
+  // Window of 3, rotating every 6h (deterministic within a slot).
+  const rotated: HomeRumor[] = pool.length <= 3
+    ? pool.slice(0, 3)
+    : Array.from({ length: 3 }, (_, i) => pool[(Math.floor(Date.now() / 21_600_000) * 3 + i) % pool.length])
+
+  const rumorLeads: Lead[] = rotated.map(r => ({
     label: r.headline,
     sub: r.toClub ?? r.fromClub ?? undefined,
     crest: (r.toClub && clubLogo(r.toClub)) || (r.fromClub && clubLogo(r.fromClub)) || undefined,
