@@ -8,13 +8,15 @@ export async function GET(request: NextRequest) {
   const fixture = Number(searchParams.get('fixture') ?? '0')
 
   if (!fixture) {
-    return Response.json({ ok: false, error: 'missing fixture' }, { status: 400 })
+    return Response.json({ ok: false, error: 'missing fixture' }, { status: 400, headers: { 'Cache-Control': 'no-store' } })
   }
 
   try {
     const data = await getFixturePrediction(fixture)
-    return Response.json({ ok: true, data })
+    return Response.json({ ok: true, data }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
-    return Response.json({ ok: false, error: String(err) }, { status: 500 })
+    return Response.json({ ok: false, error: String(err) }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
   }
 }

@@ -27,6 +27,8 @@ export async function GET(req: NextRequest) {
   if (club) q = q.or(`from_club.eq.${club},to_club.eq.${club}`)
 
   const { data, error } = await q
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ data, count: data?.length ?? 0 })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
+  return NextResponse.json({ data, count: data?.length ?? 0 }, {
+    headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+  })
 }

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     .gt('points', 0)
     .order('points', { ascending: false })
     .limit(limit)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
 
   // Hydrate display name from Clerk (small batch)
   let nameMap: Record<string, string> = {}
@@ -37,5 +37,7 @@ export async function GET(req: NextRequest) {
     tier: tierFromPoints(r.points).tier,
   }))
 
-  return NextResponse.json({ data: rows, count: rows.length })
+  return NextResponse.json({ data: rows, count: rows.length }, {
+    headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+  })
 }

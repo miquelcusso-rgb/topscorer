@@ -14,7 +14,9 @@ export async function GET(request: NextRequest) {
     // All groups (e.g. World Cup A–L) — array of standings arrays.
     if (groups) {
       const data = await getAllStandings(league, season)
-      return Response.json({ ok: true, data })
+      return Response.json({ ok: true, data }, {
+        headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+      })
     }
 
     // Try football-data.org first for Big 5 leagues when token is available
@@ -39,7 +41,9 @@ export async function GET(request: NextRequest) {
             home: { played: 0, win: 0, draw: 0, lose: 0, goals: { for: 0, against: 0 } },
             away: { played: 0, win: 0, draw: 0, lose: 0, goals: { for: 0, against: 0 } },
           }))
-          return Response.json({ ok: true, data })
+          return Response.json({ ok: true, data }, {
+            headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+          })
         }
       } catch {
         // fall through to API-Football
@@ -48,8 +52,10 @@ export async function GET(request: NextRequest) {
 
     // Fallback: API-Football
     const data = await getStandings(league, season)
-    return Response.json({ ok: true, data })
+    return Response.json({ ok: true, data }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
-    return Response.json({ ok: false, error: String(err) }, { status: 500 })
+    return Response.json({ ok: false, error: String(err) }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
   }
 }

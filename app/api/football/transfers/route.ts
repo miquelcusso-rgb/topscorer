@@ -44,8 +44,10 @@ export async function GET(req: NextRequest) {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 50)
 
-    return Response.json({ ok: true, data: transfers, league })
+    return Response.json({ ok: true, data: transfers, league }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
-    return Response.json({ ok: false, error: String(err) }, { status: 500 })
+    return Response.json({ ok: false, error: String(err) }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
   }
 }

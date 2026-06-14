@@ -13,8 +13,10 @@ export async function GET(request: NextRequest) {
     const data = type === 'assists'
       ? await getTopAssists(league, season)
       : await getTopScorers(league, season)
-    return Response.json({ ok: true, data })
+    return Response.json({ ok: true, data }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
-    return Response.json({ ok: false, error: String(err) }, { status: 500 })
+    return Response.json({ ok: false, error: String(err) }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
   }
 }
