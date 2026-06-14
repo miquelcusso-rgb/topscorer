@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
   for (const lid of leagueIds) {
     try {
-      const res = await fetch(`https://v3.football.api-sports.io/transfers?league=${lid}&season=2026`, {
+      const res = await fetch(`https://v3.football.api-sports.io/transfers?league=${lid}&season=2025`, {
         headers: { 'x-apisports-key': apiKey },
         next: { revalidate: 21600 },
       })
