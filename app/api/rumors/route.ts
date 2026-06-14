@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
 
-export const revalidate = 60
+export const revalidate = 3600 // was 60 — client rotates over the pool, so hourly freshness is plenty (free-tier ISR)
 
 // GET /api/rumors?status=rumor&min_likelihood=0&limit=50
 export async function GET(req: NextRequest) {

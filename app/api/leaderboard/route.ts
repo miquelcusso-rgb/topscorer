@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase'
 import { clerkClient } from '@clerk/nextjs/server'
 import { tierFromPoints } from '@/lib/badges'
 
-export const revalidate = 300
+export const revalidate = 1800 // was 300 (free-tier ISR writes)
 
 // GET /api/leaderboard?limit=50
 export async function GET(req: NextRequest) {

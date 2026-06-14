@@ -5,7 +5,7 @@ import { slugify } from '@/lib/slugify'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const revalidate = 300
+export const revalidate = 1800 // was 300 (free-tier ISR writes)
 
 // Iframe-friendly Top-10 scorers widget.
 // URL: /embed/top10/[league]?theme=light|dark

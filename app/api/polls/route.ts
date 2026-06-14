@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
 import { isPro, isScout, isTeam } from '@/lib/plans'
 
-export const revalidate = 60
+export const revalidate = 3600 // was 60 — too aggressive for the Vercel free tier (ISR writes)
 
 // Early access window per plan:
 //  - free  → polls become visible when starts_at <= now
