@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
-import SaasShell from '@/components/saas/SaasShell'
-import Mundial2026Client from './Mundial2026Client'
-import { wcFaqs } from './wc-faqs'
+import { wcFaqs } from '../wc-faqs'
 import WorldCupFriendlies from '@/components/saas/WorldCupFriendlies'
+import OverviewPanel from '../_panels/OverviewPanel'
 import { getFriendlies, getTopScorers, getTopAssists, type ApiPlayerResponse } from '@/lib/api-football'
 
-// Auto-refresh hourly so the Golden Boot table, groups and results stay live and
+// Auto-refresh hourly so the Golden Boot teaser, groups and results stay live and
 // the friendlies→group-stage transition flips on its own around kickoff.
 export const revalidate = 3600
 
@@ -79,24 +78,23 @@ const sportsEventJsonLd = {
 export default async function Mundial2026Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
-  const breadcrumb = lang === 'en' ? ['Competitions', 'World Cup 2026'] : ['Competiciones', 'Mundial 2026']
 
   // Live Golden Boot data (league 1 = FIFA World Cup, season 2026). Defensive:
-  // any error → [] (pre-tournament the API has no scorers yet). Seeds the client
-  // so scorers land in the initial HTML, and powers the ItemList JSON-LD.
+  // any error → [] (pre-tournament the API has no scorers yet). Seeds the
+  // Overview teasers so scorers land in the initial HTML, and powers the
+  // ItemList JSON-LD.
   let scorers: ApiPlayerResponse[] = []
   try { scorers = await getTopScorers(1, 2026) } catch { scorers = [] }
 
-  // Top assists — server-seeded twin of scorers so the Assists tab lands in the
-  // initial HTML when data exists. Defensive: any error → [] (the client tab
-  // refetches if unseeded).
+  // Top assists — server-seeded twin of scorers so the Assists teaser lands in
+  // the initial HTML when data exists. Defensive: any error → [].
   let assists: ApiPlayerResponse[] = []
   try { assists = await getTopAssists(1, 2026) } catch { assists = [] }
 
   // Data-driven transition: the tournament is "started" once the API reports
   // World Cup scorers (i.e. the first goals are in). More robust than a hardcoded
   // kickoff date — no clock drift, reflects the real tournament. Until then the
-  // groups, calendar and build-up friendlies carry the page (never empty).
+  // build-up friendlies carry the page (never empty).
   const started = scorers.length > 0
 
   // Build-up friendlies: only fetched/shown before the tournament starts. After
@@ -147,13 +145,13 @@ export default async function Mundial2026Page({ params }: { params: Promise<{ la
   )
 
   return (
-    <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
+    <>
       {ld(sportsEventJsonLd)}
       {ld(breadcrumbJsonLd)}
       {ld(faqJsonLd)}
       {scorersItemListJsonLd && ld(scorersItemListJsonLd)}
-      <Mundial2026Client initialScorers={scorers} initialAssists={assists} started={started} />
+      <OverviewPanel scorers={scorers} assists={assists} />
       {!started && <WorldCupFriendlies fixtures={friendlies} lang={lang} />}
-    </SaasShell>
+    </>
   )
 }

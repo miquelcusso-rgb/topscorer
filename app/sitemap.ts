@@ -36,6 +36,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ['/',                        'hourly',  1],
     ['/resultados',              'hourly',  0.9],
     ['/mundial-2026',            'daily',   0.95],
+    // World Cup 2026 tab routes (each its own indexable URL). High priority —
+    // seasonal traffic surface. hourly/daily mirrors each route's revalidate.
+    ['/mundial-2026/grupos',     'hourly',  0.9],
+    ['/mundial-2026/calendario', 'hourly',  0.9],
+    ['/mundial-2026/resultados', 'hourly',  0.9],
+    ['/mundial-2026/bota-de-oro','hourly',  0.9],
+    ['/mundial-2026/asistentes', 'hourly',  0.88],
+    ['/mundial-2026/disciplina', 'daily',   0.85],
+    ['/mundial-2026/bajas',      'daily',   0.85],
+    ['/mundial-2026/noticias',   'hourly',  0.85],
+    ['/mundial-2026/sedes',      'monthly', 0.8],
     ['/pricing',                 'monthly', 0.7],
     ['/about',                   'monthly', 0.5],
     ['/terminos',                'yearly',  0.3],
