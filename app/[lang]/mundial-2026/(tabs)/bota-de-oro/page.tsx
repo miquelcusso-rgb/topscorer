@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
 import GoldenBootPanel from '../../_panels/GoldenBootPanel'
+import { goldenBootFaqs } from '../../wc-faqs'
 import { getTopScorers, type ApiPlayerResponse } from '@/lib/api-football'
 
 // Live ranking → revalidate hourly (the panel keeps the seed if present).
@@ -75,6 +76,21 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
       { '@type': 'ListItem', position: 3, name: lang === 'en' ? 'Golden Boot' : 'Bota de Oro', item: `https://www.top-scorers.com/${lang}/mundial-2026/bota-de-oro` },
     ],
   }
+
+  // FAQPage JSON-LD built from the SAME source the panel renders (concrete when
+  // a leader exists → citable for GEO). Mirrors the visible <details> accordion.
+  const leaderName = scorers[0]?.player?.name
+  const leaderGoals = scorers[0]?.statistics[0]?.goals?.total ?? 0
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: goldenBootFaqs(lang, leaderName, leaderName ? leaderGoals : undefined).map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  }
+
   const ld = (obj: object) => (
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(obj).replace(/</g, '\\u003c') }} />
   )
@@ -83,6 +99,7 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
     <>
       {ld(breadcrumbJsonLd)}
       {itemListJsonLd && ld(itemListJsonLd)}
+      {ld(faqJsonLd)}
       <GoldenBootPanel initial={scorers} />
     </>
   )

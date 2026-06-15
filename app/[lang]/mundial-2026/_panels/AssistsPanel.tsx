@@ -6,6 +6,8 @@ import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
 import type { ApiPlayerResponse } from '@/lib/api-football'
 import { type Lang, t } from './shared'
+import { assistsFaqs } from '../wc-faqs'
+import WcFaqList from './WcFaqList'
 
 // ─── Top assists (Asistentes) ─────────────────────────────────────────────────
 // Twin of the Golden Boot list but ranked by assists (the headline number).
@@ -59,12 +61,29 @@ export default function AssistsPanel({ initial = [] }: { initial?: ApiPlayerResp
     return () => { cancelled = true }
   }, [])
 
+  const leader = players[0]
+  const leaderName = leader?.player?.name
+  const leaderAssists = leader?.statistics[0]?.goals?.assists ?? 0
+  const leaderTeam = leader?.statistics[0]?.team?.name
+  // Lead summary: directly answers "quién da más asistencias" with the live
+  // leader. Derived from the seeded/fetched data; graceful pre-data fallback.
+  const leadSummary = leaderName
+    ? t(lang,
+        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} lidera las asistencias del Mundial 2026 con ${leaderAssists} ${leaderAssists === 1 ? 'asistencia' : 'asistencias'}.`,
+        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} leads the 2026 World Cup for assists with ${leaderAssists}.`)
+    : t(lang,
+        'El ranking de asistencias del Mundial 2026 arranca el 11 de junio; aquí verás en directo al jugador con más asistencias.',
+        'The 2026 World Cup assists ranking opens on June 11; this page shows the live assists leader.')
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div>
         <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 26, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
           🅰️ {t(lang, 'Máximos asistentes del Mundial 2026', '2026 World Cup top assists')}
         </h2>
+        <p style={{ fontSize: 14, color: 'var(--ts-text)', fontWeight: 600, margin: '0 0 6px', lineHeight: 1.55 }}>
+          {leadSummary}
+        </p>
         <p style={{ fontSize: 13, color: 'var(--ts-muted)', margin: 0, lineHeight: 1.6 }}>
           {t(lang,
             'Jugadores con más asistencias del Mundial 2026 en tiempo real. La asistencia es el último pase antes de un gol.',
@@ -92,6 +111,13 @@ export default function AssistsPanel({ initial = [] }: { initial?: ApiPlayerResp
           <WcAssistList players={players} lang={lang} limit={25} />
         </div>
       )}
+
+      {/* FAQ — visible answers mirror the FAQPage JSON-LD (GEO citable content) */}
+      <WcFaqList
+        faqs={assistsFaqs(lang, leaderName, leaderName ? leaderAssists : undefined)}
+        lang={lang}
+        title={t(lang, 'Preguntas frecuentes — Asistencias', 'FAQ — Assists')}
+      />
     </div>
   )
 }

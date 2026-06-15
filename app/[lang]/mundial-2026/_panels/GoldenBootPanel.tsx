@@ -6,6 +6,8 @@ import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
 import type { ApiPlayerResponse } from '@/lib/api-football'
 import { type Lang, t } from './shared'
+import { goldenBootFaqs } from '../wc-faqs'
+import WcFaqList from './WcFaqList'
 
 // ─── World Cup Golden Boot (Bota de Oro del Mundial) ──────────────────────────
 // The star section during the tournament: live top scorers of the World Cup
@@ -64,6 +66,18 @@ export default function GoldenBootPanel({ initial = [] }: { initial?: ApiPlayerR
   }, [initial.length])
 
   const leader = scorers[0]
+  const leaderName = leader?.player?.name
+  const leaderGoals = leader?.statistics[0]?.goals?.total ?? 0
+  const leaderTeam = leader?.statistics[0]?.team?.name
+  // Lead summary: directly answers the head query using the live leader. Derived
+  // from the seeded scorers (no extra fetch); falls back gracefully pre-data.
+  const leadSummary = leaderName
+    ? t(lang,
+        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} lidera la Bota de Oro del Mundial 2026 con ${leaderGoals} ${leaderGoals === 1 ? 'gol' : 'goles'}.`,
+        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} leads the 2026 World Cup Golden Boot with ${leaderGoals} ${leaderGoals === 1 ? 'goal' : 'goals'}.`)
+    : t(lang,
+        'La carrera por la Bota de Oro del Mundial 2026 arranca el 11 de junio; aquí verás en directo al máximo goleador y sus goles.',
+        'The 2026 World Cup Golden Boot race kicks off on June 11; this page shows the live top scorer and their goal tally.')
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -71,6 +85,9 @@ export default function GoldenBootPanel({ initial = [] }: { initial?: ApiPlayerR
         <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 26, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
           🥇 {t(lang, 'Bota de Oro del Mundial 2026', '2026 World Cup Golden Boot')}
         </h2>
+        <p style={{ fontSize: 14, color: 'var(--ts-text)', fontWeight: 600, margin: '0 0 6px', lineHeight: 1.55 }}>
+          {leadSummary}
+        </p>
         <p style={{ fontSize: 13, color: 'var(--ts-muted)', margin: 0, lineHeight: 1.6 }}>
           {t(lang,
             'Máximos goleadores del Mundial 2026 en tiempo real. La Bota de Oro premia al jugador con más goles del torneo; en caso de empate, decide quien dé más asistencias y juegue menos minutos.',
@@ -117,6 +134,13 @@ export default function GoldenBootPanel({ initial = [] }: { initial?: ApiPlayerR
           <WcScorerList scorers={scorers} lang={lang} limit={25} />
         </div>
       )}
+
+      {/* FAQ — visible answers mirror the FAQPage JSON-LD (GEO citable content) */}
+      <WcFaqList
+        faqs={goldenBootFaqs(lang, leaderName, leaderName ? leaderGoals : undefined)}
+        lang={lang}
+        title={t(lang, 'Preguntas frecuentes — Bota de Oro', 'FAQ — Golden Boot')}
+      />
     </div>
   )
 }

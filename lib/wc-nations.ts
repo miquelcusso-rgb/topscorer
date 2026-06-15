@@ -143,6 +143,30 @@ export function resolveNation(slug: string): WcNation {
   return { api: title, es: title, en: title }
 }
 
+/**
+ * Map an arbitrary nationality string (e.g. a player's `nationality` from the
+ * API, "Spain"/"Brazil"/"USA") to a KNOWN World Cup nation's canonical slug.
+ * Returns `undefined` when the country isn't a listed WC 2026 nation, so callers
+ * only render a WC link when it actually resolves (no broken guesses). Tries the
+ * slugified name directly against the alias/name index, plus a couple of common
+ * variants ("United States" → "usa", "Czech Republic" → "czechia", etc.).
+ */
+export function wcNationSlugFor(nationality: string | null | undefined): string | undefined {
+  if (!nationality) return undefined
+  const direct = BY_SLUG.get(slugify(nationality))
+  if (direct) return nationSlug(direct)
+  // A few API spellings that differ from our display/alias forms.
+  const variants: Record<string, string> = {
+    'united-states': 'usa', 'united-states-of-america': 'usa', america: 'usa',
+    'korea-republic': 'south-korea', 'republic-of-korea': 'south-korea',
+    'czech-republic': 'czechia', 'ivory-coast': 'costa-de-marfil',
+    holland: 'netherlands', turkey: 'turkiye',
+  }
+  const alt = variants[slugify(nationality)]
+  const hit = alt ? BY_SLUG.get(alt) : undefined
+  return hit ? nationSlug(hit) : undefined
+}
+
 export function nationName(n: WcNation, lang: 'es' | 'en'): string {
   return lang === 'en' ? n.en : n.es
 }

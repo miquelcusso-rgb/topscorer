@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
 import AssistsPanel from '../../_panels/AssistsPanel'
+import { assistsFaqs } from '../../wc-faqs'
 import { getTopAssists, type ApiPlayerResponse } from '@/lib/api-football'
 
 // Live ranking → revalidate hourly (the panel also refetches on the client).
@@ -75,6 +76,21 @@ export default async function AsistentesPage({ params }: { params: Promise<{ lan
       { '@type': 'ListItem', position: 3, name: lang === 'en' ? 'Assists' : 'Asistentes', item: `https://www.top-scorers.com/${lang}/mundial-2026/asistentes` },
     ],
   }
+
+  // FAQPage JSON-LD from the SAME source the panel renders. Concrete when a
+  // leader exists in the server seed → citable for GEO.
+  const leaderName = assists[0]?.player?.name
+  const leaderAssists = assists[0]?.statistics[0]?.goals?.assists ?? 0
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: assistsFaqs(lang, leaderName, leaderName ? leaderAssists : undefined).map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  }
+
   const ld = (obj: object) => (
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(obj).replace(/</g, '\\u003c') }} />
   )
@@ -83,6 +99,7 @@ export default async function AsistentesPage({ params }: { params: Promise<{ lan
     <>
       {ld(breadcrumbJsonLd)}
       {itemListJsonLd && ld(itemListJsonLd)}
+      {ld(faqJsonLd)}
       <AssistsPanel initial={assists} />
     </>
   )

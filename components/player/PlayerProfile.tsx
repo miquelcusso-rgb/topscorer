@@ -1,5 +1,7 @@
+import Link from 'next/link'
 import type { PlayerData } from '@/types'
 import { PRIMARY_PLAYERS } from '@/lib/player-identity'
+import { wcNationSlugFor } from '@/lib/wc-nations'
 import SaasShell from '@/components/saas/SaasShell'
 import IdentityCard from '@/components/player/IdentityCard'
 import PlayerCareer from '@/components/player/PlayerCareer'
@@ -110,6 +112,11 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
   // Show the Discipline group only when at least one of its fields is present.
   const hasDiscipline = [player.yellowCards, player.redCards, player.penaltiesScored, player.penaltyMissed, player.penaltySaved]
     .some(v => v != null)
+
+  // WC 2026 authority flow: if the player's nationality is a listed World Cup
+  // nation, surface a contextual link to that nation's WC page. Only renders
+  // when it actually resolves (unknown countries → no link, no broken guess).
+  const wcNationSlug = wcNationSlugFor(player.nationality)
 
   // Fallback radar (only when a player has no apiId → no percentile radar). Bars
   // are RELATIVE to the best in the same broad position within our dataset, so a
@@ -238,6 +245,23 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
                 <span style={{ color: 'var(--ts-text)', fontWeight: 500, textAlign: 'right' }}>{v}</span>
               </div>
             ))}
+            {wcNationSlug && (
+              <Link
+                href={`/${lang}/mundial-2026/${wcNationSlug}`}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+                  minHeight: 44, marginTop: 10, padding: '10px 12px', borderRadius: 8,
+                  background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)',
+                  color: 'var(--ts-primary)', fontSize: 13, fontWeight: 700, textDecoration: 'none',
+                }}
+              >
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <span aria-hidden style={{ fontSize: 15 }}>🏆</span>
+                  {en ? 'Follow their World Cup 2026' : 'Sigue su Mundial 2026'}
+                </span>
+                <span aria-hidden style={{ flexShrink: 0 }}>→</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>
