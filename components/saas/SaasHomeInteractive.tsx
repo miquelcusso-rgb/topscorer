@@ -141,7 +141,7 @@ function ScopeSelector({
   )
 }
 
-interface NewsLite { title: string; link: string; source: string; image?: string; lang: 'es' | 'en' }
+interface NewsLite { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'cc0' }; lang: 'es' | 'en' }
 interface Props {
   breaking?: { title: string; link: string; source: string; lang: 'es' | 'en' }[]
   lang: Lang

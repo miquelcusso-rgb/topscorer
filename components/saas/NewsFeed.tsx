@@ -2,8 +2,11 @@
 import { useState, useEffect } from 'react'
 import NewsPlaceholder from './NewsPlaceholder'
 import LangBadge from './LangBadge'
+import NewsCard, { type NewsCardImage } from '@/components/news/NewsCard'
+import type { Lang } from '@/lib/i18n'
 
-interface NewsItem { title: string; link: string; source: string; date: string; lang: 'es' | 'en'; image?: string; isPriority?: boolean }
+interface NewsVisual { url: string; license: 'agency' | 'cc0'; source?: string }
+interface NewsItem { title: string; link: string; source: string; date: string; lang: 'es' | 'en'; isPriority?: boolean; visual?: NewsVisual }
 
 function dayBucket(iso: string, en: boolean): string {
   const d = new Date(iso), now = new Date()
@@ -15,20 +18,34 @@ function dayBucket(iso: string, en: boolean): string {
 }
 const fmtTime = (iso: string, en: boolean) => new Date(iso).toLocaleTimeString(en ? 'en-US' : 'es-ES', { hour: '2-digit', minute: '2-digit' })
 
-// News thumbnail: shows the RSS image when present; otherwise (or on load error)
-// falls back to a branded, ToS-safe placeholder instead of leaving a blank box.
-function NewsImg({ src, w, h, radius = 6, fill, source }: { src?: string; w: number; h: number; radius?: number; fill?: boolean; source?: string }) {
+// Build the license-aware image descriptor for a news item. External news is
+// `embed` (we link back, never rehost the feed photo); its VISUAL comes from a
+// server-resolved player headshot (`agency`, licensed via our API) or a CC0
+// generic. We keep the embed semantics (source + link-back) on the credit.
+function cardImage(it: NewsItem): NewsCardImage {
+  const v = it.visual
+  if (v?.license === 'agency') {
+    return { url: v.url, license: 'agency', source: it.source, sourceUrl: it.link, alt: '' }
+  }
+  // cc0 generic (or nothing → placeholder). Surface the source as an embed
+  // link-back so the card carries the "Via {source}" credit.
+  return { url: v?.url, license: 'embed', source: it.source, sourceUrl: it.link, alt: '' }
+}
+
+// Hero image area — reuses the license-aware visual (headshot/CC0), never the
+// raw RSS image. Falls back to the branded placeholder.
+function HeroImg({ visual, source, h }: { visual?: NewsVisual; source?: string; h: number }) {
   const [broken, setBroken] = useState(false)
-  if (!src || broken) {
+  if (!visual?.url || broken) {
     return (
-      <div style={{ width: fill ? '100%' : w, height: h, borderRadius: radius, flexShrink: 0, overflow: 'hidden' }}>
-        <NewsPlaceholder source={source} compact={!fill && w < 120} rounded={radius} />
+      <div style={{ width: '100%', height: h, overflow: 'hidden' }}>
+        <NewsPlaceholder source={source} />
       </div>
     )
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt="" loading="lazy" onError={() => setBroken(true)}
-    style={{ width: fill ? '100%' : w, height: h, objectFit: 'cover', borderRadius: radius, flexShrink: 0, background: 'var(--ts-card2)' }} />
+  return <img src={visual.url} alt="" loading="lazy" onError={() => setBroken(true)}
+    style={{ width: '100%', height: h, objectFit: 'cover', background: 'var(--ts-card2)' }} />
 }
 
 // Full-width breaking-news banner: rotates the top headlines with a LIVE badge.
@@ -61,7 +78,7 @@ function BreakingBanner({ items, en }: { items: NewsItem[]; en: boolean }) {
   )
 }
 
-export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general' | 'worldcup'; lang: 'es' | 'en' }) {
+export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general' | 'worldcup'; lang: Lang }) {
   const en = lang === 'en'
   const [items, setItems] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -78,8 +95,8 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
   if (loading) return <div style={{ padding: '40px 0', textAlign: 'center', fontSize: 13, color: 'var(--ts-faint)' }}>{en ? 'Loading news…' : 'Cargando noticias…'}</div>
   if (!items.length) return <div style={{ padding: '24px 0', fontSize: 13, color: 'var(--ts-muted)' }}>{en ? 'No news right now.' : 'Sin noticias ahora mismo.'}</div>
 
-  // Hero = the freshest priority story (prefer one with an image), then the rest.
-  const hero = items.find(it => it.isPriority && it.image) ?? items.find(it => it.image) ?? items[0]
+  // Hero = the freshest priority story, then the rest.
+  const hero = items.find(it => it.isPriority) ?? items[0]
   const rest = items.filter(it => it !== hero)
 
   const groups: { label: string; items: NewsItem[] }[] = []
@@ -98,7 +115,7 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
       <a href={hero.link} target="_blank" rel="noopener noreferrer" className="saas-news-hero"
         style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) 1fr', gap: 0,
           background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 14, overflow: 'hidden', textDecoration: 'none', color: 'inherit', minHeight: 200 }}>
-        <NewsImg src={hero.image} w={0} h={260} radius={0} fill source={hero.source} />
+        <HeroImg visual={hero.visual} source={hero.source} h={260} />
         <div style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)' }}>
             {hero.isPriority ? (en ? '★ Top story' : '★ Destacada') : (en ? 'Featured' : 'Destacada')}
@@ -107,7 +124,7 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
             {hero.title}
           </span>
           <span style={{ fontSize: 12, color: 'var(--ts-muted)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <LangBadge itemLang={hero.lang} siteLang={lang} />{hero.source} · {fmtTime(hero.date, en)}
+            <LangBadge itemLang={hero.lang} siteLang={lang} />{en ? 'Via' : 'Vía'} {hero.source} · {fmtTime(hero.date, en)}
           </span>
         </div>
       </a>
@@ -119,24 +136,26 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
           </div>
           <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
             {g.items.map((it, i) => (
-              <a key={i} href={it.link} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', gap: 12, padding: 10, background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10, textDecoration: 'none', color: 'inherit', minWidth: 0 }}>
-                <NewsImg src={it.image} w={84} h={64} source={it.source} />
-                <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 4 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {it.isPriority && <span style={{ color: 'var(--ts-primary)' }}>★ </span>}{it.title}
-                  </span>
-                  <span style={{ fontSize: 11, color: 'var(--ts-muted)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                    <LangBadge itemLang={it.lang} siteLang={lang} />{it.source} · {fmtTime(it.date, en)}
-                  </span>
-                </span>
-              </a>
+              <NewsCard
+                key={i}
+                variant="full"
+                title={it.title}
+                href={it.link}
+                external
+                image={cardImage(it)}
+                source={it.source}
+                sourceUrl={it.link}
+                meta={fmtTime(it.date, en)}
+                lang={lang}
+                eyebrow={it.isPriority ? (en ? '★ Featured' : '★ Destacada') : undefined}
+                metaPrefix={<LangBadge itemLang={it.lang} siteLang={lang} />}
+              />
             ))}
           </div>
         </div>
       ))}
       <p style={{ fontSize: 10, color: 'var(--ts-faint)' }}>
-        {en ? 'Headlines via public RSS — tap to read at the source.' : 'Titulares vía RSS público — pulsa para leer en la fuente.'}
+        {en ? 'Headlines via public RSS — tap to read at the source. Photos: official API headshots or our own graphics (no agency images rehosted).' : 'Titulares vía RSS público — pulsa para leer en la fuente. Fotos: cabezas oficiales de la API o gráficos propios (no rehospedamos imágenes de agencia).'}
       </p>
     </div>
   )

@@ -4,7 +4,7 @@ import type { PlayerData } from '@/types'
 import SaasShell from './SaasShell'
 import Footer from '@/components/Footer'
 import SaasHomeInteractive from './SaasHomeInteractive'
-import { getNews } from '@/lib/news'
+import { getNewsWithVisuals } from '@/lib/news'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
 import { rankScore } from '@/lib/iig'
 import { computeHomeInsights } from '@/lib/home-insights'
@@ -101,11 +101,12 @@ export default async function SaasHomeBody({
   const rumors = await getTopRumors(lang === 'en' ? 'en' : 'es', 3)
   // Top 3 headlines for the HOT NEWS strip + the freshest "breaking" item for the
   // home banner (defensive — empty on any error).
-  let news: { title: string; link: string; source: string; image?: string; lang: 'es' | 'en' }[] = []
+  // Pass the license-aware `visual` (headshot or CC0) — NOT the raw RSS image.
+  let news: { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'cc0' }; lang: 'es' | 'en' }[] = []
   let breaking: { title: string; link: string; source: string; lang: 'es' | 'en' }[] = []
   try {
-    const all = await getNews(lang === 'en' ? 'en' : 'es', 'general', 14)
-    news = all.slice(0, 6).map(n => ({ title: n.title, link: n.link, source: n.source, image: n.image, lang: n.lang }))
+    const all = await getNewsWithVisuals(lang === 'en' ? 'en' : 'es', 'general', 14)
+    news = all.slice(0, 6).map(n => ({ title: n.title, link: n.link, source: n.source, visual: n.visual && { url: n.visual.url, license: n.visual.license }, lang: n.lang }))
     breaking = all.filter(n => n.isBreaking).slice(0, 5).map(b => ({ title: b.title, link: b.link, source: b.source, lang: b.lang }))
   } catch { /* feeds down */ }
 

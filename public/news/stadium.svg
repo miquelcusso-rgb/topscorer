@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450" role="img" aria-label="Stadium under lights">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a2540"/>
+      <stop offset="1" stop-color="#0a0f1f"/>
+    </linearGradient>
+    <radialGradient id="beam" cx="0.5" cy="0" r="0.9">
+      <stop offset="0" stop-color="#ffe9a8" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#sky)"/>
+  <rect width="800" height="450" fill="url(#beam)"/>
+  <path d="M0 300 Q400 230 800 300 L800 450 L0 450 Z" fill="#0c7a52"/>
+  <path d="M80 300 Q400 248 720 300 L720 330 Q400 282 80 330 Z" fill="#063a26" opacity="0.7"/>
+  <g fill="#11182b">
+    <path d="M0 220 Q400 160 800 220 L800 305 Q400 248 0 305 Z"/>
+  </g>
+  <g fill="#f0c040">
+    <rect x="120" y="120" width="10" height="110" rx="3"/>
+    <rect x="100" y="108" width="50" height="18" rx="4"/>
+    <rect x="670" y="120" width="10" height="110" rx="3"/>
+    <rect x="650" y="108" width="50" height="18" rx="4"/>
+  </g>
+  <g fill="#ffffff" opacity="0.85">
+    <circle cx="110" cy="113" r="3"/><circle cx="125" cy="113" r="3"/><circle cx="140" cy="113" r="3"/>
+    <circle cx="660" cy="113" r="3"/><circle cx="675" cy="113" r="3"/><circle cx="690" cy="113" r="3"/>
+  </g>
+</svg>

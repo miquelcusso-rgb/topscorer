@@ -1,4 +1,6 @@
 import { unstable_cache } from 'next/cache'
+import { headshotForHeadline } from './player-photo'
+import { genericImageFor } from './news-images'
 
 // Free, durable football news via public RSS feeds. We show headline + source +
 // date + link to the original (correct RSS use — traffic goes to the source).
@@ -9,10 +11,23 @@ export interface NewsItem {
   source: string
   date: string        // ISO
   lang: 'es' | 'en'   // source-feed language (for the foreign-source badge)
-  image?: string
+  image?: string      // RAW RSS image — agency-owned. NEVER rehosted/displayed
+                      // as licensed. Kept only for server-side signal/debug.
   isPriority?: boolean
   isWorldCup?: boolean
   isBreaking?: boolean   // recent + breaking keyword → eligible for the home banner
+  /** License-aware visual resolved server-side (headshot or CC0 generic). */
+  visual?: NewsVisual
+}
+
+// A ToS-safe visual for a news item: either a SPECIFIC player's official
+// API-Football headshot (licensed via our API → `agency`) or a self-hosted CC0
+// generic graphic. We NEVER expose the raw RSS/agency image as licensed —
+// external news is headline + source + link-back only.
+export interface NewsVisual {
+  url: string
+  license: 'agency' | 'cc0'
+  source?: string   // outlet, for the embed/credit line on the card
 }
 
 interface Feed { name: string; url: string; lang: 'es' | 'en' }
@@ -190,3 +205,23 @@ export const getNews = unstable_cache(
   ['football-news'],
   { revalidate: 1200, tags: ['news'] } // 20 min
 )
+
+// Resolve a ToS-safe visual for a news item (SERVER ONLY — pulls headshot ids
+// from SEARCH_INDEX). Order: a specific player's official headshot when the
+// headline clearly names them (licensed via our API → `agency`), else a
+// self-hosted CC0 generic chosen by headline/source. We deliberately ignore
+// `it.image` (the raw RSS/agency photo) so external content is never rehosted.
+export function resolveNewsVisual(it: Pick<NewsItem, 'title' | 'source'>): NewsVisual {
+  const headshot = headshotForHeadline(it.title)
+  if (headshot) return { url: headshot, license: 'agency', source: it.source }
+  const generic = genericImageFor(`${it.title} ${it.source}`)
+  return { url: generic.url, license: 'cc0', source: it.source }
+}
+
+/** getNews + a resolved, license-aware `visual` on every item. */
+export async function getNewsWithVisuals(
+  lang: 'es' | 'en', scope: 'general' | 'worldcup' = 'general', limit = 40,
+): Promise<NewsItem[]> {
+  const items = await getNews(lang, scope, limit)
+  return items.map(it => ({ ...it, visual: resolveNewsVisual(it) }))
+}

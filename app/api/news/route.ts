@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getNews } from '@/lib/news'
+import { getNewsWithVisuals } from '@/lib/news'
 
 export const revalidate = 1200
 
@@ -7,7 +7,10 @@ export async function GET(req: NextRequest) {
   const lang = req.nextUrl.searchParams.get('lang') === 'en' ? 'en' : 'es'
   const scope = req.nextUrl.searchParams.get('scope') === 'worldcup' ? 'worldcup' : 'general'
   try {
-    return Response.json({ ok: true, items: await getNews(lang, scope) }, {
+    // Strip the raw RSS/agency `image` before it leaves the server — clients only
+    // ever get the license-aware `visual` (headshot or CC0). No agency rehosting.
+    const items = (await getNewsWithVisuals(lang, scope)).map(({ image: _drop, ...rest }) => rest)
+    return Response.json({ ok: true, items }, {
       headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
     })
   } catch (err) {

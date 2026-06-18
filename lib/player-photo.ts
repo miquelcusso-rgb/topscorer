@@ -89,3 +89,37 @@ export function withPhoto<T extends Pick<PlayerData, 'photo' | 'apiId' | 'name' 
   const photo = playerPhoto(p)
   return photo && photo !== p.photo ? { ...p, photo } : p
 }
+
+// ── News headline → player headshot (SERVER ONLY) ──────────────────────────
+// Resolve a news headline to a SPECIFIC player so news cards can show that
+// player's official API-Football headshot (licensed via our API — NOT agency
+// rehosting). Conservative on purpose: we only match a player whose canonical
+// SURNAME (≥4 letters, unique in the index) appears as a whole word in the
+// headline. Short/ambiguous surnames are skipped so we never put the wrong face
+// on a story. Built once. Must stay server-side (SEARCH_INDEX is huge).
+const SURNAME_TO_ID: Map<string, number> = new Map()
+const SURNAME_AMBIG: Set<string> = new Set()
+for (const p of SEARCH_INDEX) {
+  if (!p.id) continue
+  const base = norm(p.fullName || p.name)
+  const toks = base.split(' ').filter(t => t.length >= 4)
+  const surname = toks[toks.length - 1]
+  if (!surname) continue
+  const cur = SURNAME_TO_ID.get(surname)
+  if (cur === undefined) SURNAME_TO_ID.set(surname, p.id)
+  else if (cur !== p.id) SURNAME_AMBIG.add(surname)
+}
+
+/** A specific player's headshot if the headline clearly names them, else undefined. */
+export function headshotForHeadline(headline?: string): string | undefined {
+  const h = norm(headline)
+  if (!h) return undefined
+  const words = new Set(h.split(' ').filter(w => w.length >= 4))
+  if (!words.size) return undefined
+  for (const w of words) {
+    if (SURNAME_AMBIG.has(w)) continue
+    const id = SURNAME_TO_ID.get(w)
+    if (id) return apiPhoto(id)
+  }
+  return undefined
+}

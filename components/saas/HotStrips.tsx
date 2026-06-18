@@ -4,12 +4,16 @@ import Link from 'next/link'
 import Avatar from './Avatar'
 import { clubLogo } from '@/lib/club-logos'
 import { slugify } from '@/lib/slugify'
+import { genericImageFor } from '@/lib/news-images'
 import type { Standout } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
 import NewsPlaceholder from './NewsPlaceholder'
 import LangBadge from './LangBadge'
 
-interface NewsLite { title: string; link: string; source: string; image?: string; lang: 'es' | 'en' }
+// `visual` is the license-aware image resolved server-side (player headshot →
+// `agency`, licensed via our API; or a self-hosted CC0 generic). We NEVER carry
+// the raw RSS/agency photo here.
+interface NewsLite { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'cc0' }; lang: 'es' | 'en' }
 
 // Mobile-only auto-sliding news carousel (Transfermarkt-style): one card at a
 // time with the article image + headline + source, auto-advancing every ~5s,
@@ -59,9 +63,10 @@ function NewsCarousel({ news, en, lang }: { news: NewsLite[]; en: boolean; lang:
         return (
           <a href={it.link} target="_blank" rel="noopener noreferrer" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
             <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', background: 'var(--ts-card2)' }}>
-              {it.image
+              {it.visual?.url
+                // License-aware visual only (headshot/CC0) — never the raw RSS photo.
                 // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={it.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                ? <img src={it.visual.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 : <NewsPlaceholder source={it.source} />}
             </div>
             <div style={{ padding: '10px 12px' }}>
@@ -141,7 +146,13 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
   news?: NewsLite[]; rumors?: HomeRumor[]; strikers?: Standout[]; lang: 'es' | 'en'
 }) {
   const en = lang === 'en'
-  const newsLeads: Lead[] = news.slice(0, 3).map(n => ({ label: n.title, sub: n.source, href: n.link, external: true, badge: n.lang, siteLang: lang }))
+  // News strip thumbs: license-aware visual (headshot/CC0) as a small square,
+  // never the raw RSS image. Headshots are round (Avatar) when present.
+  const newsLeads: Lead[] = news.slice(0, 3).map(n => ({
+    label: n.title, sub: n.source, href: n.link, external: true, badge: n.lang, siteLang: lang,
+    photo: n.visual?.license === 'agency' ? n.visual.url : undefined,
+    crest: n.visual?.license === 'cc0' ? n.visual.url : (!n.visual ? genericImageFor(`${n.title} ${n.source}`).url : undefined),
+  }))
 
   // The home is force-static, so the build-time `rumors` prop always shows the
   // same 3. Refresh client-side from a larger fresh pool and rotate a window of
@@ -178,10 +189,14 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
     ? pool.slice(0, 3)
     : Array.from({ length: 3 }, (_, i) => pool[(Math.floor(Date.now() / 21_600_000) * 3 + i) % pool.length])
 
+  // Rumour thumbs: prefer the player headshot (licensed via our API — round
+  // Avatar, tinted-initials fallback). No photo → club crest, else a CC0 generic.
   const rumorLeads: Lead[] = rotated.map(r => ({
     label: r.headline,
     sub: r.toClub ?? r.fromClub ?? undefined,
-    crest: (r.toClub && clubLogo(r.toClub)) || (r.fromClub && clubLogo(r.fromClub)) || undefined,
+    photo: r.playerPhoto ?? undefined,
+    crest: r.playerPhoto ? undefined
+      : (r.toClub && clubLogo(r.toClub)) || (r.fromClub && clubLogo(r.fromClub)) || genericImageFor(r.headline).url,
     tail: r.likelihood != null ? `${r.likelihood}%` : undefined,
     href: r.playerSlug ? `/${lang}/jugadores/${r.playerSlug}` : `/${lang}/rumores`,
   }))

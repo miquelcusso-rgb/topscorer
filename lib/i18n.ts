@@ -276,6 +276,19 @@ export const T = {
   onb_continue_with:{ es: 'Seguir con', en: 'Continue with' },
   onb_select_club:  { es: 'Selecciona un club', en: 'Select a club' },
   onb_skip:         { es: 'Ahora no', en: 'Not now' },
+
+  // ── News card / license-aware image system ──
+  news_photo_credit:   { es: 'Foto', en: 'Photo' },        // "Foto: …"
+  news_graphic_credit: { es: 'Gráfico', en: 'Graphic' },   // "Gráfico: …"
+  news_via:            { es: 'Vía', en: 'Via' },           // "Vía {source}"
+  news_author_unknown: { es: 'autor desconocido', en: 'author unknown' },
+  news_credit_missing: { es: 'Crédito de imagen incompleto — no publicable', en: 'Image credit incomplete — not publishable' },
+  news_lic_own:        { es: 'Propia', en: 'Own' },
+  news_lic_cc0:        { es: 'CC0', en: 'CC0' },
+  news_lic_ccby:       { es: 'CC BY', en: 'CC BY' },
+  news_lic_agency:     { es: 'Agencia', en: 'Agency' },
+  news_lic_embed:      { es: 'Enlace', en: 'Link' },
+  news_open_source:    { es: 'Leer en la fuente', en: 'Read at the source' },
 } as const
 
 export type TKey = keyof typeof T
