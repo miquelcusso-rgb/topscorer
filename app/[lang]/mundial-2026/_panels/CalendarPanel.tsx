@@ -119,19 +119,25 @@ function MatchRow({ f, lang }: { f: ApiFixture; lang: Lang }) {
   )
 }
 
-export default function CalendarPanel() {
+export default function CalendarPanel({ initial = [] }: { initial?: ApiFixture[] }) {
   const { lang } = useLang()
-  const [fixtures, setFixtures] = useState<ApiFixture[]>([])
-  const [loading, setLoading] = useState(true)
+  const [fixtures, setFixtures] = useState<ApiFixture[]>(initial)
+  const [loading, setLoading] = useState(initial.length === 0)
   const [error, setError] = useState(false)
 
+  // Only client-fetch when the server didn't seed us (keeps the calendar in the
+  // initial HTML for SEO when data exists; refreshes live otherwise). When
+  // seeded, `loading` already starts false — no "Cargando" on first paint.
   useEffect(() => {
+    if (initial.length > 0) return
+    let cancelled = false
     fetch('/api/football/fixtures?league=1&season=2026&all=1')
       .then(r => r.json())
-      .then(j => { if (j.ok && Array.isArray(j.data)) setFixtures(j.data); else setError(true) })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false))
-  }, [])
+      .then(j => { if (cancelled) return; if (j.ok && Array.isArray(j.data)) setFixtures(j.data); else setError(true) })
+      .catch(() => { if (!cancelled) setError(true) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [initial.length])
 
   const locale = lang === 'en' ? 'en-US' : 'es-ES'
   // Group by calendar date (local), sorted chronologically.

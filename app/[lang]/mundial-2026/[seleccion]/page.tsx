@@ -5,6 +5,8 @@ import SaasShell from '@/components/saas/SaasShell'
 import { getNationalTeamId, getSquad, getCoach, getNationalTeamRecentLineups, getNationalTeamAggregateStats, getNationalTeamSeasonStats, getTopScorers, type SquadPlayer, type ApiPlayerResponse } from '@/lib/api-football'
 import { resolveNation, nationName, nationFact, nationSlug, WC_NATIONS } from '@/lib/wc-nations'
 import { nationScorersFaqs } from '../wc-faqs'
+import { WcScorerList } from '../_panels/GoldenBootPanel'
+import WcFaqList from '../_panels/WcFaqList'
 import { flagFor } from '@/lib/flags'
 import { PLAYERS } from '@/data/players'
 import { iig } from '@/lib/iig'
@@ -345,6 +347,40 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
     ],
   }
 
+  // ItemList JSON-LD of this nation's WC top scorers (mirrors the server-rendered
+  // list below). Only emitted when there's real data → no empty/fabricated list.
+  const goalsWord = lang === 'en' ? 'goals' : 'goles'
+  const scorersItemListJsonLd = wcScorers.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: lang === 'en'
+      ? `${name} top scorers — 2026 World Cup`
+      : `Goleadores de ${name} — Mundial 2026`,
+    description: lang === 'en'
+      ? `${name}'s top scorers at the 2026 FIFA World Cup, ranked by goals.`
+      : `Goleadores de ${name} en el Mundial 2026, ordenados por goles.`,
+    url: canonicalUrl,
+    numberOfItems: Math.min(wcScorers.length, 10),
+    itemListElement: wcScorers.slice(0, 10).map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: `${p.player.name} — ${p.statistics[0]?.goals?.total ?? 0} ${goalsWord}`,
+    })),
+  } : null
+
+  // FAQPage JSON-LD built from the SAME source the visible FAQ renders (concrete
+  // when a scorer exists → citable for GEO). Mirrors the <details> accordion.
+  const nationFaqs = nationScorersFaqs(lang, name, topScorerWcName, topScorerWcName ? topScorerWcGoals : undefined)
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: nationFaqs.map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  }
+
   const ld = (obj: object) => (
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(obj).replace(/</g, '\\u003c') }} />
   )
@@ -353,6 +389,8 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
     <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
       {ld(sportsTeamJsonLd)}
       {ld(breadcrumbJsonLd)}
+      {scorersItemListJsonLd && ld(scorersItemListJsonLd)}
+      {ld(faqJsonLd)}
       <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh', background: 'var(--ts-bg)' }}>
         {/* Header */}
         <div style={{ background: 'linear-gradient(180deg, var(--ts-primary-soft), var(--ts-bg))', borderBottom: '1px solid var(--ts-border)' }}>
@@ -381,6 +419,26 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
         </div>
 
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px 80px', display: 'flex', flexDirection: 'column', gap: 28 }}>
+
+          {/* WC top scorers — citable lead + freshness + server-rendered list.
+              The lead answers "goleadores de <nación> en el Mundial 2026"; the
+              list mirrors the ItemList JSON-LD. Pre-tournament: graceful copy. */}
+          <section>
+            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
+              ⚽ {t(lang, `Goleadores de ${name} · Mundial 2026`, `${name} Top Scorers · World Cup 2026`)}
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--ts-text)', fontWeight: 600, margin: '0 0 6px', lineHeight: 1.55 }}>
+              {scorerLead}
+            </p>
+            <p style={{ fontSize: 11, color: 'var(--ts-faint)', margin: '0 0 12px' }}>
+              {t(lang, `Actualizado ${updatedLabel}`, `Updated ${updatedLabel}`)}
+            </p>
+            {wcScorers.length > 0 && (
+              <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflow: 'hidden' }}>
+                <WcScorerList scorers={wcScorers} lang={lang} limit={15} />
+              </div>
+            )}
+          </section>
 
           {!dataAvailable && (
             <div style={{ borderRadius: 12, padding: '40px 24px', textAlign: 'center', background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)' }}>
@@ -595,6 +653,13 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
               <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--ts-text)', margin: 0 }}>{fact}</p>
             </section>
           )}
+
+          {/* FAQ — visible answers mirror the FAQPage JSON-LD (GEO citable). */}
+          <WcFaqList
+            faqs={nationFaqs}
+            lang={lang}
+            title={t(lang, `Preguntas frecuentes — Goleadores de ${name}`, `FAQ — ${name} Top Scorers`)}
+          />
         </div>
       </main>
     </SaasShell>

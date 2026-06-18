@@ -11,9 +11,24 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/mundial-2026/bota-de-oro'
-  const title = lang === 'en'
-    ? '2026 World Cup Golden Boot: Live top scorers'
-    : 'Bota de Oro del Mundial 2026: Goleadores en directo'
+
+  // Dynamic title with the live leader + goals + freshness (cached fetch → no
+  // extra quota; reuses the same getTopScorers call the page body runs).
+  let leaderName: string | undefined
+  let leaderGoals = 0
+  try {
+    const s = await getTopScorers(1, 2026)
+    leaderName = s[0]?.player?.name
+    leaderGoals = s[0]?.statistics[0]?.goals?.total ?? 0
+  } catch { /* leave undefined → static title */ }
+
+  const title = leaderName
+    ? (lang === 'en'
+        ? `World Cup 2026 Golden Boot: ${leaderName} leads with ${leaderGoals} goals · standings updated`
+        : `Bota de Oro Mundial 2026: ${leaderName} lidera con ${leaderGoals} goles · clasificación actualizada`)
+    : (lang === 'en'
+        ? '2026 World Cup Golden Boot: Live top scorers standings'
+        : 'Bota de Oro del Mundial 2026: Clasificación de goleadores en directo')
   const description = lang === 'en'
     ? 'Live 2026 World Cup Golden Boot race: top scorers ranked by goals, updated throughout the tournament. Ties broken by assists, then fewest minutes played.'
     : 'Carrera por la Bota de Oro del Mundial 2026 en directo: máximos goleadores ordenados por goles, actualizados durante el torneo. El empate lo decide asistencias y minutos.'
@@ -49,6 +64,10 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
   // ItemList JSON-LD. Defensive: any error → [] (the panel client-fetches too).
   let scorers: ApiPlayerResponse[] = []
   try { scorers = await getTopScorers(1, 2026) } catch { scorers = [] }
+
+  // Server-rendered freshness date (locale-formatted) → passed into the panel so
+  // the "Actualizado / Updated" line is in the initial HTML.
+  const updated = new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 
   const goals = lang === 'en' ? 'goals' : 'goles'
   const itemListJsonLd = scorers.length > 0 ? {
@@ -100,7 +119,7 @@ export default async function BotaDeOroPage({ params }: { params: Promise<{ lang
       {ld(breadcrumbJsonLd)}
       {itemListJsonLd && ld(itemListJsonLd)}
       {ld(faqJsonLd)}
-      <GoldenBootPanel initial={scorers} />
+      <GoldenBootPanel initial={scorers} updated={updated} />
     </>
   )
 }

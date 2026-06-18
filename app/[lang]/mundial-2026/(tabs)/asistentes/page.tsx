@@ -11,9 +11,24 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/mundial-2026/asistentes'
-  const title = lang === 'en'
-    ? '2026 World Cup Top Assists: Live assists ranking'
-    : 'Asistentes del Mundial 2026: Ranking de asistencias en directo'
+
+  // Dynamic title with the live assists leader + count + freshness (cached fetch
+  // → no extra quota; reuses the same getTopAssists call the page body runs).
+  let leaderName: string | undefined
+  let leaderAssists = 0
+  try {
+    const a = await getTopAssists(1, 2026)
+    leaderName = a[0]?.player?.name
+    leaderAssists = a[0]?.statistics[0]?.goals?.assists ?? 0
+  } catch { /* leave undefined → static title */ }
+
+  const title = leaderName
+    ? (lang === 'en'
+        ? `World Cup 2026 Assists: ${leaderName} leads with ${leaderAssists} · standings updated`
+        : `Asistentes Mundial 2026: ${leaderName} lidera con ${leaderAssists} · clasificación actualizada`)
+    : (lang === 'en'
+        ? '2026 World Cup Top Assists: Live assists standings'
+        : 'Asistentes del Mundial 2026: Clasificación de asistencias en directo')
   const description = lang === 'en'
     ? 'Live ranking of the top assists at the 2026 World Cup: the players providing the most final passes before a goal, updated throughout the tournament.'
     : 'Ranking en directo de los máximos asistentes del Mundial 2026: los jugadores con más pases de gol, actualizado durante todo el torneo.'
@@ -49,6 +64,10 @@ export default async function AsistentesPage({ params }: { params: Promise<{ lan
   // ItemList JSON-LD. Defensive: any error → [] (the panel client-fetches too).
   let assists: ApiPlayerResponse[] = []
   try { assists = await getTopAssists(1, 2026) } catch { assists = [] }
+
+  // Server-rendered freshness date (locale-formatted) → passed into the panel so
+  // the "Actualizado / Updated" line is in the initial HTML.
+  const updated = new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 
   const ast = lang === 'en' ? 'assists' : 'asistencias'
   const itemListJsonLd = assists.length > 0 ? {
@@ -100,7 +119,7 @@ export default async function AsistentesPage({ params }: { params: Promise<{ lan
       {ld(breadcrumbJsonLd)}
       {itemListJsonLd && ld(itemListJsonLd)}
       {ld(faqJsonLd)}
-      <AssistsPanel initial={assists} />
+      <AssistsPanel initial={assists} updated={updated} />
     </>
   )
 }

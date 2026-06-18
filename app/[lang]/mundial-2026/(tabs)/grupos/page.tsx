@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
 import GroupsPanel from '../../_panels/GroupsPanel'
+import { getAllStandings, type ApiStandingEntry } from '@/lib/api-football'
 
-// Groups update live during the tournament → revalidate hourly.
+// Groups update live during the tournament → revalidate hourly. The data is
+// server-rendered + ISR (NOT per-request); the panel keeps the seed.
 export const revalidate = 3600
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
@@ -42,6 +44,19 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 export default async function GruposPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+
+  // Server-seed so the groups land in the initial HTML (SEO) — no "Cargando".
+  // Defensive: any error → [] (the panel client-fetches too).
+  let groups: ApiStandingEntry[][] = []
+  try { groups = await getAllStandings(1, 2026) } catch { groups = [] }
+
+  // Real draw groups only (Group A–L) — mirror the panel's tolerant matcher so
+  // the ItemList reflects exactly what renders.
+  const groupLetter = (name?: string) => (name ?? '').match(/group\s+([a-l])\s*$/i)?.[1]?.toUpperCase()
+  const realGroups = groups
+    .filter(g => g.length >= 2 && groupLetter(g[0]?.group))
+    .sort((a, b) => (groupLetter(a[0]?.group) ?? '').localeCompare(groupLetter(b[0]?.group) ?? ''))
+
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -51,10 +66,32 @@ export default async function GruposPage({ params }: { params: Promise<{ lang: s
       { '@type': 'ListItem', position: 3, name: lang === 'en' ? 'Groups' : 'Grupos', item: `https://www.top-scorers.com/${lang}/mundial-2026/grupos` },
     ],
   }
+
+  const itemListJsonLd = realGroups.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: lang === 'en' ? '2026 World Cup groups' : 'Grupos del Mundial 2026',
+    description: lang === 'en'
+      ? 'The 2026 FIFA World Cup draw groups with the nations in each group.'
+      : 'Los grupos del sorteo del Mundial 2026 con las selecciones de cada grupo.',
+    url: `https://www.top-scorers.com/${lang}/mundial-2026/grupos`,
+    numberOfItems: realGroups.length,
+    itemListElement: realGroups.map((g, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: `${lang === 'en' ? 'Group' : 'Grupo'} ${groupLetter(g[0]?.group)}: ${g.map(r => r.team.name).join(', ')}`,
+    })),
+  } : null
+
+  const ld = (obj: object) => (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(obj).replace(/</g, '\\u003c') }} />
+  )
+
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }} />
-      <GroupsPanel />
+      {ld(breadcrumbJsonLd)}
+      {itemListJsonLd && ld(itemListJsonLd)}
+      <GroupsPanel initial={groups} />
     </>
   )
 }

@@ -45,7 +45,7 @@ function WcAssistList({ players, lang, limit }: { players: ApiPlayerResponse[]; 
   )
 }
 
-export default function AssistsPanel({ initial = [] }: { initial?: ApiPlayerResponse[] }) {
+export default function AssistsPanel({ initial = [], updated }: { initial?: ApiPlayerResponse[]; updated?: string }) {
   const { lang } = useLang()
   const [players, setPlayers] = useState<ApiPlayerResponse[]>(initial)
   const [loading, setLoading] = useState(initial.length === 0)
@@ -69,11 +69,11 @@ export default function AssistsPanel({ initial = [] }: { initial?: ApiPlayerResp
   // leader. Derived from the seeded/fetched data; graceful pre-data fallback.
   const leadSummary = leaderName
     ? t(lang,
-        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} lidera las asistencias del Mundial 2026 con ${leaderAssists} ${leaderAssists === 1 ? 'asistencia' : 'asistencias'}.`,
-        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} leads the 2026 World Cup for assists with ${leaderAssists}.`)
+        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} lidera la clasificación actual de asistentes del Mundial 2026 con ${leaderAssists} ${leaderAssists === 1 ? 'asistencia' : 'asistencias'}.`,
+        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} leads the current assists standings at the 2026 World Cup with ${leaderAssists}.`)
     : t(lang,
-        'El ranking de asistencias del Mundial 2026 arranca el 11 de junio; aquí verás en directo al jugador con más asistencias.',
-        'The 2026 World Cup assists ranking opens on June 11; this page shows the live assists leader.')
+        'La clasificación de asistentes del Mundial 2026 arranca el 11 de junio; aquí verás en directo al jugador con más asistencias.',
+        'The 2026 World Cup assists standings open on June 11; this page shows the live assists leader.')
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -84,10 +84,15 @@ export default function AssistsPanel({ initial = [] }: { initial?: ApiPlayerResp
         <p style={{ fontSize: 14, color: 'var(--ts-text)', fontWeight: 600, margin: '0 0 6px', lineHeight: 1.55 }}>
           {leadSummary}
         </p>
+        {updated && (
+          <p style={{ fontSize: 11, color: 'var(--ts-faint)', margin: '0 0 6px' }}>
+            {t(lang, `Actualizado ${updated}`, `Updated ${updated}`)}
+          </p>
+        )}
         <p style={{ fontSize: 13, color: 'var(--ts-muted)', margin: 0, lineHeight: 1.6 }}>
           {t(lang,
-            'Jugadores con más asistencias del Mundial 2026 en tiempo real. La asistencia es el último pase antes de un gol.',
-            'Players with the most assists at the 2026 World Cup, live. An assist is the final pass before a goal.')}
+            'Clasificación actual de asistentes del Mundial 2026 en tiempo real. La asistencia es el último pase antes de un gol.',
+            'Current top assists standings of the 2026 World Cup, live. An assist is the final pass before a goal.')}
         </p>
       </div>
 

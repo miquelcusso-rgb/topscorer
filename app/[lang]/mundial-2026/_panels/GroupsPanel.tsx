@@ -9,19 +9,25 @@ import { t } from './shared'
 
 // ─── Groups panel ─────────────────────────────────────────────────────────────
 
-export default function GroupsPanel() {
+export default function GroupsPanel({ initial = [] }: { initial?: ApiStandingEntry[][] }) {
   const { lang } = useLang()
-  const [groups, setGroups] = useState<ApiStandingEntry[][]>([])
-  const [loading, setLoading] = useState(true)
+  const [groups, setGroups] = useState<ApiStandingEntry[][]>(initial)
+  const [loading, setLoading] = useState(initial.length === 0)
   const [error, setError] = useState(false)
 
+  // Only client-fetch when the server didn't seed us (keeps the groups in the
+  // initial HTML for SEO when data exists; refreshes live otherwise). When
+  // seeded, `loading` already starts false — no "Cargando" on first paint.
   useEffect(() => {
+    if (initial.length > 0) return
+    let cancelled = false
     fetch('/api/football/standings?league=1&season=2026&groups=1')
       .then(r => r.json())
-      .then(j => { if (j.ok && Array.isArray(j.data)) setGroups(j.data); else setError(true) })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false))
-  }, [])
+      .then(j => { if (cancelled) return; if (j.ok && Array.isArray(j.data)) setGroups(j.data); else setError(true) })
+      .catch(() => { if (!cancelled) setError(true) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [initial.length])
 
   // Real draw groups only (Group A–L) — exclude the "third-placed ranking" table.
   // Tolerant to the API's label format, which is "Group Stage - Group A"

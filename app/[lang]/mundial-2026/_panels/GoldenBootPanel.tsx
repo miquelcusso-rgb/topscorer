@@ -46,7 +46,7 @@ export function WcScorerList({ scorers, lang, limit }: { scorers: ApiPlayerRespo
   )
 }
 
-export default function GoldenBootPanel({ initial = [] }: { initial?: ApiPlayerResponse[] }) {
+export default function GoldenBootPanel({ initial = [], updated }: { initial?: ApiPlayerResponse[]; updated?: string }) {
   const { lang } = useLang()
   const [scorers, setScorers] = useState<ApiPlayerResponse[]>(initial)
   const [loading, setLoading] = useState(initial.length === 0)
@@ -73,11 +73,11 @@ export default function GoldenBootPanel({ initial = [] }: { initial?: ApiPlayerR
   // from the seeded scorers (no extra fetch); falls back gracefully pre-data.
   const leadSummary = leaderName
     ? t(lang,
-        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} lidera la Bota de Oro del Mundial 2026 con ${leaderGoals} ${leaderGoals === 1 ? 'gol' : 'goles'}.`,
-        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} leads the 2026 World Cup Golden Boot with ${leaderGoals} ${leaderGoals === 1 ? 'goal' : 'goals'}.`)
+        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} lidera la clasificación actual de goleadores de la Bota de Oro del Mundial 2026 con ${leaderGoals} ${leaderGoals === 1 ? 'gol' : 'goles'}.`,
+        `${leaderName}${leaderTeam ? ` (${leaderTeam})` : ''} leads the current top scorers standings for the 2026 World Cup Golden Boot with ${leaderGoals} ${leaderGoals === 1 ? 'goal' : 'goals'}.`)
     : t(lang,
-        'La carrera por la Bota de Oro del Mundial 2026 arranca el 11 de junio; aquí verás en directo al máximo goleador y sus goles.',
-        'The 2026 World Cup Golden Boot race kicks off on June 11; this page shows the live top scorer and their goal tally.')
+        'La carrera por la Bota de Oro del Mundial 2026 arranca el 11 de junio; aquí verás en directo la clasificación actual de goleadores y sus goles.',
+        'The 2026 World Cup Golden Boot race kicks off on June 11; this page shows the current top scorers standings live and their goal tally.')
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -88,10 +88,15 @@ export default function GoldenBootPanel({ initial = [] }: { initial?: ApiPlayerR
         <p style={{ fontSize: 14, color: 'var(--ts-text)', fontWeight: 600, margin: '0 0 6px', lineHeight: 1.55 }}>
           {leadSummary}
         </p>
+        {updated && (
+          <p style={{ fontSize: 11, color: 'var(--ts-faint)', margin: '0 0 6px' }}>
+            {t(lang, `Actualizado ${updated}`, `Updated ${updated}`)}
+          </p>
+        )}
         <p style={{ fontSize: 13, color: 'var(--ts-muted)', margin: 0, lineHeight: 1.6 }}>
           {t(lang,
-            'Máximos goleadores del Mundial 2026 en tiempo real. La Bota de Oro premia al jugador con más goles del torneo; en caso de empate, decide quien dé más asistencias y juegue menos minutos.',
-            'Live top scorers of the 2026 World Cup. The Golden Boot goes to the tournament’s top scorer; ties are broken by most assists, then fewest minutes played.')}
+            'Clasificación actual de goleadores del Mundial 2026 en tiempo real. La Bota de Oro premia al jugador con más goles del torneo; en caso de empate, decide quien dé más asistencias y juegue menos minutos.',
+            'Current top scorers standings of the 2026 World Cup, live. The Golden Boot goes to the tournament’s top scorer; ties are broken by most assists, then fewest minutes played.')}
         </p>
       </div>
 
