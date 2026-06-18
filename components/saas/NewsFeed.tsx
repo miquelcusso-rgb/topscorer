@@ -5,7 +5,7 @@ import LangBadge from './LangBadge'
 import NewsCard, { type NewsCardImage } from '@/components/news/NewsCard'
 import type { Lang } from '@/lib/i18n'
 
-interface NewsVisual { url: string; license: 'agency' | 'cc0'; source?: string }
+interface NewsVisual { url: string; license: 'agency' | 'crest'; source?: string }
 interface NewsItem { title: string; link: string; source: string; date: string; lang: 'es' | 'en'; isPriority?: boolean; visual?: NewsVisual }
 
 function dayBucket(iso: string, en: boolean): string {
@@ -18,18 +18,19 @@ function dayBucket(iso: string, en: boolean): string {
 }
 const fmtTime = (iso: string, en: boolean) => new Date(iso).toLocaleTimeString(en ? 'en-US' : 'es-ES', { hour: '2-digit', minute: '2-digit' })
 
-// Build the license-aware image descriptor for a news item. External news is
-// `embed` (we link back, never rehost the feed photo); its VISUAL comes from a
-// server-resolved player headshot (`agency`, licensed via our API) or a CC0
-// generic. We keep the embed semantics (source + link-back) on the credit.
+// Build the license-aware image descriptor for a news item. The visual is a
+// server-resolved player headshot or club crest — both licensed via our API
+// (api-sports), so both map to `agency` (no public credit, source required).
+// When nothing resolves we emit no URL → the card renders its branded initials
+// placeholder. We NEVER rehost the feed photo and never show a generic scene.
 function cardImage(it: NewsItem): NewsCardImage {
   const v = it.visual
-  if (v?.license === 'agency') {
+  if (v?.url) {
     return { url: v.url, license: 'agency', source: it.source, sourceUrl: it.link, alt: '' }
   }
-  // cc0 generic (or nothing → placeholder). Surface the source as an embed
-  // link-back so the card carries the "Via {source}" credit.
-  return { url: v?.url, license: 'embed', source: it.source, sourceUrl: it.link, alt: '' }
+  // Nothing resolved → no image (branded placeholder). Keep embed link-back
+  // semantics so the card still carries the "Via {source}" credit.
+  return { license: 'embed', source: it.source, sourceUrl: it.link, alt: '' }
 }
 
 // Hero image area — reuses the license-aware visual (headshot/CC0), never the

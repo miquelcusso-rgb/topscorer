@@ -101,8 +101,9 @@ export default async function SaasHomeBody({
   const rumors = await getTopRumors(lang === 'en' ? 'en' : 'es', 3)
   // Top 3 headlines for the HOT NEWS strip + the freshest "breaking" item for the
   // home banner (defensive — empty on any error).
-  // Pass the license-aware `visual` (headshot or CC0) — NOT the raw RSS image.
-  let news: { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'cc0' }; lang: 'es' | 'en' }[] = []
+  // Pass the license-aware `visual` (player headshot or club crest) — NOT the
+  // raw RSS image, and never a generic scene. Undefined → branded placeholder.
+  let news: { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'crest' }; lang: 'es' | 'en' }[] = []
   let breaking: { title: string; link: string; source: string; lang: 'es' | 'en' }[] = []
   try {
     const all = await getNewsWithVisuals(lang === 'en' ? 'en' : 'es', 'general', 14)

@@ -1,6 +1,5 @@
 import { unstable_cache } from 'next/cache'
-import { headshotForHeadline } from './player-photo'
-import { genericImageFor } from './news-images'
+import { headshotForHeadline, crestForHeadline } from './player-photo'
 
 // Free, durable football news via public RSS feeds. We show headline + source +
 // date + link to the original (correct RSS use — traffic goes to the source).
@@ -16,17 +15,20 @@ export interface NewsItem {
   isPriority?: boolean
   isWorldCup?: boolean
   isBreaking?: boolean   // recent + breaking keyword → eligible for the home banner
-  /** License-aware visual resolved server-side (headshot or CC0 generic). */
+  /** License-aware visual resolved server-side (player headshot or club crest;
+   *  undefined when neither resolves → card shows a branded placeholder). */
   visual?: NewsVisual
 }
 
 // A ToS-safe visual for a news item: either a SPECIFIC player's official
-// API-Football headshot (licensed via our API → `agency`) or a self-hosted CC0
-// generic graphic. We NEVER expose the raw RSS/agency image as licensed —
-// external news is headline + source + link-back only.
+// API-Football headshot (licensed via our API → `agency`) or the relevant
+// club's crest (badge → `crest`, identification use). We NEVER expose the raw
+// RSS/agency image as licensed, and we no longer fall back to a random generic
+// stock scene: when neither a player nor a club resolves, `visual` is omitted
+// and the card renders a branded placeholder instead.
 export interface NewsVisual {
   url: string
-  license: 'agency' | 'cc0'
+  license: 'agency' | 'crest'
   source?: string   // outlet, for the embed/credit line on the card
 }
 
@@ -206,19 +208,25 @@ export const getNews = unstable_cache(
   { revalidate: 1200, tags: ['news'] } // 20 min
 )
 
-// Resolve a ToS-safe visual for a news item (SERVER ONLY — pulls headshot ids
-// from SEARCH_INDEX). Order: a specific player's official headshot when the
-// headline clearly names them (licensed via our API → `agency`), else a
-// self-hosted CC0 generic chosen by headline/source. We deliberately ignore
-// `it.image` (the raw RSS/agency photo) so external content is never rehosted.
-export function resolveNewsVisual(it: Pick<NewsItem, 'title' | 'source'>): NewsVisual {
+// Resolve a ToS-safe visual for a news item (SERVER ONLY — pulls headshot/crest
+// ids from SEARCH_INDEX / club-logos). Priority, stopping at the first hit:
+//   1. the SPECIFIC player the headline names → their official API-Football
+//      headshot (licensed via our API → `agency`);
+//   2. else a club named in the headline → that club's crest (`crest`);
+//   3. else NOTHING — we return undefined and the card shows a branded
+//      placeholder. We NO LONGER emit a random generic stock scene (the owner
+//      asked for player/crest, never filler field/ball/stadium images).
+// `it.image` (the raw RSS/agency photo) is deliberately ignored — external
+// content is never rehosted.
+export function resolveNewsVisual(it: Pick<NewsItem, 'title' | 'source'>): NewsVisual | undefined {
   const headshot = headshotForHeadline(it.title)
   if (headshot) return { url: headshot, license: 'agency', source: it.source }
-  const generic = genericImageFor(`${it.title} ${it.source}`)
-  return { url: generic.url, license: 'cc0', source: it.source }
+  const crest = crestForHeadline(it.title)
+  if (crest) return { url: crest, license: 'crest', source: it.source }
+  return undefined
 }
 
-/** getNews + a resolved, license-aware `visual` on every item. */
+/** getNews + a resolved, license-aware `visual` (headshot/crest, or none). */
 export async function getNewsWithVisuals(
   lang: 'es' | 'en', scope: 'general' | 'worldcup' = 'general', limit = 40,
 ): Promise<NewsItem[]> {

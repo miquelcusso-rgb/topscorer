@@ -8,7 +8,8 @@ export async function GET(req: NextRequest) {
   const scope = req.nextUrl.searchParams.get('scope') === 'worldcup' ? 'worldcup' : 'general'
   try {
     // Strip the raw RSS/agency `image` before it leaves the server — clients only
-    // ever get the license-aware `visual` (headshot or CC0). No agency rehosting.
+    // ever get the license-aware `visual` (player headshot or club crest, or
+    // none → branded placeholder). No agency rehosting, no generic scenes.
     const items = (await getNewsWithVisuals(lang, scope)).map(({ image: _drop, ...rest }) => rest)
     return Response.json({ ok: true, items }, {
       headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },

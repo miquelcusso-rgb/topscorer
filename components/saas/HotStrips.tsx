@@ -11,9 +11,10 @@ import NewsPlaceholder from './NewsPlaceholder'
 import LangBadge from './LangBadge'
 
 // `visual` is the license-aware image resolved server-side (player headshot →
-// `agency`, licensed via our API; or a self-hosted CC0 generic). We NEVER carry
-// the raw RSS/agency photo here.
-interface NewsLite { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'cc0' }; lang: 'es' | 'en' }
+// `agency`, or a club crest → `crest`; both licensed via our API). We NEVER
+// carry the raw RSS/agency photo, and there is no generic-scene fallback — a
+// missing visual renders the branded NewsPlaceholder.
+interface NewsLite { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'crest' }; lang: 'es' | 'en' }
 
 // Mobile-only auto-sliding news carousel (Transfermarkt-style): one card at a
 // time with the article image + headline + source, auto-advancing every ~5s,
@@ -146,12 +147,13 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
   news?: NewsLite[]; rumors?: HomeRumor[]; strikers?: Standout[]; lang: 'es' | 'en'
 }) {
   const en = lang === 'en'
-  // News strip thumbs: license-aware visual (headshot/CC0) as a small square,
-  // never the raw RSS image. Headshots are round (Avatar) when present.
+  // News strip thumbs: license-aware visual only — a player headshot renders as
+  // a round Avatar (`agency`), a club crest as a small square (`crest`). No
+  // visual → no thumb (never the raw RSS image, never a generic scene).
   const newsLeads: Lead[] = news.slice(0, 3).map(n => ({
     label: n.title, sub: n.source, href: n.link, external: true, badge: n.lang, siteLang: lang,
     photo: n.visual?.license === 'agency' ? n.visual.url : undefined,
-    crest: n.visual?.license === 'cc0' ? n.visual.url : (!n.visual ? genericImageFor(`${n.title} ${n.source}`).url : undefined),
+    crest: n.visual?.license === 'crest' ? n.visual.url : undefined,
   }))
 
   // The home is force-static, so the build-time `rumors` prop always shows the
