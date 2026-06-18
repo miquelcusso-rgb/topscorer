@@ -2,8 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
-import { getNationalTeamId, getSquad, getCoach, getNationalTeamRecentLineups, getNationalTeamAggregateStats, getNationalTeamSeasonStats, type SquadPlayer } from '@/lib/api-football'
+import { getNationalTeamId, getSquad, getCoach, getNationalTeamRecentLineups, getNationalTeamAggregateStats, getNationalTeamSeasonStats, getTopScorers, type SquadPlayer, type ApiPlayerResponse } from '@/lib/api-football'
 import { resolveNation, nationName, nationFact, nationSlug, WC_NATIONS } from '@/lib/wc-nations'
+import { nationScorersFaqs } from '../wc-faqs'
 import { flagFor } from '@/lib/flags'
 import { PLAYERS } from '@/data/players'
 import { iig } from '@/lib/iig'
@@ -11,9 +12,12 @@ import { playerSlug } from '@/lib/player-slug'
 import { slugify } from '@/lib/slugify'
 import type { PlayerData } from '@/types'
 
-// Squads/coaches change rarely → revalidate daily. Defensive everywhere: no data
-// for a section just hides it (graceful "coming soon"), the page never 500s.
-export const revalidate = 86400
+// Squads/coaches change rarely, but the WC top-scorers section updates during the
+// tournament → revalidate hourly (3600, well above the free-tier 1800 floor; the
+// underlying getTopScorers/getSquad calls carry their own longer caches so this
+// costs no extra API quota). Defensive everywhere: no data for a section just
+// hides it (graceful "coming soon"), the page never 500s.
+export const revalidate = 3600
 
 // Pre-render every WC nation at build time (ISR). The parent `[lang]` layout
 // already emits both locales, so Next builds the lang × seleccion product — i.e.
@@ -43,11 +47,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const name = nationName(nation, lang)
   const path = `/mundial-2026/${seleccion}`
   const title = lang === 'en'
-    ? `${name} at the 2026 World Cup: Squad, Lineup & Players`
-    : `${name} en el Mundial 2026: Plantilla, Once probable y Jugadores`
+    ? `${name} Top Scorers · World Cup 2026: Squad, Goals & Lineup`
+    : `Goleadores de ${name} · Mundial 2026: Plantilla, Goles y Once`
   const description = lang === 'en'
-    ? `${name}'s 2026 World Cup squad: full player list, coach, potential lineup and key players. Live profile updated for the tournament.`
-    : `Plantilla de ${name} para el Mundial 2026: lista completa de jugadores, seleccionador, once probable y figuras. Perfil actualizado para el torneo.`
+    ? `${name} top scorers at the 2026 World Cup, updated live: who's scoring, plus the full squad, coach, potential lineup and key players.`
+    : `Goleadores de ${name} en el Mundial 2026, actualizados en directo: quién marca, además de la plantilla completa, seleccionador, once probable y figuras.`
   return {
     title,
     description,
@@ -69,7 +73,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         'x-default': `https://www.top-scorers.com/es${path}`,
       },
     },
-    keywords: [`${name} mundial 2026`, `${name} world cup 2026`, `plantilla ${name}`, `${name} squad`, 'mundial 2026', 'world cup 2026'],
+    keywords: [`goleadores ${name} mundial 2026`, `${name} top scorers world cup 2026`, `${name} mundial 2026`, `${name} world cup 2026`, `plantilla ${name}`, `${name} squad`, 'mundial 2026', 'world cup 2026'],
   }
 }
 
@@ -161,15 +165,44 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
 
   // ── Data (all defensive) ──
   const teamId = await getNationalTeamId(nation.api)
-  const [squad, coach, recent, teamStats, seasonStats] = teamId
+  const [squad, coach, recent, teamStats, seasonStats, wcScorersAll] = teamId
     ? await Promise.all([
         getSquad(teamId),
         getCoach(teamId),
         getNationalTeamRecentLineups(teamId),
         getNationalTeamAggregateStats(teamId),
         getNationalTeamSeasonStats(teamId),
+        // Tournament-wide WC top scorers (league 1, season 2026), filtered to this
+        // nation below. Reuses the same cached call the Golden Boot tab uses → no
+        // extra API quota. Defensive: any error → empty list (section just hides).
+        getTopScorers(1, 2026).catch(() => [] as ApiPlayerResponse[]),
       ])
-    : [[] as SquadPlayer[], null, null, null, null]
+    : [[] as SquadPlayer[], null, null, null, null, [] as ApiPlayerResponse[]]
+
+  // This nation's World Cup scorers: rows whose stat team id matches our team id,
+  // ordered by goals (desc), then assists. Server-rendered into the HTML so the
+  // "goleadores [país] mundial 2026" query has real, citable content (not a
+  // client "Loading…" placeholder). Empty before the tournament → graceful copy.
+  const wcScorers: ApiPlayerResponse[] = (wcScorersAll ?? [])
+    .filter(p => p.statistics?.[0]?.team?.id === teamId && (p.statistics[0]?.goals?.total ?? 0) > 0)
+    .sort((a, b) =>
+      (b.statistics[0]?.goals?.total ?? 0) - (a.statistics[0]?.goals?.total ?? 0) ||
+      (b.statistics[0]?.goals?.assists ?? 0) - (a.statistics[0]?.goals?.assists ?? 0),
+    )
+  const wcGoalsTotal = wcScorers.reduce((s, p) => s + (p.statistics[0]?.goals?.total ?? 0), 0)
+  const topScorerWc = wcScorers[0]
+  const topScorerWcName = topScorerWc?.player?.name
+  const topScorerWcGoals = topScorerWc?.statistics[0]?.goals?.total ?? 0
+  // Citable lead sentence answering "goleadores de <nación> en el Mundial 2026".
+  const scorerLead = topScorerWcName
+    ? t(lang,
+        `${topScorerWcName} es el máximo goleador de ${name} en el Mundial 2026 con ${topScorerWcGoals} ${topScorerWcGoals === 1 ? 'gol' : 'goles'}. ${name} suma ${wcGoalsTotal} ${wcGoalsTotal === 1 ? 'gol' : 'goles'} en el torneo.`,
+        `${topScorerWcName} is ${name}'s top scorer at the 2026 World Cup with ${topScorerWcGoals} ${topScorerWcGoals === 1 ? 'goal' : 'goals'}. ${name} has scored ${wcGoalsTotal} ${wcGoalsTotal === 1 ? 'goal' : 'goals'} in the tournament so far.`)
+    : t(lang,
+        `Aquí verás en directo a los goleadores de ${name} en el Mundial 2026: cada gol y quién lo marca, actualizado durante todo el torneo (arranca el 11 de junio de 2026).`,
+        `This is where ${name}'s top scorers at the 2026 World Cup appear live: every goal and who scored it, updated throughout the tournament (kick-off June 11, 2026).`)
+  // Updated-date freshness signal (locale-formatted month + year).
+  const updatedLabel = new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 
   // Do we have real recent-match usage? If so, the XI is "based on recent XI";
   // otherwise we fall back to the squad heuristic ("based on squad").

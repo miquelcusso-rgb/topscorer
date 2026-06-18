@@ -46,6 +46,49 @@ export function wcFaqs(lang: 'es' | 'en', leader?: string): WcFaq[] {
   ]
 }
 
+/** Nation top-scorer FAQs (per WC nation) — head terms "goleadores [país] mundial
+ *  2026" / "[country] top scorers world cup 2026". `topName`/`topGoals` make the
+ *  answer concrete + citable for GEO when the tournament is underway. */
+export function nationScorersFaqs(
+  lang: 'es' | 'en',
+  nation: string,
+  topName?: string,
+  topGoals?: number,
+): WcFaq[] {
+  const en = lang === 'en'
+  const hasN = typeof topGoals === 'number'
+  return [
+    {
+      q: en
+        ? `Who are ${nation}'s top scorers at the 2026 World Cup?`
+        : `¿Quiénes son los goleadores de ${nation} en el Mundial 2026?`,
+      a: en
+        ? (topName
+            ? `${topName} is ${nation}'s top scorer at the 2026 World Cup${hasN ? ` with ${topGoals} ${topGoals === 1 ? 'goal' : 'goals'}` : ''}. The full list of ${nation}'s scorers on this page updates live as goals go in throughout the tournament.`
+            : `${nation}'s scorers will appear here from their first match. This page lists every ${nation} goal at the 2026 World Cup and updates live as the tournament is played.`)
+        : (topName
+            ? `${topName} es el máximo goleador de ${nation} en el Mundial 2026${hasN ? ` con ${topGoals} ${topGoals === 1 ? 'gol' : 'goles'}` : ''}. La lista completa de goleadores de ${nation} de esta página se actualiza en directo según se marcan los goles durante el torneo.`
+            : `Los goleadores de ${nation} aparecerán aquí desde su primer partido. Esta página recoge cada gol de ${nation} en el Mundial 2026 y se actualiza en directo a medida que se juega el torneo.`),
+    },
+    {
+      q: en
+        ? `How many goals has ${nation} scored at the 2026 World Cup?`
+        : `¿Cuántos goles ha marcado ${nation} en el Mundial 2026?`,
+      a: en
+        ? `This page adds up every goal scored by ${nation} players at the 2026 World Cup and updates live. The tally starts at zero before the tournament kicks off on June 11, 2026.`
+        : `Esta página suma todos los goles de los jugadores de ${nation} en el Mundial 2026 y se actualiza en directo. El recuento parte de cero antes de que arranque el torneo el 11 de junio de 2026.`,
+    },
+    {
+      q: en
+        ? `Could a ${nation} player win the 2026 World Cup Golden Boot?`
+        : `¿Puede un jugador de ${nation} ganar la Bota de Oro del Mundial 2026?`,
+      a: en
+        ? `Any ${nation} player can win the Golden Boot — it goes to the tournament's overall top scorer, regardless of nation. If level on goals, the tie is broken by most assists, then fewest minutes played.`
+        : `Cualquier jugador de ${nation} puede ganar la Bota de Oro: premia al máximo goleador de todo el torneo, sea de la selección que sea. En caso de empate a goles, decide el mayor número de asistencias y, después, los menos minutos jugados.`,
+    },
+  ]
+}
+
 /** Golden Boot page FAQs — head terms ("quién va líder", "cómo se decide",
  *  "cuántos goles lleva"). `leader`/`goals` make answers concrete + citable. */
 export function goldenBootFaqs(lang: 'es' | 'en', leader?: string, goals?: number): WcFaq[] {
