@@ -7,6 +7,8 @@ import { resolveNation, nationName, nationFact, nationSlug, WC_NATIONS } from '@
 import { nationScorersFaqs } from '../wc-faqs'
 import { WcScorerList } from '../_panels/GoldenBootPanel'
 import WcFaqList from '../_panels/WcFaqList'
+import WcAd from '../_panels/WcAd'
+import WcSignupCta from '../_panels/WcSignupCta'
 import { flagFor } from '@/lib/flags'
 import { PLAYERS } from '@/data/players'
 import { iig } from '@/lib/iig'
@@ -440,6 +442,9 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
             )}
           </section>
 
+          {/* In-content ad after the citable scorers lead (self-gates for Pro) */}
+          <WcAd />
+
           {!dataAvailable && (
             <div style={{ borderRadius: 12, padding: '40px 24px', textAlign: 'center', background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)' }}>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, color: 'var(--ts-primary)' }}>
@@ -653,6 +658,10 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
               <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--ts-text)', margin: 0 }}>{fact}</p>
             </section>
           )}
+
+          {/* Soft account capture — personalised to this nation. Signed-in
+              users see nothing; never blocks the indexable content above. */}
+          <WcSignupCta nation={name} />
 
           {/* FAQ — visible answers mirror the FAQPage JSON-LD (GEO citable). */}
           <WcFaqList
