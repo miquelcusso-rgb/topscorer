@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation'
 import { useLang } from '@/contexts/LangContext'
 import { t } from './shared'
 import Countdown from './Countdown'
+import WcAd from './WcAd'
+import WcSignupCta from './WcSignupCta'
 
 // ─── Shared World Cup chrome (hero + countdown + tab nav) ─────────────────────
 // Rendered once by the WC layout so every WC route shares the same header. The
@@ -130,6 +132,14 @@ export default function WorldCupChrome({ children }: { children: React.ReactNode
       <div style={{ background: 'var(--ts-bg)' }}>
         <div style={{ maxWidth: 1500, margin: '0 auto', padding: '24px 20px 80px' }}>
           {children}
+
+          {/* Monetise the WC traffic (non-intrusive, after content) + soft
+              account capture. Both self-gate: Pro users see no ad, signed-in
+              users see no CTA. SEO content above is untouched. */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 28 }}>
+            <WcAd />
+            <WcSignupCta />
+          </div>
         </div>
       </div>
     </main>
