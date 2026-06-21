@@ -8,7 +8,6 @@ import type { ApiPlayerResponse } from '@/lib/api-football'
 import { type Lang, t } from './shared'
 import { goldenBootFaqs } from '../wc-faqs'
 import WcFaqList from './WcFaqList'
-import WcAd from './WcAd'
 
 // ─── World Cup Golden Boot (Bota de Oro del Mundial) ──────────────────────────
 // The star section during the tournament: live top scorers of the World Cup
@@ -140,9 +139,6 @@ export default function GoldenBootPanel({ initial = [], updated }: { initial?: A
           <WcScorerList scorers={scorers} lang={lang} limit={25} />
         </div>
       )}
-
-      {/* In-content ad between the ranking and the FAQ (self-gates for Pro) */}
-      <WcAd />
 
       {/* FAQ — visible answers mirror the FAQPage JSON-LD (GEO citable content) */}
       <WcFaqList

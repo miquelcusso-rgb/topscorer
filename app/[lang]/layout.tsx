@@ -13,6 +13,7 @@ import AppDownloadBanner from '@/components/AppDownloadBanner'
 import ConsentBanner from '@/components/ConsentBanner'
 import ChromeWrapper from '@/components/ChromeWrapper'
 import { GTMScript, GTMNoScript } from '@/components/GoogleTagManager'
+import { ADSENSE_CLIENT } from '@/lib/adsense'
 import '../globals.css'
 
 export function generateStaticParams() {
@@ -151,11 +152,16 @@ export default async function RootLayout({
               try{if(localStorage.getItem('ts-consent')==='granted'){gtag('consent','update',{ad_storage:'granted',analytics_storage:'granted',ad_user_data:'granted',ad_personalization:'granted'});}}catch(e){}
             ` }}
           />
-          <script
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6498215334315959"
-            crossOrigin="anonymous"
-          />
+          {/* AdSense loader — env-gated. Only emitted when
+              NEXT_PUBLIC_ADSENSE_CLIENT is set; otherwise no script loads at all
+              and every AdSlot renders nothing (fully dormant until approved). */}
+          {ADSENSE_CLIENT && (
+            <script
+              async
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+              crossOrigin="anonymous"
+            />
+          )}
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, '\\u003c') }}

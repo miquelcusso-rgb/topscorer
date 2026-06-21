@@ -3,6 +3,8 @@
 import { useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { isPro } from '@/lib/plans'
+import { ADSENSE_CLIENT } from '@/lib/adsense'
+import { useLang } from '@/contexts/LangContext'
 
 declare global {
   interface Window {
@@ -18,8 +20,11 @@ interface Props {
 
 export default function AdSlot({ slot, format = 'auto', className }: Props) {
   const { user, isLoaded } = useUser()
+  const { lang } = useLang()
 
   useEffect(() => {
+    // No client id configured → ads dormant, nothing to push.
+    if (!ADSENSE_CLIENT) return
     if (!isLoaded) return
     if (isPro(user?.publicMetadata as Record<string, unknown>)) return
     if (typeof window === 'undefined') return
@@ -30,6 +35,10 @@ export default function AdSlot({ slot, format = 'auto', className }: Props) {
       // silently ignore duplicate push errors
     }
   }, [isLoaded, user])
+
+  // Env-gated: when NEXT_PUBLIC_ADSENSE_CLIENT is unset, render nothing at all
+  // (the loader script is also skipped in the layout). Fully dormant.
+  if (!ADSENSE_CLIENT) return null
 
   // While Clerk is loading, render nothing to avoid layout shift
   if (!isLoaded) return null
@@ -50,12 +59,12 @@ export default function AdSlot({ slot, format = 'auto', className }: Props) {
           marginBottom: 2,
         }}
       >
-        Publicidad
+        {lang === 'en' ? 'Advertisement' : 'Publicidad'}
       </div>
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client="ca-pub-6498215334315959"
+        data-ad-client={ADSENSE_CLIENT}
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive="true"
