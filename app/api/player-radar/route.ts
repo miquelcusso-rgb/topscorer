@@ -16,7 +16,9 @@ export async function GET(req: NextRequest) {
   try {
     const radar = await getPlayerRadar(id, override)
     if (!radar) return Response.json({ ok: false, error: 'no player' }, { status: 404 })
-    return Response.json({ ok: true, ...radar })
+    return Response.json({ ok: true, ...radar }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
     return Response.json({ ok: false, error: String(err) }, { status: 500 })
   }

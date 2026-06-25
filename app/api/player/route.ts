@@ -15,7 +15,9 @@ export async function GET(req: NextRequest) {
     if (!detail) return Response.json({ ok: false, error: 'not found' }, { status: 404 })
     const player = apiDetailToPlayer(detail)
     if (!player) return Response.json({ ok: false, error: 'no stats' }, { status: 404 })
-    return Response.json({ ok: true, player })
+    return Response.json({ ok: true, player }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
     return Response.json({ ok: false, error: String(err) }, { status: 500 })
   }

@@ -14,9 +14,13 @@ import {
 } from '@/lib/api-football'
 import { slugify } from '@/lib/slugify'
 
-// A match can be live → revalidate frequently (ISR). Fully defensive: missing
-// data hides the section; a missing fixture renders a graceful not-found state.
-export const revalidate = 300
+// A match can be live → revalidate moderately (ISR). On-demand (no
+// generateStaticParams) so only visited fixtures ever regenerate, but a WC has
+// ~104 matches × es/en, so 300s was a heavy ISR-write multiplier. 1800s keeps
+// lineups/stats/timeline fresh for live matches while cutting writes ~6×.
+// Fully defensive: missing data hides the section; a missing fixture renders a
+// graceful not-found state.
+export const revalidate = 1800 // 30m ISR (was 300) — free-tier ISR writes
 
 const t = (lang: 'es' | 'en', es: string, en: string) => (lang === 'en' ? en : es)
 

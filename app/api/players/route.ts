@@ -34,7 +34,9 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    return Response.json({ ok: true, data: players, count: players.length })
+    return Response.json({ ok: true, data: players, count: players.length }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
     return Response.json({ ok: false, error: String(err) }, { status: 500 })
   }

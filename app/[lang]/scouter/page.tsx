@@ -8,7 +8,7 @@ import RelatedLinks from '@/components/RelatedLinks'
 
 const BASE = 'https://www.top-scorers.com'
 
-export const revalidate = 21600 // 6h ISR
+export const revalidate = 86400 // 24h ISR (was 21600) — dataset-driven index, changes on deploy
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params

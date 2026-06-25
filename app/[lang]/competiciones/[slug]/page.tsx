@@ -14,7 +14,7 @@ import { isEuroCup, getEuroCupData } from '@/lib/euro-cups'
 
 const BASE = 'https://www.top-scorers.com'
 
-export const revalidate = 21600 // 6h ISR — keeps standings/fixtures fresh
+export const revalidate = 86400 // 24h ISR (was 21600) — body is dataset-driven (changes on deploy); the few Euro-cup league pages pull live data via getEuroCupData's own cached fetch. One page per league × es/en, free-tier ISR writes.
 
 export function generateStaticParams() {
   return allLeagueSlugs().map(slug => ({ slug }))

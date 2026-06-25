@@ -9,7 +9,9 @@ export async function GET(req: NextRequest) {
   if (!name) return Response.json({ ok: false, error: 'missing name' }, { status: 400 })
   try {
     const bio = await getPlayerBio(name, lang)
-    return Response.json({ ok: true, bio })
+    return Response.json({ ok: true, bio }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
     return Response.json({ ok: false, error: String(err) }, { status: 500 })
   }

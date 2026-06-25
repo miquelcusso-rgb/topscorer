@@ -11,7 +11,9 @@ export async function GET(req: NextRequest) {
   if (!id) return Response.json({ ok: false, error: 'missing id' }, { status: 400 })
   try {
     const prediction = await getFixturePrediction(id)
-    return Response.json({ ok: true, prediction })
+    return Response.json({ ok: true, prediction }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
     return Response.json({ ok: true, prediction: null, error: String(err) })
   }

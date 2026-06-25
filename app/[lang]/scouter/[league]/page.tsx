@@ -15,7 +15,7 @@ import RelatedLinks from '@/components/RelatedLinks'
 const BASE = 'https://www.top-scorers.com'
 const TOP_N = 20
 
-export const revalidate = 21600 // 6h ISR — keeps the ranking fresh with the dataset
+export const revalidate = 86400 // 24h ISR (was 21600) — ranking is dataset-driven (changes on deploy); one page per league × es/en, free-tier ISR writes
 
 /** One scouter page per league that actually has tracked players, × es/en. */
 export function generateStaticParams() {

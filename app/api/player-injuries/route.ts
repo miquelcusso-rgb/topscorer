@@ -14,7 +14,9 @@ export async function GET(req: NextRequest) {
       getPlayerInjuries(id),
       getPlayerSidelined(id),
     ])
-    return Response.json({ ok: true, injuries, sidelined })
+    return Response.json({ ok: true, injuries, sidelined }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
     return Response.json({ ok: true, injuries: [], sidelined: [], error: String(err) })
   }

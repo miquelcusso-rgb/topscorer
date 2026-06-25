@@ -52,7 +52,15 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
 export const config = {
   matcher: [
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Run on real page navigations only. Exclude Next internals, the Sentry
+    // tunnel, common crawler/metadata files (robots/sitemap/ads/llms/manifest),
+    // and ANY path containing a file extension (e.g. .txt/.xml/.json/.js/img/
+    // fonts). This keeps the i18n 308 redirect + locale-cookie sync on page
+    // requests while keeping middleware OFF assets — the single biggest Edge
+    // Request / Function Invocation reducer on the free tier.
+    '/((?!_next/static|_next/image|monitoring|favicon\\.ico|robots\\.txt|ads\\.txt|sitemap\\.xml|manifest\\.webmanifest|sw\\.js|llms\\.txt|.*\\.[\\w]+$).*)',
+    // Clerk still needs to wrap API/tRPC handlers that call auth(); without this
+    // those routes lose the auth context. Internal-only, no redirects fire here.
     '/(api|trpc)(.*)',
   ],
 }

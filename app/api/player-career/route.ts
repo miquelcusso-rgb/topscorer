@@ -8,7 +8,9 @@ export async function GET(req: NextRequest) {
   if (!id) return Response.json({ ok: false, error: 'missing id' }, { status: 400 })
   try {
     const data = await getPlayerCareer(id)
-    return Response.json({ ok: true, data })
+    return Response.json({ ok: true, data }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
     return Response.json({ ok: false, error: String(err) }, { status: 500 })
   }

@@ -11,7 +11,9 @@ export async function GET(req: NextRequest) {
   if (!a || !b) return Response.json({ ok: false, error: 'missing a/b' }, { status: 400 })
   try {
     const h2h = await getHeadToHead(a, b)
-    return Response.json({ ok: true, h2h })
+    return Response.json({ ok: true, h2h }, {
+      headers: { 'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=86400` },
+    })
   } catch (err) {
     return Response.json({ ok: true, h2h: null, error: String(err) })
   }

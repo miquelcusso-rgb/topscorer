@@ -16,12 +16,14 @@ import { playerSlug } from '@/lib/player-slug'
 import { slugify } from '@/lib/slugify'
 import type { PlayerData } from '@/types'
 
-// Squads/coaches change rarely, but the WC top-scorers section updates during the
-// tournament → revalidate hourly (3600, well above the free-tier 1800 floor; the
-// underlying getTopScorers/getSquad calls carry their own longer caches so this
-// costs no extra API quota). Defensive everywhere: no data for a section just
-// hides it (graceful "coming soon"), the page never 500s.
-export const revalidate = 3600
+// 69 nations × es/en = ~138 ISR pages — by far the biggest ISR-write driver.
+// Squads/coaches/facts are effectively static; the only live element is the WC
+// top-scorers section, whose underlying getTopScorers call already carries its
+// own shorter cache and is shared across all nation pages. Daily ISR here is the
+// right trade: ~24× fewer background regen writes than the old 3600 while the
+// live scorer numbers still refresh via the cached fetch + on next daily build.
+// Defensive everywhere: missing data hides the section, the page never 500s.
+export const revalidate = 86400 // 24h ISR (was 3600) — 138 pages, free-tier ISR writes
 
 // Pre-render every WC nation at build time (ISR). The parent `[lang]` layout
 // already emits both locales, so Next builds the lang × seleccion product — i.e.
