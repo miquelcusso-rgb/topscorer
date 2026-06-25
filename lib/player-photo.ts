@@ -3,6 +3,7 @@ import { SEARCH_INDEX } from '@/data/search-index'
 import { CURATED_IDS } from '@/data/curated-ids'
 import { clubLogo } from '@/data/club-logos'
 import { PHOTO_VERIFIED } from '@/data/photo-verified'
+import { NEWS_NAME_PHOTOS } from '@/data/news-name-photos'
 
 // SINGLE source of truth for a player's photo. API-Football photo URLs are
 // predictable by player id (…/players/<id>.png; it serves a neutral silhouette
@@ -125,6 +126,11 @@ export function withPhoto<T extends Pick<PlayerData, 'photo' | 'apiId' | 'name' 
 // curated ids → the set of API-Football ids we treat as "dominant stars".
 const STAR_IDS: Set<number> = new Set(Object.values(CURATED_IDS))
 
+// Enrichment-cached news names (already normalised by the build script), tested
+// longest-first so a more specific full name wins over any shorter one it
+// contains. Used by headshotForHeadline pass 0.5.
+const NEWS_PHOTO_KEYS: string[] = Object.keys(NEWS_NAME_PHOTOS).sort((a, b) => b.length - a.length)
+
 // CURATED MONONYM ALIASES — popular SINGLE-name / one-word forms that headlines
 // actually use ("Vinicius brilla", "Pedri vuelve", "Neymar firma") and which the
 // full-name phrase pass (needs ≥2 tokens) and the surname pass (a single one-word
@@ -156,6 +162,8 @@ const MONONYM_ALIASES: Record<string, number> = {
   dembele: 153,         // Ousmane Dembélé
   kvaratskhelia: 483,
   // other marquee single-name referents
+  messi: 154,           // Lionel Messi (Inter Miami — not in our ingested leagues)
+  ronaldo: 874,         // Cristiano Ronaldo (Al Nassr — likewise)
   neymar: 276,
   casemiro: 747,
   griezmann: 56,
@@ -252,6 +260,19 @@ export function headshotForHeadline(headline?: string): string | undefined {
   const padded0 = ` ${h} `
   for (const alias in MONONYM_ALIASES) {
     if (padded0.includes(` ${alias} `)) return apiPhoto(MONONYM_ALIASES[alias])
+  }
+
+  // Pass 0.5: an enrichment-cached news name (data/news-name-photos.ts) appears
+  // in the headline. These are players news headlines name but who are NOT in
+  // SEARCH_INDEX (leagues we don't ingest — Saudi, MLS — or a name form the
+  // index passes miss). Resolved at BUILD/CRON time via /players/profiles with
+  // precision-first disambiguation and each photo CONFIRMED real, so they are
+  // photo-trusted (bypass the verifiedPhoto gate) like the mononyms above.
+  // Checked before the index passes so a confidently-enriched id always wins;
+  // longest keys first so a full "first last" wins over any shorter contained
+  // name, and every key is a whole-word (padded) match (≥2 tokens by build).
+  for (const phrase of NEWS_PHOTO_KEYS) {
+    if (padded0.includes(` ${phrase} `)) return apiPhoto(NEWS_NAME_PHOTOS[phrase])
   }
 
   // Pass 1: an unambiguous COMPLETE-name phrase appears in the headline. Scan
