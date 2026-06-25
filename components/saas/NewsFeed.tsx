@@ -141,22 +141,31 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
             {g.label}
           </div>
           <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
-            {g.items.map((it, i) => (
-              <NewsCard
-                key={i}
-                variant="full"
-                title={it.title}
-                href={it.link}
-                external
-                image={cardImage(it)}
-                source={it.source}
-                sourceUrl={it.link}
-                meta={fmtTime(it.date, en)}
-                lang={lang}
-                eyebrow={it.isPriority ? (en ? '★ Featured' : '★ Destacada') : undefined}
-                metaPrefix={<LangBadge itemLang={it.lang} siteLang={lang} />}
-              />
-            ))}
+            {g.items.map((it, i) => {
+              const img = cardImage(it)
+              // Two-tier sizing (owner request): a card that actually shows a
+              // player headshot or club crest keeps the LARGE "premium" layout;
+              // a card with no resolvable visual (→ branded placeholder) renders
+              // COMPACT (small thumb + headline, text-forward) so it takes less
+              // vertical space and never looks like a big empty image box.
+              const hasVisual = !!img.url
+              return (
+                <NewsCard
+                  key={i}
+                  variant={hasVisual ? 'full' : 'compact'}
+                  title={it.title}
+                  href={it.link}
+                  external
+                  image={img}
+                  source={it.source}
+                  sourceUrl={it.link}
+                  meta={fmtTime(it.date, en)}
+                  lang={lang}
+                  eyebrow={hasVisual && it.isPriority ? (en ? '★ Featured' : '★ Destacada') : undefined}
+                  metaPrefix={<LangBadge itemLang={it.lang} siteLang={lang} />}
+                />
+              )
+            })}
           </div>
         </div>
       ))}

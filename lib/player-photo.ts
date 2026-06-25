@@ -125,6 +125,50 @@ export function withPhoto<T extends Pick<PlayerData, 'photo' | 'apiId' | 'name' 
 // curated ids → the set of API-Football ids we treat as "dominant stars".
 const STAR_IDS: Set<number> = new Set(Object.values(CURATED_IDS))
 
+// CURATED MONONYM ALIASES — popular SINGLE-name / one-word forms that headlines
+// actually use ("Vinicius brilla", "Pedri vuelve", "Neymar firma") and which the
+// full-name phrase pass (needs ≥2 tokens) and the surname pass (a single one-word
+// name has no distinct surname) both miss. We map each well-known popular name →
+// the star's API-Football id as a HIGH-PRIORITY pass that runs BEFORE the generic
+// surname pass.
+//
+// Precision rule (a wrong face is worse than none): only UNAMBIGUOUS popular
+// names of clear stars are listed — names that, for the typical reader, refer to
+// exactly one player. Keys are normalised (accents folded via `norm`, so
+// "Vinícius"/"Vinicius", "Mbappé"/"Mbappe" both hit). Every id has a real photo:
+// all are in PHOTO_VERIFIED except a few hard-included stars confirmed by hand
+// (e.g. Benzema 759) — alias-mapped ids are TREATED as photo-trusted, so they
+// bypass the verifiedPhoto() gate (see headshotForHeadline pass 0).
+const MONONYM_ALIASES: Record<string, number> = {
+  // Real Madrid / ex-Madrid
+  vinicius: 762,        // Vinícius Júnior
+  rodrygo: 10009,
+  benzema: 759,         // hard-included (confirmed real photo, not in PHOTO_VERIFIED)
+  modric: 754,
+  // Barcelona
+  pedri: 133609,
+  gavi: 296667,
+  raphinha: 1496,
+  yamal: 386828,        // Lamine Yamal
+  lewandowski: 521,
+  // PSG / France
+  mbappe: 278,          // Kylian Mbappé
+  dembele: 153,         // Ousmane Dembélé
+  kvaratskhelia: 483,
+  // other marquee single-name referents
+  neymar: 276,
+  casemiro: 747,
+  griezmann: 56,
+  salah: 306,           // Mohamed Salah
+  lautaro: 217,         // Lautaro Martínez
+  vlahovic: 30415,
+  rashford: 909,
+  isak: 2864,
+  musiala: 181812,
+  leao: 22236,          // Rafael Leão
+  cancelo: 855,         // João Cancelo
+}
+
 // Words that are CLUB / place / football-common tokens, never to be treated as
 // a player surname in the surname pass. Headlines say "Madrid", "City",
 // "United", "Inter" constantly, and some players' last name token is exactly
@@ -199,6 +243,16 @@ const PHRASES_BY_LEN: string[] = [...PHRASE_TO_ID.keys()].sort((a, b) => b.lengt
 export function headshotForHeadline(headline?: string): string | undefined {
   const h = norm(headline)
   if (!h) return undefined
+
+  // Pass 0: a curated popular MONONYM (single-word star name) appears as a whole
+  // word. Highest priority — these are unambiguous public referents and the only
+  // pass that catches one-word headline names. Alias ids are photo-trusted, so we
+  // emit the headshot directly (bypassing the verifiedPhoto gate). Checked before
+  // the generic surname pass so a popular single name always wins.
+  const padded0 = ` ${h} `
+  for (const alias in MONONYM_ALIASES) {
+    if (padded0.includes(` ${alias} `)) return apiPhoto(MONONYM_ALIASES[alias])
+  }
 
   // Pass 1: an unambiguous COMPLETE-name phrase appears in the headline. Scan
   // the phrase map (far smaller than the index) and test whole-word presence
