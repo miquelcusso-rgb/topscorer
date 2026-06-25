@@ -2,6 +2,7 @@ import type { PlayerData } from '@/types'
 import { SEARCH_INDEX } from '@/data/search-index'
 import { CURATED_IDS } from '@/data/curated-ids'
 import { clubLogo } from '@/data/club-logos'
+import { PHOTO_VERIFIED } from '@/data/photo-verified'
 
 // SINGLE source of truth for a player's photo. API-Football photo URLs are
 // predictable by player id (…/players/<id>.png; it serves a neutral silhouette
@@ -13,6 +14,16 @@ import { clubLogo } from '@/data/club-logos'
 
 export function apiPhoto(id?: number): string | undefined {
   return id ? `https://media.api-sports.io/football/players/${id}.png` : undefined
+}
+
+// A headshot URL only when the id is CONFIRMED to carry a real photo. API-Football
+// serves a generic gray silhouette (HTTP 200) for any id without a photo, and we
+// cannot tell it apart from the URL alone — so news visuals emit a headshot ONLY
+// for an id in PHOTO_VERIFIED (built once by scripts/verify-photos.mjs). Every
+// other id returns undefined here, letting the caller fall back to the club crest
+// → branded placeholder. This is what guarantees a silhouette never reaches a card.
+function verifiedPhoto(id?: number): string | undefined {
+  return id && PHOTO_VERIFIED.has(id) ? apiPhoto(id) : undefined
 }
 
 const norm = (s?: string) => (s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, '').trim()
@@ -96,8 +107,12 @@ export function withPhoto<T extends Pick<PlayerData, 'photo' | 'apiId' | 'name' 
 // player's official API-Football headshot (licensed via our API — NOT agency
 // rehosting). Must stay server-side (SEARCH_INDEX is huge).
 //
-// Precision over recall: a wrong face is worse than no face. We resolve only
-// when we are confident WHICH player a headline is about, via two passes:
+// Precision over recall: a wrong face — or a gray silhouette — is worse than no
+// face. Two gates: (a) we resolve an id only when confident WHICH player a
+// headline is about (the two passes below), and (b) we only emit the headshot
+// when that id is in PHOTO_VERIFIED (a real photo, not the api-sports
+// silhouette). Fail either gate → undefined → caller falls back to the crest.
+// We resolve the id via two passes:
 //   1. FULL NAME — the player's full "first last" (or curated name) appears as
 //      a contiguous phrase in the headline (e.g. "Vinícius Júnior", "Jude
 //      Bellingham"). Unambiguous by construction.
@@ -192,7 +207,10 @@ export function headshotForHeadline(headline?: string): string | undefined {
   const padded = ` ${h} `
   for (const phrase of PHRASES_BY_LEN) {
     if (PHRASE_AMBIG.has(phrase)) continue
-    if (padded.includes(` ${phrase} `)) return apiPhoto(PHRASE_TO_ID.get(phrase)!)
+    if (padded.includes(` ${phrase} `)) {
+      const photo = verifiedPhoto(PHRASE_TO_ID.get(phrase)!)
+      if (photo) return photo // else: id has no real photo → keep scanning / fall to crest
+    }
   }
 
   // Pass 2: a distinctive (or star-dominant) surname appears as a whole word.
@@ -203,13 +221,13 @@ export function headshotForHeadline(headline?: string): string | undefined {
     if (SURNAME_AMBIG.has(w)) {
       // Shared surname → only resolve if exactly one star owns it.
       if (!SURNAME_STAR_AMBIG.has(w)) {
-        const star = SURNAME_STAR.get(w)
-        if (star) return apiPhoto(star)
+        const photo = verifiedPhoto(SURNAME_STAR.get(w))
+        if (photo) return photo
       }
       continue // otherwise don't guess
     }
-    const id = SURNAME_TO_ID.get(w)
-    if (id) return apiPhoto(id)
+    const photo = verifiedPhoto(SURNAME_TO_ID.get(w))
+    if (photo) return photo
   }
   return undefined
 }

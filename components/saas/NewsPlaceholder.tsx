@@ -31,16 +31,24 @@ export default function NewsPlaceholder({
         overflow: 'hidden',
       }}
     >
-      <span
-        style={{
-          fontSize: compact ? 20 : 30,
-          lineHeight: 1,
-          filter: 'grayscale(0.1)',
-          opacity: 0.85,
-        }}
+      {/* Brand SVG football glyph (never an emoji — AGENTS.md). Inherits the
+          gold via currentColor; theme-aware through --ts-primary. */}
+      <svg
+        viewBox="0 0 24 24"
+        width={compact ? 20 : 30}
+        height={compact ? 20 : 30}
+        fill="none"
+        stroke="var(--ts-primary)"
+        strokeWidth={1.6}
+        strokeLinejoin="round"
+        style={{ opacity: 0.85, flexShrink: 0 }}
+        role="img"
+        aria-hidden
       >
-        ⚽
-      </span>
+        <circle cx="12" cy="12" r="9.2" />
+        <path d="M12 6.6l3.6 2.6-1.4 4.3H9.8L8.4 9.2 12 6.6z" />
+        <path d="M12 6.6V3.2M15.6 9.2l3.1-1.2M14.2 13.5l2.2 2.7M9.8 13.5l-2.2 2.7M8.4 9.2L5.3 8" />
+      </svg>
       {source && (
         <span
           style={{

@@ -22,7 +22,7 @@
 
 import { useState } from 'react'
 import { t, type Lang } from '@/lib/i18n'
-import { initialsOf, avatarTintFor } from '@/lib/palette'
+import NewsPlaceholder from '@/components/saas/NewsPlaceholder'
 
 export type License = 'own' | 'cc0' | 'ccby' | 'agency' | 'embed'
 
@@ -73,7 +73,8 @@ export interface NewsCardProps {
   sourceUrl?: string
   /** ISO date or pre-formatted time string for the meta line. */
   meta?: string
-  /** Team/club or fallback subject — drives the initials placeholder. */
+  /** Team/club hint (legacy). The placeholder is now the unified branded
+   *  NewsPlaceholder keyed on the source, so this is accepted but unused. */
   team?: string
   lang: Lang
   /** full = image + headline + meta; compact = small thumb + line + badge. */
@@ -106,28 +107,11 @@ export function buildCredit(image: NewsCardImage, lang: Lang): string | null {
   return `${verb}: ${author}`
 }
 
-// Initials placeholder — never a broken <img>. Tinted circle/box with initials
-// derived from team or title. Brand tints, theme-aware via palette helper.
-function InitialsPlaceholder({ subject, radius, compact }: { subject: string; radius: number; compact: boolean }) {
-  // avatarTintFor needs a PaletteMode; CSS handles theme, so pick by name only.
-  const tint = avatarTintFor(subject || 'TS', 'light')
-  const initials = initialsOf(subject || 'TS') || 'TS'
-  return (
-    <div aria-hidden style={{
-      width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      borderRadius: radius,
-      background: 'linear-gradient(135deg, var(--ts-primary-soft) 0%, var(--ts-card2) 60%, color-mix(in srgb, var(--ts-teal) 14%, var(--ts-card2)) 100%)',
-      color: tint.fg, fontFamily: "'Barlow Condensed', sans-serif",
-      fontWeight: 800, letterSpacing: '0.02em', fontSize: compact ? 16 : 30,
-    }}>
-      {initials}
-    </div>
-  )
-}
-
 // Image area: renders the licensed image (plain lazy <img> — see note below),
-// falling back to the initials placeholder on missing URL or load error. If the
-// image fails the credit guardrail, it never shows the image at all.
+// falling back to the UNIFIED branded NewsPlaceholder (gold→turquoise gradient +
+// SVG ball + source) on missing URL or load error — the SAME placeholder the
+// hero and carousel use, so every news surface looks consistent. If the image
+// fails the credit guardrail, it never shows the image at all.
 //
 // next/image vs plain <img>: we use a plain `<img loading="lazy">`. The two
 // remote hosts (media.api-sports.io headshots) plus self-hosted SVGs don't
@@ -136,9 +120,9 @@ function InitialsPlaceholder({ subject, radius, compact }: { subject: string; ra
 // is free, already the repo convention (Avatar, NewsPlaceholder), and fine for
 // thumbnails. Self-hosted SVGs are tiny; headshots are CDN-cached upstream.
 function ImageArea({
-  image, subject, radius, fill, w, h, lang, compact,
+  image, radius, fill, w, h, lang, compact,
 }: {
-  image: NewsCardImage; subject: string; radius: number; fill: boolean
+  image: NewsCardImage; radius: number; fill: boolean
   w: number; h: number; lang: Lang; compact: boolean
 }) {
   const [broken, setBroken] = useState(false)
@@ -156,7 +140,7 @@ function ImageArea({
           style={{ width: '100%', height: '100%', objectFit: image.fit ?? 'cover',
             padding: image.fit === 'contain' ? '14%' : 0, boxSizing: 'border-box', display: 'block' }} />
       ) : (
-        <InitialsPlaceholder subject={subject} radius={radius} compact={compact} />
+        <NewsPlaceholder source={image.source} rounded={radius} compact={compact} />
       )}
       {/* Guardrail visible warning (dev/editorial signal; harmless in prod since
           we never pass a non-publishable image, but kept as the safety net). */}
@@ -175,10 +159,9 @@ function ImageArea({
 
 export default function NewsCard(props: NewsCardProps) {
   const {
-    title, href, external, image, source, meta, team, lang,
+    title, href, external, image, source, meta, lang,
     variant = 'full', eyebrow, metaPrefix,
   } = props
-  const subject = team || title
   const credit = buildCredit(image, lang)
   const linkProps = external
     ? { href, target: '_blank', rel: 'noopener noreferrer' as const }
@@ -200,7 +183,7 @@ export default function NewsCard(props: NewsCardProps) {
         background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10,
         textDecoration: 'none', color: 'inherit', minWidth: 0,
       }}>
-        <ImageArea image={image} subject={subject} radius={8} fill={false} w={48} h={48} lang={lang} compact />
+        <ImageArea image={image} radius={8} fill={false} w={48} h={48} lang={lang} compact />
         <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 2 }}>
           <span style={{
             fontSize: 12.5, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3,
@@ -219,7 +202,7 @@ export default function NewsCard(props: NewsCardProps) {
       background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 10,
       textDecoration: 'none', color: 'inherit', minWidth: 0,
     }}>
-      <ImageArea image={image} subject={subject} radius={6} fill={false} w={88} h={68} lang={lang} compact={false} />
+      <ImageArea image={image} radius={6} fill={false} w={88} h={68} lang={lang} compact={false} />
       <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 4 }}>
         {eyebrow && (
           <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)' }}>{eyebrow}</span>
