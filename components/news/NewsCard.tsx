@@ -56,6 +56,9 @@ export interface NewsCardImage {
   /** Where the credit/source links. */
   sourceUrl?: string
   alt?: string
+  /** How the image fits its box. Crests/logos → 'contain' (never cropped, with
+   *  padding); player headshots → 'cover'. Defaults to 'cover'. */
+  fit?: 'contain' | 'cover'
 }
 
 export interface NewsCardProps {
@@ -150,7 +153,8 @@ function ImageArea({
       {showImg ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={image.url} alt={image.alt ?? ''} loading="lazy" onError={() => setBroken(true)}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          style={{ width: '100%', height: '100%', objectFit: image.fit ?? 'cover',
+            padding: image.fit === 'contain' ? '14%' : 0, boxSizing: 'border-box', display: 'block' }} />
       ) : (
         <InitialsPlaceholder subject={subject} radius={radius} compact={compact} />
       )}

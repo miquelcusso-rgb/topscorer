@@ -68,7 +68,7 @@ function NewsCarousel({ news, en, lang }: { news: NewsLite[]; en: boolean; lang:
               {it.visual?.url
                 // License-aware visual only (headshot/CC0) — never the raw RSS photo.
                 // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={it.visual.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                ? <img src={it.visual.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: it.visual.license === 'crest' ? 'contain' : 'cover', padding: it.visual.license === 'crest' ? '12%' : 0, boxSizing: 'border-box', display: 'block' }} />
                 : <NewsPlaceholder source={it.source} />}
             </div>
             <div style={{ padding: '10px 12px' }}>

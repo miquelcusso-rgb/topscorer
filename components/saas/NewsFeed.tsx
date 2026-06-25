@@ -26,7 +26,8 @@ const fmtTime = (iso: string, en: boolean) => new Date(iso).toLocaleTimeString(e
 function cardImage(it: NewsItem): NewsCardImage {
   const v = it.visual
   if (v?.url) {
-    return { url: v.url, license: 'agency', source: it.source, sourceUrl: it.link, alt: '' }
+    // Crests must show whole (contain + padding); headshots fill the box (cover).
+    return { url: v.url, license: 'agency', source: it.source, sourceUrl: it.link, alt: '', fit: v.license === 'crest' ? 'contain' : 'cover' }
   }
   // Nothing resolved → no image (branded placeholder). Keep embed link-back
   // semantics so the card still carries the "Via {source}" credit.
@@ -44,9 +45,13 @@ function HeroImg({ visual, source, h }: { visual?: NewsVisual; source?: string; 
       </div>
     )
   }
+  // Crests must never be cropped → contain + padding on a neutral bg. Player
+  // headshots ('agency') fill the box with cover.
+  const isCrest = visual.license === 'crest'
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={visual.url} alt="" loading="lazy" onError={() => setBroken(true)}
-    style={{ width: '100%', height: h, objectFit: 'cover', background: 'var(--ts-card2)' }} />
+    style={{ width: '100%', height: h, objectFit: isCrest ? 'contain' : 'cover',
+      padding: isCrest ? 14 : 0, boxSizing: 'border-box', background: 'var(--ts-card2)' }} />
 }
 
 // Full-width breaking-news banner: rotates the top headlines with a LIVE badge.
