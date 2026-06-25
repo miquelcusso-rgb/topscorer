@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import Avatar from './Avatar'
+import CrestImg from './CrestImg'
 import { clubLogo } from '@/lib/club-logos'
 import type { Standout } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
@@ -79,8 +80,7 @@ export default function MatchdayStandouts({ standouts, rumors = [], lang }: Prop
                     const lk = rumor.likelihood
                     const arrowColor = lk == null ? 'var(--ts-muted)' : lk >= 75 ? 'var(--ts-teal)' : lk < 50 ? 'var(--ts-red)' : 'var(--ts-primary)'
                     const crest = (c?: string | null) => c && clubLogo(c)
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={clubLogo(c)!} alt={c} width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain', flexShrink: 0 }} />
+                      ? <CrestImg src={clubLogo(c)!} alt={c ?? ''} size={16} />
                       : null
                     return (
                       <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>

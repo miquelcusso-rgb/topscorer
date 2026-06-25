@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useLang } from '@/contexts/LangContext'
 import MatchCard from '@/components/saas/MatchCard'
+import CrestImg from '@/components/saas/CrestImg'
 import type { ApiStandingEntry, ApiFixture, LeagueMeta } from '@/lib/api-football'
 import {
   LEAGUES as L_TOP,
@@ -109,8 +110,7 @@ function StandingsTable({ standings, leagueColor, isLight }: { standings: ApiSta
                 </td>
                 <td className="py-1.5 pr-2">
                   <div className="flex items-center gap-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={row.team.logo} alt={row.team.name} width={18} height={18} className="shrink-0 object-contain" />
+                    <CrestImg src={row.team.logo} alt={row.team.name} size={18} />
                     <span style={{ color: textMain, fontSize: 12 }}>{row.team.name}</span>
                   </div>
                 </td>
@@ -184,8 +184,7 @@ function FixtureRow({ fixture, isLight }: { fixture: ApiFixture; isLight: boolea
         >
           {fixture.teams.home.name}
         </span>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={fixture.teams.home.logo} alt="" width={16} height={16} className="shrink-0 object-contain" />
+        <CrestImg src={fixture.teams.home.logo} alt={fixture.teams.home.name} size={16} />
       </div>
 
       {/* Score */}
@@ -204,8 +203,7 @@ function FixtureRow({ fixture, isLight }: { fixture: ApiFixture; isLight: boolea
 
       {/* Away */}
       <div className="flex items-center gap-1.5 flex-1 min-w-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={fixture.teams.away.logo} alt="" width={16} height={16} className="shrink-0 object-contain" />
+        <CrestImg src={fixture.teams.away.logo} alt={fixture.teams.away.name} size={16} />
         <span
           className="truncate text-[12px]"
           style={{ color: fixture.teams.away.winner ? textWinner : textMuted, fontWeight: fixture.teams.away.winner ? 600 : 400 }}

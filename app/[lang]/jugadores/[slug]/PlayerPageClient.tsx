@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
 import HiddenGemSeal, { getSealVariant } from '@/components/HiddenGemSeal'
+import CrestImg from '@/components/saas/CrestImg'
 import {
   BarChart,
   Bar,
@@ -234,28 +235,14 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
 
               <div className="flex items-center gap-2 mt-3 flex-wrap">
                 {liveStats?.statistics[0]?.team.logo && (
-                  <Image
-                    src={liveStats.statistics[0].team.logo}
-                    alt={player.club}
-                    width={20}
-                    height={20}
-                    className="object-contain"
-                    unoptimized
-                  />
+                  <CrestImg src={liveStats.statistics[0].team.logo} alt={player.club} size={20} />
                 )}
                 <span style={{ fontSize: 14, color: '#f1e8d2', fontWeight: 600 }}>{player.club}</span>
 
                 {liveStats?.statistics[0]?.league.logo && (
                   <>
                     <span style={{ color: '#2a2620', margin: '0 2px' }}>·</span>
-                    <Image
-                      src={liveStats.statistics[0].league.logo}
-                      alt={player.league}
-                      width={16}
-                      height={16}
-                      className="object-contain"
-                      unoptimized
-                    />
+                    <CrestImg src={liveStats.statistics[0].league.logo} alt={player.league} size={16} />
                   </>
                 )}
                 <span
@@ -585,14 +572,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
                       <td style={{ padding: '10px 12px' }}>
                         <div className="flex items-center gap-2">
                           {stat.league.logo && (
-                            <Image
-                              src={stat.league.logo}
-                              alt={stat.league.name}
-                              width={16}
-                              height={16}
-                              className="object-contain"
-                              unoptimized
-                            />
+                            <CrestImg src={stat.league.logo} alt={stat.league.name} size={16} />
                           )}
                           <div>
                             <div style={{ fontSize: 13, color: textPrimary, fontWeight: 600 }}>{stat.league.name}</div>
@@ -603,14 +583,7 @@ export default function PlayerPageClient({ player, liveStats, allSeasons, player
                       <td style={{ padding: '10px 12px' }}>
                         <div className="flex items-center gap-2">
                           {stat.team.logo && (
-                            <Image
-                              src={stat.team.logo}
-                              alt={stat.team.name}
-                              width={16}
-                              height={16}
-                              className="object-contain"
-                              unoptimized
-                            />
+                            <CrestImg src={stat.team.logo} alt={stat.team.name} size={16} />
                           )}
                           <span style={{ fontSize: 12, color: textMuted }}>{stat.team.name}</span>
                         </div>

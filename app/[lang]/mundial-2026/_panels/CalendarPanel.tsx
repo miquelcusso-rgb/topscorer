@@ -6,6 +6,7 @@ import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
 import type { ApiFixture, FixturePrediction } from '@/lib/api-football'
 import { type Lang, t, WC_SCHEDULE } from './shared'
+import CrestImg from '@/components/saas/CrestImg'
 
 // Phase-windows summary (used below the real fixtures; knockout match-ups are
 // only scheduled once the groups resolve).
@@ -99,15 +100,13 @@ function MatchRow({ f, lang }: { f: ApiFixture; lang: Lang }) {
       <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} aria-label={t(lang, 'Ver detalle del partido', 'View match detail')} style={{ width: 46, flexShrink: 0, fontSize: 12, fontWeight: 700, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums', textDecoration: 'none', cursor: 'pointer' }}>{time}</Link>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end', minWidth: 0 }}>
         <Link href={`/${lang}/mundial-2026/${slugify(f.teams.home.name)}`} style={teamNameStyle}>{f.teams.home.name}</Link>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={f.teams.home.logo} alt="" width={18} height={18} style={{ objectFit: 'contain', flexShrink: 0 }} />
+        <CrestImg src={f.teams.home.logo} alt={f.teams.home.name} size={18} />
       </div>
       <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} style={{ width: 44, textAlign: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums', textDecoration: 'none', cursor: 'pointer' }}>
         {score ? `${f.goals.home ?? 0}-${f.goals.away ?? 0}` : 'vs'}
       </Link>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={f.teams.away.logo} alt="" width={18} height={18} style={{ objectFit: 'contain', flexShrink: 0 }} />
+        <CrestImg src={f.teams.away.logo} alt={f.teams.away.name} size={18} />
         <Link href={`/${lang}/mundial-2026/${slugify(f.teams.away.name)}`} style={teamNameStyle}>{f.teams.away.name}</Link>
       </div>
       <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} className="wc-venue" style={{ width: 150, flexShrink: 0, textAlign: 'right', fontSize: 11, color: 'var(--ts-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: 'none', cursor: 'pointer' }}>

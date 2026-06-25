@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import type { PlayerData } from '@/types'
 import Avatar from './Avatar'
+import CrestImg from './CrestImg'
 import LeagueChip from './LeagueChip'
 import { clubLogo } from '@/lib/club-logos'
 import { playerSlug } from '@/lib/player-slug'
@@ -235,8 +236,7 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
                   {p.flag ? `${p.flag} ` : ''}{shortName(p)}
                 </span>
                 {crest
-                  // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={crest} alt={p.club} title={p.club} width={16} height={16} style={{ width: 16, height: 16, objectFit: 'contain', flexShrink: 0 }} />
+                  ? <CrestImg src={crest} alt={p.club} title={p.club} size={16} />
                   : <LeagueChip code={code(p.league)} />}
               </div>
               <span style={{ display: 'flex', alignItems: 'baseline', gap: 9, flexShrink: 0 }}>

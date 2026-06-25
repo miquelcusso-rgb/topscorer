@@ -7,6 +7,7 @@ import { slugify } from '@/lib/slugify'
 import type { ApiFixture, ApiPlayerResponse } from '@/lib/api-football'
 import { wcFaqs } from '../wc-faqs'
 import { type Lang, t, flagOf } from './shared'
+import CrestImg from '@/components/saas/CrestImg'
 
 // ─── Overview dashboard teaser cards ──────────────────────────────────────────
 // Small, self-contained cards used by the Overview dashboard. Each mirrors the
@@ -111,15 +112,13 @@ function ResultsTeaserCard({ lang }: { lang: Lang }) {
         >
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 7, justifyContent: 'flex-end', minWidth: 0 }}>
             <Link href={`/${lang}/mundial-2026/${slugify(f.teams.home.name)}`} style={{ fontSize: 12, color: f.teams.home.winner ? 'var(--ts-text)' : 'var(--ts-muted)', fontWeight: f.teams.home.winner ? 700 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: 'none', cursor: 'pointer' }}>{f.teams.home.name}</Link>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={f.teams.home.logo} alt="" width={16} height={16} style={{ objectFit: 'contain', flexShrink: 0 }} />
+            <CrestImg src={f.teams.home.logo} alt={f.teams.home.name} size={16} />
           </div>
           <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} aria-label={t(lang, 'Ver detalle del partido', 'View match detail')} style={{ fontSize: 13, fontWeight: 700, flexShrink: 0, fontVariantNumeric: 'tabular-nums', color: 'var(--ts-text)', width: 40, textAlign: 'center', textDecoration: 'none', cursor: 'pointer' }}>
             {f.goals.home ?? 0}-{f.goals.away ?? 0}
           </Link>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={f.teams.away.logo} alt="" width={16} height={16} style={{ objectFit: 'contain', flexShrink: 0 }} />
+            <CrestImg src={f.teams.away.logo} alt={f.teams.away.name} size={16} />
             <Link href={`/${lang}/mundial-2026/${slugify(f.teams.away.name)}`} style={{ fontSize: 12, color: f.teams.away.winner ? 'var(--ts-text)' : 'var(--ts-muted)', fontWeight: f.teams.away.winner ? 700 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: 'none', cursor: 'pointer' }}>{f.teams.away.name}</Link>
           </div>
         </div>

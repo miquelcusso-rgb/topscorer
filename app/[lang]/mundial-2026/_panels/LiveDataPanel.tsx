@@ -6,6 +6,7 @@ import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
 import type { ApiFixture, ApiPlayerResponse } from '@/lib/api-football'
 import { t } from './shared'
+import CrestImg from '@/components/saas/CrestImg'
 
 // ─── Live data panel (Resultados) ─────────────────────────────────────────────
 
@@ -68,15 +69,13 @@ export default function LiveDataPanel() {
             </Link>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
               <Link href={`/${lang}/mundial-2026/${slugify(f.teams.home.name)}`} style={{ fontSize: 11, color: f.teams.home.winner ? 'var(--ts-text)' : 'var(--ts-muted)', textDecoration: 'none', cursor: 'pointer' }}>{f.teams.home.name}</Link>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={f.teams.home.logo} alt="" width={14} height={14} style={{ objectFit: 'contain', flexShrink: 0 }} />
+              <CrestImg src={f.teams.home.logo} alt={f.teams.home.name} size={14} />
             </div>
             <Link href={`/${lang}/mundial-2026/partido/${f.fixture.id}`} style={{ fontSize: 12, fontWeight: 700, flexShrink: 0, fontVariantNumeric: 'tabular-nums', color: 'var(--ts-text)', width: 40, textAlign: 'center', textDecoration: 'none', cursor: 'pointer' }}>
               {f.goals.home} - {f.goals.away}
             </Link>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={f.teams.away.logo} alt="" width={14} height={14} style={{ objectFit: 'contain', flexShrink: 0 }} />
+              <CrestImg src={f.teams.away.logo} alt={f.teams.away.name} size={14} />
               <Link href={`/${lang}/mundial-2026/${slugify(f.teams.away.name)}`} style={{ fontSize: 11, color: f.teams.away.winner ? 'var(--ts-text)' : 'var(--ts-muted)', textDecoration: 'none', cursor: 'pointer' }}>{f.teams.away.name}</Link>
             </div>
           </div>

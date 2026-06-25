@@ -1,5 +1,6 @@
 import type { ApiFixture } from '@/lib/api-football'
 import WinProbabilityBar from '@/components/saas/WinProbabilityBar'
+import CrestImg from '@/components/saas/CrestImg'
 
 // World Cup 2026 build-up section: international friendlies played between the
 // end of the club season and the tournament kickoff. Server component — data is
@@ -16,9 +17,9 @@ function Row({ f, lang }: { f: ApiFixture; lang: 'es' | 'en' }) {
   const awayWin = played && gh != null && ga != null && ga > gh
   const Team = ({ name, logo, win, align }: { name: string; logo: string; win: boolean; align: 'right' | 'left' }) => (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, justifyContent: align === 'right' ? 'flex-end' : 'flex-start' }}>
-      {align === 'left' && logo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={logo} alt="" width={22} height={22} style={{ width: 22, height: 22, objectFit: 'contain', flexShrink: 0 }} />}
+      {align === 'left' && logo && <CrestImg src={logo} alt={name} size={22} />}
       <span style={{ fontSize: 13, fontWeight: win ? 700 : 500, color: win ? 'var(--ts-text)' : 'var(--ts-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</span>
-      {align === 'right' && logo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={logo} alt="" width={22} height={22} style={{ width: 22, height: 22, objectFit: 'contain', flexShrink: 0 }} />}
+      {align === 'right' && logo && <CrestImg src={logo} alt={name} size={22} />}
     </div>
   )
   return (

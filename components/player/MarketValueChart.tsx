@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import CrestImg from '@/components/saas/CrestImg'
 
 interface Point { date: string; value: number; label: string; club: string; crest?: string; age?: string }
 
@@ -82,10 +83,7 @@ export default function MarketValueChart({ name, en }: { name: string; en: boole
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
         {spells.map((s, i) => (
           <span key={i} title={`${s.from} → ${s.to}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 9px', background: 'var(--ts-card2)', border: '1px solid var(--ts-border)', borderRadius: 999, fontSize: 11, color: 'var(--ts-text)' }}>
-            {s.crest && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={s.crest} alt="" width={14} height={14} style={{ objectFit: 'contain' }} />
-            )}
+            {s.crest && <CrestImg src={s.crest} alt={s.club} size={14} />}
             {s.club} <span style={{ color: 'var(--ts-faint)' }}>{new Date(s.from).getFullYear()}{new Date(s.to).getFullYear() !== new Date(s.from).getFullYear() ? `–${String(new Date(s.to).getFullYear()).slice(2)}` : ''}</span>
           </span>
         ))}

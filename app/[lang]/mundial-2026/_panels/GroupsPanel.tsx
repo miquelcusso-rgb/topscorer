@@ -6,6 +6,7 @@ import { useLang } from '@/contexts/LangContext'
 import { slugify } from '@/lib/slugify'
 import type { ApiStandingEntry } from '@/lib/api-football'
 import { t } from './shared'
+import CrestImg from '@/components/saas/CrestImg'
 
 // ─── Groups panel ─────────────────────────────────────────────────────────────
 
@@ -64,8 +65,7 @@ export default function GroupsPanel({ initial = [] }: { initial?: ApiStandingEnt
               {g.map((row, ti) => (
                 <Link key={row.team.id} href={`/${lang}/mundial-2026/${slugify(row.team.name)}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: ti < g.length - 1 ? '1px solid var(--ts-divider)' : 'none', textDecoration: 'none', color: 'inherit' }}>
                   {started && <span style={{ width: 14, fontSize: 11, color: 'var(--ts-muted)', fontVariantNumeric: 'tabular-nums' }}>{row.rank}</span>}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={row.team.logo} alt="" width={18} height={18} style={{ objectFit: 'contain', flexShrink: 0 }} />
+                  <CrestImg src={row.team.logo} alt={row.team.name} size={18} />
                   <span style={{ fontSize: 12, color: 'var(--ts-text)', flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.team.name}</span>
                   {started && <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ts-text)', fontVariantNumeric: 'tabular-nums' }}>{row.points}</span>}
                 </Link>

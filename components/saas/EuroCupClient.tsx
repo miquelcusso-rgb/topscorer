@@ -2,14 +2,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Avatar from '@/components/saas/Avatar'
+import CrestImg from '@/components/saas/CrestImg'
 import { slugify } from '@/lib/slugify'
 import type { EuroCupData, EuroFixture } from '@/lib/euro-cups'
 
 type Tab = 'resumen' | 'clasificacion' | 'calendario' | 'eliminatorias' | 'goleadores'
 
 function Crest({ src, size = 18 }: { src: string; size?: number }) {
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt="" width={size} height={size} loading="lazy" style={{ width: size, height: size, objectFit: 'contain', flexShrink: 0 }} />
+  return <CrestImg src={src} size={size} />
 }
 
 function fmtDate(iso: string, en: boolean): string {

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Avatar from './Avatar'
+import CrestImg from './CrestImg'
 import { clubLogo } from '@/lib/club-logos'
 import { slugify } from '@/lib/slugify'
 import { genericImageFor } from '@/lib/news-images'
@@ -123,7 +124,7 @@ function Strip({ icon, title, accent, leads, en, titleHref }: { icon: string; ti
           const inner = (
             <span style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', minWidth: 0, borderLeft: i ? '1px solid var(--ts-hairline)' : 'none', height: '100%' }}>
               {l.photo ? <Avatar name={l.label} photo={l.photo} size={26} />
-                : l.crest ? <span style={{ width: 22, flexShrink: 0 }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={l.crest} alt="" width={20} height={20} style={{ width: 20, height: 20, objectFit: 'contain' }} /></span>
+                : l.crest ? <CrestImg src={l.crest} alt={l.label} size={22} />
                 : null}
               <span style={{ minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
                 <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.label}</span>

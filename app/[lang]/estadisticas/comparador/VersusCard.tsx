@@ -3,6 +3,7 @@
 import { useRef, useState, type ReactNode } from 'react'
 import { toPng } from 'html-to-image'
 import Avatar from '@/components/saas/Avatar'
+import CrestImg from '@/components/saas/CrestImg'
 import { iig } from '@/lib/iig'
 import { shortName } from '@/lib/player-name'
 import { slugify } from '@/lib/slugify'
@@ -113,10 +114,7 @@ function PlayerHead({ p, color }: { p: EnrichedPlayer; color: string }) {
           {p.flag ? `${p.flag} ` : ''}{shortName(p)}
         </div>
         <div style={{ fontSize: 12, color: 'var(--ts-muted)', marginTop: 3, display: 'flex', gap: 5, alignItems: 'center', justifyContent: 'center' }}>
-          {logo && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logo} alt="" width={18} height={18} crossOrigin="anonymous" loading="lazy" style={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }} />
-          )}
+          {logo && <CrestImg src={logo} alt={p.club} size={18} crossOrigin="anonymous" />}
           <span>{p.club}</span>
         </div>
       </div>

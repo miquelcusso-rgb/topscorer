@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useLang } from '@/contexts/LangContext'
 import type { TeamInjuryGroup } from '@/lib/api-football'
 import { t } from './shared'
+import CrestImg from '@/components/saas/CrestImg'
 
 // ─── Injuries (Bajas) ─────────────────────────────────────────────────────────
 // League-wide injuries grouped by national team. Empty before the tournament →
@@ -57,8 +58,7 @@ export default function InjuriesPanel() {
           {groups.map(g => (
             <div key={g.teamId} style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 14px', borderBottom: '1px solid var(--ts-border)', background: 'var(--ts-card2)' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {g.teamLogo ? <img src={g.teamLogo} alt="" width={20} height={20} style={{ objectFit: 'contain', flexShrink: 0 }} /> : null}
+                {g.teamLogo ? <CrestImg src={g.teamLogo} alt={g.team} size={20} /> : null}
                 <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.5, textTransform: 'uppercase' }}>{g.team}</span>
               </div>
               {g.players.map(pl => (

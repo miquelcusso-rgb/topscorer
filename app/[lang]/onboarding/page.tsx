@@ -6,6 +6,7 @@ import { useUser } from '@clerk/nextjs'
 import { useLang } from '@/contexts/LangContext'
 import { t } from '@/lib/i18n'
 import { track } from '@/lib/analytics'
+import CrestImg from '@/components/saas/CrestImg'
 
 // Clubs agrupados por liga
 const CLUBS_BY_LEAGUE: Record<string, { name: string; logo: number }[]> = {
@@ -183,13 +184,10 @@ export default function OnboardingPage() {
                         border: `1px solid ${active ? '#f0c040' : '#2a2620'}`,
                       }}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <CrestImg
                         src={`https://media.api-sports.io/football/teams/${club.logo}.png`}
                         alt={club.name}
-                        width={32}
-                        height={32}
-                        className="object-contain"
+                        size={32}
                       />
                       <span
                         className="text-[10px] text-center leading-tight"

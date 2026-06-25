@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLang } from '@/contexts/LangContext'
 import Avatar from './Avatar'
+import CrestImg from './CrestImg'
 import type { SearchPlayerHit, SearchLeagueHit, SearchClubHit } from '@/app/api/search/route'
 
 interface Props {
@@ -193,8 +194,7 @@ export default function TopSearch({ placeholder }: Props) {
                   <button key={'c' + c.name} type="button" onMouseEnter={() => setActive(idx)}
                     onClick={() => go(`/${lang}/competiciones/${c.leagueSlug}`)} style={rowStyle(active === idx)}>
                     {c.crest
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={c.crest} alt="" width={24} height={24} style={{ width: 24, height: 24, objectFit: 'contain' }} />
+                      ? <CrestImg src={c.crest} alt={c.name} size={24} />
                       : <span style={{ width: 24, textAlign: 'center', fontSize: 14 }}>🛡️</span>}
                     <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, textAlign: 'left' }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ts-text)' }}>{c.name}</span>

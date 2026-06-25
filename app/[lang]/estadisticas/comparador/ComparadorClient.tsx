@@ -14,6 +14,7 @@ import { PRIMARY_PLAYERS, seasonsForPlayer } from '@/lib/player-identity'
 import { iig } from '@/lib/iig'
 import { clubLogo } from '@/lib/club-logos'
 import Avatar from '@/components/saas/Avatar'
+import CrestImg from '@/components/saas/CrestImg'
 import ComparisonRadar, { type ComparisonAxis } from '@/components/player/ComparisonRadar'
 import type { EnrichedPlayer, Position } from '@/types'
 import VersusCard from './VersusCard'
@@ -24,21 +25,11 @@ interface SearchHit {
 }
 
 // Small club crest next to a club name. Omitted gracefully when no logo URL.
+// crossOrigin kept so the comparador card can be captured to a canvas without tainting.
 function ClubLogo({ club, size = 18 }: { club: string; size?: number }) {
   const src = clubLogo(club)
   if (!src) return null
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt=""
-      width={size}
-      height={size}
-      crossOrigin="anonymous"
-      loading="lazy"
-      style={{ width: size, height: size, objectFit: 'contain', flexShrink: 0 }}
-    />
-  )
+  return <CrestImg src={src} alt={club} size={size} crossOrigin="anonymous" />
 }
 
 const C_DARK = {

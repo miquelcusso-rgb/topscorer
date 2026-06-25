@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
+import CrestImg from '@/components/saas/CrestImg'
 import {
   getMatchDetail,
   getStatusLabel,
@@ -225,8 +226,7 @@ export default async function MatchPage({ params }: { params: Promise<{ lang: st
       href={`/${lang}/mundial-2026/${slug}`}
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, textDecoration: 'none', color: 'inherit', flex: 1, minWidth: 0, cursor: 'pointer', minHeight: 44, justifyContent: 'center' }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={team.logo} alt={team.name} width={64} height={64} style={{ objectFit: 'contain' }} />
+      <CrestImg src={team.logo} alt={team.name} size={64} />
       <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(15px, 3.5vw, 22px)', fontWeight: 800, color: 'var(--ts-text)', textAlign: 'center', lineHeight: 1.05, textTransform: 'uppercase', letterSpacing: 0.5 }}>
         {team.name}
       </span>
@@ -321,8 +321,7 @@ export default async function MatchPage({ params }: { params: Promise<{ lang: st
   const LineupColumn = ({ team, slug, lineup, group }: { team: typeof home; slug: string; lineup?: FixtureLineup; group?: FixturePlayersGroup }) => (
     <div style={{ flex: 1, minWidth: 260 }}>
       <Link href={`/${lang}/mundial-2026/${slug}`} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, textDecoration: 'none', color: 'inherit', minHeight: 44 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={team.logo} alt={team.name} width={22} height={22} style={{ objectFit: 'contain' }} />
+        <CrestImg src={team.logo} alt={team.name} size={22} />
         <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 17, fontWeight: 800, color: 'var(--ts-text)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{team.name}</span>
         {lineup?.formation && <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ts-primary)' }}>· {lineup.formation}</span>}
       </Link>

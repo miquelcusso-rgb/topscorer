@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect, type CSSProperties } from 'react'
 import Link from 'next/link'
 import type { PlayerData } from '@/types'
 import Avatar from '@/components/saas/Avatar'
+import CrestImg from '@/components/saas/CrestImg'
 import RelatedLinks, { type RelatedLink } from '@/components/RelatedLinks'
 import { slugify } from '@/lib/slugify'
 import { playerSlug } from '@/lib/player-slug'
@@ -82,7 +83,7 @@ function StandingsView({ leagueId, leagueColor, lang }: { leagueId: number; leag
               <td style={{ ...cell, textAlign: 'center', color: 'var(--ts-muted)', fontWeight: 700 }}>{r.rank}</td>
               <td style={{ padding: '8px 6px' }}>
                 <Link href={`/${lang}/competiciones`} style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: 'var(--ts-text)' }}>
-                  {r.team.logo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={r.team.logo} alt="" width={20} height={20} style={{ width: 20, height: 20, objectFit: 'contain', flexShrink: 0 }} />}
+                  {r.team.logo && <CrestImg src={r.team.logo} alt={r.team.name} size={20} />}
                   <span style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.team.name}</span>
                 </Link>
               </td>
@@ -111,17 +112,7 @@ const t = (lang: 'es' | 'en', es: string, en: string) => (lang === 'en' ? en : e
 function ClubCrest({ club }: { club: string }) {
   const logo = clubLogo(club)
   if (!logo) return null
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={logo}
-      alt=""
-      width={16}
-      height={16}
-      loading="lazy"
-      style={{ objectFit: 'contain', flexShrink: 0, borderRadius: 2 }}
-    />
-  )
+  return <CrestImg src={logo} alt={club} size={16} />
 }
 
 // ── Segmented control (view switcher) ────────────────────────────────────────

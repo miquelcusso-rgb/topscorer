@@ -211,8 +211,9 @@ export default function PlayerRow({
             style={{ fontSize: 10, color: ls.color, whiteSpace: 'nowrap' }}
           >
             {leagueLogoUrl(player.league) && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img src={leagueLogoUrl(player.league)} alt="" width={11} height={11}
-                style={{ display: 'inline-block', verticalAlign: 'middle', borderRadius: 1, opacity: 0.85 }} />
+                style={{ display: 'inline-block', verticalAlign: 'middle', borderRadius: 1, opacity: 0.85, objectFit: 'contain' }} />
             )}
             <span style={{ fontWeight: 600, letterSpacing: 0.3, fontFamily: "'Barlow Condensed', sans-serif", textTransform: 'uppercase' as const, fontSize: 10 }}>
               {player.league}

@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Avatar from './Avatar'
+import CrestImg from './CrestImg'
 import H2HMini from './H2HMini'
 
 interface Summary {
@@ -35,8 +36,7 @@ export default function MatchCard({ fixtureId, lang }: { fixtureId: number; lang
 
   const Team = ({ t, align }: { t: Summary['home']; align: 'left' | 'right' }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: align === 'right' ? 'flex-start' : 'flex-end', flexDirection: align === 'right' ? 'row' : 'row-reverse' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={t.logo} alt="" width={26} height={26} style={{ objectFit: 'contain', flexShrink: 0 }} />
+      <CrestImg src={t.logo} alt={t.name} size={26} />
       <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ts-text)' }}>{t.name}</span>
     </div>
   )
