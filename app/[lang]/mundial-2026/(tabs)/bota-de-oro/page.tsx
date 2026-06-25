@@ -24,14 +24,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
   const title = leaderName
     ? (lang === 'en'
-        ? `World Cup 2026 Golden Boot: ${leaderName} leads with ${leaderGoals} goals · standings updated`
-        : `Bota de Oro Mundial 2026: ${leaderName} lidera con ${leaderGoals} goles · clasificación actualizada`)
+        ? `World Cup 2026 Golden Boot — live top scorers: ${leaderName} leads with ${leaderGoals} goals`
+        : `Bota de Oro Mundial 2026 — goleadores en directo: ${leaderName} lidera con ${leaderGoals} goles`)
     : (lang === 'en'
         ? '2026 World Cup Golden Boot: Live top scorers standings'
         : 'Bota de Oro del Mundial 2026: Clasificación de goleadores en directo')
   const description = lang === 'en'
-    ? 'Live 2026 World Cup Golden Boot race: top scorers ranked by goals, updated throughout the tournament. Ties broken by assists, then fewest minutes played.'
-    : 'Carrera por la Bota de Oro del Mundial 2026 en directo: máximos goleadores ordenados por goles, actualizados durante el torneo. El empate lo decide asistencias y minutos.'
+    ? 'Live 2026 World Cup Golden Boot race: top scorers ranked by goals, updated live through the group stage and knockout rounds. See who leads the standings after the group stage. Ties broken by assists, then fewest minutes played.'
+    : 'Carrera por la Bota de Oro del Mundial 2026 en directo: máximos goleadores ordenados por goles, actualizados en vivo desde la fase de grupos hasta las eliminatorias. Mira quién lidera tras la fase de grupos. El empate lo decide asistencias y minutos.'
   return {
     title,
     description,

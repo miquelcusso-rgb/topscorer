@@ -24,14 +24,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
   const title = leaderName
     ? (lang === 'en'
-        ? `World Cup 2026 Assists: ${leaderName} leads with ${leaderAssists} · standings updated`
-        : `Asistentes Mundial 2026: ${leaderName} lidera con ${leaderAssists} · clasificación actualizada`)
+        ? `World Cup 2026 assists LIVE: ${leaderName} leads with ${leaderAssists} · standings updated`
+        : `Asistentes Mundial 2026 EN DIRECTO: ${leaderName} lidera con ${leaderAssists} · clasificación actualizada`)
     : (lang === 'en'
         ? '2026 World Cup Top Assists: Live assists standings'
         : 'Asistentes del Mundial 2026: Clasificación de asistencias en directo')
   const description = lang === 'en'
-    ? 'Live ranking of the top assists at the 2026 World Cup: the players providing the most final passes before a goal, updated throughout the tournament.'
-    : 'Ranking en directo de los máximos asistentes del Mundial 2026: los jugadores con más pases de gol, actualizado durante todo el torneo.'
+    ? 'Live ranking of the top assists at the 2026 World Cup: the players providing the most final passes before a goal, updated live through the group stage and knockout rounds.'
+    : 'Ranking en directo de los máximos asistentes del Mundial 2026: los jugadores con más pases de gol, actualizado en vivo desde la fase de grupos hasta las eliminatorias.'
   return {
     title,
     description,

@@ -127,6 +127,16 @@ export function goldenBootFaqs(lang: 'es' | 'en', leader?: string, goals?: numbe
         ? 'The Golden Boot rewards the tournament’s top scorer (most goals). The Golden Ball is a separate FIFA award for the best overall player of the World Cup, chosen by a media vote — they are often won by different players.'
         : 'La Bota de Oro premia al máximo goleador del torneo (más goles). El Balón de Oro es un premio distinto de la FIFA al mejor jugador del Mundial, elegido por votación de la prensa; suelen ganarlos jugadores diferentes.',
     },
+    {
+      q: en ? 'Who is the top scorer after the group stage?' : '¿Quién es el máximo goleador tras la fase de grupos?',
+      a: en
+        ? (leader
+            ? `${leader} tops the 2026 World Cup scoring chart${hasN ? ` with ${goals} goals` : ''}. The group stage runs June 11–27, 2026; this page updates live, so it always shows the current top scorers and Golden Boot standings after the group stage and through the knockout rounds.`
+            : 'The group stage runs June 11–27, 2026. From the opening matches this page shows the live top-scorer standings, so you can see who leads the Golden Boot after the group stage and into the knockouts.')
+        : (leader
+            ? `${leader} encabeza la clasificación de goleadores del Mundial 2026${hasN ? ` con ${goals} goles` : ''}. La fase de grupos va del 11 al 27 de junio de 2026; esta página se actualiza en directo, así que siempre muestra los máximos goleadores y la clasificación de la Bota de Oro tras la fase de grupos y durante las eliminatorias.`
+            : 'La fase de grupos va del 11 al 27 de junio de 2026. Desde los primeros partidos esta página muestra la clasificación de goleadores en directo, para que veas quién lidera la Bota de Oro tras la fase de grupos y en las eliminatorias.'),
+    },
   ]
 }
 
