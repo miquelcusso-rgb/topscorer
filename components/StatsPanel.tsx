@@ -284,7 +284,7 @@ function ProUpsellInline() {
         >
           <span style={{ fontSize: 12, color: stickyText, lineHeight: 1.35 }}>
             Ver Top 25 completo —{' '}
-            <span style={{ color: '#f0c040', fontWeight: 600 }}>Pro desde €4.99/mes</span>
+            <span style={{ color: '#f0c040', fontWeight: 600 }}>Pro desde €2.99/mes</span>
           </span>
           <Link
             href="/pricing"
