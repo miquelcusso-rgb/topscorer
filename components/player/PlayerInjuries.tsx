@@ -29,7 +29,15 @@ function useInjuryData(apiId?: number): Data {
 export function AvailabilityBadge({ apiId, en }: { apiId?: number; en: boolean }) {
   const { injuries, loaded } = useInjuryData(apiId)
   if (!apiId || !loaded) return null
-  const injured = injuries.length > 0
+  // `/injuries?player=&season=` returns EVERY injury record of the season, incl.
+  // long-healed knocks → it was marking almost everyone "Injured". Only treat as
+  // currently injured when there's a record dated within the last ~5 weeks.
+  const RECENT_MS = 35 * 86_400_000
+  const injured = injuries.some(i => {
+    if (!i.date) return false
+    const t = new Date(i.date).getTime()
+    return !isNaN(t) && Date.now() - t < RECENT_MS
+  })
   const label = injured ? (en ? 'Injured' : 'Lesionado') : (en ? 'Available' : 'Disponible')
   const color = injured ? 'var(--ts-red)' : 'var(--ts-teal)'
   return (

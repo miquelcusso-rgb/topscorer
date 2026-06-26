@@ -15,7 +15,7 @@ interface IdentityCardProps {
 export default function IdentityCard({
   player,
   mode = 'light',
-  goldenBootLabel = '#1 · Bota de Oro 25/26',
+  goldenBootLabel,
   goalsLabel = 'Goles 25/26',
   liveText,
   iigBadge,
@@ -68,6 +68,10 @@ export default function IdentityCard({
 
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {/* Golden Boot pill: ONLY when a real rank label is passed (e.g. the
+              player is the league's top scorer). No hardcoded default — it used
+              to show "#1 · Bota de Oro" on every player, which was false. */}
+          {goldenBootLabel && (
           <div
             style={{
               display: 'inline-flex',
@@ -86,6 +90,7 @@ export default function IdentityCard({
             </svg>
             {goldenBootLabel}
           </div>
+          )}
           {iigBadge && (
             <div
               title={iigBadge.title}
