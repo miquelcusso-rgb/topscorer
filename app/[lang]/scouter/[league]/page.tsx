@@ -10,6 +10,9 @@ import {
 } from '@/lib/league-data'
 import { byIig, iig, IIG_NAME } from '@/lib/iig'
 import ScouterTable from '@/components/saas/ScouterTable'
+import ScouterLegend from '@/components/saas/ScouterLegend'
+import ScouterFaqList from '@/components/saas/ScouterFaqList'
+import { iigFaqs } from '@/components/saas/scouter-abbrevs'
 import RelatedLinks from '@/components/RelatedLinks'
 
 const BASE = 'https://www.top-scorers.com'
@@ -126,10 +129,23 @@ export default async function ScouterLeaguePage({
     ],
   }
 
+  // "What is IIG?" FAQ — visible accordion below mirrors this exact source.
+  const faqs = iigFaqs(lang, league.name)
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  }
+
   return (
     <SaasShell activeKey="players" breadcrumb={breadcrumb}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }} />
 
       <div>
         <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 32, fontWeight: 800, color: 'var(--ts-text)', textTransform: 'uppercase', letterSpacing: 1, margin: 0 }}>
@@ -143,6 +159,14 @@ export default async function ScouterLeaguePage({
       </div>
 
       <ScouterTable players={players} lang={lang} />
+
+      <ScouterLegend lang={lang} />
+
+      <ScouterFaqList
+        faqs={faqs}
+        lang={lang}
+        title={lang === 'en' ? 'What is IIG?' : '¿Qué es el IIG?'}
+      />
 
       <RelatedLinks
         title={lang === 'en' ? 'More rankings' : 'Más rankings'}

@@ -8,6 +8,7 @@ import { clubLogo } from '@/lib/club-logos'
 import { playerSlug } from '@/lib/player-slug'
 import { shortName } from '@/lib/player-name'
 import { iig } from '@/lib/iig'
+import { abbrevDef } from './scouter-abbrevs'
 
 const LEAGUE_CODE: Record<string, string> = {
   'Premier League': 'EPL', 'La Liga': 'LL', 'LaLiga': 'LL',
@@ -26,6 +27,45 @@ function ratingColor(r: number): string {
 interface Props {
   players: PlayerData[]
   lang: 'es' | 'en'
+}
+
+/**
+ * Accessible abbreviation header cell. Uses the native <abbr title> element —
+ * the standard a11y pattern: shows the full definition on hover, is announced
+ * by screen readers, and `tabIndex={0}` makes it keyboard/touch reachable so
+ * the tooltip is not hover-only. `abbr` is the token used to look up the
+ * localised definition; `label` is what's painted (e.g. "Nota" for Rating).
+ */
+function AbbrHead({
+  abbr,
+  label,
+  lang,
+  align = 'right',
+}: {
+  abbr: string
+  label: string
+  lang: 'es' | 'en'
+  align?: 'left' | 'right'
+}) {
+  const def = abbrevDef(abbr, lang)
+  return (
+    <span style={{ textAlign: align, display: 'block' }}>
+      <abbr
+        title={def}
+        aria-label={def}
+        tabIndex={0}
+        style={{
+          textDecoration: 'underline dotted',
+          textUnderlineOffset: 3,
+          cursor: 'help',
+          textDecorationColor: 'var(--ts-faint)',
+          color: 'inherit',
+        }}
+      >
+        {label}
+      </abbr>
+    </span>
+  )
 }
 
 /**
@@ -74,11 +114,11 @@ export default function ScouterTable({ players, lang }: Props) {
           <span />
           <span>{t.player}</span>
           <span>{t.team}</span>
-          <span style={{ textAlign: 'right' }}>{t.rating}</span>
-          <span style={{ textAlign: 'right' }}>IIG</span>
-          <span style={{ textAlign: 'right' }}>{t.goals}</span>
-          <span style={{ textAlign: 'right' }}>{t.assists}</span>
-          <span style={{ textAlign: 'right' }}>{t.mp}</span>
+          <AbbrHead abbr="Rating" label={t.rating} lang={lang} />
+          <AbbrHead abbr="IIG" label="IIG" lang={lang} />
+          <AbbrHead abbr="G" label={t.goals} lang={lang} />
+          <AbbrHead abbr="A" label={t.assists} lang={lang} />
+          <AbbrHead abbr="MP" label={t.mp} lang={lang} />
         </div>
 
         {players.map((p, i) => {
@@ -154,7 +194,7 @@ export default function ScouterTable({ players, lang }: Props) {
               </div>
               <span style={{ fontFamily: 'Barlow Condensed, sans-serif', fontWeight: 700, fontSize: 16, color: 'var(--ts-primary)', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
                 {iig(p).toFixed(1)}
-                <span style={{ fontSize: 9, color: 'var(--ts-muted)', marginLeft: 3, fontFamily: 'inherit' }}>IIG</span>
+                <abbr title={abbrevDef('IIG', lang)} aria-label={abbrevDef('IIG', lang)} style={{ fontSize: 9, color: 'var(--ts-muted)', marginLeft: 3, fontFamily: 'inherit', textDecoration: 'none', cursor: 'help' }}>IIG</abbr>
               </span>
             </Link>
           )
