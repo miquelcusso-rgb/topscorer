@@ -1,9 +1,10 @@
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
-import { isPro } from '@/lib/plans'
+import { isPro, SAVED_COMPARISON_CAP } from '@/lib/plans'
 
-const FREE_CAP = 5
+// Approved matrix: Free 5 saved comparisons · Pro/Scout/Team unlimited.
+const FREE_CAP = SAVED_COMPARISON_CAP.free ?? 5
 
 // GET /api/comparisons  → list mine
 export async function GET() {

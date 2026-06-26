@@ -25,6 +25,34 @@ export function isScout(publicMetadata?: Record<string, unknown>): boolean {
 export const FREE_ROW_LIMIT = 25
 export const PRO_ROW_LIMIT = 50
 export const PRO_EXTENDED_LIMIT = 100
+
+// ─── Approved tier matrix (Miqui + SEO, 2026-06) ────────────────────────────
+// Single source of truth for the per-plan caps enforced across the app.
+// `null` = unlimited. Keep in sync with /pricing copy.
+
+/** Private watchlist size cap per plan. */
+export const WATCHLIST_CAP: Record<Plan, number | null> = {
+  free:  5,
+  pro:   25,
+  scout: null,
+  team:  null,
+}
+
+/** Saved-comparisons cap per plan. */
+export const SAVED_COMPARISON_CAP: Record<Plan, number | null> = {
+  free:  5,
+  pro:   null,
+  scout: null,
+  team:  null,
+}
+
+/** Monthly CSV-export cap per plan. */
+export const CSV_EXPORT_CAP: Record<Plan, number | null> = {
+  free:  3,
+  pro:   25,
+  scout: null,
+  team:  null,
+}
 // All loaded seasons available to free (data goes back to 2010/11 in the UI
 // dropdown; deep historic seasons are fetched live from API-Football on demand
 // and cached. Backfill of the static dataset is a separate ongoing task).

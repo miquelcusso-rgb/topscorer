@@ -1,15 +1,12 @@
 import { createServerClient } from '@/lib/supabase'
+import { CSV_EXPORT_CAP } from '@/lib/plans'
 import type { Plan } from '@/types'
 
 // ─── Monthly quota limits per plan ──────────────────────────────────────────
-// null = unlimited
+// null = unlimited. CSV caps live in lib/plans.ts (single source of truth).
 export const QUOTAS: Record<'csv_export' | 'api_request', Record<Plan, number | null>> = {
-  csv_export: {
-    free:  0,        // free tier can't export
-    pro:   50,       // Pro: 50 exports / month
-    scout: null,     // Scout: unlimited
-    team:  null,     // Team: unlimited
-  },
+  // Approved matrix: Free 3/mo · Pro 25/mo · Scout/Team unlimited.
+  csv_export: CSV_EXPORT_CAP,
   api_request: {
     free:   0,
     pro:    0,       // API access is Scout-only

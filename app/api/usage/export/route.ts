@@ -30,7 +30,7 @@ export async function POST() {
     return NextResponse.json(
       {
         error: plan === 'free'
-          ? 'La exportación CSV requiere plan Pro o Scout.'
+          ? `Has alcanzado tu límite de ${quota.limit} exportaciones CSV este mes. Mejora a Pro (25/mes) o Scout (ilimitado).`
           : `Has alcanzado tu límite de ${quota.limit} exportaciones este mes. Mejora a Scout para exportaciones ilimitadas.`,
         ...quota,
       },

@@ -1,22 +1,14 @@
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
-import { isScout, isTeam, isPro } from '@/lib/plans'
+import { getUserPlan, WATCHLIST_CAP } from '@/lib/plans'
 
-// Caps per plan, mirroring pricing page promises
-const WATCHLIST_CAPS: Record<'free' | 'pro' | 'scout', number | null> = {
-  free:  0,        // pricing: watchlist is Pro-only
-  pro:   20,       // pricing: Pro = "Hasta 20"
-  scout: null,     // pricing: Scout = "Ilimitada"
-}
-
+// Caps per plan live in lib/plans.ts (single source of truth, mirrors /pricing).
+// Approved matrix: Free 5 · Pro 25 · Scout/Team unlimited.
 async function getCap(userId: string): Promise<number | null> {
   const clerk = await clerkClient()
   const user = await clerk.users.getUser(userId)
-  const meta = user.publicMetadata
-  if (isScout(meta) || isTeam(meta)) return WATCHLIST_CAPS.scout
-  if (isPro(meta)) return WATCHLIST_CAPS.pro
-  return WATCHLIST_CAPS.free
+  return WATCHLIST_CAP[getUserPlan(user.publicMetadata)]
 }
 
 export async function GET() {
@@ -45,9 +37,6 @@ export async function POST(req: NextRequest) {
 
   // Enforce plan cap. `null` means unlimited.
   const cap = await getCap(userId)
-  if (cap === 0) {
-    return NextResponse.json({ error: 'pro_required' }, { status: 403 })
-  }
   if (cap !== null) {
     // Don't reject if user is updating an existing row — only reject net-new entries past cap
     const { data: existing } = await sb
