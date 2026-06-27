@@ -2,14 +2,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
+import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-ligue-1'
   return {
-    title: 'Goleadores Ligue 1 2025/26 — Máximos Anotadores Liga Francesa | TopScorers',
-    description: 'Ranking completo de goleadores de la Ligue 1 2025/26. Lepaul, Panichelli, Greenwood… histórico de máximos goleadores del fútbol francés y carrera por el trofeo.',
+    title: `Goleadores Ligue 1 ${S} — Máximos Anotadores Liga Francesa | TopScorers`,
+    description: `Ranking completo de goleadores de la Ligue 1 ${S}. Lepaul, Panichelli, Greenwood… histórico de máximos goleadores del fútbol francés y carrera por el trofeo.`,
     keywords: [
       'goleadores ligue 1', 'máximos goleadores ligue 1', 'top goleadores ligue 1',
       'goles ligue 1 2025 2026', 'clasificación goleadores ligue 1', 'goleadores liga francesa',
@@ -25,8 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Goleadores Ligue 1 2025/26 | TopScorers',
-      description: 'Ranking completo de goleadores de la Ligue 1 2025/26 con histórico de máximos anotadores de las últimas temporadas.',
+      title: `Goleadores Ligue 1 ${S} | TopScorers`,
+      description: `Ranking completo de goleadores de la Ligue 1 ${S} con histórico de máximos anotadores de las últimas temporadas.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 // ── Data ─────────────────────────────────────────────────────────────────────
 
 const CURRENT_SEASON = {
-  label: 'Temporada 2025/26',
+  label: `Temporada ${S}`,
   players: [
     { pos: 1, name: 'Esteban Lepaul',     club: 'Stade Rennais', goles: 18, pj: 30 },
     { pos: 2, name: 'Joaquín Panichelli', club: 'Estrasburgo',   goles: 16, pj: 27 },
@@ -61,7 +62,7 @@ const HISTORICAL = [
 
 const FAQS = [
   {
-    q: '¿Quién es el máximo goleador de la Ligue 1 en 2025/26?',
+    q: `¿Quién es el máximo goleador de la Ligue 1 en ${S}?`,
     a: 'Esteban Lepaul (Stade Rennais) lidera la tabla de goleadores de la Ligue 1 con 18 goles, una de las grandes sorpresas de la temporada. Le siguen el joven Joaquín Panichelli (Estrasburgo) con 16 y Mason Greenwood (Marsella) con 15. El PSG aporta varios nombres al top encabezados por Ousmane Dembélé.',
   },
   {
@@ -87,8 +88,8 @@ const FAQS = [
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'Goleadores Ligue 1 2025/26',
-  description: 'Ranking de máximos goleadores de la Ligue 1 temporada 2025/26',
+  name: `Goleadores Ligue 1 ${S}`,
+  description: `Ranking de máximos goleadores de la Ligue 1 temporada ${S}`,
   url: 'https://www.top-scorers.com/goleadores-ligue-1',
   numberOfItems: CURRENT_SEASON.players.length,
   itemListElement: CURRENT_SEASON.players.map((p) => ({
@@ -145,7 +146,7 @@ export default function GoleadoresLigue1Page() {
 
         {/* H1 */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
-          Goleadores Ligue 1 2025/26
+          Goleadores Ligue 1 {S}
         </h1>
         <p style={{ color: 'var(--ts-muted)', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
           Ranking actualizado de los máximos anotadores de la <strong style={{ color: 'var(--ts-text)' }}>Ligue 1</strong>, con goles, partidos jugados y media por encuentro. La carrera por el título de <strong style={{ color: 'var(--ts-text)' }}>máximo goleador</strong> y el histórico de ganadores de las últimas temporadas.
@@ -188,10 +189,10 @@ export default function GoleadoresLigue1Page() {
         {/* Explanatory content — important for SEO */}
         <section style={{ marginBottom: 40, color: 'var(--ts-muted)', lineHeight: 1.75, fontSize: 15 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 14 }}>
-            Ligue 1 2025/26: análisis de la tabla de goleadores
+            Ligue 1 {S}: análisis de la tabla de goleadores
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La temporada 2025/26 de la <strong style={{ color: 'var(--ts-text)' }}>Ligue 1</strong> vive una transición histórica tras la marcha de Kylian Mbappé, que durante años monopolizó el trofeo de máximo goleador. En su lugar ha emergido <strong style={{ color: 'var(--ts-text)' }}>Esteban Lepaul</strong>, que lidera la tabla con 18 goles y se ha convertido en la gran revelación del <strong style={{ color: 'var(--ts-text)' }}>Stade Rennais</strong>.
+            La temporada {S} de la <strong style={{ color: 'var(--ts-text)' }}>Ligue 1</strong> vive una transición histórica tras la marcha de Kylian Mbappé, que durante años monopolizó el trofeo de máximo goleador. En su lugar ha emergido <strong style={{ color: 'var(--ts-text)' }}>Esteban Lepaul</strong>, que lidera la tabla con 18 goles y se ha convertido en la gran revelación del <strong style={{ color: 'var(--ts-text)' }}>Stade Rennais</strong>.
           </p>
           <p style={{ marginBottom: 12 }}>
             El argentino <strong style={{ color: 'var(--ts-text)' }}>Joaquín Panichelli</strong>, del Estrasburgo, confirma con 16 dianas el buen momento de la cantera sudamericana en Francia, mientras que <strong style={{ color: 'var(--ts-text)' }}>Mason Greenwood</strong> mantiene al Marsella entre los mejores. El <strong style={{ color: 'var(--ts-text)' }}>Paris Saint-Germain</strong> reparte sus goles entre Dembélé, Barcola y Gonçalo Ramos.

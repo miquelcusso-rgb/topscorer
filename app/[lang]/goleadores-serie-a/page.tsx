@@ -2,14 +2,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
+import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-serie-a'
   return {
-    title: 'Goleadores Serie A 2025/26 — Capocannoniere y Máximos Anotadores | TopScorers',
-    description: 'Ranking completo de goleadores de la Serie A 2025/26. Lautaro Martínez, Thuram, Vlahović… histórico del Capocannoniere y máximos goleadores del calcio italiano.',
+    title: `Goleadores Serie A ${S} — Capocannoniere y Máximos Anotadores | TopScorers`,
+    description: `Ranking completo de goleadores de la Serie A ${S}. Lautaro Martínez, Thuram, Vlahović… histórico del Capocannoniere y máximos goleadores del calcio italiano.`,
     keywords: [
       'goleadores serie a', 'máximos goleadores serie a', 'capocannoniere 2025',
       'capocannoniere 2026', 'top goleadores serie a', 'goles serie a 2025 2026',
@@ -25,8 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Goleadores Serie A 2025/26 | TopScorers',
-      description: 'Ranking completo de goleadores de la Serie A 2025/26 con histórico del Capocannoniere de las últimas temporadas.',
+      title: `Goleadores Serie A ${S} | TopScorers`,
+      description: `Ranking completo de goleadores de la Serie A ${S} con histórico del Capocannoniere de las últimas temporadas.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 // ── Data ─────────────────────────────────────────────────────────────────────
 
 const CURRENT_SEASON = {
-  label: 'Temporada 2025/26',
+  label: `Temporada ${S}`,
   players: [
     { pos: 1, name: 'Lautaro Martínez',  club: 'Inter de Milán', goles: 16, pj: 26 },
     { pos: 2, name: 'Marcus Thuram',     club: 'Inter de Milán', goles: 12, pj: 26 },
@@ -63,7 +64,7 @@ const HISTORICAL = [
 
 const FAQS = [
   {
-    q: '¿Quién es el máximo goleador de la Serie A en 2025/26?',
+    q: `¿Quién es el máximo goleador de la Serie A en ${S}?`,
     a: 'Lautaro Martínez (Inter de Milán) lidera la tabla de goleadores de la Serie A con 16 goles, por delante de su compañero Marcus Thuram y de Dušan Vlahović (Juventus), ambos con 12 tantos. La carrera por el Capocannoniere sigue muy abierta a falta de jornadas por disputar.',
   },
   {
@@ -89,8 +90,8 @@ const FAQS = [
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'Goleadores Serie A 2025/26',
-  description: 'Ranking de máximos goleadores de la Serie A temporada 2025/26 (Capocannoniere)',
+  name: `Goleadores Serie A ${S}`,
+  description: `Ranking de máximos goleadores de la Serie A temporada ${S} (Capocannoniere)`,
   url: 'https://www.top-scorers.com/goleadores-serie-a',
   numberOfItems: CURRENT_SEASON.players.length,
   itemListElement: CURRENT_SEASON.players.map((p) => ({
@@ -147,7 +148,7 @@ export default function GoleadoresSerieAPage() {
 
         {/* H1 */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
-          Goleadores Serie A 2025/26
+          Goleadores Serie A {S}
         </h1>
         <p style={{ color: 'var(--ts-muted)', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
           Ranking actualizado de los máximos anotadores de la <strong style={{ color: 'var(--ts-text)' }}>Serie A</strong>, con goles, partidos jugados y media por encuentro. La carrera por el <strong style={{ color: 'var(--ts-text)' }}>Capocannoniere</strong> y el histórico de ganadores de las últimas temporadas.
@@ -190,10 +191,10 @@ export default function GoleadoresSerieAPage() {
         {/* Explanatory content — important for SEO */}
         <section style={{ marginBottom: 40, color: 'var(--ts-muted)', lineHeight: 1.75, fontSize: 15 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 14 }}>
-            Serie A 2025/26: análisis de la tabla de goleadores
+            Serie A {S}: análisis de la tabla de goleadores
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La temporada 2025/26 de la <strong style={{ color: 'var(--ts-text)' }}>Serie A</strong> mantiene el sello del fútbol italiano: equilibrio defensivo y una lucha por el Capocannoniere muy repartida. <strong style={{ color: 'var(--ts-text)' }}>Lautaro Martínez</strong> lidera la tabla con 16 goles y aspira a repetir el título de máximo goleador que ya conquistó en la 2023/24, impulsando el ataque de un <strong style={{ color: 'var(--ts-text)' }}>Inter de Milán</strong> que pelea por el Scudetto.
+            La temporada {S} de la <strong style={{ color: 'var(--ts-text)' }}>Serie A</strong> mantiene el sello del fútbol italiano: equilibrio defensivo y una lucha por el Capocannoniere muy repartida. <strong style={{ color: 'var(--ts-text)' }}>Lautaro Martínez</strong> lidera la tabla con 16 goles y aspira a repetir el título de máximo goleador que ya conquistó en la 2023/24, impulsando el ataque de un <strong style={{ color: 'var(--ts-text)' }}>Inter de Milán</strong> que pelea por el Scudetto.
           </p>
           <p style={{ marginBottom: 12 }}>
             Su compañero <strong style={{ color: 'var(--ts-text)' }}>Marcus Thuram</strong> y el delantero de la <strong style={{ color: 'var(--ts-text)' }}>Juventus</strong> <strong style={{ color: 'var(--ts-text)' }}>Dušan Vlahović</strong> comparten la segunda posición con 12 tantos, mientras que <strong style={{ color: 'var(--ts-text)' }}>Moise Kean</strong> confirma su resurgir en la Fiorentina. El AC Milan aporta dos nombres al top con Christian Pulisic y Rafael Leão.

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { slugify } from '@/lib/slugify'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { CURRENT_SEASON_CODE, CURRENT_SEASON_SHORT } from '@/lib/season'
 
 export const revalidate = 1800 // was 300 (free-tier ISR writes)
 
@@ -36,7 +37,7 @@ export default async function EmbedTop10({ params, searchParams }: Props) {
   if (!leagueName) notFound()
 
   const top = PLAYERS
-    .filter(p => p.season === '2526' && p.league === leagueName && p.tab === 's')
+    .filter(p => p.season === CURRENT_SEASON_CODE && p.league === leagueName && p.tab === 's')
     .sort((a, b) => b.goles - a.goles)
     .slice(0, 10)
 
@@ -80,7 +81,7 @@ export default async function EmbedTop10({ params, searchParams }: Props) {
                 color: primary,
               }}
             >
-              Top scorers · 25/26
+              Top scorers · {CURRENT_SEASON_SHORT}
             </div>
             <div style={{ fontSize: 16, fontWeight: 700, color: text, marginTop: 2 }}>
               {leagueName}

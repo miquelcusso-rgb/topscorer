@@ -12,6 +12,7 @@ import type { HomeInsights } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
 import { iig, leagueCoef, rankScore } from '@/lib/iig'
 import { leaguePickerLabel, leagueCountry } from '@/lib/league-data'
+import { CURRENT_SEASON_CODE, CURRENT_SEASON_SHORT } from '@/lib/season'
 
 // Scope of the cross-league scouter ranking:
 //   • 'all'    → every league present in the dataset (global)
@@ -359,8 +360,8 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         </label>
         <label>
           <span style={fieldLabel}>{t.season}</span>
-          <select value="2526" disabled style={{ ...selStyle, opacity: 0.7 }} aria-label={t.season}>
-            <option value="2526">25/26</option>
+          <select value={CURRENT_SEASON_CODE} disabled style={{ ...selStyle, opacity: 0.7 }} aria-label={t.season}>
+            <option value={CURRENT_SEASON_CODE}>{CURRENT_SEASON_SHORT}</option>
           </select>
         </label>
       </div>
@@ -463,7 +464,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
         <div style={{ flex: 1, minWidth: 240 }}>
           <FilterBar
             filters={[
-              { key: 'season', label: t.season, value: '25/26', options: [{ value: '2526', label: '25/26' }] },
+              { key: 'season', label: t.season, value: CURRENT_SEASON_SHORT, options: [{ value: CURRENT_SEASON_CODE, label: CURRENT_SEASON_SHORT }] },
               { key: 'age', label: t.age, value: ageBand === 'u21' ? 'Sub-21' : ageBand === 'u23' ? 'Sub-23' : (lang === 'en' ? 'All' : 'Todas'), active: ageBand !== 'all', options: [
                 { value: 'all', label: lang === 'en' ? 'All' : 'Todas' },
                 { value: 'u23', label: 'Sub-23' },

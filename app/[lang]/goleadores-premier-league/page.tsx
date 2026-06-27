@@ -2,14 +2,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
+import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-premier-league'
   return {
-    title: 'Goleadores Premier League 2025/26 — Golden Boot & Top Scorers | TopScorers',
-    description: 'Ranking de máximos goleadores de la Premier League 2025/26. Haaland, Thiago, Gyökeres… tabla de la Golden Boot con goles, partidos e histórico de ganadores.',
+    title: `Goleadores Premier League ${S} — Golden Boot & Top Scorers | TopScorers`,
+    description: `Ranking de máximos goleadores de la Premier League ${S}. Haaland, Thiago, Gyökeres… tabla de la Golden Boot con goles, partidos e histórico de ganadores.`,
     keywords: [
       'goleadores premier league', 'top scorers premier league', 'golden boot premier league',
       'máximos goleadores premier league', 'premier league top scorers 2025 2026',
@@ -25,8 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Goleadores Premier League 2025/26 | TopScorers',
-      description: 'Ranking de máximos anotadores de la Premier League 2025/26 con histórico de ganadores de la Golden Boot.',
+      title: `Goleadores Premier League ${S} | TopScorers`,
+      description: `Ranking de máximos anotadores de la Premier League ${S} con histórico de ganadores de la Golden Boot.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 // ── Data ─────────────────────────────────────────────────────────────────────
 
 const CURRENT_SEASON = {
-  label: 'Temporada 2025/26',
+  label: `Temporada ${S}`,
   players: [
     { pos: 1, name: 'Erling Haaland',  club: 'Manchester City', goles: 24, pj: 32 },
     { pos: 2, name: 'Thiago',          club: 'Brentford',       goles: 22, pj: 35 },
@@ -63,7 +64,7 @@ const HISTORICAL = [
 
 const FAQS = [
   {
-    q: '¿Quién es el máximo goleador de la Premier League en 2025/26?',
+    q: `¿Quién es el máximo goleador de la Premier League en ${S}?`,
     a: 'Erling Haaland (Manchester City) lidera la carrera por la Golden Boot con 24 goles, por delante de la revelación Thiago (Brentford), que suma 22. Más atrás aparecen João Pedro y Viktor Gyökeres, ambos con 14 tantos.',
   },
   {
@@ -89,8 +90,8 @@ const FAQS = [
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'Goleadores Premier League 2025/26',
-  description: 'Ranking de máximos goleadores de la Premier League temporada 2025/26 (Golden Boot)',
+  name: `Goleadores Premier League ${S}`,
+  description: `Ranking de máximos goleadores de la Premier League temporada ${S} (Golden Boot)`,
   url: 'https://www.top-scorers.com/goleadores-premier-league',
   numberOfItems: CURRENT_SEASON.players.length,
   itemListElement: CURRENT_SEASON.players.map((p) => ({
@@ -147,7 +148,7 @@ export default function GoleadoresPremierLeaguePage() {
 
         {/* H1 */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
-          Goleadores Premier League 2025/26
+          Goleadores Premier League {S}
         </h1>
         <p style={{ color: 'var(--ts-muted)', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
           Ranking actualizado de los máximos anotadores de la <strong style={{ color: 'var(--ts-text)' }}>Premier League</strong>, con goles, partidos jugados y media por encuentro. La carrera por la <strong style={{ color: 'var(--ts-text)' }}>Golden Boot</strong> y el histórico de ganadores de las últimas temporadas.
@@ -190,10 +191,10 @@ export default function GoleadoresPremierLeaguePage() {
         {/* Explanatory content */}
         <section style={{ marginBottom: 40, color: 'var(--ts-muted)', lineHeight: 1.75, fontSize: 15 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 14 }}>
-            Premier League 2025/26: análisis de la Golden Boot
+            Premier League {S}: análisis de la Golden Boot
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La carrera por la <strong style={{ color: 'var(--ts-text)' }}>Golden Boot</strong> de la Premier League 2025/26 vuelve a tener un nombre propio: <strong style={{ color: 'var(--ts-text)' }}>Erling Haaland</strong>. El noruego del Manchester City suma 24 goles y persigue una nueva bota de oro inglesa que reafirme su condición de delantero más determinante de la liga desde su llegada en 2022.
+            La carrera por la <strong style={{ color: 'var(--ts-text)' }}>Golden Boot</strong> de la Premier League {S} vuelve a tener un nombre propio: <strong style={{ color: 'var(--ts-text)' }}>Erling Haaland</strong>. El noruego del Manchester City suma 24 goles y persigue una nueva bota de oro inglesa que reafirme su condición de delantero más determinante de la liga desde su llegada en 2022.
           </p>
           <p style={{ marginBottom: 12 }}>
             La gran historia de la temporada es <strong style={{ color: 'var(--ts-text)' }}>Thiago</strong>, el ariete del Brentford, que con 22 dianas planta cara a los grandes presupuestos y se mantiene como el perseguidor más serio de Haaland. Por detrás, <strong style={{ color: 'var(--ts-text)' }}>João Pedro</strong> y <strong style={{ color: 'var(--ts-text)' }}>Viktor Gyökeres</strong> lideran un pelotón de delanteros que reparte los goles entre Chelsea, Arsenal y Liverpool.

@@ -10,6 +10,7 @@ import type { Tab, PanelState, SortKey, Season, PlayerData } from '@/types'
 import { PLAYERS } from '@/data/players'
 import { getPool, buildTopN, makeSortFn } from '@/lib/utils'
 import { isPro, FREE_ROW_LIMIT, FREE_SEASONS } from '@/lib/plans'
+import { CURRENT_SEASON_CODE, CURRENT_SEASON_SHORT } from '@/lib/season'
 import { exportPlayersCSV } from '@/lib/export-csv'
 import StatsTable from './StatsTable'
 import SearchInput from './SearchInput'
@@ -17,7 +18,7 @@ import WatchlistPanel, { type WatchlistEntry } from './WatchlistPanel'
 import AdSlot from './AdSlot'
 
 const DEFAULT: PanelState = {
-  season: '2526',
+  season: CURRENT_SEASON_CODE as Season,
   age: 99,
   showEsp: true,
   showEng: true,
@@ -49,7 +50,7 @@ interface Props { tab: Tab; initialPlayers?: PlayerData[] }
 // loaded) fetch live from API-Football on demand and cache for 1h via
 // unstable_cache. With Plan B+, ALL seasons are free.
 const SEASONS: { id: Season; label: string; live?: boolean; proOnly?: boolean }[] = [
-  { id: '2526', label: '25/26', live: true },
+  { id: CURRENT_SEASON_CODE as Season, label: CURRENT_SEASON_SHORT, live: true },
   { id: '2425', label: '24/25' },
   { id: '2324', label: '23/24' },
   { id: '2223', label: '22/23' },
@@ -783,7 +784,7 @@ export default function StatsPanel({ tab, initialPlayers }: Props) {
         }}
       >
         <span style={{ fontSize: 10, color: isLight ? '#6a6356' : '#9a917e' }}>
-          Datos 25/26: europeangoldenshoe.com + FotMob &nbsp;·&nbsp; Val: G×2+A &nbsp;·&nbsp; Val+: G×coef×2+A
+          Datos {CURRENT_SEASON_SHORT}: europeangoldenshoe.com + FotMob &nbsp;·&nbsp; Val: G×2+A &nbsp;·&nbsp; Val+: G×coef×2+A
         </span>
       </div>
     </div>

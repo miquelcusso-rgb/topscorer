@@ -1,3 +1,5 @@
+import { CURRENT_SEASON_SHORT, CURRENT_SEASON_LONG } from '@/lib/season'
+
 export type Lang = 'es' | 'en'
 
 export const LOCALES: Lang[] = ['es', 'en']
@@ -28,7 +30,7 @@ export const T = {
   hero_of_europe:  { es: 'DE EUROPA',    en: 'OF EUROPE' },
   hero_de:         { es: 'de',           en: 'of' },
   hero_europe:     { es: 'Europa',       en: 'Europe' },
-  hero_season:     { es: 'Temporada 2025/26', en: 'Season 2025/26' },
+  hero_season:     { es: `Temporada ${CURRENT_SEASON_LONG}`, en: `Season ${CURRENT_SEASON_LONG}` },
   hero_realtime:   { es: 'Tiempo real',  en: 'Real time' },
   hero_leagues:    { es: '30+ ligas globales', en: '30+ leagues worldwide' },
   hero_desc:       { es: 'Las 5 grandes ligas + Portugal,\nTurquía y Grecia. Estadísticas\nactualizadas en tiempo real.', en: 'Top 5 leagues + Portugal,\nTurkey and Greece. Stats\nupdated in real time.' },

@@ -5,9 +5,10 @@ import Link from 'next/link'
 import type { EnrichedPlayer, Season } from '@/types'
 import { PLAYERS } from '@/data/players'
 import { enrich, LEAGUE_STYLE } from '@/lib/utils'
+import { CURRENT_SEASON_CODE, CURRENT_SEASON_SHORT } from '@/lib/season'
 
 const SEASONS: { id: Season; label: string; live?: boolean }[] = [
-  { id: '2526', label: '25/26', live: true },
+  { id: CURRENT_SEASON_CODE as Season, label: CURRENT_SEASON_SHORT, live: true },
   { id: '2425', label: '24/25' },
 ]
 
@@ -80,7 +81,7 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
 ]
 
 export default function MidfielderPanel() {
-  const [season, setSeason] = useState<Season>('2526')
+  const [season, setSeason] = useState<Season>(CURRENT_SEASON_CODE as Season)
   const [leagueKey, setLeagueKey] = useState<string>('eur5')
   const [maxAge, setMaxAge] = useState(99)
   const [sort, setSort] = useState<SortKey>('ga')
@@ -346,7 +347,7 @@ export default function MidfielderPanel() {
         style={{ borderLeft: '1px solid #2a2620', borderRight: '1px solid #2a2620', borderBottom: '1px solid #2a2620', borderRadius: '0 0 6px 6px', background: '#0a0908' }}
       >
         <span style={{ fontSize: 10, color: '#3a352b' }}>
-          Datos 25/26 (G+A) de temporadas activas · Min, Pases, P%, Recup. → API-Football (próximamente)
+          Datos {CURRENT_SEASON_SHORT} (G+A) de temporadas activas · Min, Pases, P%, Recup. → API-Football (próximamente)
         </span>
       </div>
     </div>

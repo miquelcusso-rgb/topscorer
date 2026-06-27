@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { isLocale, type Lang } from '@/lib/i18n'
 import SaasHomeBody from '@/components/saas/SaasHomeBody'
+import { CURRENT_SEASON_SHORT } from '@/lib/season'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -44,7 +45,7 @@ export default async function CentrocampistasPage({
   const { lang: raw } = await params
   const lang: Lang = isLocale(raw) ? raw : 'es'
   const heading = lang === 'en'
-    ? { breadcrumb: ['Statistics', 'Midfielders'], h1: 'Best midfielders · Europe', sub: 'Season 25/26 · ranked by G+A · last-5 ratings' }
-    : { breadcrumb: ['Estadísticas', 'Centrocampistas'], h1: 'Mejores centrocampistas · Europa', sub: 'Temporada 25/26 · por G+A · valoración últimos 5' }
+    ? { breadcrumb: ['Statistics', 'Midfielders'], h1: 'Best midfielders · Europe', sub: `Season ${CURRENT_SEASON_SHORT} · ranked by G+A · last-5 ratings` }
+    : { breadcrumb: ['Estadísticas', 'Centrocampistas'], h1: 'Mejores centrocampistas · Europa', sub: `Temporada ${CURRENT_SEASON_SHORT} · por G+A · valoración últimos 5` }
   return <SaasHomeBody lang={lang} defaultPos="mf" heading={heading} />
 }

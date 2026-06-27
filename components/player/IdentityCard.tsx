@@ -1,6 +1,7 @@
 import type { PlayerData } from '@/types'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
 import { shortName, fullNameIfDifferent } from '@/lib/player-name'
+import { CURRENT_SEASON_SHORT } from '@/lib/season'
 
 interface IdentityCardProps {
   player: PlayerData
@@ -16,7 +17,7 @@ export default function IdentityCard({
   player,
   mode = 'light',
   goldenBootLabel,
-  goalsLabel = 'Goles 25/26',
+  goalsLabel = `Goles ${CURRENT_SEASON_SHORT}`,
   liveText,
   iigBadge,
 }: IdentityCardProps) {

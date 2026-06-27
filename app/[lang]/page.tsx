@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import SaasHomeBody from '@/components/saas/SaasHomeBody'
 import PurchaseTracker from '@/components/analytics/PurchaseTracker'
 import { isLocale, type Lang } from '@/lib/i18n'
+import { CURRENT_SEASON_LONG } from '@/lib/season'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -9,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const path = ''
   return {
     title: 'TopScorers — Goleadores y Asistentes Fútbol Europeo',
-    description: 'Top 25 goleadores y asistentes de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más. Estadísticas actualizadas en tiempo real. Temporada 2025/26.',
+    description: `Top 25 goleadores y asistentes de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más. Estadísticas actualizadas en tiempo real. Temporada ${CURRENT_SEASON_LONG}.`,
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     openGraph: {
       title: 'TopScorers — Goleadores y Asistentes Fútbol Europeo',
-      description: 'Top 25 goleadores y asistentes de las principales ligas europeas. Temporada 2025/26.',
+      description: `Top 25 goleadores y asistentes de las principales ligas europeas. Temporada ${CURRENT_SEASON_LONG}.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -56,13 +57,13 @@ function buildFaq(lang: string) {
   const entries =
     lang === 'en'
       ? [
-          ['Who is the top scorer in Europe this season?', 'TopScorers ranks the leading scorers across La Liga, the Premier League, Serie A, the Bundesliga and Ligue 1 in real time. The combined European ranking is updated as matches are played during the 2025/26 season.'],
+          ['Who is the top scorer in Europe this season?', `TopScorers ranks the leading scorers across La Liga, the Premier League, Serie A, the Bundesliga and Ligue 1 in real time. The combined European ranking is updated as matches are played during the ${CURRENT_SEASON_LONG} season.`],
           ['Where can I see the top scorers of each league?', 'TopScorers has a dedicated page for each major league: LaLiga (Pichichi), the Premier League, Serie A (capocannoniere), the Bundesliga and Ligue 1, each with the top 25 scorers updated live.'],
           ['What is the Golden Boot and how is it calculated?', 'The European Golden Boot is awarded to the top scorer across European leagues, with goals weighted by the strength of each league. TopScorers shows the live Golden Boot standings with that weighting applied.'],
           ['How often is the data updated?', 'Scorer and assist data is sourced from API-Football and refreshed in near real time, typically within minutes of matches finishing.'],
         ]
       : [
-          ['¿Quién es el máximo goleador de Europa esta temporada?', 'TopScorers ordena en tiempo real a los máximos goleadores de LaLiga, la Premier League, la Serie A, la Bundesliga y la Ligue 1. El ranking europeo combinado se actualiza a medida que se juegan los partidos de la temporada 2025/26.'],
+          ['¿Quién es el máximo goleador de Europa esta temporada?', `TopScorers ordena en tiempo real a los máximos goleadores de LaLiga, la Premier League, la Serie A, la Bundesliga y la Ligue 1. El ranking europeo combinado se actualiza a medida que se juegan los partidos de la temporada ${CURRENT_SEASON_LONG}.`],
           ['¿Dónde veo los goleadores de cada liga?', 'TopScorers tiene una página por cada gran liga: LaLiga (Pichichi), Premier League, Serie A (capocannoniere), Bundesliga y Ligue 1, cada una con el top 25 de goleadores actualizado en directo.'],
           ['¿Qué es la Bota de Oro y cómo se calcula?', 'La Bota de Oro europea premia al máximo goleador de las ligas europeas, ponderando los goles según la dificultad de cada liga. TopScorers muestra la clasificación de la Bota de Oro en directo con esa ponderación aplicada.'],
           ['¿Cada cuánto se actualizan los datos?', 'Los datos de goleadores y asistentes provienen de API-Football y se actualizan casi en tiempo real, normalmente pocos minutos después de terminar los partidos.'],

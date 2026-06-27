@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
+import { CURRENT_SEASON_LONG } from '@/lib/season'
 
 /**
  * Weekly cron: close polls whose ends_at has passed, then generate 3 new polls
@@ -23,8 +24,8 @@ interface Template {
 const POOL: Template[] = [
   {
     category: 'pick',
-    question_es: 'Pichichi de La Liga 2025/26 — tu favorito',
-    question_en: 'La Liga top scorer 2025/26 — your pick',
+    question_es: `Pichichi de La Liga ${CURRENT_SEASON_LONG} — tu favorito`,
+    question_en: `La Liga top scorer ${CURRENT_SEASON_LONG} — your pick`,
     durationDays: 7,
     options: [
       { key: 'mbappe',   label_es: 'Kylian Mbappé',  label_en: 'Kylian Mbappé' },
@@ -59,8 +60,8 @@ const POOL: Template[] = [
   },
   {
     category: 'general',
-    question_es: '¿Quién gana la Champions League 2025/26?',
-    question_en: 'Who wins the 2025/26 Champions League?',
+    question_es: `¿Quién gana la Champions League ${CURRENT_SEASON_LONG}?`,
+    question_en: `Who wins the ${CURRENT_SEASON_LONG} Champions League?`,
     durationDays: 14,
     options: [
       { key: 'real',    label_es: 'Real Madrid',     label_en: 'Real Madrid' },

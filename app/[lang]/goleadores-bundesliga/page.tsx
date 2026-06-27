@@ -2,14 +2,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
+import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-bundesliga'
   return {
-    title: 'Goleadores Bundesliga 2025/26 — Torjägerkanone y Máximos Anotadores | TopScorers',
-    description: 'Ranking completo de goleadores de la Bundesliga 2025/26. Harry Kane, Undav, Schick… histórico de la Torjägerkanone y máximos goleadores del fútbol alemán.',
+    title: `Goleadores Bundesliga ${S} — Torjägerkanone y Máximos Anotadores | TopScorers`,
+    description: `Ranking completo de goleadores de la Bundesliga ${S}. Harry Kane, Undav, Schick… histórico de la Torjägerkanone y máximos goleadores del fútbol alemán.`,
     keywords: [
       'goleadores bundesliga', 'máximos goleadores bundesliga', 'torjägerkanone 2025',
       'torjägerkanone 2026', 'top goleadores bundesliga', 'goles bundesliga 2025 2026',
@@ -25,8 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Goleadores Bundesliga 2025/26 | TopScorers',
-      description: 'Ranking completo de goleadores de la Bundesliga 2025/26 con histórico de la Torjägerkanone de las últimas temporadas.',
+      title: `Goleadores Bundesliga ${S} | TopScorers`,
+      description: `Ranking completo de goleadores de la Bundesliga ${S} con histórico de la Torjägerkanone de las últimas temporadas.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 // ── Data ─────────────────────────────────────────────────────────────────────
 
 const CURRENT_SEASON = {
-  label: 'Temporada 2025/26',
+  label: `Temporada ${S}`,
   players: [
     { pos: 1, name: 'Harry Kane',      club: 'Bayern München',  goles: 33, pj: 29 },
     { pos: 2, name: 'Deniz Undav',     club: 'VfB Stuttgart',   goles: 18, pj: 27 },
@@ -61,7 +62,7 @@ const HISTORICAL = [
 
 const FAQS = [
   {
-    q: '¿Quién es el máximo goleador de la Bundesliga en 2025/26?',
+    q: `¿Quién es el máximo goleador de la Bundesliga en ${S}?`,
     a: 'Harry Kane (Bayern de Múnich) domina con autoridad la tabla de goleadores de la Bundesliga con 33 goles, muy por delante de Deniz Undav (Stuttgart) con 18 y Patrik Schick (Leverkusen) con 16. El inglés persigue el legendario récord de 41 goles de Lewandowski.',
   },
   {
@@ -87,8 +88,8 @@ const FAQS = [
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'Goleadores Bundesliga 2025/26',
-  description: 'Ranking de máximos goleadores de la Bundesliga temporada 2025/26 (Torjägerkanone)',
+  name: `Goleadores Bundesliga ${S}`,
+  description: `Ranking de máximos goleadores de la Bundesliga temporada ${S} (Torjägerkanone)`,
   url: 'https://www.top-scorers.com/goleadores-bundesliga',
   numberOfItems: CURRENT_SEASON.players.length,
   itemListElement: CURRENT_SEASON.players.map((p) => ({
@@ -145,7 +146,7 @@ export default function GoleadoresBundesligaPage() {
 
         {/* H1 */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
-          Goleadores Bundesliga 2025/26
+          Goleadores Bundesliga {S}
         </h1>
         <p style={{ color: 'var(--ts-muted)', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
           Ranking actualizado de los máximos anotadores de la <strong style={{ color: 'var(--ts-text)' }}>Bundesliga</strong>, con goles, partidos jugados y media por encuentro. La carrera por la <strong style={{ color: 'var(--ts-text)' }}>Torjägerkanone</strong> y el histórico de ganadores de las últimas temporadas.
@@ -188,10 +189,10 @@ export default function GoleadoresBundesligaPage() {
         {/* Explanatory content — important for SEO */}
         <section style={{ marginBottom: 40, color: 'var(--ts-muted)', lineHeight: 1.75, fontSize: 15 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 14 }}>
-            Bundesliga 2025/26: análisis de la tabla de goleadores
+            Bundesliga {S}: análisis de la tabla de goleadores
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La temporada 2025/26 de la <strong style={{ color: 'var(--ts-text)' }}>Bundesliga</strong> está marcada por la exhibición goleadora de <strong style={{ color: 'var(--ts-text)' }}>Harry Kane</strong>, que con 33 goles aventaja en quince dianas al segundo clasificado. El delantero del <strong style={{ color: 'var(--ts-text)' }}>Bayern de Múnich</strong> apunta a su tercera Torjägerkanone consecutiva y amenaza el mítico récord de 41 goles de Lewandowski.
+            La temporada {S} de la <strong style={{ color: 'var(--ts-text)' }}>Bundesliga</strong> está marcada por la exhibición goleadora de <strong style={{ color: 'var(--ts-text)' }}>Harry Kane</strong>, que con 33 goles aventaja en quince dianas al segundo clasificado. El delantero del <strong style={{ color: 'var(--ts-text)' }}>Bayern de Múnich</strong> apunta a su tercera Torjägerkanone consecutiva y amenaza el mítico récord de 41 goles de Lewandowski.
           </p>
           <p style={{ marginBottom: 12 }}>
             Por detrás, <strong style={{ color: 'var(--ts-text)' }}>Deniz Undav</strong> (Stuttgart) firma una gran campaña con 18 tantos y <strong style={{ color: 'var(--ts-text)' }}>Patrik Schick</strong> mantiene al Leverkusen en la pelea europea con 16. El Bayern coloca hasta tres futbolistas en el top, con Luis Díaz y Michael Olise sumándose a la fiesta ofensiva muniquesa.

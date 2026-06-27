@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { useTheme } from '@/contexts/ThemeContext'
+import { CURRENT_SEASON_SHORT } from '@/lib/season'
 
 interface TrajectoryPoint {
   week: number
@@ -111,7 +112,7 @@ export default function SeasonTrajectory({ goals, assists, matches }: Props) {
           marginBottom: 6,
         }}
       >
-        Trayectoria estimada 25/26
+        Trayectoria estimada {CURRENT_SEASON_SHORT}
       </div>
       <ResponsiveContainer width="100%" height={120}>
         <LineChart data={data} margin={{ top: 4, right: 4, bottom: 4, left: -28 }}>

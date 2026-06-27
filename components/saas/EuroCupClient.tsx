@@ -5,6 +5,7 @@ import Avatar from '@/components/saas/Avatar'
 import CrestImg from '@/components/saas/CrestImg'
 import { slugify } from '@/lib/slugify'
 import type { EuroCupData, EuroFixture } from '@/lib/euro-cups'
+import { CURRENT_SEASON_LONG } from '@/lib/season'
 
 type Tab = 'resumen' | 'clasificacion' | 'calendario' | 'eliminatorias' | 'goleadores'
 
@@ -75,7 +76,7 @@ export default function EuroCupClient({ data, lang }: { data: EuroCupData; lang:
         <h1 style={{ margin: 0, fontFamily: 'Barlow Condensed, sans-serif', fontSize: 34, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-text)' }}>
           {data.name}
         </h1>
-        <span style={{ fontSize: 12, color: 'var(--ts-muted)', alignSelf: 'flex-end', paddingBottom: 6 }}>2025/26</span>
+        <span style={{ fontSize: 12, color: 'var(--ts-muted)', alignSelf: 'flex-end', paddingBottom: 6 }}>{CURRENT_SEASON_LONG}</span>
       </div>
 
       {/* Tabs */}

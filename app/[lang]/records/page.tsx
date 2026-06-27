@@ -6,6 +6,7 @@ import RelatedLinks from '@/components/RelatedLinks'
 import { PLAYERS } from '@/data/players'
 import { iig } from '@/lib/iig'
 import { shortName } from '@/lib/player-name'
+import { CURRENT_SEASON_LONG } from '@/lib/season'
 import type { PlayerData } from '@/types'
 
 // ── Metadata ───────────────────────────────────────────────────────────────
@@ -15,8 +16,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/records'
   return {
-    title: 'Records y Líderes 2025/26 — Goleadores, Asistencias y Nota | TopScorers',
-    description: 'Líderes y récords de la temporada 2025/26: máximo goleador (IIG), más goles, más asistencias, mejor conversión, más pases clave y mejor nota media. Datos reales de las ligas europeas.',
+    title: `Records y Líderes ${CURRENT_SEASON_LONG} — Goleadores, Asistencias y Nota | TopScorers`,
+    description: `Líderes y récords de la temporada ${CURRENT_SEASON_LONG}: máximo goleador (IIG), más goles, más asistencias, mejor conversión, más pases clave y mejor nota media. Datos reales de las ligas europeas.`,
     keywords: [
       'records goleadores', 'líderes liga 2025 2026', 'máximo goleador europa',
       'más asistencias', 'mejor nota media futbolista', 'mejor conversión tiros',
@@ -31,8 +32,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Records y Líderes 2025/26 | TopScorers',
-      description: 'Los líderes de la temporada 2025/26 en goles, asistencias, conversión, pases clave y nota media. Datos reales.',
+      title: `Records y Líderes ${CURRENT_SEASON_LONG} | TopScorers`,
+      description: `Los líderes de la temporada ${CURRENT_SEASON_LONG} en goles, asistencias, conversión, pases clave y nota media. Datos reales.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -152,8 +153,8 @@ const iigLeaders = RECORDS.find(r => r.id === 'iig')?.rows ?? []
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'Líderes y récords 2025/26',
-  description: 'Líderes de la temporada 2025/26 por Índice de Impacto del Goleador (IIG)',
+  name: `Líderes y récords ${CURRENT_SEASON_LONG}`,
+  description: `Líderes de la temporada ${CURRENT_SEASON_LONG} por Índice de Impacto del Goleador (IIG)`,
   url: 'https://www.top-scorers.com/records',
   numberOfItems: iigLeaders.length,
   itemListElement: iigLeaders.map((r, i) => ({
@@ -244,12 +245,12 @@ export default async function RecordsPage({ params }: { params: Promise<{ lang: 
 
         {/* H1 */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
-          {en ? 'Records & Leaders 2025/26' : 'Records y Líderes 2025/26'}
+          {en ? `Records & Leaders ${CURRENT_SEASON_LONG}` : `Records y Líderes ${CURRENT_SEASON_LONG}`}
         </h1>
         <p style={{ color: 'var(--ts-muted)', marginBottom: 12, fontSize: 16, lineHeight: 1.6 }}>
           {en
-            ? 'Season leaders across the European leagues we track — most goals, assists, best conversion, key passes and average rating, plus our IIG striker leader. All figures are real 2025/26 season stats.'
-            : 'Líderes de la temporada 2025/26 en las ligas europeas que seguimos: más goles, asistencias, mejor conversión, pases clave y nota media, además del líder por IIG. Todas las cifras son estadísticas reales de la temporada 2025/26.'}
+            ? `Season leaders across the European leagues we track — most goals, assists, best conversion, key passes and average rating, plus our IIG striker leader. All figures are real ${CURRENT_SEASON_LONG} season stats.`
+            : `Líderes de la temporada ${CURRENT_SEASON_LONG} en las ligas europeas que seguimos: más goles, asistencias, mejor conversión, pases clave y nota media, además del líder por IIG. Todas las cifras son estadísticas reales de la temporada ${CURRENT_SEASON_LONG}.`}
         </p>
         <p style={{ color: 'var(--ts-faint)', marginBottom: 32, fontSize: 13, lineHeight: 1.6 }}>
           {en

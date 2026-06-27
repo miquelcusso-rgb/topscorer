@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { Tab } from '@/types'
+import { CURRENT_SEASON_CODE, CURRENT_SEASON_SHORT } from '@/lib/season'
 
 export interface WatchlistEntry {
   id: string
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const SEASON_LABELS: Record<string, string> = {
+  [CURRENT_SEASON_CODE]: CURRENT_SEASON_SHORT,
   '2526': '25/26', '2425': '24/25', '2324': '23/24',
   '2223': '22/23', '2122': '21/22', '2021': '20/21',
 }

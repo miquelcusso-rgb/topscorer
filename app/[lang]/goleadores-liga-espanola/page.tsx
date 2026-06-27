@@ -2,14 +2,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
+import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-liga-espanola'
   return {
-    title: 'Goleadores Liga Española 2025/26 — Top Máximos Anotadores | TopScorers',
-    description: 'Ranking completo de goleadores de La Liga Española 2025/26. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.',
+    title: `Goleadores Liga Española ${S} — Top Máximos Anotadores | TopScorers`,
+    description: `Ranking completo de goleadores de La Liga Española ${S}. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.`,
     keywords: [
       'goleadores liga española', 'goleadores la liga', 'máximos goleadores la liga',
       'pichichi 2025', 'pichichi 2026', 'top goleadores liga española',
@@ -25,8 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Goleadores Liga Española 2025/26 | TopScorers',
-      description: 'Ranking completo de goleadores de La Liga EA Sports 2025/26 con histórico de las últimas temporadas.',
+      title: `Goleadores Liga Española ${S} | TopScorers`,
+      description: `Ranking completo de goleadores de La Liga EA Sports ${S} con histórico de las últimas temporadas.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 // ── Data ─────────────────────────────────────────────────────────────────────
 
 const CURRENT_SEASON = {
-  label: 'Temporada 2025/26',
+  label: `Temporada ${S}`,
   players: [
     { pos: 1,  name: 'Kylian Mbappé',      club: 'Real Madrid',     goles: 24, pj: 28 },
     { pos: 2,  name: 'Vedat Muriqi',        club: 'Mallorca',        goles: 21, pj: 33 },
@@ -92,7 +93,7 @@ const HISTORICAL = [
 
 const FAQS = [
   {
-    q: '¿Quién es el máximo goleador de La Liga en 2025/26?',
+    q: `¿Quién es el máximo goleador de La Liga en ${S}?`,
     a: 'Kylian Mbappé (Real Madrid) lidera el ranking con 24 goles en 28 partidos a falta de jornadas por disputar. Le siguen Vedat Muriqi (Mallorca) con 21 goles y Lamine Yamal (Barcelona) con 16.',
   },
   {
@@ -118,8 +119,8 @@ const FAQS = [
 const itemListJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'Goleadores La Liga Española 2025/26',
-  description: 'Ranking de máximos goleadores de La Liga EA Sports temporada 2025/26',
+  name: `Goleadores La Liga Española ${S}`,
+  description: `Ranking de máximos goleadores de La Liga EA Sports temporada ${S}`,
   url: 'https://www.top-scorers.com/goleadores-liga-espanola',
   numberOfItems: CURRENT_SEASON.players.length,
   itemListElement: CURRENT_SEASON.players.map((p) => ({
@@ -176,7 +177,7 @@ export default function GoleadoresLigaEspanolaPage() {
 
         {/* H1 */}
         <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>
-          Goleadores Liga Española 2025/26
+          Goleadores Liga Española {S}
         </h1>
         <p style={{ color: 'var(--ts-muted)', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>
           Ranking actualizado de los máximos anotadores de <strong style={{ color: 'var(--ts-text)' }}>La Liga EA Sports</strong>, con datos de goles, partidos jugados y media por encuentro. Incluye histórico del <strong style={{ color: 'var(--ts-text)' }}>Trofeo Pichichi</strong> de las últimas temporadas.
@@ -219,10 +220,10 @@ export default function GoleadoresLigaEspanolaPage() {
         {/* Explanatory content — important for SEO */}
         <section style={{ marginBottom: 40, color: 'var(--ts-muted)', lineHeight: 1.75, fontSize: 15 }}>
           <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 14 }}>
-            La Liga 2025/26: análisis de la tabla de goleadores
+            La Liga {S}: análisis de la tabla de goleadores
           </h2>
           <p style={{ marginBottom: 12 }}>
-            La temporada 2025/26 de <strong style={{ color: 'var(--ts-text)' }}>La Liga EA Sports</strong> está marcada por el duelo entre el poderío goleador de <strong style={{ color: 'var(--ts-text)' }}>Real Madrid</strong> y <strong style={{ color: 'var(--ts-text)' }}>FC Barcelona</strong>, con <strong style={{ color: 'var(--ts-text)' }}>Kylian Mbappé</strong> liderando con 24 dianas en 28 partidos. El delantero francés, en su segunda temporada en el Santiago Bernabéu, sigue la estela de su extraordinaria campaña 2024/25 cuando se proclamó Pichichi con 31 goles.
+            La temporada {S} de <strong style={{ color: 'var(--ts-text)' }}>La Liga EA Sports</strong> está marcada por el duelo entre el poderío goleador de <strong style={{ color: 'var(--ts-text)' }}>Real Madrid</strong> y <strong style={{ color: 'var(--ts-text)' }}>FC Barcelona</strong>, con <strong style={{ color: 'var(--ts-text)' }}>Kylian Mbappé</strong> liderando con 24 dianas en 28 partidos. El delantero francés, en su segunda temporada en el Santiago Bernabéu, sigue la estela de su extraordinaria campaña 2024/25 cuando se proclamó Pichichi con 31 goles.
           </p>
           <p style={{ marginBottom: 12 }}>
             La sorpresa de la temporada es <strong style={{ color: 'var(--ts-text)' }}>Vedat Muriqi</strong> del Mallorca, que con 21 goles se mantiene como el segundo máximo goleador de la competición y demuestra que los equipos modestos también tienen artilleros de élite. <strong style={{ color: 'var(--ts-text)' }}>Lamine Yamal</strong>, con apenas 17 años, comparte el tercer puesto y confirma que puede convertirse en uno de los grandes goleadores de la próxima década.
