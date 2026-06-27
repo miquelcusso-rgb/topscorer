@@ -31,21 +31,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   }
 }
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'TopScorers',
-  url: 'https://www.top-scorers.com',
-  description: 'Estadísticas de fútbol europeo: goleadores, asistentes y centrocampistas de las principales ligas.',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: 'https://www.top-scorers.com/?q={search_term_string}',
-    },
-    'query-input': 'required name=search_term_string',
-  },
-}
+// NOTE: the site-wide WebSite + Organization @graph (incl. the SearchAction)
+// lives in app/[lang]/layout.tsx and is emitted on every page. The home only
+// adds its page-specific FAQPage below — do NOT re-add a WebSite node here or
+// it duplicates the one from the layout.
 
 // Fully static — the home reads only the static PLAYERS dataset, so it never
 // needs runtime regeneration. force-static removes the ISR serverless function
@@ -87,10 +76,6 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}

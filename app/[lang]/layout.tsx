@@ -79,33 +79,44 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-const organizationJsonLd = {
+// Single site-wide @graph: Organization + WebSite linked by @id. The WebSite
+// node carries the SearchAction (sitelinks searchbox). This is the ONLY place
+// these two nodes are emitted — the home page must not duplicate the WebSite
+// node (it only adds its page-specific FAQPage).
+const siteGraphJsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Furiosa Studio',
-  url: 'https://furiosadata.com',
-  logo: 'https://www.top-scorers.com/logo.png',
-  description: 'Estadísticas de fútbol europeo: goleadores, asistentes y ligas en tiempo real.',
-  sameAs: [
-    'https://www.top-scorers.com',
-    'https://x.com/furiosadata',
-    'https://furiosadata.com',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://www.top-scorers.com/#organization',
+      name: 'Furiosa Studio',
+      url: 'https://furiosadata.com',
+      logo: 'https://www.top-scorers.com/logo.png',
+      description: 'Estadísticas de fútbol europeo: goleadores, asistentes y ligas en tiempo real.',
+      sameAs: [
+        'https://www.top-scorers.com',
+        'https://x.com/furiosadata',
+        'https://furiosadata.com',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://www.top-scorers.com/#website',
+      name: 'TopScorers',
+      url: 'https://www.top-scorers.com',
+      description: 'Estadísticas de fútbol europeo: goleadores, asistentes y ligas en tiempo real.',
+      inLanguage: 'es-ES',
+      publisher: { '@id': 'https://www.top-scorers.com/#organization' },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: 'https://www.top-scorers.com/?q={search_term_string}',
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
   ],
-}
-
-const websiteJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'TopScorers',
-  url: 'https://www.top-scorers.com',
-  description: 'Estadísticas de fútbol europeo: goleadores, asistentes y ligas en tiempo real.',
-  inLanguage: 'es-ES',
-  publisher: {
-    '@type': 'Organization',
-    name: 'Furiosa Studio',
-    url: 'https://www.top-scorers.com',
-    logo: 'https://www.top-scorers.com/logo.png',
-  },
 }
 
 export default async function RootLayout({
@@ -164,11 +175,7 @@ export default async function RootLayout({
           )}
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, '\\u003c') }}
-          />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd).replace(/</g, '\\u003c') }}
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(siteGraphJsonLd).replace(/</g, '\\u003c') }}
           />
           <GTMScript />
         </head>

@@ -15,10 +15,26 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'upload.wikimedia.org' },
     ],
   },
-  // /embed/* is iframe-friendly. Override the global frame deny so blogs and
-  // partners can embed leaderboards. Everything else stays implicitly DENY.
   async headers() {
     return [
+      // Global security headers. Applied to every route EXCEPT /embed/* (the
+      // negative lookahead) so the embeddable leaderboards below can opt out of
+      // the frame restriction. NOTE: an enforcing Content-Security-Policy is
+      // deliberately omitted for now — a strict policy would need a vetted
+      // allowlist for Clerk, AdSense, Stripe, api-sports and Supabase, and
+      // shipping it mid-World-Cup risks silently breaking auth/ads/checkout. To
+      // be added behind a report-only audit once a report endpoint exists.
+      {
+        source: '/((?!embed).*)',
+        headers: [
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+      // /embed/* is iframe-friendly. Override the global frame deny so blogs and
+      // partners can embed leaderboards.
       {
         source: '/embed/:path*',
         headers: [

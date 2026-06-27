@@ -4,6 +4,7 @@ import { PLAYERS } from '@/data/players'
 import { playerSlug } from '@/lib/player-slug'
 import { resolvePlayerProfile } from '@/lib/resolve-player'
 import { isLocale } from '@/lib/i18n'
+import { CURRENT_SEASON_LONG } from '@/lib/season'
 import PlayerProfile from '@/components/player/PlayerProfile'
 
 // Reads ONLY the static dataset (real season stats) — no live per-player API
@@ -25,8 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang, slug } = await params
   const resolved = await resolvePlayerProfile(slug)
   const player = resolved?.base
-  if (!player) return { title: 'Jugador — TopScorers' }
-  const description = `Estadísticas de ${player.name}: goles, asistencias, valoración y más. Temporada 2025/26.`
+  if (!player) return { title: 'Jugador' }
+  const description = `Estadísticas de ${player.name}: goles, asistencias, valoración y más. Temporada ${CURRENT_SEASON_LONG}.`
   const path = `/jugadores/${slug}`
   const ogImage = `/api/og/jugador?slug=${encodeURIComponent(slug)}&lang=${lang}`
   return {

@@ -22,13 +22,17 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     leaderGoals = s[0]?.statistics[0]?.goals?.total ?? 0
   } catch { /* leave undefined → static title */ }
 
+  // Keep the <title> ≤60 chars so it isn't truncated in SERPs. The live leader
+  // stays in the title (freshness + CTR); the verbose phrasing lives in the
+  // description/OG instead. The leaderGoals count is dropped from the title to
+  // stay within budget for long player names.
   const title = leaderName
     ? (lang === 'en'
-        ? `World Cup 2026 Golden Boot — live top scorers: ${leaderName} leads with ${leaderGoals} goals`
-        : `Bota de Oro Mundial 2026 — goleadores en directo: ${leaderName} lidera con ${leaderGoals} goles`)
+        ? `${leaderName} leads the 2026 World Cup Golden Boot`
+        : `${leaderName} lidera la Bota de Oro del Mundial 2026`)
     : (lang === 'en'
-        ? '2026 World Cup Golden Boot: Live top scorers standings'
-        : 'Bota de Oro del Mundial 2026: Clasificación de goleadores en directo')
+        ? '2026 World Cup Golden Boot — Live Standings'
+        : 'Bota de Oro del Mundial 2026 — Clasificación')
   const description = lang === 'en'
     ? 'Live 2026 World Cup Golden Boot race: top scorers ranked by goals, updated live through the group stage and knockout rounds. See who leads the standings after the group stage. Ties broken by assists, then fewest minutes played.'
     : 'Carrera por la Bota de Oro del Mundial 2026 en directo: máximos goleadores ordenados por goles, actualizados en vivo desde la fase de grupos hasta las eliminatorias. Mira quién lidera tras la fase de grupos. El empate lo decide asistencias y minutos.'
@@ -43,6 +47,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       locale: lang === 'en' ? 'en_US' : 'es_ES',
       type: 'website',
       images: [{ url: `https://www.top-scorers.com/og-mundial-${lang}.jpg`, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@furiosadata',
+      creator: '@furiosadata',
+      title: `${title} | TopScorers`,
+      description,
+      images: [`https://www.top-scorers.com/og-mundial-${lang}.jpg`],
     },
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
