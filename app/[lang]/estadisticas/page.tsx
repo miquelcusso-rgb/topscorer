@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/estadisticas'
   return {
-    title: 'Estadísticas de Fútbol — Goleadores y Asistentes | TopScorers',
+    title: 'Estadísticas de Fútbol — Goleadores y Asistentes',
     description: 'Estadísticas completas de fútbol europeo: goles, asistencias, valoraciones y comparador de jugadores de La Liga, Premier League, Bundesliga, Serie A y más.',
     keywords: ['estadísticas fútbol', 'comparador jugadores', 'datos fútbol europeo', 'goleadores', 'asistentes', 'valoración jugadores'],
     alternates: {

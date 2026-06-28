@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const path = '/scouter'
   const title =
     lang === 'en'
-      ? 'Scouter — Top 20 by league 25/26 | TopScorers'
-      : 'Scouter — Top 20 por liga 25/26 | TopScorers'
+      ? 'Scouter — Top 20 by league 25/26'
+      : 'Scouter — Top 20 por liga 25/26'
   const description =
     lang === 'en'
       ? 'Scouter leaderboards: the 20 best players of each league, ranked by the IIG striker impact index — built from real season stats. La Liga, Premier, Bundesliga, Serie A, Ligue 1 and 30+ more.'
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title,
+      title: `${title} | TopScorers`,
       description,
       url: `${BASE}/${lang}${path}`,
       siteName: 'TopScorers',
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: `${title} | TopScorers`,
       description,
       site: '@Furiosadata',
       creator: '@Furiosadata',

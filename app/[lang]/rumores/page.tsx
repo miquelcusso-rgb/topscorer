@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const es = lang === 'es'
-  const title = es ? 'Rumores de fichajes — Mercado en vivo | TopScorers' : 'Transfer rumours — Live market | TopScorers'
+  const title = es ? 'Rumores de fichajes — Mercado en vivo' : 'Transfer rumours — Live market'
   const description = es
     ? 'Rumores, acuerdos y traspasos confirmados en las grandes ligas europeas. Probabilidad por operación + comentarios de la comunidad.'
     : 'Rumours, agreed deals and confirmed transfers across Europe’s top leagues. Likelihood % + community discussion.'
@@ -25,14 +25,14 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title, description,
+      title: `${title} | TopScorers`, description,
       url: `${BASE}/${lang}/rumores`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
       type: 'website',
       images: [{ url: `${BASE}/og-default-${lang}.jpg`, width: 1200, height: 630, alt: 'TopScorers' }],
     },
-    twitter: { card: 'summary_large_image', title, description },
+    twitter: { card: 'summary_large_image', title: `${title} | TopScorers`, description },
   }
 }
 

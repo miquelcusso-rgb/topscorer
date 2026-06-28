@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/bota-de-oro'
   return {
-    title: 'Bota de Oro 2025/26 — European Golden Shoe & Ranking | TopScorers',
+    title: 'Bota de Oro 2025/26 — European Golden Shoe & Ranking',
     description: 'Carrera por la Bota de Oro 2025/26 (European Golden Shoe). Cómo se calcula con coeficientes por liga, candidatos actuales (Kane, Mbappé, Haaland) e histórico de ganadores.',
     keywords: [
       'bota de oro', 'bota de oro 2025', 'european golden shoe', 'golden boot europa',

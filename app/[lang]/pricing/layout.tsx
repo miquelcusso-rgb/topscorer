@@ -6,7 +6,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/pricing'
   return {
-    title: 'Precios — Pro y Scout | TopScorers',
+    title: 'Precios — Pro y Scout',
     description: 'Planes y precios de TopScorers: empieza gratis o desbloquea Pro y Scout para acceder a estadísticas avanzadas, comparador de jugadores, radar de talentos y datos sin límites del fútbol europeo.',
     keywords: ['precios topscorers', 'plan pro fútbol', 'plan scout', 'suscripción estadísticas fútbol', 'comparador jugadores premium'],
     alternates: {

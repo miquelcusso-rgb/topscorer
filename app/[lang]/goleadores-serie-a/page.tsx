@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-serie-a'
   return {
-    title: `Goleadores Serie A ${S} — Capocannoniere y Máximos Anotadores | TopScorers`,
+    title: `Goleadores Serie A ${S} — Capocannoniere y Máximos Anotadores`,
     description: `Ranking completo de goleadores de la Serie A ${S}. Lautaro Martínez, Thuram, Vlahović… histórico del Capocannoniere y máximos goleadores del calcio italiano.`,
     keywords: [
       'goleadores serie a', 'máximos goleadores serie a', 'capocannoniere 2025',

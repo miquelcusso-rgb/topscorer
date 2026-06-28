@@ -12,13 +12,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 
   const sb = createServerClient()
   const { data: r } = await sb.from('rumors').select('*').eq('id', id).eq('is_active', true).maybeSingle()
-  if (!r) return { title: 'Rumor | TopScorers' }
+  if (!r) return { title: 'Rumor' }
 
   const es = lang === 'es'
   const headline = (es ? r.headline_es : r.headline_en) ?? `${r.player_name}: ${r.from_club} → ${r.to_club}`
   const summary  = (es ? r.summary_es : r.summary_en) ?? ''
   return {
-    title: `${headline} | TopScorers`,
+    title: `${headline}`,
     description: summary,
     alternates: {
       canonical: `${BASE}/${lang}/rumores/${id}`,

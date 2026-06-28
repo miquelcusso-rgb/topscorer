@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-liga-espanola'
   return {
-    title: `Goleadores Liga Española ${S} — Top Máximos Anotadores | TopScorers`,
+    title: `Goleadores Liga Española ${S} — Top Máximos Anotadores`,
     description: `Ranking completo de goleadores de La Liga Española ${S}. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.`,
     keywords: [
       'goleadores liga española', 'goleadores la liga', 'máximos goleadores la liga',

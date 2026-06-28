@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-premier-league'
   return {
-    title: `Goleadores Premier League ${S} — Golden Boot & Top Scorers | TopScorers`,
+    title: `Goleadores Premier League ${S} — Golden Boot & Top Scorers`,
     description: `Ranking de máximos goleadores de la Premier League ${S}. Haaland, Thiago, Gyökeres… tabla de la Golden Boot con goles, partidos e histórico de ganadores.`,
     keywords: [
       'goleadores premier league', 'top scorers premier league', 'golden boot premier league',

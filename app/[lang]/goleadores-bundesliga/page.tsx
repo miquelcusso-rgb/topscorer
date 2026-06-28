@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-bundesliga'
   return {
-    title: `Goleadores Bundesliga ${S} — Torjägerkanone y Máximos Anotadores | TopScorers`,
+    title: `Goleadores Bundesliga ${S} — Torjägerkanone y Máximos Anotadores`,
     description: `Ranking completo de goleadores de la Bundesliga ${S}. Harry Kane, Undav, Schick… histórico de la Torjägerkanone y máximos goleadores del fútbol alemán.`,
     keywords: [
       'goleadores bundesliga', 'máximos goleadores bundesliga', 'torjägerkanone 2025',

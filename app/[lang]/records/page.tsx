@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/records'
   return {
-    title: `Records y Líderes ${CURRENT_SEASON_LONG} — Goleadores, Asistencias y Nota | TopScorers`,
+    title: `Records y Líderes ${CURRENT_SEASON_LONG} — Goleadores, Asistencias y Nota`,
     description: `Líderes y récords de la temporada ${CURRENT_SEASON_LONG}: máximo goleador (IIG), más goles, más asistencias, mejor conversión, más pases clave y mejor nota media. Datos reales de las ligas europeas.`,
     keywords: [
       'records goleadores', 'líderes liga 2025 2026', 'máximo goleador europa',

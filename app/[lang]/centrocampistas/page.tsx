@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/centrocampistas'
   return {
-    title: 'Mejores Centrocampistas — Estadísticas y Asistencias | TopScorers',
+    title: 'Mejores Centrocampistas — Estadísticas y Asistencias',
     description: 'Ranking de los mejores centrocampistas del fútbol europeo: asistencias, pases clave y valoración por 90 minutos en La Liga, Premier League, Bundesliga, Serie A y más.',
     keywords: ['centrocampistas', 'mejores centrocampistas', 'asistencias fútbol', 'mediocampistas la liga', 'creadores de juego'],
     alternates: {

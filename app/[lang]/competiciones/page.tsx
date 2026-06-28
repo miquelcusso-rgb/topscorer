@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/competiciones'
   return {
-    title: 'Competiciones de Fútbol — 30+ ligas globales | TopScorers',
+    title: 'Competiciones de Fútbol — 30+ ligas globales',
     description: 'Estadísticas de 30+ ligas: Big-5, segundas divisiones, MLS, Saudi Pro League, Brasileirão, Liga MX, J1, K1 y más. Clasificaciones y goleadores en tiempo real.',
     keywords: ['la liga', 'premier league', 'bundesliga', 'serie a', 'mls', 'saudi pro league', 'brasileirão', 'liga mx', 'j1 league', 'champions league', 'segunda división', 'championship'],
     alternates: {

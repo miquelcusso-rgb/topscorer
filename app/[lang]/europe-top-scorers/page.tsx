@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'en'
   const path = '/europe-top-scorers'
   return {
-    title: "Europe's Top Scorers 2025/26 — Top Goalscorers Ranking | TopScorers",
+    title: "Europe's Top Scorers 2025/26 — Top Goalscorers Ranking",
     description:
       "Europe's top scorers 2025/26: the live goalscoring ranking across the big five leagues. Kane, Mbappé, Haaland and more — goals, games and goals-per-match for every top scorer.",
     keywords: [

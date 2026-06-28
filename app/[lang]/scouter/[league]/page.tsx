@@ -47,8 +47,8 @@ export async function generateMetadata({
   const path = `/scouter/${slug}`
   const title =
     lang === 'en'
-      ? `Scouter Top 20 — ${league.name} 25/26 | TopScorers`
-      : `Scouter Top 20 — ${league.name} 25/26 | TopScorers`
+      ? `Scouter Top 20 — ${league.name} 25/26`
+      : `Scouter Top 20 — ${league.name} 25/26`
   const description =
     lang === 'en'
       ? `The 20 best players in ${league.name} (${league.country}) for season 25/26, ranked by the IIG striker impact index — rating, goals and assists from real stats.`
@@ -66,7 +66,7 @@ export async function generateMetadata({
       },
     },
     openGraph: {
-      title,
+      title: `${title} | TopScorers`,
       description,
       url: `${BASE}/${lang}${path}`,
       siteName: 'TopScorers',
@@ -76,7 +76,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: `${title} | TopScorers`,
       description,
       site: '@Furiosadata',
       creator: '@Furiosadata',

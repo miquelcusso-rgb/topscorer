@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/descubrir'
   return {
-    title: 'Radar de Talentos — Jugadores Infravalorados | TopScorers',
+    title: 'Radar de Talentos — Jugadores Infravalorados',
     description:
       'Descubre jugadores infravalorados con alto rendimiento por 90 minutos en ligas de menor exposición. Algoritmo propio que puntúa más de 500 jugadores cada semana.',
     alternates: {

@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/maximos-goleadores-europa'
   return {
-    title: 'Máximos Goleadores de Europa 2025/26 — Ranking Top Scorers | TopScorers',
+    title: 'Máximos Goleadores de Europa 2025/26 — Ranking Top Scorers',
     description: 'Ranking de los máximos goleadores de Europa 2025/26 en las 5 grandes ligas. Kane, Mbappé, Haaland, Muriqi… goles, partidos y media por encuentro actualizados.',
     keywords: [
       'máximos goleadores europa', 'máximos goleadores europa 2025', 'goleadores europa 2025 2026',

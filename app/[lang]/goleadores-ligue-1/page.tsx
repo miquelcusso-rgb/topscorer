@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/goleadores-ligue-1'
   return {
-    title: `Goleadores Ligue 1 ${S} — Máximos Anotadores Liga Francesa | TopScorers`,
+    title: `Goleadores Ligue 1 ${S} — Máximos Anotadores Liga Francesa`,
     description: `Ranking completo de goleadores de la Ligue 1 ${S}. Lepaul, Panichelli, Greenwood… histórico de máximos goleadores del fútbol francés y carrera por el trofeo.`,
     keywords: [
       'goleadores ligue 1', 'máximos goleadores ligue 1', 'top goleadores ligue 1',
