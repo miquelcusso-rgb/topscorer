@@ -375,6 +375,14 @@ body::before {
 @media (max-width: 700px) {
   .saas-news-hero { grid-template-columns: 1fr !important; }
 }
+
+/* News feed (/noticias, WC panel): mobile shows the uniform horizontal slideshow
+   (foto + titular en una línea); desktop keeps the hero + grouped grid. */
+.saas-newsfeed-mobile { display: none; }
+@media (max-width: 700px) {
+  .saas-newsfeed-desktop { display: none !important; }
+  .saas-newsfeed-mobile { display: block !important; }
+}
 @media (max-width: 560px) {
   .saas-standouts-grid { grid-template-columns: 1fr !important; }
 }

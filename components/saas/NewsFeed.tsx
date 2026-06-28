@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import NewsPlaceholder from './NewsPlaceholder'
 import LangBadge from './LangBadge'
 import NewsCard, { type NewsCardImage } from '@/components/news/NewsCard'
@@ -84,6 +84,88 @@ function BreakingBanner({ items, en }: { items: NewsItem[]; en: boolean }) {
   )
 }
 
+// Mobile-only news slideshow (owner request): one HORIZONTAL card at a time —
+// fixed-size photo on the left + headline/source on the right, all on one line —
+// auto-advancing, swipeable, with dot indicators. Replaces the tall hero + the
+// stacked grid (whose photo sizes alternated full/compact) on narrow screens, so
+// every photo is the SAME size and the section stops eating vertical space.
+// Desktop keeps the existing hero + grouped grid.
+function MobileNewsCarousel({ items, lang, en }: { items: NewsItem[]; lang: Lang; en: boolean }) {
+  const slides = items.slice(0, 8)
+  const [idx, setIdx] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const touchX = useRef<number | null>(null)
+  const n = slides.length
+
+  useEffect(() => {
+    if (n < 2 || paused) return
+    const t = setInterval(() => setIdx(i => (i + 1) % n), 5000)
+    return () => clearInterval(t)
+  }, [n, paused])
+
+  if (!n) return null
+  const go = (d: number) => setIdx(i => ((i + d) % n + n) % n)
+  const it = slides[idx]
+  const isCrest = it.visual?.license === 'crest'
+
+  return (
+    <div
+      className="saas-newsfeed-mobile"
+      style={{ position: 'relative', background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflow: 'hidden' }}
+      onTouchStart={e => { touchX.current = e.touches[0].clientX; setPaused(true) }}
+      onTouchEnd={e => {
+        if (touchX.current == null) return
+        const dx = e.changedTouches[0].clientX - touchX.current
+        if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1)
+        touchX.current = null
+        setPaused(false)
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderBottom: '1px solid var(--ts-border)' }}>
+        <span aria-hidden style={{ fontSize: 14 }}>📰</span>
+        <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 14, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ts-primary)' }}>
+          {en ? 'News' : 'Noticias'}
+        </span>
+        {n > 1 && <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--ts-faint)', fontVariantNumeric: 'tabular-nums' }}>{idx + 1}/{n}</span>}
+      </div>
+
+      <a href={it.link} target="_blank" rel="noopener noreferrer"
+        style={{ display: 'flex', gap: 12, padding: 10, alignItems: 'center', minHeight: 84, textDecoration: 'none', color: 'inherit' }}>
+        {/* Fixed-size image box — identical for every slide. */}
+        <div style={{ width: 108, height: 80, flexShrink: 0, borderRadius: 8, overflow: 'hidden', background: 'var(--ts-card2)' }}>
+          {it.visual?.url
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={it.visual.url} alt="" loading="lazy"
+                style={{ width: '100%', height: '100%', objectFit: isCrest ? 'contain' : 'cover', padding: isCrest ? '12%' : 0, boxSizing: 'border-box', display: 'block' }} />
+            : <NewsPlaceholder source={it.source} rounded={8} compact />}
+        </div>
+        <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 4 }}>
+          <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3,
+            display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {it.title}
+          </span>
+          <span style={{ fontSize: 11, color: 'var(--ts-muted)', display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
+            <LangBadge itemLang={it.lang} siteLang={lang} />
+            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{it.source}</span>
+            <span aria-hidden> · </span>
+            <span style={{ whiteSpace: 'nowrap' }}>{fmtTime(it.date, en)}</span>
+          </span>
+        </span>
+      </a>
+
+      {n > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '0 0 10px' }} aria-hidden>
+          {slides.map((_, i) => (
+            <button key={i} type="button" onClick={() => setIdx(i)} aria-label={`${i + 1}`}
+              style={{ width: i === idx ? 18 : 6, height: 6, borderRadius: 999, border: 'none', padding: 0, cursor: 'pointer',
+                background: i === idx ? 'var(--ts-primary)' : 'var(--ts-border)', transition: 'width 150ms ease' }} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general' | 'worldcup'; lang: Lang }) {
   const en = lang === 'en'
   const [items, setItems] = useState<NewsItem[]>([])
@@ -117,6 +199,11 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <BreakingBanner items={items} en={en} />
 
+      {/* Mobile: one horizontal card at a time, uniform photo, auto-sliding. */}
+      <MobileNewsCarousel items={items} lang={lang} en={en} />
+
+      {/* Desktop: the rich hero + grouped grid (hidden on narrow screens). */}
+      <div className="saas-newsfeed-desktop" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       {/* Hero story — ~2.5× a normal card */}
       <a href={hero.link} target="_blank" rel="noopener noreferrer" className="saas-news-hero"
         style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) 1fr', gap: 0,
@@ -169,6 +256,7 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
           </div>
         </div>
       ))}
+      </div>
       <p style={{ fontSize: 10, color: 'var(--ts-faint)' }}>
         {en ? 'Headlines via public RSS — tap to read at the source. Photos: official API headshots or our own graphics (no agency images rehosted).' : 'Titulares vía RSS público — pulsa para leer en la fuente. Fotos: cabezas oficiales de la API o gráficos propios (no rehospedamos imágenes de agencia).'}
       </p>
