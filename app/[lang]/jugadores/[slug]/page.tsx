@@ -12,7 +12,7 @@ import PlayerProfile from '@/components/player/PlayerProfile'
 // served from the CDN (critical: ~12k player pages must not run a serverless
 // function per visit — that was the main Fluid Active CPU burn). The Pro plan
 // badge in the sidebar is resolved client-side from Clerk (see Sidebar.tsx).
-export const revalidate = 86400 // 24h ISR — dataset only changes on deploy
+export const revalidate = false // dataset ONLY changes on deploy → no time-based ISR. Mata el churn de ~24K writes/día (un deploy ya refresca todo). Antes 86400 = regeneraba páginas idénticas a diario = 747K ISR writes/mes (sobre el límite Hobby 200K).
 export const dynamicParams = true // slugs beyond the prebuilt set render once, then cache
 
 export async function generateStaticParams() {
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const path = `/jugadores/${slug}`
   const ogImage = `/api/og/jugador?slug=${encodeURIComponent(slug)}&lang=${lang}`
   return {
-    title: `${player.name} — Estadísticas | TopScorers`,
+    title: `${player.name} — Estadísticas`,
     description,
     keywords: [player.name, player.club ?? '', 'estadísticas fútbol', 'goleadores', 'temporada 2025 2026'],
     alternates: {
