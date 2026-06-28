@@ -11,10 +11,12 @@ import type { PlayerData } from '@/types'
 // with the same ?a=<slug>&b=<slug> params the page itself uses. Node runtime so
 // it can reuse resolvePlayerProfile (static dataset + live API-Football fallback).
 export const runtime = 'nodejs'
-export const revalidate = 86400
+export const revalidate = false // dataset solo cambia en deploy → no time-revalidate
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
+// Dinámica (lee searchParams) → cacheamos en CDN para no regenerar la imagen por fetch (Fluid CPU).
+const CACHE_HEADERS = { 'Cache-Control': 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=604800' }
 
 // Brand palette — ImageResponse/Satori needs literal colors (no CSS vars).
 // Dark card (black bg) reads best on social. Hexes taken from lib/palette.ts:
@@ -215,6 +217,6 @@ export async function GET(req: NextRequest) {
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, headers: CACHE_HEADERS },
   )
 }

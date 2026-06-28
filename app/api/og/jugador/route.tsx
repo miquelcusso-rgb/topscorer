@@ -8,9 +8,14 @@ import { isLocale, type Lang } from '@/lib/i18n'
 // Dynamic Open Graph card for a single player page (?slug=<slug>&lang=<es|en>).
 // Pointed at by app/[lang]/jugadores/[slug]/page.tsx generateMetadata.
 export const runtime = 'nodejs'
-export const revalidate = 86400
+export const revalidate = false // dataset solo cambia en deploy → no time-revalidate
 
 export const size = { width: 1200, height: 630 }
+// La ruta es dinámica (lee searchParams) → su revalidate se ignora y regeneraría
+// la imagen en CADA fetch (~24K/día = el grueso del Fluid Active CPU). El contenido
+// es determinista del dataset estático (cambia solo en deploy), así que cacheamos
+// duro en el CDN: un deploy resetea la caché de funciones → se regenera 1× por deploy.
+const CACHE_HEADERS = { 'Cache-Control': 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=604800' }
 export const contentType = 'image/png'
 
 // Brand palette literals (lib/palette.ts DARK + deeper teal for black bg).
@@ -49,7 +54,7 @@ export async function GET(req: NextRequest) {
           TopScorers
         </div>
       ),
-      { ...size },
+      { ...size, headers: CACHE_HEADERS },
     )
   }
 
@@ -106,6 +111,6 @@ export async function GET(req: NextRequest) {
         </div>
       </div>
     ),
-    { ...size },
+    { ...size, headers: CACHE_HEADERS },
   )
 }
