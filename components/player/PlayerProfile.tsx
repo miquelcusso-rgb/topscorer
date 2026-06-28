@@ -18,6 +18,7 @@ import { shortName } from '@/lib/player-name'
 import { playerApiId } from '@/lib/player-photo'
 import { iig, IIG_NAME, IIG_EXPLAINER } from '@/lib/iig'
 import { playerAttributes, isGoalkeeper } from '@/lib/player-attributes'
+import { playerNarrative } from '@/lib/player-narrative'
 
 type Tone = 'primary' | 'teal' | 'text'
 
@@ -265,6 +266,23 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
           </div>
         </div>
       </div>
+
+      {(() => {
+        // SSR, data-derived season prose (no external call) — gives every fiche
+        // real indexable body copy that stays fresh with the dataset/season.
+        const narrative = playerNarrative(player, seasons, lang)
+        if (!narrative.length) return null
+        return (
+          <section style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, padding: 18 }}>
+            <h2 style={{ margin: '0 0 10px', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-muted)' }}>
+              {en ? `${shortName(player)} — season analysis` : `${shortName(player)} — análisis de la temporada`}
+            </h2>
+            {narrative.map((p, i) => (
+              <p key={i} style={{ margin: i === 0 ? 0 : '10px 0 0', fontSize: 14, lineHeight: 1.6, color: 'var(--ts-text)' }}>{p}</p>
+            ))}
+          </section>
+        )
+      })()}
 
       <ScoutPanel name={player.fullName || player.name} en={en} releaseClause={player.releaseClause} />
 
