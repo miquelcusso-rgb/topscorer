@@ -32,8 +32,8 @@ export async function generateMetadata({
   const path = `/competiciones/${slug}`
   const title =
     lang === 'en'
-      ? `${league.name} — Top Scorers & Stats 25/26 | TopScorers`
-      : `${league.name} — Pichichi y Estadísticas 25/26 | TopScorers`
+      ? `${league.name} — Top Scorers & Stats 25/26`
+      : `${league.name} — Pichichi y Estadísticas 25/26`
   const description =
     lang === 'en'
       ? `Top scorers, assist leaders and league MVP for ${league.name} (${league.country}), season 25/26. Real stats and the IIG striker impact index.`
@@ -51,7 +51,7 @@ export async function generateMetadata({
       },
     },
     openGraph: {
-      title,
+      title: `${title} | TopScorers`,
       description,
       url: `${BASE}/${lang}${path}`,
       siteName: 'TopScorers',
@@ -61,7 +61,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: `${title} | TopScorers`,
       description,
       site: '@Furiosadata',
       creator: '@Furiosadata',

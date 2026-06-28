@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/jugadores'
   return {
-    title: 'Jugadores — TopScorers',
+    title: 'Jugadores',
     description: 'Estadísticas por jugador de las principales ligas europeas. Temporada 2025/26.',
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,

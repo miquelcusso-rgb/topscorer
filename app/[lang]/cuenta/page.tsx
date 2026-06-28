@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const es = lang === 'es'
-  const title = es ? 'Mi cuenta — TopScorers' : 'My account — TopScorers'
+  const title = es ? 'Mi cuenta' : 'My account'
   return {
     title,
     description: es ? 'Tu progreso, badge, watchlist, comparaciones guardadas, predicciones y plan.' : 'Your progress, badge, watchlist, saved comparisons, picks and plan.',

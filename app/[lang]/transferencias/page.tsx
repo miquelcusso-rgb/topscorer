@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/transferencias'
   return {
-    title: 'Transferencias — TopScorers',
+    title: 'Transferencias',
     description: 'Últimas transferencias del fútbol europeo. Fichajes, cesiones y movimientos de los principales clubes.',
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,

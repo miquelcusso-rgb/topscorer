@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const en = lang === 'en'
   const path = '/noticias'
-  const title = en ? 'Football news — TopScorers' : 'Noticias de fútbol — TopScorers'
+  const title = en ? 'Football news' : 'Noticias de fútbol'
   const description = en
     ? 'Latest football headlines from top sources, with big international clubs first.'
     : 'Últimas noticias de fútbol de los mejores medios, priorizando los grandes clubes internacionales.'

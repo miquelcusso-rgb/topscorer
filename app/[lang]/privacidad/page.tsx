@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/privacidad'
   return {
-    title: 'Política de Privacidad — TopScorers',
+    title: 'Política de Privacidad',
     description: 'Política de privacidad de TopScorers: cómo tratamos y protegemos tus datos personales en nuestra plataforma de estadísticas de fútbol.',
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,

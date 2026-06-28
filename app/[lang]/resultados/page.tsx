@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/resultados'
   return {
-    title: 'Resultados de partidos — TopScorers',
+    title: 'Resultados de partidos',
     description: 'Últimos resultados y jornada a jornada de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más ligas europeas. Actualizado cada hora.',
     openGraph: {
       title: 'Resultados de partidos — TopScorers',

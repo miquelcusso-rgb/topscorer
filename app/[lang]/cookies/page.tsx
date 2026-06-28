@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/cookies'
   return {
-    title: lang === 'en' ? 'Cookie Policy — TopScorers' : 'Política de cookies — TopScorers',
+    title: lang === 'en' ? 'Cookie Policy' : 'Política de cookies',
     description: lang === 'en' ? 'How TopScorers uses essential, analytics and advertising cookies.' : 'Cómo usa TopScorers las cookies esenciales, de analítica y de publicidad.',
     alternates: { canonical: `https://www.top-scorers.com/${lang}${path}`, languages: { es: `https://www.top-scorers.com/es${path}`, en: `https://www.top-scorers.com/en${path}`, 'x-default': `https://www.top-scorers.com/es${path}` } },
   }

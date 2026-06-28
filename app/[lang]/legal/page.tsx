@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/legal'
   return {
-    title: 'Aviso Legal — TopScorers',
+    title: 'Aviso Legal',
     description: 'Aviso legal y condiciones de uso de TopScorers, plataforma de estadísticas de fútbol europeo.',
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,

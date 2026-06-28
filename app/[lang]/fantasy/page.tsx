@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params
   const es = lang === 'es'
   return {
-    title: es ? 'Fantasy (próximamente) · TopScorers' : 'Fantasy (coming soon) · TopScorers',
+    title: es ? 'Fantasy (próximamente)' : 'Fantasy (coming soon)',
     description: es
       ? 'El Fantasy de TopScorers llega pronto: crea tu equipo con jugadores reales y puntúa por goles y asistencias cada semana.'
       : 'TopScorers Fantasy is coming soon: build a team of real players and score points from goals and assists every week.',

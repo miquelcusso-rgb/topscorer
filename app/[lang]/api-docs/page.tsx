@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 
 export const metadata: Metadata = {
-  title: 'API Docs · TopScorers',
+  title: 'API Docs',
   description:
     'Programmatic access to top scorers, players and league standings across 30+ competitions. OpenAPI 3.1 spec, Scout plan required.',
   alternates: {

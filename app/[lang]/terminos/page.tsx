@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/terminos'
   return {
-    title: lang === 'en' ? 'Terms of Service — TopScorers' : 'Términos de servicio — TopScorers',
+    title: lang === 'en' ? 'Terms of Service' : 'Términos de servicio',
     description: lang === 'en' ? 'Terms governing the use of TopScorers, operated by Furiosa Studio.' : 'Términos que regulan el uso de TopScorers, operado por Furiosa Studio.',
     alternates: { canonical: `https://www.top-scorers.com/${lang}${path}`, languages: { es: `https://www.top-scorers.com/es${path}`, en: `https://www.top-scorers.com/en${path}`, 'x-default': `https://www.top-scorers.com/es${path}` } },
   }

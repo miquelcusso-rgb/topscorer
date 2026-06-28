@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import SaasShell from '@/components/saas/SaasShell'
 
 export const metadata: Metadata = {
-  title: 'Embed widgets · TopScorers',
+  title: 'Embed widgets',
   description:
     'Embed live top-scorer leaderboards on your blog or site. Free, no API key needed for the widget.',
   alternates: {

@@ -36,8 +36,8 @@ export async function generateMetadata({
   const slugB = first(sp.b) ?? first(sp.p2)
   const [nameA, nameB] = await Promise.all([nameForSlug(slugA), nameForSlug(slugB)])
 
-  const baseTitle = en ? 'Player Comparator | TopScorers' : 'Comparador de Jugadores | TopScorers'
-  const title = nameA && nameB ? `${nameA} vs ${nameB} — TopScorers` : baseTitle
+  const baseTitle = en ? 'Player Comparator' : 'Comparador de Jugadores | TopScorers'
+  const title = nameA && nameB ? `${nameA} vs ${nameB}` : baseTitle
   const description =
     nameA && nameB
       ? en

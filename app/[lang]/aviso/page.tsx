@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const lang = isLocale(raw) ? raw : 'es'
   const path = '/aviso'
   return {
-    title: lang === 'en' ? 'Disclaimer & Data Sources — TopScorers' : 'Aviso y fuentes de datos — TopScorers',
+    title: lang === 'en' ? 'Disclaimer & Data Sources' : 'Aviso y fuentes de datos',
     description: lang === 'en' ? 'Informational use, no affiliation with FIFA/UEFA/leagues, and the data sources behind TopScorers.' : 'Uso informativo, sin afiliación con FIFA/UEFA/ligas, y las fuentes de datos de TopScorers.',
     alternates: { canonical: `https://www.top-scorers.com/${lang}${path}`, languages: { es: `https://www.top-scorers.com/es${path}`, en: `https://www.top-scorers.com/en${path}`, 'x-default': `https://www.top-scorers.com/es${path}` } },
   }

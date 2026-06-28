@@ -10,9 +10,9 @@ type Props = { params: Promise<{ lang: string; tournament: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, tournament } = await params
   const t = TOURNAMENTS[tournament]
-  if (!t) return { title: 'Bracket not found · TopScorers' }
+  if (!t) return { title: 'Bracket not found' }
   return {
-    title: `${t.name} · Bracket · TopScorers`,
+    title: `${t.name} · Bracket`,
     description: `Interactive knockout bracket for ${t.name}.`,
     alternates: {
       canonical: `/${lang}/brackets/${tournament}`,
