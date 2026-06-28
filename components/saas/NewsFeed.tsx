@@ -199,10 +199,13 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <BreakingBanner items={items} en={en} />
 
-      {/* Mobile: one horizontal card at a time, uniform photo, auto-sliding. */}
+      {/* Mobile: highlighted stories as a uniform horizontal auto-sliding
+          carousel at the top. The full grouped list below stays visible on all
+          viewports (owner: "todas las noticias en lista, arriba las highlighted
+          en carrousel"). */}
       <MobileNewsCarousel items={items} lang={lang} en={en} />
 
-      {/* Desktop: the rich hero + grouped grid (hidden on narrow screens). */}
+      {/* Desktop-only hero highlight (on mobile the carousel above replaces it). */}
       <div className="saas-newsfeed-desktop" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       {/* Hero story — ~2.5× a normal card */}
       <a href={hero.link} target="_blank" rel="noopener noreferrer" className="saas-news-hero"
@@ -221,6 +224,7 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
           </span>
         </div>
       </a>
+      </div>
 
       {groups.map(g => (
         <div key={g.label}>
@@ -256,7 +260,6 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
           </div>
         </div>
       ))}
-      </div>
       <p style={{ fontSize: 10, color: 'var(--ts-faint)' }}>
         {en ? 'Headlines via public RSS — tap to read at the source. Photos: official API headshots or our own graphics (no agency images rehosted).' : 'Titulares vía RSS público — pulsa para leer en la fuente. Fotos: cabezas oficiales de la API o gráficos propios (no rehospedamos imágenes de agencia).'}
       </p>

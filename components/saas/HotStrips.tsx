@@ -63,22 +63,25 @@ function NewsCarousel({ news, en, lang }: { news: NewsLite[]; en: boolean; lang:
       {(() => {
         const it = items[idx]
         return (
-          <a href={it.link} target="_blank" rel="noopener noreferrer" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', background: 'var(--ts-card2)' }}>
+          <a href={it.link} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', gap: 12, padding: 10, alignItems: 'center', minHeight: 84, textDecoration: 'none', color: 'inherit' }}>
+            {/* Horizontal one-line layout (foto + titular) — fixed photo size on
+                every slide so the strip stays compact on narrow (<600px) screens. */}
+            <div style={{ width: 104, height: 78, flexShrink: 0, borderRadius: 8, overflow: 'hidden', background: 'var(--ts-card2)' }}>
               {it.visual?.url
                 // License-aware visual only (headshot/CC0) — never the raw RSS photo.
                 // eslint-disable-next-line @next/next/no-img-element
                 ? <img src={it.visual.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: it.visual.license === 'crest' ? 'contain' : 'cover', padding: it.visual.license === 'crest' ? '12%' : 0, boxSizing: 'border-box', display: 'block' }} />
-                : <NewsPlaceholder source={it.source} />}
+                : <NewsPlaceholder source={it.source} rounded={8} compact />}
             </div>
-            <div style={{ padding: '10px 12px' }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 4 }}>
+              <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ts-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {it.title}
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--ts-muted)', marginTop: 5, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                <LangBadge itemLang={it.lang} siteLang={lang} />{it.source} ↗
-              </div>
-            </div>
+              </span>
+              <span style={{ fontSize: 11, color: 'var(--ts-muted)', display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
+                <LangBadge itemLang={it.lang} siteLang={lang} /><span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{it.source}</span> ↗
+              </span>
+            </span>
           </a>
         )
       })()}
