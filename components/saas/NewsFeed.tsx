@@ -170,6 +170,7 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
   const en = lang === 'en'
   const [items, setItems] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [query, setQuery] = useState('')
   useEffect(() => {
     let cancel = false
     fetch(`/api/news?lang=${lang}&scope=${scope}`)
@@ -183,9 +184,13 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
   if (loading) return <div style={{ padding: '40px 0', textAlign: 'center', fontSize: 13, color: 'var(--ts-faint)' }}>{en ? 'Loading news…' : 'Cargando noticias…'}</div>
   if (!items.length) return <div style={{ padding: '24px 0', fontSize: 13, color: 'var(--ts-muted)' }}>{en ? 'No news right now.' : 'Sin noticias ahora mismo.'}</div>
 
+  // Filter by player/team/source name (client-side over the loaded feed).
+  const q = query.trim().toLowerCase()
+  const shown = q ? items.filter(it => `${it.title} ${it.source}`.toLowerCase().includes(q)) : items
+
   // Hero = the freshest priority story, then the rest.
-  const hero = items.find(it => it.isPriority) ?? items[0]
-  const rest = items.filter(it => it !== hero)
+  const hero = shown.find(it => it.isPriority) ?? shown[0]
+  const rest = shown.filter(it => it !== hero)
 
   const groups: { label: string; items: NewsItem[] }[] = []
   for (const it of rest) {
@@ -199,11 +204,28 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <BreakingBanner items={items} en={en} />
 
+      {/* Filter the feed by player / team / source name. */}
+      <input
+        type="search"
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+        placeholder={en ? 'Filter news by player or team…' : 'Filtra noticias por jugador o equipo…'}
+        aria-label={en ? 'Filter news' : 'Filtrar noticias'}
+        style={{ width: '100%', boxSizing: 'border-box', minHeight: 44, padding: '10px 14px', borderRadius: 10,
+          border: '1px solid var(--ts-border)', background: 'var(--ts-card)', color: 'var(--ts-text)', fontSize: 14, fontFamily: 'inherit' }}
+      />
+
+      {shown.length === 0 ? (
+        <p style={{ padding: '16px 2px', fontSize: 13, color: 'var(--ts-muted)' }}>
+          {en ? `No news match “${query}”.` : `Ninguna noticia coincide con «${query}».`}
+        </p>
+      ) : (<>
+
       {/* Mobile: highlighted stories as a uniform horizontal auto-sliding
           carousel at the top. The full grouped list below stays visible on all
           viewports (owner: "todas las noticias en lista, arriba las highlighted
           en carrousel"). */}
-      <MobileNewsCarousel items={items} lang={lang} en={en} />
+      <MobileNewsCarousel items={shown} lang={lang} en={en} />
 
       {/* Desktop-only hero highlight (on mobile the carousel above replaces it). */}
       <div className="saas-newsfeed-desktop" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -263,6 +285,7 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
       <p style={{ fontSize: 10, color: 'var(--ts-faint)' }}>
         {en ? 'Headlines via public RSS — tap to read at the source. Photos: official API headshots or our own graphics (no agency images rehosted).' : 'Titulares vía RSS público — pulsa para leer en la fuente. Fotos: cabezas oficiales de la API o gráficos propios (no rehospedamos imágenes de agencia).'}
       </p>
+      </>)}
     </div>
   )
 }
