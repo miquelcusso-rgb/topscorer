@@ -19,6 +19,7 @@ import { playerApiId } from '@/lib/player-photo'
 import { iig, IIG_NAME, IIG_EXPLAINER } from '@/lib/iig'
 import { playerAttributes, isGoalkeeper } from '@/lib/player-attributes'
 import { playerNarrative } from '@/lib/player-narrative'
+import ScoutIIGBreakdown from '@/components/player/ScoutIIGBreakdown'
 
 type Tone = 'primary' | 'teal' | 'text'
 
@@ -285,6 +286,8 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
       })()}
 
       <ScoutPanel name={player.fullName || player.name} en={en} releaseClause={player.releaseClause} />
+
+      <ScoutIIGBreakdown player={player} en={en} />
 
       <BioPanel name={player.fullName || player.name} lang={lang} />
         </>}
