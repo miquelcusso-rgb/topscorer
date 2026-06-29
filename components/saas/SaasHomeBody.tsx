@@ -120,7 +120,7 @@ export default async function SaasHomeBody({
   // home banner (defensive — empty on any error).
   // Pass the license-aware `visual` (player headshot or club crest) — NOT the
   // raw RSS image, and never a generic scene. Undefined → branded placeholder.
-  let news: { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'crest' }; lang: 'es' | 'en' }[] = []
+  let news: { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'crest' | 'flag' | 'league' | 'global' }; lang: 'es' | 'en' }[] = []
   let breaking: { title: string; link: string; source: string; lang: 'es' | 'en' }[] = []
   try {
     const all = await getNewsWithVisuals(lang === 'en' ? 'en' : 'es', 'general', 14)

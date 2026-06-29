@@ -143,7 +143,7 @@ function ScopeSelector({
   )
 }
 
-interface NewsLite { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'crest' }; lang: 'es' | 'en' }
+interface NewsLite { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'crest' | 'flag' | 'league' | 'global' }; lang: 'es' | 'en' }
 interface Props {
   breaking?: { title: string; link: string; source: string; lang: 'es' | 'en' }[]
   lang: Lang

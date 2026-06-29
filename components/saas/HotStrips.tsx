@@ -15,7 +15,7 @@ import LangBadge from './LangBadge'
 // `agency`, or a club crest → `crest`; both licensed via our API). We NEVER
 // carry the raw RSS/agency photo, and there is no generic-scene fallback — a
 // missing visual renders the branded NewsPlaceholder.
-interface NewsLite { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'crest' }; lang: 'es' | 'en' }
+interface NewsLite { title: string; link: string; source: string; visual?: { url: string; license: 'agency' | 'crest' | 'flag' | 'league' | 'global' }; lang: 'es' | 'en' }
 
 // Mobile-only auto-sliding news carousel (Transfermarkt-style): one card at a
 // time with the article image + headline + source, auto-advancing every ~5s,
@@ -71,7 +71,7 @@ function NewsCarousel({ news, en, lang }: { news: NewsLite[]; en: boolean; lang:
               {it.visual?.url
                 // License-aware visual only (headshot/CC0) — never the raw RSS photo.
                 // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={it.visual.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: it.visual.license === 'crest' ? 'contain' : 'cover', padding: it.visual.license === 'crest' ? '12%' : 0, boxSizing: 'border-box', display: 'block' }} />
+                ? <img src={it.visual.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: it.visual.license === 'agency' ? 'cover' : 'contain', padding: it.visual.license === 'agency' ? 0 : '12%', boxSizing: 'border-box', display: 'block' }} />
                 : <NewsPlaceholder source={it.source} rounded={8} compact />}
             </div>
             <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 4 }}>
@@ -157,7 +157,7 @@ export default function HotStrips({ news = [], rumors = [], strikers = [], lang 
   const newsLeads: Lead[] = news.slice(0, 3).map(n => ({
     label: n.title, sub: n.source, href: n.link, external: true, badge: n.lang, siteLang: lang,
     photo: n.visual?.license === 'agency' ? n.visual.url : undefined,
-    crest: n.visual?.license === 'crest' ? n.visual.url : undefined,
+    crest: n.visual && n.visual.license !== 'agency' ? n.visual.url : undefined,
   }))
 
   // The home is force-static, so the build-time `rumors` prop always shows the

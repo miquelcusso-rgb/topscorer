@@ -5,7 +5,7 @@ import LangBadge from './LangBadge'
 import NewsCard, { type NewsCardImage } from '@/components/news/NewsCard'
 import type { Lang } from '@/lib/i18n'
 
-interface NewsVisual { url: string; license: 'agency' | 'crest'; source?: string }
+interface NewsVisual { url: string; license: 'agency' | 'crest' | 'flag' | 'league' | 'global'; source?: string }
 interface NewsItem { title: string; link: string; source: string; date: string; lang: 'es' | 'en'; isPriority?: boolean; visual?: NewsVisual }
 
 function dayBucket(iso: string, en: boolean): string {
@@ -27,7 +27,7 @@ function cardImage(it: NewsItem): NewsCardImage {
   const v = it.visual
   if (v?.url) {
     // Crests must show whole (contain + padding); headshots fill the box (cover).
-    return { url: v.url, license: 'agency', source: it.source, sourceUrl: it.link, alt: '', fit: v.license === 'crest' ? 'contain' : 'cover' }
+    return { url: v.url, license: 'agency', source: it.source, sourceUrl: it.link, alt: '', fit: v.license === 'agency' ? 'cover' : 'contain' }
   }
   // Nothing resolved → no image (branded placeholder). Keep embed link-back
   // semantics so the card still carries the "Via {source}" credit.
@@ -47,7 +47,7 @@ function HeroImg({ visual, source, h }: { visual?: NewsVisual; source?: string; 
   }
   // Crests must never be cropped → contain + padding on a neutral bg. Player
   // headshots ('agency') fill the box with cover.
-  const isCrest = visual.license === 'crest'
+  const isCrest = visual.license !== 'agency'
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={visual.url} alt="" loading="lazy" onError={() => setBroken(true)}
     style={{ width: '100%', height: h, objectFit: isCrest ? 'contain' : 'cover',
@@ -106,7 +106,7 @@ function MobileNewsCarousel({ items, lang, en }: { items: NewsItem[]; lang: Lang
   if (!n) return null
   const go = (d: number) => setIdx(i => ((i + d) % n + n) % n)
   const it = slides[idx]
-  const isCrest = it.visual?.license === 'crest'
+  const isCrest = it.visual?.license !== 'agency'
 
   return (
     <div

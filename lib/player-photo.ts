@@ -4,6 +4,7 @@ import { CURATED_IDS } from '@/data/curated-ids'
 import { clubLogo } from '@/data/club-logos'
 import { PHOTO_VERIFIED } from '@/data/photo-verified'
 import { NEWS_NAME_PHOTOS } from '@/data/news-name-photos'
+import { leagueLogoUrl } from '@/lib/utils'
 
 // SINGLE source of truth for a player's photo. API-Football photo URLs are
 // predictable by player id (…/players/<id>.png; it serves a neutral silhouette
@@ -400,3 +401,63 @@ export function crestForHeadline(headline?: string): string | undefined {
   }
   return undefined
 }
+
+// ── News headline → national-team flag (SERVER ONLY) ────────────────────────
+// For selección / World Cup headlines ("Portugal - Croacia", "England fans…")
+// with no player/club, show the NATION's flag. Curated name→ISO2 (es+en aliases)
+// for World Cup / major football nations; flag image via flagcdn (free CDN).
+const NATION_ISO: Array<[string, string]> = [
+  ['portugal', 'pt'], ['croacia', 'hr'], ['croatia', 'hr'], ['espana', 'es'], ['spain', 'es'],
+  ['inglaterra', 'gb-eng'], ['england', 'gb-eng'], ['francia', 'fr'], ['france', 'fr'],
+  ['alemania', 'de'], ['germany', 'de'], ['italia', 'it'], ['italy', 'it'], ['brasil', 'br'], ['brazil', 'br'],
+  ['argentina', 'ar'], ['uruguay', 'uy'], ['colombia', 'co'], ['chile', 'cl'], ['mexico', 'mx'],
+  ['paises bajos', 'nl'], ['holanda', 'nl'], ['netherlands', 'nl'], ['belgica', 'be'], ['belgium', 'be'],
+  ['estados unidos', 'us'], ['usmnt', 'us'], ['canada', 'ca'], ['japon', 'jp'], ['japan', 'jp'],
+  ['corea del sur', 'kr'], ['south korea', 'kr'], ['marruecos', 'ma'], ['morocco', 'ma'],
+  ['senegal', 'sn'], ['nigeria', 'ng'], ['ghana', 'gh'], ['costa de marfil', 'ci'], ['ivory coast', 'ci'],
+  ['noruega', 'no'], ['norway', 'no'], ['suecia', 'se'], ['sweden', 'se'], ['dinamarca', 'dk'], ['denmark', 'dk'],
+  ['suiza', 'ch'], ['switzerland', 'ch'], ['polonia', 'pl'], ['poland', 'pl'], ['turquia', 'tr'], ['turkey', 'tr'],
+  ['ecuador', 'ec'], ['peru', 'pe'], ['australia', 'au'], ['austria', 'at'], ['serbia', 'rs'],
+]
+const NATION_ISO_SORTED = [...NATION_ISO].sort((a, b) => b[0].length - a[0].length)
+
+/** A national-team flag image if a nation is named in the headline, else undefined. */
+export function nationFlagForHeadline(headline?: string): string | undefined {
+  const h = norm(headline)
+  if (!h) return undefined
+  const padded = ` ${h} `
+  for (const [alias, iso] of NATION_ISO_SORTED) {
+    if (padded.includes(` ${alias} `)) return `https://flagcdn.com/h120/${iso}.png`
+  }
+  return undefined
+}
+
+// ── News headline → league logo (SERVER ONLY) ───────────────────────────────
+const LEAGUE_ALIASES: Array<[string, string]> = [
+  ['la liga', 'La Liga'], ['laliga', 'La Liga'], ['premier league', 'Premier League'],
+  ['bundesliga', 'Bundesliga'], ['serie a', 'Serie A'], ['ligue 1', 'Ligue 1'],
+  ['primeira liga', 'Primeira Liga'], ['champions league', 'Champions League'],
+  ['europa league', 'Europa League'], ['conference league', 'Conference League'],
+]
+const LEAGUE_ALIASES_SORTED = [...LEAGUE_ALIASES].sort((a, b) => b[0].length - a[0].length)
+
+/** A league logo if a known league is named in the headline, else undefined. */
+export function leagueLogoForHeadline(headline?: string): string | undefined {
+  const h = norm(headline)
+  if (!h) return undefined
+  const padded = ` ${h} `
+  for (const [alias, canonical] of LEAGUE_ALIASES_SORTED) {
+    if (padded.includes(` ${alias} `)) { const u = leagueLogoUrl(canonical); if (u) return u }
+  }
+  return undefined
+}
+
+// Ranking / cross-club / global-football articles ("reranking Europe's top
+// clubs", "power ranking", "World Cup VAR review") → the brand global mark.
+const GLOBAL_PATTERNS = /\b(rerank|ranking|power\s?ranking|top\s?\d*\s?clubs|best\s?clubs|world cup|mundial|fifa|uefa|ballon|balon de oro|golden ball|transfer window|mercato)\b/i
+/** True when the headline is a global/ranking piece with no single subject. */
+export function isGlobalArticle(headline?: string): boolean {
+  return GLOBAL_PATTERNS.test(headline ?? '')
+}
+/** The self-hosted brand "world football" mark — last-resort, never an outlet logo. */
+export const NEWS_GLOBAL_MARK = '/news-global.svg'

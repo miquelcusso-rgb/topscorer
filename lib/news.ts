@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache'
-import { headshotForHeadline, crestForHeadline } from './player-photo'
+import { headshotForHeadline, crestForHeadline, nationFlagForHeadline, leagueLogoForHeadline, isGlobalArticle, NEWS_GLOBAL_MARK } from './player-photo'
 
 // Free, durable football news via public RSS feeds. We show headline + source +
 // date + link to the original (correct RSS use — traffic goes to the source).
@@ -28,7 +28,10 @@ export interface NewsItem {
 // and the card renders a branded placeholder instead.
 export interface NewsVisual {
   url: string
-  license: 'agency' | 'crest'
+  // agency = player headshot (cover-fit). crest/flag/league/global = a logo or
+  // flag (contain-fit). There is ALWAYS a visual now — never the outlet logo,
+  // never blank.
+  license: 'agency' | 'crest' | 'flag' | 'league' | 'global'
   source?: string   // outlet, for the embed/credit line on the card
 }
 
@@ -208,22 +211,33 @@ export const getNews = unstable_cache(
   { revalidate: 1200, tags: ['news'] } // 20 min
 )
 
-// Resolve a ToS-safe visual for a news item (SERVER ONLY — pulls headshot/crest
-// ids from SEARCH_INDEX / club-logos). Priority, stopping at the first hit:
-//   1. the SPECIFIC player the headline names → their official API-Football
-//      headshot (licensed via our API → `agency`);
-//   2. else a club named in the headline → that club's crest (`crest`);
-//   3. else NOTHING — we return undefined and the card shows a branded
-//      placeholder. We NO LONGER emit a random generic stock scene (the owner
-//      asked for player/crest, never filler field/ball/stadium images).
+// Resolve a ToS-safe visual for a news item (SERVER ONLY). Owner directive:
+// ALWAYS show an image, and always the RIGHT one — never blank, never a wrong
+// player, never the news outlet's logo. Strict priority, first hit wins:
+//   1. the SPECIFIC player the headline names (rigorous — full name / unique
+//      surname / unambiguous star) → official API-Football headshot (`agency`);
+//   2. a club named in the headline → club crest (`crest`);
+//   3. a national team named → that nation's flag (`flag`);
+//   4. a league named → league logo (`league`);
+//   5. fallback → the brand "world football" mark (`global`) — used for global
+//      ranking pieces and as the guaranteed last resort.
 // `it.image` (the raw RSS/agency photo) is deliberately ignored — external
 // content is never rehosted.
-export function resolveNewsVisual(it: Pick<NewsItem, 'title' | 'source'>): NewsVisual | undefined {
+export function resolveNewsVisual(it: Pick<NewsItem, 'title' | 'source'>): NewsVisual {
+  const src = it.source
   const headshot = headshotForHeadline(it.title)
-  if (headshot) return { url: headshot, license: 'agency', source: it.source }
-  const crest = crestForHeadline(it.title)
-  if (crest) return { url: crest, license: 'crest', source: it.source }
-  return undefined
+  if (headshot) return { url: headshot, license: 'agency', source: src }
+  // Global/ranking pieces have no single subject → go straight to the brand mark
+  // rather than guessing a tangential club/league mentioned in passing.
+  if (!isGlobalArticle(it.title)) {
+    const crest = crestForHeadline(it.title)
+    if (crest) return { url: crest, license: 'crest', source: src }
+    const flag = nationFlagForHeadline(it.title)
+    if (flag) return { url: flag, license: 'flag', source: src }
+    const league = leagueLogoForHeadline(it.title)
+    if (league) return { url: league, license: 'league', source: src }
+  }
+  return { url: NEWS_GLOBAL_MARK, license: 'global', source: src }
 }
 
 /** getNews + a resolved, license-aware `visual` (headshot/crest, or none). */
