@@ -94,6 +94,10 @@ export default async function SaasHomeBody({
     p => p && p.season === '2526'
   )
   const positionPools = buildPositionPools(season)
+  // Distinct club display-names for the "My team" picker (small string[] — a few
+  // hundred names, cheap to serialize vs shipping the full per-club roster).
+  const clubs = Array.from(new Set(season.map(p => p.club).filter(Boolean)))
+    .sort((a, b) => a.localeCompare(b))
   // Small derived payload (hot striker + insights + standouts) — tiny + serializable.
   const insights = computeHomeInsights(season)
   // Editorial "rumor del día" — fetched at build (home is force-static); fully
@@ -118,7 +122,7 @@ export default async function SaasHomeBody({
       activeKey="players"
       breadcrumb={breadcrumb}
     >
-      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} breaking={breaking} />
+      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} breaking={breaking} clubs={clubs} />
       <div style={{ marginTop: 32, marginLeft: -24, marginRight: -24, marginBottom: -24 }}>
         <Footer />
       </div>

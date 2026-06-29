@@ -5,6 +5,7 @@ import type { PlayerData } from '@/types'
 import FilterBar from './FilterBar'
 import PositionTable from './PositionTable'
 import HotStrips from './HotStrips'
+import MyTeamHome from './MyTeamHome'
 import LangBadge from './LangBadge'
 import Link from 'next/link'
 import { type PositionTabId, TAB_LABELS, TAB_ACCENT, extraStatList, last5Ratings } from '@/lib/position-stats'
@@ -151,9 +152,10 @@ interface Props {
   insights?: HomeInsights
   rumors?: HomeRumor[]
   news?: NewsLite[]
+  clubs?: string[]
 }
 
-export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [], news = [], breaking = [] }: Props) {
+export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [], news = [], breaking = [], clubs = [] }: Props) {
   const [pos, setPos] = useState<PositionTabId>(defaultPos ?? 'fw')
   // Rotate through the breaking headlines (2–5) in the same banner slot.
   const [breakIdx, setBreakIdx] = useState(0)
@@ -405,6 +407,9 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
 
       {/* Three compact hot strips: news · rumours · strikers (title left, leads right) */}
       <HotStrips news={news} rumors={rumors} strikers={insights?.standouts ?? []} lang={lang === 'en' ? 'en' : 'es'} />
+
+      {/* "My team" — FREE picks a favourite club; PRO sees its top scorers. */}
+      <MyTeamHome lang={lang} clubs={clubs} />
 
       {insights && insights.lines.length > 0 && !insightDismissed && (() => {
         const line = insights.lines[curio % insights.lines.length]

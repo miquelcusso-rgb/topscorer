@@ -179,7 +179,18 @@ export const T = {
   pricing_pro_f5:       { es: 'Radar de Talentos — descubre jugadores infravalorados', en: 'Scout Radar — discover undervalued players' },
   pricing_pro_f6:       { es: 'Tiñe el panel lateral con los colores de tu club', en: 'Tint the sidebar with your club colours' },
   pricing_pro_f7:       { es: 'Acceso anticipado a encuestas (24 h) · multiplicador ×2 en pick\'em', en: 'Early access to polls (24h) · ×2 multiplier on pick\'em' },
-  pricing_pro_f8:       { es: 'Tu equipo destacado en la home — Próx.', en: 'Your team featured on the home — Soon' },
+  pricing_pro_f8:       { es: 'Tu equipo destacado en la home', en: 'Your team featured on the home' },
+
+  // Home "My team" (Mi equipo) block
+  myteam_title:         { es: 'Mi equipo', en: 'My team' },
+  myteam_pick:          { es: 'Elige tu equipo', en: 'Pick your team' },
+  myteam_pick_hint:     { es: 'Fíjalo y lo verás siempre aquí', en: 'Pin it and it stays here for you' },
+  myteam_change:        { es: 'Cambiar', en: 'Change' },
+  myteam_scorers:       { es: 'Goleadores del equipo', en: 'Team top scorers' },
+  myteam_empty:         { es: 'Sin datos de jugadores para este equipo esta temporada.', en: 'No player data for this team this season.' },
+  myteam_pro_teaser:    { es: 'Hazte PRO para ver los goleadores y las estadísticas de tu equipo aquí mismo.', en: 'Go PRO to see your team’s scorers and stats right here.' },
+  myteam_pro_cta:       { es: 'Ver PRO', en: 'See PRO' },
+  myteam_loading:       { es: 'Cargando tu equipo…', en: 'Loading your team…' },
 
   pricing_scout_desc:   { es: 'El kit de scouting que llega pronto: el IIG al detalle.', en: 'The scouting kit landing soon: the IIG in full detail.' },
   pricing_scout_badge:  { es: 'PARA SCOUTS', en: 'FOR SCOUTS' },
