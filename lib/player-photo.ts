@@ -151,6 +151,16 @@ for (const phrase in NEWS_NAME_PHOTOS) {
   if (cur === undefined) NEWS_SURNAME_TO_ID.set(sn, id)
   else if (cur !== id) NEWS_SURNAME_AMBIG.add(sn)
 }
+// Surnames shared by many ACTIVE players, where resolving the enrichment entry
+// on a surname-only headline could paint the wrong (e.g. retired) namesake. For
+// these we keep the strict broader-index ambiguity guard; for distinctive
+// surnames (Bellingham, Mbappé…) we trust the confirmed enrichment id even if a
+// minor namesake exists — so a Jude Bellingham headline shows Jude, not nobody.
+const SURNAME_RISKY = new Set<string>([
+  'silva', 'williams', 'james', 'henderson', 'sanchez', 'torres', 'gomez',
+  'fernandez', 'martinez', 'rodriguez', 'lopez', 'garcia', 'santos', 'costa',
+  'pereira', 'gonzalez', 'hernandez', 'jesus', 'felix', 'luis', 'paqueta',
+])
 
 // CURATED MONONYM ALIASES — popular SINGLE-name / one-word forms that headlines
 // actually use ("Vinicius brilla", "Pedri vuelve", "Neymar firma") and which the
@@ -172,6 +182,8 @@ const MONONYM_ALIASES: Record<string, number> = {
   rodrygo: 10009,
   benzema: 759,         // hard-included (confirmed real photo, not in PHOTO_VERIFIED)
   modric: 754,
+  endrick: 377122,      // Endrick Felipe (Real Madrid)
+  cristiano: 874,       // Cristiano Ronaldo — headlines use "Cristiano" alone too
   // Barcelona
   pedri: 133609,
   gavi: 296667,
@@ -302,7 +314,11 @@ export function headshotForHeadline(headline?: string): string | undefined {
   // surname that's ambiguous either within the enrichment map OR across the
   // broader SEARCH_INDEX, so a shared surname never paints the wrong face.
   for (const w of h.split(' ')) {
-    if (w.length < 4 || SURNAME_STOPWORDS.has(w) || NEWS_SURNAME_AMBIG.has(w) || SURNAME_AMBIG.has(w)) continue
+    if (w.length < 4 || SURNAME_STOPWORDS.has(w) || NEWS_SURNAME_AMBIG.has(w)) continue
+    // Risky common surnames: only resolve when unambiguous in the broader index.
+    // Distinctive surnames resolve from the confirmed enrichment id regardless,
+    // so a famous player isn't blocked just because a minor namesake exists.
+    if (SURNAME_RISKY.has(w) && SURNAME_AMBIG.has(w)) continue
     const id = NEWS_SURNAME_TO_ID.get(w)
     if (id) return apiPhoto(id)
   }
