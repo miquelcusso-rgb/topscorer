@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
-import { clubColorOptions } from '@/lib/club-colors'
+import { clubColorOptions, canonicalClubName } from '@/lib/club-colors'
+import { clubLogo } from '@/lib/club-logos'
 import { useClubAccent, notifyClubChange } from '@/lib/use-club-accent'
 import { useLang } from '@/contexts/LangContext'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
@@ -148,6 +149,8 @@ export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta
     notifyClubChange() // re-tint sidebar + topbar immediately
   }
   const accent = useClubAccent()
+  // Club crest for the workspace badge (PRO + a club picked). Falls back to "TS".
+  const crest = accent && club ? clubLogo(club) : undefined
   const planLabel = plan === 'pro' ? (en ? 'Pro plan' : 'Plan Pro')
     : plan === 'scout' ? (en ? 'Scout plan' : 'Plan Scout')
     : plan === 'team' ? (en ? 'Team plan' : 'Plan Team')
@@ -252,10 +255,11 @@ export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta
         position: 'sticky',
         top: stickyTop,
         alignSelf: 'flex-start',
-        // PRO "my club": wash the whole sidebar body in the club colour (subtle
-        // so text stays readable) + keep the bold club-coloured spine on the left.
+        // PRO "my club": wash the whole sidebar body in the club colour — a
+        // vertical gradient (stronger up top, fading down) so the colour really
+        // reads while text stays legible — + the bold club spine on the left.
         background: accent
-          ? `color-mix(in srgb, ${accent} 9%, var(--ts-sidebar))`
+          ? `linear-gradient(180deg, color-mix(in srgb, ${accent} 24%, var(--ts-sidebar)) 0%, color-mix(in srgb, ${accent} 9%, var(--ts-sidebar)) 60%, var(--ts-sidebar) 100%)`
           : 'var(--ts-sidebar)',
         borderRight: '1px solid var(--ts-border)',
         borderLeft: accent ? `4px solid ${accent}` : undefined,
@@ -287,10 +291,17 @@ export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta
           display: 'flex', alignItems: 'center', gap: 10, padding: '10px',
           borderBottom: '1px solid var(--ts-border)', textDecoration: 'none',
         }}>
-          <span style={{ width: 28, height: 28, borderRadius: 8, background: accent ?? 'var(--ts-primary)', color: 'var(--ts-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13 }}>TS</span>
+          <span style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, overflow: 'hidden', background: crest ? 'var(--ts-bg)' : (accent ?? 'var(--ts-primary)'), color: 'var(--ts-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, border: crest ? `1.5px solid ${accent}` : undefined }}>
+            {crest
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={crest} alt="" width={28} height={28} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3, boxSizing: 'border-box' }} />
+              : 'TS'}
+          </span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ts-text)' }}>Top-Scorers</span>
-            <span style={{ display: 'block', fontSize: 12, color: 'var(--ts-muted)' }}>{planLabel}</span>
+            <span style={{ display: 'block', fontSize: 12, color: accent && club ? accent : 'var(--ts-muted)', fontWeight: accent && club ? 700 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {accent && club ? canonicalClubName(club) : planLabel}
+            </span>
           </span>
           {plan === 'free' && (
             <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', color: 'var(--ts-bg)', background: 'var(--ts-primary)', borderRadius: 6, padding: '3px 7px' }}>
