@@ -36,9 +36,38 @@ export function clubColor(club?: string): string | undefined {
 }
 
 /** Clubs that have a known colour, for the picker. */
+// Canonical display name for a club, folding the accent / short-form variants
+// the dataset and colour map carry for the SAME club (the source of the
+// "Atletico Madrid" + "Atlético Madrid", "Bayern Munich" + "München", "PSG" +
+// "Paris Saint Germain" duplicates). Keyed by accent-folded lowercase name.
+const _normClub = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
+const CLUB_CANONICAL: Record<string, string> = {
+  'atletico madrid': 'Atlético Madrid',
+  'manchester city': 'Manchester City', 'man city': 'Manchester City',
+  'manchester united': 'Manchester United', 'man united': 'Manchester United',
+  'bayern munich': 'Bayern München', 'bayern munchen': 'Bayern München',
+  'borussia dortmund': 'Borussia Dortmund', 'dortmund': 'Borussia Dortmund',
+  'ac milan': 'AC Milan', 'milan': 'AC Milan',
+  'paris saint germain': 'Paris Saint-Germain', 'paris saint-germain': 'Paris Saint-Germain', 'psg': 'Paris Saint-Germain',
+  'inter milan': 'Inter', 'inter': 'Inter',
+}
+
+/** One canonical display name for a club, collapsing accent/short-form variants. */
+export function canonicalClubName(club: string): string {
+  return CLUB_CANONICAL[_normClub(club)] ?? club
+}
+
+/** Clubs that have a known colour, for the picker — deduped to ONE canonical
+ *  name per club (no accent/short-form doubles), sorted. */
 export function clubColorOptions(): { value: string; label: string }[] {
-  return Object.keys(CLUB_COLORS)
-    .filter((c, i, arr) => arr.findIndex(x => CLUB_COLORS[x] === CLUB_COLORS[c] && x === c) === i)
-    .sort()
-    .map(c => ({ value: c, label: c }))
+  const seen = new Set<string>()
+  const out: { value: string; label: string }[] = []
+  for (const c of Object.keys(CLUB_COLORS)) {
+    const canon = canonicalClubName(c)
+    const key = _normClub(canon)
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push({ value: canon, label: canon })
+  }
+  return out.sort((a, b) => a.label.localeCompare(b.label))
 }

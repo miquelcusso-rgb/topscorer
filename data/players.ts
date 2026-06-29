@@ -260,10 +260,30 @@ for (const p of [...GENERATED_PLAYERS, ...PLAYERS_CURRENT]) {
   gen2526.add(_norm(p.name)); gen2526.add(_il(p.name))
   if (p.fullName) { gen2526.add(_norm(p.fullName)); gen2526.add(_il(p.fullName)) }
 }
-// EXT metadata indexed by initial+last, so it also attaches to abbreviated
-// generated names ("H. Kane" ← "Harry Kane" metadata).
-const EXT_BY_IL: Record<string, Partial<PlayerData>> = {}
-for (const k in EXT) { const il = _il(k); if (!(il in EXT_BY_IL)) EXT_BY_IL[il] = EXT[k] }
+// EXT metadata indexed by FULL normalised name, so it attaches to a generated
+// row via its fullName ("H. Kane" carries fullName "Harry Kane" → matches
+// "harry kane"). We intentionally DO NOT key by initial+last anymore: "L.
+// Martínez" reduces to "l martinez" and would wrongly inherit Lautaro Martínez's
+// curated data on a DIFFERENT player (e.g. Lucas Martínez Quarta). Requiring the
+// full first name to match makes the merge collision-safe.
+const EXT_BY_NORM: Record<string, Partial<PlayerData>> = {}
+for (const k in EXT) { const n = _norm(k); if (!(n in EXT_BY_NORM)) EXT_BY_NORM[n] = EXT[k] }
+
+// Fields a curated EXT row is allowed to contribute to a GENERATED player. The
+// generated row already carries api-football's authoritative identity/stats
+// (position, club, league, nationality, age, goals, assists, photo…), so EXT
+// must NEVER override those — it only fills editorial extras the API doesn't
+// provide. (Curated-only stubs below still take full EXT by exact name, since
+// those rows have no API data of their own.)
+const EXT_EDITORIAL_KEYS = [
+  'marketValue', 'releaseClause', 'contractUntil', 'elo',
+  'fantasyPoints', 'fantasyPrice', 'status', 'statusDetail', 'prevClub',
+] as const
+function extEditorial(ext: Partial<PlayerData>): Partial<PlayerData> {
+  const out: Partial<PlayerData> = {}
+  for (const k of EXT_EDITORIAL_KEYS) if (ext[k] != null) (out as Record<string, unknown>)[k] = ext[k]
+  return out
+}
 
 // Curated rows: DROP 2526 stubs already covered by a generated row (generated
 // wins → real photo/stats); keep older seasons (history) + players with no
@@ -274,7 +294,13 @@ const CURATED = RAW
 
 const seen = new Set(CURATED.map(p => `${p.name}|${p.season}`))
 const GENERATED: PlayerData[] = GENERATED_PLAYERS
-  .map(p => ({ ...p, ...(EXT[p.name] ?? EXT_BY_IL[_il(p.name)] ?? {}) }))
+  .map(p => {
+    // Editorial extras only, matched by full normalised name (exact, fullName,
+    // or name) — never by initial+last, so a namesake can't inherit a star's
+    // position/value. Identity + stats always stay as api-football gave them.
+    const ext = EXT[p.name] ?? EXT_BY_NORM[_norm(p.fullName)] ?? EXT_BY_NORM[_norm(p.name)] ?? {}
+    return { ...p, ...extEditorial(ext) }
+  })
   .filter(p => {
     const k = `${p.name}|${p.season}`
     if (seen.has(k)) return false
@@ -321,7 +347,13 @@ function withPhoto(p: PlayerData): PlayerData {
 // dataset (e.g. rotated/injured players, mid-season movers). Carry apiId → win as
 // the player's current entry; their old curated rows become history (same id).
 const CURRENT: PlayerData[] = PLAYERS_CURRENT
-  .map(p => ({ ...p, ...(EXT[p.name] ?? EXT_BY_IL[_il(p.name)] ?? {}) }))
+  .map(p => {
+    // Editorial extras only, matched by full normalised name (exact, fullName,
+    // or name) — never by initial+last, so a namesake can't inherit a star's
+    // position/value. Identity + stats always stay as api-football gave them.
+    const ext = EXT[p.name] ?? EXT_BY_NORM[_norm(p.fullName)] ?? EXT_BY_NORM[_norm(p.name)] ?? {}
+    return { ...p, ...extEditorial(ext) }
+  })
   .filter(p => {
     const k = `${p.name}|${p.season}`
     if (seen.has(k)) return false

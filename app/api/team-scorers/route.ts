@@ -4,6 +4,7 @@ import { rankScore } from '@/lib/iig'
 import { playerSlug } from '@/lib/player-slug'
 import { playerPhoto } from '@/lib/player-photo'
 import { flagFor } from '@/lib/flags'
+import { canonicalClubName } from '@/lib/club-colors'
 
 // Top players of a club for the home "My team" featured block (PRO). Reads only
 // the static current-season dataset (no external API call → free on the Vercel
@@ -26,10 +27,12 @@ export interface TeamScorer {
 export async function GET(req: NextRequest) {
   const club = req.nextUrl.searchParams.get('club')?.trim()
   if (!club) return Response.json({ ok: false, error: 'missing club' }, { status: 400 })
-  const nc = norm(club)
+  // Canonicalise both sides so every accent/short-form variant of a club
+  // ("PSG"/"Paris Saint Germain", "Atletico"/"Atlético") matches.
+  const nc = norm(canonicalClubName(club))
   try {
     const pool = (Array.isArray(PRIMARY_PLAYERS) ? PRIMARY_PLAYERS : [])
-      .filter(p => p && p.season === '2526' && norm(p.club || '') === nc)
+      .filter(p => p && p.season === '2526' && norm(canonicalClubName(p.club || '')) === nc)
     // Rank by rankScore (IIG when meaningful, else rating·coef) so non-scorers
     // are ordered sensibly too, then take the top 6.
     const players: TeamScorer[] = [...pool]

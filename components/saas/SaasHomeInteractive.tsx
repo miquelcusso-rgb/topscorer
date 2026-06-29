@@ -152,7 +152,7 @@ interface Props {
   insights?: HomeInsights
   rumors?: HomeRumor[]
   news?: NewsLite[]
-  clubs?: string[]
+  clubs?: { value: string; label: string }[]
 }
 
 export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [], news = [], breaking = [], clubs = [] }: Props) {

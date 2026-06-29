@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { t, type Lang } from '@/lib/i18n'
 import { clubLogo } from '@/lib/club-logos'
+import { canonicalClubName } from '@/lib/club-colors'
 import type { Plan } from '@/types'
 
 // Home "My team" (Mi equipo) block.
@@ -26,7 +27,7 @@ const eyebrow: React.CSSProperties = {
   fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)',
 }
 
-export default function MyTeamHome({ lang, clubs }: { lang: Lang; clubs: string[] }) {
+export default function MyTeamHome({ lang, clubs }: { lang: Lang; clubs: { value: string; label: string }[] }) {
   const { user, isLoaded } = useUser()
   const plan: Plan = (isLoaded && user ? ((user.publicMetadata?.plan as Plan) || 'free') : 'free')
   const isPro = plan === 'pro' || plan === 'team' || plan === 'scout'
@@ -87,7 +88,7 @@ export default function MyTeamHome({ lang, clubs }: { lang: Lang; clubs: string[
               background: 'var(--ts-card2)', color: 'var(--ts-text)', fontSize: 14, fontWeight: 500, width: '100%' }}
           >
             <option value="">{t('myteam_pick', lang)}</option>
-            {clubs.map(c => <option key={c} value={c}>{c}</option>)}
+            {clubs.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
         </div>
       ) : (
@@ -102,7 +103,7 @@ export default function MyTeamHome({ lang, clubs }: { lang: Lang; clubs: string[
                 : <span aria-hidden style={{ fontSize: 20 }}>🛡️</span>}
             </div>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 700, lineHeight: 1.05, color: 'var(--ts-text)' }}>
-              {club}
+              {canonicalClubName(club)}
             </span>
           </div>
 
