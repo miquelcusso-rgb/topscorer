@@ -363,6 +363,7 @@ export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta
           <div style={groupLabel}>{lang === 'en' ? 'Scout Tools' : 'Herramientas Scout'}</div>
         {(
           [
+            { label: lang === 'en' ? 'IIG comparator' : 'Comparador IIG', href: `/${lang}/scout`, icon: '🧭' },
             { label: lang === 'en' ? 'Performance Alerts' : 'Alertas de rendimiento', href: `/${lang}/cuenta/alerts`, icon: '🔔' },
             { label: lang === 'en' ? 'Public API' : 'API pública',                    href: `/${lang}/cuenta/api`,    icon: '🔌' },
             { label: lang === 'en' ? 'CSV Export' : 'Exportar CSV',                   href: `/${lang}/cuenta/export`, icon: '⬇' },
