@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { allPlayerSlugs } from '@/lib/player-slug'
 import { allLeagueSlugs, leaguesWithData } from '@/lib/league-data'
 import { WC_NATIONS, nationSlug } from '@/lib/wc-nations'
+import { COMPETITIONS } from '@/lib/golden-boot-data'
 import { LOCALES } from '@/lib/i18n'
 
 const BASE = 'https://www.top-scorers.com'
@@ -110,5 +111,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return localized(`/mundial-2026/${slug}`, 'daily', 0.85)
   })
 
-  return [...staticUrls, ...competicionUrls, ...scouterUrls, ...playerUrls, ...nationUrls]
+  // Golden Boot evergreen cluster (data-driven from COMPETITIONS → no manual
+  // list to drift). Same set generateStaticParams produces, so no listed URL 404s.
+  const goldenBootUrls = COMPETITIONS.flatMap(c =>
+    localized(`/golden-boot/${c.slug}`, 'weekly', 0.85),
+  )
+
+  return [...staticUrls, ...competicionUrls, ...scouterUrls, ...goldenBootUrls, ...playerUrls, ...nationUrls]
 }
