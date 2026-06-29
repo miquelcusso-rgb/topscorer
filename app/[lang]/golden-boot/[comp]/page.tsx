@@ -67,18 +67,20 @@ export default async function GoldenBootCompPage({
   const base = 'https://www.top-scorers.com'
   const url = `${base}/golden-boot/${data.slug}`
 
+  const listRows: string[] = data.allTime
+    ? data.allTime.map((p) => `${p.player} — ${p.goals} goals (${p.detail})`)
+    : (data.recentWinners ?? []).map((w) => `${w.season}: ${w.winner} — ${w.goals} goals (${w.club})`)
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: `${data.award} — winners`,
+    name: `${data.award}`,
     description: data.metaDescription,
     url,
-    numberOfItems: data.recentWinners.length,
-    itemListElement: data.recentWinners.map((w, i) => ({
+    numberOfItems: listRows.length,
+    itemListElement: listRows.map((name, i) => ({
       '@type': 'ListItem',
       position: i + 1,
-      name: `${w.season}: ${w.winner} — ${w.goals} goals (${w.club})`,
-      url: `${url}#season-${w.season}`,
+      name,
     })),
   }
   const breadcrumbJsonLd = {
@@ -117,33 +119,65 @@ export default async function GoldenBootCompPage({
         <h1 style={{ ...headingStyle, fontSize: 38, color: 'var(--ts-text)', marginBottom: 8 }}>{data.h1}</h1>
         <p style={{ color: 'var(--ts-muted)', marginBottom: 32, fontSize: 16, lineHeight: 1.6 }}>{data.intro}</p>
 
-        {/* Recent winners */}
-        <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 16 }}>
-            {data.award} — recent winners
-          </h2>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
-                  {['Season', 'Winner', 'Club', 'Goals'].map((col) => (
-                    <th key={col} style={{ padding: '8px 12px', textAlign: col === 'Winner' || col === 'Club' ? 'left' : 'center', color: 'var(--ts-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.recentWinners.map((w) => (
-                  <tr key={w.season} id={`season-${w.season}`} style={{ borderBottom: '1px solid var(--ts-divider)' }} className="hover:bg-white/5">
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-faint)', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{w.season}</td>
-                    <td style={{ padding: '10px 12px', color: 'var(--ts-text)', fontWeight: 600 }}>{w.winner}</td>
-                    <td style={{ padding: '10px 12px', color: 'var(--ts-muted)' }}>{w.club}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'monospace', fontSize: 15 }}>{w.goals}</td>
+        {/* All-time top scorers (evergreen — cup competitions) */}
+        {data.allTime && (
+          <section style={{ marginBottom: 40 }}>
+            <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 16 }}>
+              All-time top scorers
+            </h2>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
+                    {['#', 'Player', '', 'Goals'].map((col, i) => (
+                      <th key={i} style={{ padding: '8px 12px', textAlign: i === 1 || i === 2 ? 'left' : 'center', color: 'var(--ts-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                </thead>
+                <tbody>
+                  {data.allTime.map((p, i) => (
+                    <tr key={p.player} style={{ borderBottom: '1px solid var(--ts-divider)' }} className="hover:bg-white/5">
+                      <td style={{ padding: '10px 12px', textAlign: 'center', color: i < 3 ? 'var(--ts-primary)' : 'var(--ts-faint)', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{i + 1}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--ts-text)', fontWeight: 600 }}>{p.player}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--ts-muted)', fontSize: 13 }}>{p.detail}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'monospace', fontSize: 15 }}>{p.goals}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* Recent winners (annual competitions) */}
+        {data.recentWinners && (
+          <section style={{ marginBottom: 40 }}>
+            <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 16 }}>
+              {data.award} — recent {data.allTime ? 'top scorers' : 'winners'}
+            </h2>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
+                    {['Season', 'Player', 'Club', 'Goals'].map((col) => (
+                      <th key={col} style={{ padding: '8px 12px', textAlign: col === 'Player' || col === 'Club' ? 'left' : 'center', color: 'var(--ts-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.recentWinners.map((w) => (
+                    <tr key={w.season} id={`season-${w.season}`} style={{ borderBottom: '1px solid var(--ts-divider)' }} className="hover:bg-white/5">
+                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-faint)', fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>{w.season}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--ts-text)', fontWeight: 600 }}>{w.winner}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--ts-muted)' }}>{w.club}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', color: 'var(--ts-primary)', fontWeight: 700, fontFamily: 'monospace', fontSize: 15 }}>{w.goals}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
         {/* Explanatory body */}
         <section style={{ marginBottom: 40, color: 'var(--ts-muted)', lineHeight: 1.75, fontSize: 15 }}>

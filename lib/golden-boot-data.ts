@@ -22,6 +22,13 @@ export type WinnerRow = {
   goals: number
 }
 
+export type AllTimeRow = {
+  player: string
+  /** Country / club / era — context shown next to the name */
+  detail: string
+  goals: number
+}
+
 export type GoldenBootComp = {
   /** URL slug → /golden-boot/<slug> */
   slug: string
@@ -39,8 +46,10 @@ export type GoldenBootComp = {
   intro: string
   /** 2–3 explanatory paragraphs (the citable body) */
   body: string[]
-  /** Most recent award winners, newest first */
-  recentWinners: WinnerRow[]
+  /** Most recent award winners, newest first (optional — annual competitions) */
+  recentWinners?: WinnerRow[]
+  /** All-time top scorers (optional — evergreen, ideal for cup competitions) */
+  allTime?: AllTimeRow[]
   /** Evergreen record facts (each a self-contained, citable sentence) */
   records: string[]
   faqs: { q: string; a: string }[]
@@ -110,6 +119,129 @@ export const COMPETITIONS: GoldenBootComp[] = [
     ],
   },
 ]
+
+// ── UEFA Champions League ─────────────────────────────────────────────────────
+COMPETITIONS.push({
+  slug: 'champions-league',
+  competition: 'UEFA Champions League',
+  award: 'Champions League top scorer',
+  verified: '2026-06-29',
+  metaTitle: 'Champions League Top Scorers — All-Time & By Season',
+  metaDescription:
+    'UEFA Champions League top scorers: the all-time list led by Cristiano Ronaldo (140) and Lionel Messi (129), the season-by-season top scorers and the competition records.',
+  keywords: [
+    'champions league top scorers',
+    'champions league all time top scorers',
+    'ucl top scorers',
+    'most goals in champions league history',
+    'cristiano ronaldo champions league goals',
+    'messi champions league goals',
+    'champions league top scorer 2026',
+  ],
+  h1: 'Champions League Top Scorers — All-Time & By Season',
+  intro:
+    'The UEFA Champions League top scorer is the player who nets the most goals in a single edition of Europe’s premier club competition. Below is the all-time scoring list, the most recent season winners and the records.',
+  body: [
+    'Cristiano Ronaldo is the all-time leading scorer in Champions League history with 140 goals in 183 appearances, ahead of Lionel Messi on 129. Robert Lewandowski (105) and Karim Benzema (90) complete the group of players to have passed 90.',
+    'Kylian Mbappé was the outright top scorer of the 2025/26 Champions League with 15 goals for Real Madrid — only Cristiano Ronaldo has ever scored more in a single campaign. The previous season, 2024/25, the award was shared by Raphinha and Serhou Guirassy on 13 goals each.',
+    'Unlike a domestic Golden Boot, the Champions League top-scorer race rewards goals across the league phase and knockout rounds, so a deep run to the final is usually decisive in winning it.',
+  ],
+  recentWinners: [
+    { season: '2025/26', winner: 'Kylian Mbappé', club: 'Real Madrid', goals: 15 },
+    { season: '2024/25', winner: 'Raphinha & S. Guirassy', club: 'Barcelona / Dortmund', goals: 13 },
+  ],
+  allTime: [
+    { player: 'Cristiano Ronaldo', detail: 'Man Utd / Real Madrid / Juventus', goals: 140 },
+    { player: 'Lionel Messi', detail: 'Barcelona / PSG', goals: 129 },
+    { player: 'Robert Lewandowski', detail: 'Dortmund / Bayern / Barcelona', goals: 105 },
+    { player: 'Karim Benzema', detail: 'Lyon / Real Madrid', goals: 90 },
+  ],
+  records: [
+    'All-time top scorer: Cristiano Ronaldo, 140 goals in 183 games.',
+    'Second all-time: Lionel Messi, 129 goals.',
+    'Most goals in a single season after Ronaldo: Kylian Mbappé, 15 (2025/26).',
+    'Most recent top scorer: Kylian Mbappé, 15 goals (Real Madrid, 2025/26).',
+  ],
+  faqs: [
+    {
+      q: 'Who is the all-time top scorer in the Champions League?',
+      a: 'Cristiano Ronaldo is the all-time leading scorer in the UEFA Champions League with 140 goals in 183 appearances, ahead of Lionel Messi with 129.',
+    },
+    {
+      q: 'Who was the Champions League top scorer in 2025/26?',
+      a: 'Kylian Mbappé was the outright top scorer of the 2025/26 Champions League with 15 goals for Real Madrid, the most in a single campaign by anyone other than Cristiano Ronaldo.',
+    },
+    {
+      q: 'How many Champions League goals does Lionel Messi have?',
+      a: 'Lionel Messi has 129 Champions League goals, second only to Cristiano Ronaldo on the all-time list.',
+    },
+    {
+      q: 'Where can I follow Champions League scorers live?',
+      a: 'TopScorers.com tracks goalscorer rankings across the Champions League and the major European leagues, alongside standings, results and statistics.',
+    },
+  ],
+})
+
+// ── Africa Cup of Nations (AFCON) ─────────────────────────────────────────────
+COMPETITIONS.push({
+  slug: 'afcon',
+  competition: 'Africa Cup of Nations (AFCON)',
+  award: 'AFCON top scorer',
+  verified: '2026-06-29',
+  metaTitle: 'AFCON Top Scorers — All-Time Africa Cup of Nations Goals',
+  metaDescription:
+    'Africa Cup of Nations all-time top scorers: Samuel Eto’o leads with 18 goals, ahead of Laurent Pokou (14) and Rashidi Yekini (13). Full list, records and the single-tournament record.',
+  keywords: [
+    'afcon top scorers',
+    'afcon all time top scorers',
+    'africa cup of nations top scorers',
+    'samuel etoo afcon goals',
+    'afcon golden boot',
+    'most goals africa cup of nations',
+  ],
+  h1: 'AFCON Top Scorers — All-Time Africa Cup of Nations Goals',
+  intro:
+    'The Africa Cup of Nations (AFCON) top scorer, or Golden Boot, goes to the leading goalscorer of each tournament. Here is the all-time AFCON scoring list and the competition records.',
+  body: [
+    'Samuel Eto’o is the all-time top scorer in Africa Cup of Nations history with 18 goals across six tournaments, winning the title in 2000 and 2002 and the Golden Boot in 2006 and 2008. Ivory Coast’s Laurent Pokou (14) and Nigeria’s Rashidi Yekini (13) follow him.',
+    'A cluster of modern greats sits on 11 goals each — Didier Drogba, Patrick Mboma, Mohamed Salah, Hossam Hassan and Sadio Mané — showing how the AFCON scoring charts mix legends from the 1970s with current stars.',
+    'The single-tournament record still belongs to Ndaye Mulamba, who scored 9 goals for Zaire (now DR Congo) at the 1974 edition — a mark that has stood for half a century.',
+  ],
+  allTime: [
+    { player: 'Samuel Eto’o', detail: 'Cameroon', goals: 18 },
+    { player: 'Laurent Pokou', detail: 'Ivory Coast', goals: 14 },
+    { player: 'Rashidi Yekini', detail: 'Nigeria', goals: 13 },
+    { player: 'Hassan El-Shazly', detail: 'Egypt', goals: 12 },
+    { player: 'Didier Drogba', detail: 'Ivory Coast', goals: 11 },
+    { player: 'Patrick Mboma', detail: 'Cameroon', goals: 11 },
+    { player: 'Mohamed Salah', detail: 'Egypt', goals: 11 },
+    { player: 'Hossam Hassan', detail: 'Egypt', goals: 11 },
+    { player: 'Sadio Mané', detail: 'Senegal', goals: 11 },
+  ],
+  records: [
+    'All-time top scorer: Samuel Eto’o, 18 goals (Golden Boot in 2006 and 2008).',
+    'Single-tournament record: Ndaye Mulamba, 9 goals (Zaire, 1974).',
+    'Most goals by an active player: Mohamed Salah and Sadio Mané, 11 each.',
+  ],
+  faqs: [
+    {
+      q: 'Who is the all-time top scorer of the Africa Cup of Nations?',
+      a: 'Samuel Eto’o is the all-time top scorer of the Africa Cup of Nations with 18 goals, scored across six tournaments between 1996 and 2010.',
+    },
+    {
+      q: 'What is the record for most goals in a single AFCON tournament?',
+      a: 'Ndaye Mulamba holds the record with 9 goals for Zaire (now DR Congo) at the 1974 Africa Cup of Nations, a mark that still stands.',
+    },
+    {
+      q: 'Which active players are among AFCON’s top scorers?',
+      a: 'Mohamed Salah and Sadio Mané are the leading active scorers in AFCON history, each on 11 goals and tied with legends like Didier Drogba and Patrick Mboma.',
+    },
+    {
+      q: 'Where can I follow AFCON top scorers live?',
+      a: 'TopScorers.com tracks goalscorer rankings across international and club competitions, including the Africa Cup of Nations, with standings, results and statistics.',
+    },
+  ],
+})
 
 export function getComp(slug: string): GoldenBootComp | undefined {
   return COMPETITIONS.find((c) => c.slug === slug)
