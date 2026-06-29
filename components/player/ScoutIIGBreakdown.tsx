@@ -39,7 +39,7 @@ export default function ScoutIIGBreakdown({ player, en }: { player: PlayerData; 
             {en ? 'IIG breakdown' : 'Desglose IIG'}
           </span>
           <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '2px 7px', borderRadius: 999, background: 'var(--ts-primary-soft)', color: 'var(--ts-primary)' }}>
-            Scout · {en ? 'soon' : 'próx.'}
+            Scout
           </span>
         </div>
         <p style={{ margin: '0 0 12px', fontSize: 13, lineHeight: 1.5, color: 'var(--ts-muted)' }}>

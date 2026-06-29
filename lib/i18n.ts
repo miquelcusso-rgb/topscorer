@@ -192,10 +192,10 @@ export const T = {
   myteam_pro_cta:       { es: 'Ver PRO', en: 'See PRO' },
   myteam_loading:       { es: 'Cargando tu equipo…', en: 'Loading your team…' },
 
-  pricing_scout_desc:   { es: 'El kit de scouting que llega pronto: el IIG al detalle.', en: 'The scouting kit landing soon: the IIG in full detail.' },
+  pricing_scout_desc:   { es: 'El kit del ojeador: el IIG al detalle, comparador multi-liga y alertas.', en: 'The scout’s kit: the IIG in full detail, multi-league comparator and alerts.' },
   pricing_scout_badge:  { es: 'PARA SCOUTS', en: 'FOR SCOUTS' },
   pricing_scout_cta:    { es: 'Empezar Scout', en: 'Start Scout' },
-  pricing_scout_context:{ es: 'En construcción — la capa de herramientas de scouting aún no está disponible', en: 'Under construction — the scouting tools layer isn\'t available yet' },
+  pricing_scout_context:{ es: 'Todo lo de Pro, sin límites, + la capa de herramientas de ojeo', en: 'Everything in Pro, no limits, + the scouting tools layer' },
   pricing_scout_f1:     { es: 'Todo lo de Pro, sin límites (watchlist y CSV ilimitados)', en: 'Everything in Pro, no limits (unlimited watchlist & CSV)' },
   pricing_scout_f2:     { es: 'Desglose del IIG por jugador (componentes y pesos)', en: 'Per-player IIG breakdown (components and weights)' },
   pricing_scout_f3:     { es: 'Comparador de IIG multi-liga', en: 'Cross-league IIG comparator' },

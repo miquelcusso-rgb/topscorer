@@ -349,13 +349,13 @@ export default function PricingPage() {
             desc={t('pricing_scout_desc', lang)}
             accent={'#9a917e'}
             highlight={false}
-            badge={'COMING SOON'}
+            badge={t('pricing_scout_badge', lang)}
             badgeColor={'#9a917e'}
-            cta={'COMING SOON'}
-            ctaHref={'#'}
+            cta={t('pricing_scout_cta', lang)}
+            ctaHref={`/api/stripe/checkout?plan=scout&billing=${billing}`}
             ctaVariant="ghost"
-            comingSoon={true}
-            contextLine={t('pricing_scout_context', lang)}
+            disabled={plan === 'scout'}
+            onCtaClick={() => handleProCta(`/api/stripe/checkout?plan=scout&billing=${billing}`)}
             features={[
               t('pricing_scout_f1', lang),
               t('pricing_scout_f2', lang),
