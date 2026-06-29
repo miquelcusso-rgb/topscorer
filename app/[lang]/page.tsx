@@ -8,9 +8,19 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
   const path = ''
+  const en = lang === 'en'
+  const title = en
+    ? 'TopScorers — European Football Top Scorers & Assists'
+    : 'TopScorers — Goleadores y Asistentes Fútbol Europeo'
+  const description = en
+    ? `Top 25 scorers and assists across La Liga, the Premier League, the Bundesliga, Serie A, Ligue 1 and more. Live, real-time stats. ${CURRENT_SEASON_LONG} season.`
+    : `Top 25 goleadores y asistentes de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más. Estadísticas actualizadas en tiempo real. Temporada ${CURRENT_SEASON_LONG}.`
+  const ogDescription = en
+    ? `Top 25 scorers and assists across Europe's major leagues. ${CURRENT_SEASON_LONG} season.`
+    : `Top 25 goleadores y asistentes de las principales ligas europeas. Temporada ${CURRENT_SEASON_LONG}.`
   return {
-    title: 'TopScorers — Goleadores y Asistentes Fútbol Europeo',
-    description: `Top 25 goleadores y asistentes de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más. Estadísticas actualizadas en tiempo real. Temporada ${CURRENT_SEASON_LONG}.`,
+    title,
+    description,
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -20,8 +30,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'TopScorers — Goleadores y Asistentes Fútbol Europeo',
-      description: `Top 25 goleadores y asistentes de las principales ligas europeas. Temporada ${CURRENT_SEASON_LONG}.`,
+      title,
+      description: ogDescription,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
