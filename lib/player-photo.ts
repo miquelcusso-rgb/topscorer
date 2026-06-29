@@ -131,6 +131,27 @@ const STAR_IDS: Set<number> = new Set(Object.values(CURATED_IDS))
 // contains. Used by headshotForHeadline pass 0.5.
 const NEWS_PHOTO_KEYS: string[] = Object.keys(NEWS_NAME_PHOTOS).sort((a, b) => b.length - a.length)
 
+// Surname index over the confirmed enrichment map. Headlines almost always use
+// a player's SURNAME only ("Bellingham celebrates…", "Messi signs…"), which the
+// full-"first last" phrase pass (NEWS_PHOTO_KEYS) misses — so without this the
+// card fell back to the club crest. Each enrichment id is a hand-confirmed real
+// photo (photo-trusted). Ambiguity guard: a surname shared by two enrichment
+// entries is dropped here; the per-headline pass additionally skips any surname
+// that is ambiguous across the broader SEARCH_INDEX (so common names like
+// "silva" never resolve to the wrong face).
+const NEWS_SURNAME_TO_ID = new Map<string, number>()
+const NEWS_SURNAME_AMBIG = new Set<string>()
+for (const phrase in NEWS_NAME_PHOTOS) {
+  const toks = phrase.split(' ').filter(Boolean)
+  if (toks.length < 2) continue
+  const sn = toks[toks.length - 1]
+  if (sn.length < 4) continue
+  const id = NEWS_NAME_PHOTOS[phrase]
+  const cur = NEWS_SURNAME_TO_ID.get(sn)
+  if (cur === undefined) NEWS_SURNAME_TO_ID.set(sn, id)
+  else if (cur !== id) NEWS_SURNAME_AMBIG.add(sn)
+}
+
 // CURATED MONONYM ALIASES — popular SINGLE-name / one-word forms that headlines
 // actually use ("Vinicius brilla", "Pedri vuelve", "Neymar firma") and which the
 // full-name phrase pass (needs ≥2 tokens) and the surname pass (a single one-word
@@ -273,6 +294,17 @@ export function headshotForHeadline(headline?: string): string | undefined {
   // name, and every key is a whole-word (padded) match (≥2 tokens by build).
   for (const phrase of NEWS_PHOTO_KEYS) {
     if (padded0.includes(` ${phrase} `)) return apiPhoto(NEWS_NAME_PHOTOS[phrase])
+  }
+
+  // Pass 0.6: a CONFIRMED enrichment player's SURNAME appears as a whole word.
+  // This is what makes surname-only headlines ("Bellingham…", "Messi…") show the
+  // real player photo instead of the club crest. Photo-trusted ids. Skip any
+  // surname that's ambiguous either within the enrichment map OR across the
+  // broader SEARCH_INDEX, so a shared surname never paints the wrong face.
+  for (const w of h.split(' ')) {
+    if (w.length < 4 || SURNAME_STOPWORDS.has(w) || NEWS_SURNAME_AMBIG.has(w) || SURNAME_AMBIG.has(w)) continue
+    const id = NEWS_SURNAME_TO_ID.get(w)
+    if (id) return apiPhoto(id)
   }
 
   // Pass 1: an unambiguous COMPLETE-name phrase appears in the headline. Scan
