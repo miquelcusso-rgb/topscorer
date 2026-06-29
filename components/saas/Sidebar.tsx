@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
-import { clubColor, clubColorOptions } from '@/lib/club-colors'
+import { clubColorOptions } from '@/lib/club-colors'
+import { useClubAccent, notifyClubChange } from '@/lib/use-club-accent'
 import { useLang } from '@/contexts/LangContext'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -141,8 +142,12 @@ export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta
   const isProPlan = plan === 'pro' || plan === 'scout'
   const [club, setClub] = useState<string>('')
   useEffect(() => { try { setClub(localStorage.getItem('ts-club') ?? '') } catch {} }, [])
-  const pickClub = (c: string) => { setClub(c); try { localStorage.setItem('ts-club', c) } catch {} }
-  const accent = isProPlan ? clubColor(club) : undefined
+  const pickClub = (c: string) => {
+    setClub(c)
+    try { c ? localStorage.setItem('ts-club', c) : localStorage.removeItem('ts-club') } catch {}
+    notifyClubChange() // re-tint sidebar + topbar immediately
+  }
+  const accent = useClubAccent()
   const planLabel = plan === 'pro' ? (en ? 'Pro plan' : 'Plan Pro')
     : plan === 'scout' ? (en ? 'Scout plan' : 'Plan Scout')
     : plan === 'team' ? (en ? 'Team plan' : 'Plan Team')
@@ -247,7 +252,11 @@ export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta
         position: 'sticky',
         top: stickyTop,
         alignSelf: 'flex-start',
-        background: 'var(--ts-sidebar)',
+        // PRO "my club": wash the whole sidebar body in the club colour (subtle
+        // so text stays readable) + keep the bold club-coloured spine on the left.
+        background: accent
+          ? `color-mix(in srgb, ${accent} 9%, var(--ts-sidebar))`
+          : 'var(--ts-sidebar)',
         borderRight: '1px solid var(--ts-border)',
         borderLeft: accent ? `4px solid ${accent}` : undefined,
         display: 'flex',

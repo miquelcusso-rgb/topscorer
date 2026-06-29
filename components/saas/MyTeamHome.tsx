@@ -5,6 +5,7 @@ import { useUser } from '@clerk/nextjs'
 import { t, type Lang } from '@/lib/i18n'
 import { clubLogo } from '@/lib/club-logos'
 import { canonicalClubName } from '@/lib/club-colors'
+import { notifyClubChange } from '@/lib/use-club-accent'
 import type { Plan } from '@/types'
 
 // Home "My team" (Mi equipo) block.
@@ -43,6 +44,7 @@ export default function MyTeamHome({ lang, clubs }: { lang: Lang; clubs: { value
   const pick = (c: string) => {
     setClub(c); setPicking(false); setScorers(null)
     try { c ? localStorage.setItem('ts-club', c) : localStorage.removeItem('ts-club') } catch {}
+    notifyClubChange() // re-tint sidebar + topbar immediately
   }
 
   // PRO: fetch the club's top scorers when a team is set.
