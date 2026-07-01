@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache'
-import { headshotForHeadline, crestForHeadline, nationFlagForHeadline, leagueLogoForHeadline, isGlobalArticle, NEWS_GLOBAL_MARK } from './player-photo'
+import { headshotForHeadline, crestForHeadline, nationFlagForHeadline, leagueLogoForHeadline, isGlobalArticle, duoIdsForHeadline, NEWS_GLOBAL_MARK } from './player-photo'
 
 // Free, durable football news via public RSS feeds. We show headline + source +
 // date + link to the original (correct RSS use — traffic goes to the source).
@@ -225,6 +225,12 @@ export const getNews = unstable_cache(
 // content is never rehosted.
 export function resolveNewsVisual(it: Pick<NewsItem, 'title' | 'source'>): NewsVisual {
   const src = it.source
+  // Two players named → a side-by-side composite (checked before the single
+  // headshot so "Messi vs Ronaldo" shows both, not just the first).
+  if (!isGlobalArticle(it.title)) {
+    const duo = duoIdsForHeadline(it.title)
+    if (duo) return { url: `/api/news-duo?a=${duo[0]}&b=${duo[1]}`, license: 'agency', source: src }
+  }
   const headshot = headshotForHeadline(it.title)
   if (headshot) return { url: headshot, license: 'agency', source: src }
   // Global/ranking pieces have no single subject → go straight to the brand mark

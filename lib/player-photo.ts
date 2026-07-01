@@ -461,3 +461,37 @@ export function isGlobalArticle(headline?: string): boolean {
 }
 /** The self-hosted brand "world football" mark — last-resort, never an outlet logo. */
 export const NEWS_GLOBAL_MARK = '/news-global.svg'
+
+// Two DISTINCT confidently-identified players in one headline ("Messi vs
+// Ronaldo", "Bellingham and Kane") → their api-football ids, for a side-by-side
+// composite. Collects only high-confidence ids (mononym star, confirmed
+// enrichment full-name/surname, verified index full-name); returns the first two
+// distinct, else null. Same rigour as headshotForHeadline — never guesses.
+export function duoIdsForHeadline(headline?: string): [number, number] | null {
+  const h = norm(headline)
+  if (!h) return null
+  const padded = ` ${h} `
+  const last = (s: string) => { const t = s.split(' ').filter(Boolean); return t[t.length - 1] ?? s }
+  // Keyed by SURNAME so the same player resolved two ways (e.g. the full-name
+  // phrase "julian alvarez" + the surname "alvarez") collapses to one key and
+  // never pairs a player with a namesake. Distinct surnames = distinct people.
+  const byKey = new Map<string, number>()
+  const seen = new Set<number>()
+  const add = (id: number | undefined, key: string) => {
+    if (!id || seen.has(id) || byKey.has(key)) return
+    byKey.set(key, id); seen.add(id)
+  }
+  for (const alias in MONONYM_ALIASES) if (padded.includes(` ${alias} `)) add(MONONYM_ALIASES[alias], alias)
+  for (const phrase of NEWS_PHOTO_KEYS) if (padded.includes(` ${phrase} `)) add(NEWS_NAME_PHOTOS[phrase], last(phrase))
+  for (const w of h.split(' ')) {
+    if (w.length < 4 || SURNAME_STOPWORDS.has(w) || NEWS_SURNAME_AMBIG.has(w)) continue
+    if (SURNAME_RISKY.has(w) && SURNAME_AMBIG.has(w)) continue
+    add(NEWS_SURNAME_TO_ID.get(w), w)
+  }
+  for (const phrase of PHRASES_BY_LEN) {
+    if (PHRASE_AMBIG.has(phrase)) continue
+    if (padded.includes(` ${phrase} `)) { const id = PHRASE_TO_ID.get(phrase); if (id && verifiedPhoto(id)) add(id, last(phrase)) }
+  }
+  const ids = [...byKey.values()]
+  return ids.length >= 2 ? [ids[0], ids[1]] : null
+}
