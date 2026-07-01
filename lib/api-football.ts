@@ -226,6 +226,27 @@ export const getStandings = unstable_cache(
   { revalidate: 21600, tags: ['api-football'] } // 6 h — standings update ~weekly
 )
 
+// ─── Team profile (club info + venue) ────────────────────────────────────────
+// /teams?id= returns the club (name, country, founded, national flag) and its
+// venue (stadium, city, capacity). Powers the team pages. Cached 7 days — these
+// facts are essentially static. Defensive: any error → null.
+export interface TeamInfoResponse {
+  team: { id: number; name: string; code: string | null; country: string; founded: number | null; national: boolean; logo: string }
+  venue: { id: number | null; name: string | null; address: string | null; city: string | null; capacity: number | null; surface: string | null; image: string | null }
+}
+export const getTeamInfo = unstable_cache(
+  async (teamId: number): Promise<TeamInfoResponse | null> => {
+    try {
+      const data = await apiFetch<TeamInfoResponse[]>(`/teams?id=${teamId}`)
+      return data.response?.[0] ?? null
+    } catch {
+      return null
+    }
+  },
+  ['api-football-team-info'],
+  { revalidate: 604800, tags: ['api-football'] } // 7 d — club/venue facts are static
+)
+
 // International friendlies (league 10) in a date window — used for the World
 // Cup 2026 build-up "preview" section. Revalidates hourly so newly-played
 // matches and scores appear automatically. Defensive: any error → [].

@@ -5,6 +5,7 @@ import { useUser } from '@clerk/nextjs'
 import { t, type Lang } from '@/lib/i18n'
 import { clubLogo } from '@/lib/club-logos'
 import { canonicalClubName } from '@/lib/club-colors'
+import { slugify } from '@/lib/slugify'
 import type { Plan } from '@/types'
 
 // Home "My team" (Mi equipo) block.
@@ -85,9 +86,10 @@ export default function MyTeamHome({ lang }: { lang: Lang }) {
                     style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6, boxSizing: 'border-box' }} />
                 : <span aria-hidden style={{ fontSize: 20 }}>🛡️</span>}
             </div>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 700, lineHeight: 1.05, color: 'var(--ts-text)' }}>
-              {canonicalClubName(club)}
-            </span>
+            <Link href={`/${lang}/equipo/${slugify(canonicalClubName(club))}`}
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 700, lineHeight: 1.05, color: 'var(--ts-text)', textDecoration: 'none' }}>
+              {canonicalClubName(club)} <span style={{ fontSize: 14, color: 'var(--ts-teal)' }}>→</span>
+            </Link>
           </div>
 
           {isPro ? (

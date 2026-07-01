@@ -46,7 +46,7 @@ export default function TopSearch({ placeholder }: Props) {
 
   // Flat list of navigable results (clubs → leagues → players) for arrow keys.
   const items: { href: string; key: string }[] = [
-    ...clubs.map(c => ({ href: `/${lang}/competiciones/${c.leagueSlug}`, key: 'c' + c.name })),
+    ...clubs.map(c => ({ href: `/${lang}/equipo/${c.slug}`, key: 'c' + c.name })),
     ...leagues.map(l => ({ href: `/${lang}/competiciones/${l.slug}`, key: 'l' + l.slug })),
     ...players.map(p => ({ href: `/${lang}/jugadores/${p.slug}`, key: 'p' + p.slug })),
   ]
@@ -192,7 +192,7 @@ export default function TopSearch({ placeholder }: Props) {
                 const idx = i
                 return (
                   <button key={'c' + c.name} type="button" onMouseEnter={() => setActive(idx)}
-                    onClick={() => go(`/${lang}/competiciones/${c.leagueSlug}`)} style={rowStyle(active === idx)}>
+                    onClick={() => go(`/${lang}/equipo/${c.slug}`)} style={rowStyle(active === idx)}>
                     {c.crest
                       ? <CrestImg src={c.crest} alt={c.name} size={24} />
                       : <span style={{ width: 24, textAlign: 'center', fontSize: 14 }}>🛡️</span>}

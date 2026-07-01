@@ -50,3 +50,47 @@ export const getPlayerBio = unstable_cache(
   ['wikipedia-bio'],
   { revalidate: 2592000, tags: ['wikipedia'] } // 30d
 )
+
+export interface ClubSummary {
+  title: string
+  extract: string
+  url: string
+  thumbnail?: string
+}
+
+// Short club history/summary from Wikipedia (free, no key). Resolves the article
+// title via search (disambiguated with "football club"/"club de fútbol") then
+// pulls the REST summary. Cached 30d — club summaries change slowly.
+export const getClubSummary = unstable_cache(
+  async (name: string, lang: 'es' | 'en'): Promise<ClubSummary | null> => {
+    try {
+      const wiki = lang === 'en' ? 'en' : 'es'
+      const qualifier = lang === 'en' ? 'football club' : 'club de fútbol'
+      const searchUrl = `https://${wiki}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(`${name} ${qualifier}`)}&srlimit=1&format=json`
+      const sr = await fetch(searchUrl, { headers: { 'User-Agent': UA } })
+      if (!sr.ok) return null
+      const sj = await sr.json() as { query?: { search?: Array<{ title: string }> } }
+      const title = sj.query?.search?.[0]?.title
+      if (!title) return null
+
+      const sumUrl = `https://${wiki}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g, '_'))}`
+      const res = await fetch(sumUrl, { headers: { 'User-Agent': UA } })
+      if (!res.ok) return null
+      const d = await res.json() as {
+        title?: string; extract?: string; type?: string
+        content_urls?: { desktop?: { page?: string } }; thumbnail?: { source?: string }
+      }
+      if (!d.extract || d.type === 'disambiguation') return null
+      // Only trust results that read like a football-club article.
+      if (!/football|soccer|fútbol|futbol|club|f\.?c\.?/i.test(d.extract) && !/football|soccer|fútbol|futbol|club/i.test(d.title ?? title)) return null
+      return {
+        title: d.title ?? title,
+        extract: d.extract.length > 600 ? d.extract.slice(0, 600).replace(/\s+\S*$/, '') + '…' : d.extract,
+        url: d.content_urls?.desktop?.page ?? `https://${wiki}.wikipedia.org/wiki/${encodeURIComponent(title)}`,
+        thumbnail: d.thumbnail?.source,
+      }
+    } catch { return null }
+  },
+  ['wikipedia-club'],
+  { revalidate: 2592000, tags: ['wikipedia'] } // 30d
+)

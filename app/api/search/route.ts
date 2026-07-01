@@ -5,6 +5,7 @@ import { SEARCH_INDEX } from '@/data/search-index'
 import { slugify } from '@/lib/slugify'
 import { playerSlug } from '@/lib/player-slug'
 import { clubLogo } from '@/lib/club-logos'
+import { canonicalClubName } from '@/lib/club-colors'
 import { flagFor } from '@/lib/flags'
 import { playerApiId, playerPhoto } from '@/lib/player-photo'
 
@@ -32,6 +33,7 @@ export interface SearchLeagueHit {
 }
 export interface SearchClubHit {
   name: string
+  slug: string
   league: string
   leagueSlug: string
   crest?: string
@@ -149,14 +151,19 @@ const LEAGUE_INDEX: (SearchLeagueHit & { _n: string })[] = (() => {
   return out
 })()
 
-// Distinct clubs (with crest), for the multi-entity search.
+// Distinct clubs (with crest), for the multi-entity search. Deduped by the
+// canonical slug so "Atletico"/"Atlético" or "PSG"/"Paris Saint Germain" fold
+// into one entry that links to its team page (/equipo/<slug>).
 const CLUB_INDEX: (SearchClubHit & { _n: string })[] = (() => {
   const seen = new Set<string>()
   const out: (SearchClubHit & { _n: string })[] = []
   for (const p of PRIMARY_PLAYERS) {
-    if (!p.club || seen.has(p.club)) continue
-    seen.add(p.club)
-    out.push({ name: p.club, league: p.league, leagueSlug: slugify(p.league), crest: clubLogo(p.club), _n: norm(p.club) })
+    if (!p.club) continue
+    const canonical = canonicalClubName(p.club)
+    const slug = slugify(canonical)
+    if (!slug || seen.has(slug)) continue
+    seen.add(slug)
+    out.push({ name: canonical, slug, league: p.league, leagueSlug: slugify(p.league), crest: clubLogo(canonical), _n: norm(canonical) })
   }
   return out
 })()
