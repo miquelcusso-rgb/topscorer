@@ -6,6 +6,7 @@ import { slugify } from '@/lib/slugify'
 import { playerSlug } from '@/lib/player-slug'
 import { clubLogo } from '@/lib/club-logos'
 import { canonicalClubName } from '@/lib/club-colors'
+import { TEAMS_INDEX } from '@/data/teams-index'
 import { flagFor } from '@/lib/flags'
 import { playerApiId, playerPhoto } from '@/lib/player-photo'
 
@@ -164,6 +165,14 @@ const CLUB_INDEX: (SearchClubHit & { _n: string })[] = (() => {
     if (!slug || seen.has(slug)) continue
     seen.add(slug)
     out.push({ name: canonical, slug, league: p.league, leagueSlug: slugify(p.league), crest: clubLogo(canonical), _n: norm(canonical) })
+  }
+  // Canonical universe: every team from the api-football teams index we don't
+  // already have from the curated set, so the whole league→team space is
+  // searchable and links to its /equipo/<slug> page.
+  for (const [slug, e] of Object.entries(TEAMS_INDEX)) {
+    if (seen.has(slug)) continue
+    seen.add(slug)
+    out.push({ name: e.name, slug, league: e.leagueName, leagueSlug: slugify(e.leagueName), crest: e.logo ?? undefined, _n: norm(e.name) })
   }
   return out
 })()

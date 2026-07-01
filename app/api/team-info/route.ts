@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { findTeamBySlug } from '@/lib/team-data'
 import { getTeamInfo } from '@/lib/api-football'
 import { getClubSummary } from '@/lib/wikipedia'
+import { TEAMS_INDEX } from '@/data/teams-index'
 
 // Lazy enrichment for a team page: club facts (founded, stadium, capacity,
 // country) from api-football + a short history from Wikipedia. Fetched on the
@@ -20,13 +21,21 @@ export async function GET(req: NextRequest) {
   const team = findTeamBySlug(slug)
   if (!team) return Response.json({ ok: false, error: 'unknown team' }, { status: 404 })
 
+  // Prefer facts already in the generated teams index (no API call). Only fall
+  // back to a live /teams fetch when the index lacks this slug (dataset-derived
+  // teams whose slug differs from the index).
+  const idx = TEAMS_INDEX[slug]
+  const needsLiveFacts = !idx || (!idx.founded && !idx.venue)
+
   try {
     const [info, history] = await Promise.all([
-      team.teamId ? getTeamInfo(team.teamId) : Promise.resolve(null),
+      needsLiveFacts && team.teamId ? getTeamInfo(team.teamId) : Promise.resolve(null),
       getClubSummary(team.name, lang),
     ])
 
-    const facts = info
+    const facts = idx && !needsLiveFacts
+      ? { founded: idx.founded, country: idx.country, venue: idx.venue, city: idx.city, capacity: idx.capacity }
+      : info
       ? {
           founded: info.team.founded ?? null,
           country: info.team.country ?? null,

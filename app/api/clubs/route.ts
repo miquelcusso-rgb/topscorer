@@ -1,5 +1,6 @@
 import { PRIMARY_PLAYERS } from '@/lib/player-identity'
 import { canonicalClubName } from '@/lib/club-colors'
+import { TEAMS_INDEX } from '@/data/teams-index'
 
 // Distinct clubs (current season) for the sidebar "my team" typeahead. Deduped
 // by canonical name; value = a raw dataset name (so crest + team lookups match),
@@ -16,6 +17,13 @@ export async function GET() {
     if (seen.has(key)) continue
     seen.add(key)
     clubs.push({ value: p.club, label })
+  }
+  // Full universe: every team from the api-football index not already listed.
+  for (const e of Object.values(TEAMS_INDEX)) {
+    const key = e.name.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    clubs.push({ value: e.name, label: e.name })
   }
   clubs.sort((a, b) => a.label.localeCompare(b.label))
   return Response.json(clubs, {

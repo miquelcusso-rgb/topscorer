@@ -7,6 +7,7 @@ import { playerSlug } from '@/lib/player-slug'
 import { playerPhoto } from '@/lib/player-photo'
 import { flagFor } from '@/lib/flags'
 import { leagueIdForDatasetName } from '@/lib/league-data'
+import { TEAMS_INDEX } from '@/data/teams-index'
 import type { PlayerData } from '@/types'
 
 // Team-page data layer. Everything here is derived from the static current-season
@@ -106,6 +107,29 @@ function buildIndex(): Map<string, TeamData> {
       totals: { players: g.players.length, goals, assists, avgAge },
     })
   }
+
+  // Canonical Leagues → Teams universe: add every team from the api-football
+  // teams index that we don't already track. Dataset-derived teams keep their
+  // exact slugs + stats (SEO-safe); index-only clubs get a page too (squad is
+  // fetched live from the API on render). Dedupe by teamId so a club that also
+  // exists in the curated set never doubles under a different slug.
+  const trackedIds = new Set<number>()
+  for (const t of out.values()) if (t.teamId) trackedIds.add(t.teamId)
+  for (const [slug, e] of Object.entries(TEAMS_INDEX)) {
+    if (out.has(slug) || trackedIds.has(e.teamId)) continue
+    out.set(slug, {
+      name: e.name,
+      slug,
+      league: e.leagueName,
+      leagueId: e.leagueId,
+      crest: e.logo ?? undefined,
+      teamId: e.teamId,
+      accent: clubColor(e.name),
+      squad: [],           // filled live from api-football on the page
+      totals: { players: 0, goals: 0, assists: 0, avgAge: null },
+    })
+  }
+
   _index = out
   return out
 }
