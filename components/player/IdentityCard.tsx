@@ -2,6 +2,7 @@ import type { PlayerData } from '@/types'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
 import { shortName, fullNameIfDifferent } from '@/lib/player-name'
 import { CURRENT_SEASON_SHORT } from '@/lib/season'
+import MarketValuePill from '@/components/player/MarketValuePill'
 
 interface IdentityCardProps {
   player: PlayerData
@@ -153,11 +154,7 @@ export default function IdentityCard({
           <span>
             {player.club} {player.position ? `· ${player.position}` : ''}
           </span>
-          {player.marketValue && (
-            <span>
-              Valor: <strong style={{ color: 'var(--ts-text)' }}>{player.marketValue}</strong>
-            </span>
-          )}
+          <MarketValuePill name={player.fullName || player.name} fallback={player.marketValue} />
         </div>
         {liveText && (
           <div
