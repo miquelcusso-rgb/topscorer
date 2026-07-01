@@ -10,7 +10,6 @@ import { rankScore } from '@/lib/iig'
 import { computeHomeInsights } from '@/lib/home-insights'
 import { getTopRumors } from '@/lib/home-rumor'
 import { flagFor } from '@/lib/flags'
-import { canonicalClubName } from '@/lib/club-colors'
 
 interface HeadingOverride {
   breadcrumb: string[]
@@ -95,22 +94,6 @@ export default async function SaasHomeBody({
     p => p && p.season === '2526'
   )
   const positionPools = buildPositionPools(season)
-  // Distinct clubs for the "My team" picker, deduped by CANONICAL identity so a
-  // club doesn't appear twice under accent/short-form variants ("Atletico
-  // Madrid" vs "Atlético Madrid", "PSG" vs "Paris Saint Germain"). We keep the
-  // RAW dataset name as the value (so crest + /api/team-scorers lookups, which
-  // match on the dataset string, still resolve) and let the client show the
-  // canonical label. Small {value,label}[] payload.
-  const clubsSeen = new Set<string>()
-  const clubs: { value: string; label: string }[] = []
-  for (const raw of season.map(p => p.club).filter(Boolean).sort((a, b) => a.localeCompare(b))) {
-    const label = canonicalClubName(raw)
-    const key = label.toLowerCase()
-    if (clubsSeen.has(key)) continue
-    clubsSeen.add(key)
-    clubs.push({ value: raw, label })
-  }
-  clubs.sort((a, b) => a.label.localeCompare(b.label))
   // Small derived payload (hot striker + insights + standouts) — tiny + serializable.
   const insights = computeHomeInsights(season)
   // Editorial "rumor del día" — fetched at build (home is force-static); fully
@@ -135,7 +118,7 @@ export default async function SaasHomeBody({
       activeKey="players"
       breadcrumb={breadcrumb}
     >
-      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} breaking={breaking} clubs={clubs} />
+      <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} breaking={breaking} />
       <div style={{ marginTop: 32, marginLeft: -24, marginRight: -24, marginBottom: -24 }}>
         <Footer />
       </div>

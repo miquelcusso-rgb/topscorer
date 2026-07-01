@@ -152,10 +152,9 @@ interface Props {
   insights?: HomeInsights
   rumors?: HomeRumor[]
   news?: NewsLite[]
-  clubs?: { value: string; label: string }[]
 }
 
-export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [], news = [], breaking = [], clubs = [] }: Props) {
+export default function SaasHomeInteractive({ lang, positionPools, defaultPos, insights, rumors = [], news = [], breaking = [] }: Props) {
   const [pos, setPos] = useState<PositionTabId>(defaultPos ?? 'fw')
   // Rotate through the breaking headlines (2–5) in the same banner slot.
   const [breakIdx, setBreakIdx] = useState(0)
@@ -408,8 +407,8 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
       {/* Three compact hot strips: news · rumours · strikers (title left, leads right) */}
       <HotStrips news={news} rumors={rumors} strikers={insights?.standouts ?? []} lang={lang === 'en' ? 'en' : 'es'} />
 
-      {/* "My team" — FREE picks a favourite club; PRO sees its top scorers. */}
-      <MyTeamHome lang={lang} clubs={clubs} />
+      {/* "My team" — team chosen in the sidebar typeahead; PRO sees top scorers. */}
+      <MyTeamHome lang={lang} />
 
       {insights && insights.lines.length > 0 && !insightDismissed && (() => {
         const line = insights.lines[curio % insights.lines.length]

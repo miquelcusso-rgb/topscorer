@@ -5,7 +5,6 @@ import { useUser } from '@clerk/nextjs'
 import { t, type Lang } from '@/lib/i18n'
 import { clubLogo } from '@/lib/club-logos'
 import { canonicalClubName } from '@/lib/club-colors'
-import { notifyClubChange } from '@/lib/use-club-accent'
 import type { Plan } from '@/types'
 
 // Home "My team" (Mi equipo) block.
@@ -28,24 +27,24 @@ const eyebrow: React.CSSProperties = {
   fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)',
 }
 
-export default function MyTeamHome({ lang, clubs }: { lang: Lang; clubs: { value: string; label: string }[] }) {
+export default function MyTeamHome({ lang }: { lang: Lang }) {
+  const en = lang === 'en'
   const { user, isLoaded } = useUser()
   const plan: Plan = (isLoaded && user ? ((user.publicMetadata?.plan as Plan) || 'free') : 'free')
   const isPro = plan === 'pro' || plan === 'team' || plan === 'scout'
 
   const [club, setClub] = useState<string>('')
-  const [picking, setPicking] = useState(false)
   const [scorers, setScorers] = useState<TeamScorer[] | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // Restore the saved favourite team once on mount.
-  useEffect(() => { try { setClub(localStorage.getItem('ts-club') ?? '') } catch {} }, [])
-
-  const pick = (c: string) => {
-    setClub(c); setPicking(false); setScorers(null)
-    try { c ? localStorage.setItem('ts-club', c) : localStorage.removeItem('ts-club') } catch {}
-    notifyClubChange() // re-tint sidebar + topbar immediately
-  }
+  // The favourite team is chosen in the sidebar typeahead now — reflect it live.
+  useEffect(() => {
+    const read = () => { try { setClub(localStorage.getItem('ts-club') ?? '') } catch {} }
+    read()
+    window.addEventListener('ts-club-change', read)
+    window.addEventListener('storage', read)
+    return () => { window.removeEventListener('ts-club-change', read); window.removeEventListener('storage', read) }
+  }, [])
 
   // PRO: fetch the club's top scorers when a team is set.
   useEffect(() => {
@@ -61,38 +60,20 @@ export default function MyTeamHome({ lang, clubs }: { lang: Lang; clubs: { value
   }, [club, isPro])
 
   const crest = club ? clubLogo(club) : undefined
-  const showPicker = !club || picking
 
   return (
     <section style={card}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <span aria-hidden style={{ fontSize: 15 }}>⚽</span>
         <span style={eyebrow}>{t('myteam_title', lang)}</span>
-        {club && !picking && (
-          <button type="button" onClick={() => setPicking(true)}
-            style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--ts-muted)', fontSize: 12, fontWeight: 600, padding: '4px 6px' }}>
-            {t('myteam_change', lang)}
-          </button>
-        )}
       </div>
 
-      {showPicker ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <label htmlFor="myteam-select" style={{ fontSize: 13, color: 'var(--ts-muted)' }}>
-            {t('myteam_pick_hint', lang)}
-          </label>
-          <select
-            id="myteam-select"
-            defaultValue={club}
-            onChange={e => pick(e.target.value)}
-            style={{ minHeight: 44, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--ts-border)',
-              background: 'var(--ts-card2)', color: 'var(--ts-text)', fontSize: 14, fontWeight: 500, width: '100%' }}
-          >
-            <option value="">{t('myteam_pick', lang)}</option>
-            {clubs.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </select>
-        </div>
+      {!club ? (
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: 'var(--ts-muted)' }}>
+          {en
+            ? 'Pick your team in the sidebar (top-left) — it stays here with your club’s top scorers.'
+            : 'Elige tu equipo en la barra lateral (arriba a la izquierda) — se queda aquí con los goleadores de tu club.'}
+        </p>
       ) : (
         <>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: isPro ? 14 : 8 }}>

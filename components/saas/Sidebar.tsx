@@ -3,9 +3,10 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
-import { clubColorOptions, canonicalClubName } from '@/lib/club-colors'
+import { canonicalClubName } from '@/lib/club-colors'
 import { clubLogo } from '@/lib/club-logos'
-import { useClubAccent, notifyClubChange } from '@/lib/use-club-accent'
+import { useClubAccent } from '@/lib/use-club-accent'
+import ClubTypeahead from './ClubTypeahead'
 import { useLang } from '@/contexts/LangContext'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -141,13 +142,16 @@ export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta
   // PRO "my club" accent: persisted in localStorage; tints the sidebar spine +
   // workspace badge with the club colour. Only applied for Pro/Scout plans.
   const isProPlan = plan === 'pro' || plan === 'scout'
+  // Reflect the favourite club (set via the ClubTypeahead below) live — the
+  // workspace badge shows its crest. Listens to the same events as useClubAccent.
   const [club, setClub] = useState<string>('')
-  useEffect(() => { try { setClub(localStorage.getItem('ts-club') ?? '') } catch {} }, [])
-  const pickClub = (c: string) => {
-    setClub(c)
-    try { c ? localStorage.setItem('ts-club', c) : localStorage.removeItem('ts-club') } catch {}
-    notifyClubChange() // re-tint sidebar + topbar immediately
-  }
+  useEffect(() => {
+    const read = () => { try { setClub(localStorage.getItem('ts-club') ?? '') } catch {} }
+    read()
+    window.addEventListener('ts-club-change', read)
+    window.addEventListener('storage', read)
+    return () => { window.removeEventListener('ts-club-change', read); window.removeEventListener('storage', read) }
+  }, [])
   const accent = useClubAccent()
   // Club crest for the workspace badge (PRO + a club picked). Falls back to "TS".
   const crest = accent && club ? clubLogo(club) : undefined
@@ -318,20 +322,12 @@ export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta
           </div>
           <svg width={14} height={14} viewBox="0 0 14 14" fill="none" stroke="var(--ts-muted)" strokeWidth={1.5} aria-hidden><circle cx={7} cy={6} r={1.5} /><path d="M3 11c0-2 1.8-3 4-3s4 1 4 3" /></svg>
         </div>
-        {/* my-club row */}
+        {/* my-team row — typeahead (FREE favourite; PRO also tints the workspace) */}
         <div style={{ padding: '10px' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ts-muted)', marginBottom: 6 }}>
-            {en ? 'My club' : 'Mi club'} {!isProPlan && <span style={{ color: 'var(--ts-primary)' }}>· PRO</span>}
-          </div>
-          {isProPlan ? (
-            <select value={club} onChange={e => pickClub(e.target.value)} aria-label={en ? 'My club' : 'Mi club'}
-              style={{ width: '100%', padding: '7px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: 'var(--ts-bg)', color: 'var(--ts-text)', border: '1px solid var(--ts-border)', fontFamily: 'inherit', cursor: 'pointer' }}>
-              <option value="">{en ? '— none —' : '— ninguno —'}</option>
-              {clubColorOptions().map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          ) : (
-            <Link href={`/${lang}/pricing`} style={{ display: 'block', padding: '7px 10px', borderRadius: 8, fontSize: 12, textAlign: 'center', background: 'var(--ts-bg)', color: 'var(--ts-muted)', border: '1px dashed var(--ts-border)', textDecoration: 'none' }}>
-              🔒 {en ? 'Tint sidebar with your club' : 'Tiñe el panel con tu club'}
+          <ClubTypeahead en={en} />
+          {!isProPlan && (
+            <Link href={`/${lang}/pricing`} style={{ display: 'block', marginTop: 6, fontSize: 10, color: 'var(--ts-muted)', textDecoration: 'none' }}>
+              {en ? '★ PRO tints the panel with your club' : '★ PRO tiñe el panel con tu club'}
             </Link>
           )}
         </div>
