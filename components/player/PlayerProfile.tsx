@@ -20,6 +20,7 @@ import { iig, IIG_NAME, IIG_EXPLAINER } from '@/lib/iig'
 import { playerAttributes, isGoalkeeper } from '@/lib/player-attributes'
 import { playerNarrative } from '@/lib/player-narrative'
 import ScoutIIGBreakdown from '@/components/player/ScoutIIGBreakdown'
+import ScoutIIGTrend from '@/components/player/ScoutIIGTrend'
 
 type Tone = 'primary' | 'teal' | 'text'
 
@@ -293,6 +294,7 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
         </>}
         historico={<>
           <MarketValueChart name={player.fullName || player.name} en={en} />
+          <ScoutIIGTrend seasons={seasons} en={en} />
           <PlayerHonors apiId={player.apiId} en={en} />
           <InjuryHistory apiId={apiId} en={en} />
           <PlayerCareer apiId={player.apiId} seasons={seasons} en={en} />
