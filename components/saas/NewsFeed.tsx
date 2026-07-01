@@ -188,17 +188,10 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
   const q = query.trim().toLowerCase()
   const shown = q ? items.filter(it => `${it.title} ${it.source}`.toLowerCase().includes(q)) : items
 
-  // Hero = the freshest priority story, then the rest.
-  const hero = shown.find(it => it.isPriority) ?? shown[0]
-  const rest = shown.filter(it => it !== hero)
-
-  const groups: { label: string; items: NewsItem[] }[] = []
-  for (const it of rest) {
-    const label = dayBucket(it.date, en)
-    let g = groups.find(x => x.label === label)
-    if (!g) { g = { label, items: [] }; groups.push(g) }
-    g.items.push(it)
-  }
+  // Three tiers (owner layout): top 3 spotlight · next 6 featured (bigger) · rest.
+  const top3 = shown.slice(0, 3)
+  const featured = shown.slice(3, 9)
+  const restItems = shown.slice(9)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -227,61 +220,57 @@ export default function NewsFeed({ scope = 'general', lang }: { scope?: 'general
           en carrousel"). */}
       <MobileNewsCarousel items={shown} lang={lang} en={en} />
 
-      {/* Desktop-only hero highlight (on mobile the carousel above replaces it). */}
-      <div className="saas-newsfeed-desktop" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      {/* Hero story — ~2.5× a normal card */}
-      <a href={hero.link} target="_blank" rel="noopener noreferrer" className="saas-news-hero"
-        style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) 1fr', gap: 0,
-          background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 14, overflow: 'hidden', textDecoration: 'none', color: 'inherit', minHeight: 200 }}>
-        <HeroImg visual={hero.visual} source={hero.source} h={260} />
-        <div style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)' }}>
-            {hero.isPriority ? (en ? '★ Top story' : '★ Destacada') : (en ? 'Featured' : 'Destacada')}
-          </span>
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 27, fontWeight: 700, lineHeight: 1.1, color: 'var(--ts-text)' }}>
-            {hero.title}
-          </span>
-          <span style={{ fontSize: 12, color: 'var(--ts-muted)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <LangBadge itemLang={hero.lang} siteLang={lang} />{en ? 'Via' : 'Vía'} {hero.source} · {fmtTime(hero.date, en)}
-          </span>
+      {/* Tier 1 — top-3 spotlight (desktop only; on mobile the carousel above
+          serves this role). Three prominent image cards. */}
+      {top3.length > 0 && (
+        <div className="saas-newsfeed-desktop" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          {top3.map((it, i) => (
+            <a key={i} href={it.link} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'flex', flexDirection: 'column', background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 14, overflow: 'hidden', textDecoration: 'none', color: 'inherit' }}>
+              <HeroImg visual={it.visual} source={it.source} h={158} />
+              <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ts-primary)' }}>
+                  {i === 0 ? (en ? '★ Top story' : '★ Destacada') : (en ? 'Featured' : 'Destacada')}
+                </span>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 19, fontWeight: 700, lineHeight: 1.12, color: 'var(--ts-text)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {it.title}
+                </span>
+                <span style={{ fontSize: 11, color: 'var(--ts-muted)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                  <LangBadge itemLang={it.lang} siteLang={lang} />{it.source} · {fmtTime(it.date, en)}
+                </span>
+              </div>
+            </a>
+          ))}
         </div>
-      </a>
-      </div>
+      )}
 
-      {groups.map(g => (
-        <div key={g.label}>
+      {/* Tier 2 — next 6 featured (bigger cards). All viewports. */}
+      {featured.length > 0 && (
+        <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+          {featured.map((it, i) => (
+            <NewsCard key={i} variant="full" title={it.title} href={it.link} external image={cardImage(it)}
+              source={it.source} sourceUrl={it.link} meta={fmtTime(it.date, en)} lang={lang}
+              eyebrow={it.isPriority ? (en ? '★ Featured' : '★ Destacada') : undefined}
+              metaPrefix={<LangBadge itemLang={it.lang} siteLang={lang} />} />
+          ))}
+        </div>
+      )}
+
+      {/* Tier 3 — the rest, compact. All viewports. */}
+      {restItems.length > 0 && (
+        <div>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ts-primary)', marginBottom: 10, fontFamily: "'Barlow Condensed', sans-serif" }}>
-            {g.label}
+            {en ? 'More news' : 'Más noticias'}
           </div>
-          <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
-            {g.items.map((it, i) => {
-              const img = cardImage(it)
-              // Two-tier sizing (owner request): a card that actually shows a
-              // player headshot or club crest keeps the LARGE "premium" layout;
-              // a card with no resolvable visual (→ branded placeholder) renders
-              // COMPACT (small thumb + headline, text-forward) so it takes less
-              // vertical space and never looks like a big empty image box.
-              const hasVisual = !!img.url
-              return (
-                <NewsCard
-                  key={i}
-                  variant={hasVisual ? 'full' : 'compact'}
-                  title={it.title}
-                  href={it.link}
-                  external
-                  image={img}
-                  source={it.source}
-                  sourceUrl={it.link}
-                  meta={fmtTime(it.date, en)}
-                  lang={lang}
-                  eyebrow={hasVisual && it.isPriority ? (en ? '★ Featured' : '★ Destacada') : undefined}
-                  metaPrefix={<LangBadge itemLang={it.lang} siteLang={lang} />}
-                />
-              )
-            })}
+          <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+            {restItems.map((it, i) => (
+              <NewsCard key={i} variant="compact" title={it.title} href={it.link} external image={cardImage(it)}
+                source={it.source} sourceUrl={it.link} meta={fmtTime(it.date, en)} lang={lang}
+                metaPrefix={<LangBadge itemLang={it.lang} siteLang={lang} />} />
+            ))}
           </div>
         </div>
-      ))}
+      )}
       <p style={{ fontSize: 10, color: 'var(--ts-faint)' }}>
         {en ? 'Headlines via public RSS — tap to read at the source. Photos: official API headshots or our own graphics (no agency images rehosted).' : 'Titulares vía RSS público — pulsa para leer en la fuente. Fotos: cabezas oficiales de la API o gráficos propios (no rehospedamos imágenes de agencia).'}
       </p>
