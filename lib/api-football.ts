@@ -454,6 +454,22 @@ export const getFixtures = unstable_cache(
   { revalidate: 86400, tags: ['api-football'] } // 24 h — past fixtures never change
 )
 
+// All of one team's fixtures this season (one call). The team page splits them
+// into recent results (status FT/AET/PEN) and upcoming (NS/TBD) itself. Cached
+// 3h so newly-played scores and reschedules surface.
+export const getTeamFixtures = unstable_cache(
+  async (teamId: number, season: number = 2025): Promise<ApiFixture[]> => {
+    try {
+      const data = await apiFetch<ApiFixture[]>(`/fixtures?team=${teamId}&season=${season}`)
+      return data.response ?? []
+    } catch {
+      return []
+    }
+  },
+  ['api-football-team-fixtures'],
+  { revalidate: 10800, tags: ['api-football'] } // 3 h
+)
+
 export const getNextFixtures = unstable_cache(
   async (leagueId: number, season: number = 2025, next: number = 5): Promise<ApiFixture[]> => {
     const data = await apiFetch<ApiFixture[]>(

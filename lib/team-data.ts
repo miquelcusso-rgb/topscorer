@@ -6,6 +6,7 @@ import { rankScore } from '@/lib/iig'
 import { playerSlug } from '@/lib/player-slug'
 import { playerPhoto } from '@/lib/player-photo'
 import { flagFor } from '@/lib/flags'
+import { leagueIdForDatasetName } from '@/lib/league-data'
 import type { PlayerData } from '@/types'
 
 // Team-page data layer. Everything here is derived from the static current-season
@@ -31,6 +32,7 @@ export interface TeamData {
   name: string          // canonical display name (accent/short-form folded)
   slug: string
   league: string        // raw dataset league string
+  leagueId?: number     // api-football league id (for standings/stats/fixtures)
   crest?: string
   teamId?: number       // api-football team id (extracted from the crest URL)
   accent?: string       // brand colour, when known
@@ -94,6 +96,7 @@ function buildIndex(): Map<string, TeamData> {
       name: g.canonical,
       slug,
       league: g.league,
+      leagueId: leagueIdForDatasetName(g.league),
       crest: clubLogo(g.canonical),
       teamId: teamIdFromCrest(g.canonical),
       accent: clubColor(g.canonical),

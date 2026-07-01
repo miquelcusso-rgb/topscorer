@@ -114,6 +114,12 @@ export function leagueCountry(datasetLeague: string): string | undefined {
   return DATASET_LEAGUE_META.get(datasetLeague)?.country
 }
 
+/** api-football league id for a raw dataset league string (undefined if unknown).
+ *  Lets the team pages pull standings / statistics / fixtures for that league. */
+export function leagueIdForDatasetName(datasetLeague: string): number | undefined {
+  return DATASET_LEAGUE_META.get(datasetLeague)?.id
+}
+
 /**
  * Human label for a dataset league string in the scope picker: the league name
  * plus its country when known (e.g. "Süper Lig · Turkey", "Super League ·

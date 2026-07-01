@@ -5,6 +5,7 @@ import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
 import Footer from '@/components/Footer'
 import TeamFacts from '@/components/team/TeamFacts'
+import TeamEnrichment from '@/components/team/TeamEnrichment'
 import { majorTeamSlugs, findTeamBySlug, datasetStatsByName, type TeamData } from '@/lib/team-data'
 import { getSquad, getCoach, type SquadPlayer } from '@/lib/api-football'
 import { slugify } from '@/lib/slugify'
@@ -207,6 +208,9 @@ export default async function TeamPage({
 
         {/* Lazy club facts + history */}
         <TeamFacts slug={slug} lang={lang} />
+
+        {/* Season standing, statistics, fixtures, transfers, injuries (SSR) */}
+        {team.teamId ? <TeamEnrichment teamId={team.teamId} leagueId={team.leagueId} teamName={team.name} lang={lang} /> : null}
 
         {/* Full squad, grouped by position */}
         <section style={card}>
