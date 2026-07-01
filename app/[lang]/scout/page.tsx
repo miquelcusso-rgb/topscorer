@@ -7,6 +7,7 @@ import { playerPhoto } from '@/lib/player-photo'
 import { flagFor } from '@/lib/flags'
 import SaasShell from '@/components/saas/SaasShell'
 import ScoutComparator, { type ScoutRow } from '@/components/scout/ScoutComparator'
+import ShortlistsManager from '@/components/scout/ShortlistsManager'
 
 // Scout product hub — the cross-league IIG comparator (Scout tools layer).
 // GATED behind the Scout plan, NOINDEX, and intentionally NOT in the sitemap:
@@ -69,6 +70,7 @@ export default async function ScoutPage({ params }: { params: Promise<{ lang: st
   return (
     <SaasShell activeKey="players" breadcrumb={lang === 'en' ? ['Scout', 'IIG comparator'] : ['Scout', 'Comparador IIG']}>
       <ScoutComparator lang={lang} board={board} leagues={leagues} />
+      <ShortlistsManager lang={lang} />
     </SaasShell>
   )
 }

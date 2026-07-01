@@ -21,6 +21,7 @@ import { playerAttributes, isGoalkeeper } from '@/lib/player-attributes'
 import { playerNarrative } from '@/lib/player-narrative'
 import ScoutIIGBreakdown from '@/components/player/ScoutIIGBreakdown'
 import ScoutIIGTrend from '@/components/player/ScoutIIGTrend'
+import AddToShortlist from '@/components/player/AddToShortlist'
 
 type Tone = 'primary' | 'teal' | 'text'
 
@@ -289,6 +290,8 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
       <ScoutPanel name={player.fullName || player.name} en={en} releaseClause={player.releaseClause} />
 
       <ScoutIIGBreakdown player={player} en={en} />
+
+      <AddToShortlist slug={slug} name={shortName(player)} lang={lang} />
 
       <BioPanel name={player.fullName || player.name} lang={lang} />
         </>}
