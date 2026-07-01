@@ -22,6 +22,7 @@ import { playerNarrative } from '@/lib/player-narrative'
 import ScoutIIGBreakdown from '@/components/player/ScoutIIGBreakdown'
 import ScoutIIGTrend from '@/components/player/ScoutIIGTrend'
 import AddToShortlist from '@/components/player/AddToShortlist'
+import ScoutReportButton from '@/components/player/ScoutReportButton'
 
 type Tone = 'primary' | 'teal' | 'text'
 
@@ -291,7 +292,10 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
 
       <ScoutIIGBreakdown player={player} en={en} />
 
-      <AddToShortlist slug={slug} name={shortName(player)} lang={lang} />
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <AddToShortlist slug={slug} name={shortName(player)} lang={lang} />
+        <ScoutReportButton slug={slug} lang={lang} />
+      </div>
 
       <BioPanel name={player.fullName || player.name} lang={lang} />
         </>}
