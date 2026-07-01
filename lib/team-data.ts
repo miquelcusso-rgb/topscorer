@@ -110,6 +110,27 @@ export function allTeamSlugs(): string[] {
   return [...buildIndex().keys()]
 }
 
+/** The teams we prerender at build: the top ~80 by tracked-squad depth (a good
+ *  proxy for prominence — big clubs have the most tracked players). The long
+ *  tail (550+ clubs) renders on-demand via dynamicParams and caches, so a build
+ *  fires at most ~160 live squad/coach fetches instead of ~1,200. */
+export function majorTeamSlugs(): string[] {
+  return [...buildIndex().values()]
+    .sort((a, b) => b.squad.length - a.squad.length)
+    .slice(0, 80)
+    .map(t => t.slug)
+}
+
 export function findTeamBySlug(slug: string): TeamData | null {
   return buildIndex().get(slug) ?? null
+}
+
+/** norm(player name) → our tracked stats, for merging onto the full API squad. */
+export function datasetStatsByName(team: TeamData): Map<string, TeamSquadPlayer> {
+  const m = new Map<string, TeamSquadPlayer>()
+  for (const p of team.squad) {
+    const key = p.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
+    if (!m.has(key)) m.set(key, p)
+  }
+  return m
 }
