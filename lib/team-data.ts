@@ -2,7 +2,7 @@ import { PRIMARY_PLAYERS } from '@/lib/player-identity'
 import { canonicalClubName, clubColor } from '@/lib/club-colors'
 import { clubLogo } from '@/lib/club-logos'
 import { slugify } from '@/lib/slugify'
-import { rankScore } from '@/lib/iig'
+import { rankScore, iig } from '@/lib/iig'
 import { playerSlug } from '@/lib/player-slug'
 import { playerPhoto } from '@/lib/player-photo'
 import { flagFor } from '@/lib/flags'
@@ -26,6 +26,7 @@ export interface TeamSquadPlayer {
   pj: number
   age: number | null
   rating: number | null
+  iig: number
 }
 
 export interface TeamData {
@@ -87,6 +88,7 @@ function buildIndex(): Map<string, TeamData> {
       pj: p.pj ?? 0,
       age: typeof p.age === 'number' && p.age > 0 ? p.age : null,
       rating: typeof p.rating === 'number' && p.rating > 0 ? p.rating : null,
+      iig: iig(p),
     }))
     const goals = g.players.reduce((s, p) => s + (p.goles ?? 0), 0)
     const assists = g.players.reduce((s, p) => s + (p.asist ?? 0), 0)

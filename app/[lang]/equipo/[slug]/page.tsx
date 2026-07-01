@@ -9,6 +9,7 @@ import TeamEnrichment from '@/components/team/TeamEnrichment'
 import { majorTeamSlugs, findTeamBySlug, datasetStatsByName, type TeamData } from '@/lib/team-data'
 import { getSquad, getCoach, type SquadPlayer } from '@/lib/api-football'
 import { slugify } from '@/lib/slugify'
+import { IIG_NAME } from '@/lib/iig'
 
 const BASE = 'https://www.top-scorers.com'
 
@@ -142,6 +143,8 @@ export default async function TeamPage({
   const topScorer = [...rows].filter(r => r.goles != null).sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0))[0]
   const goals = rows.reduce((s, r) => s + (r.goles ?? 0), 0)
   const assists = rows.reduce((s, r) => s + (r.asist ?? 0), 0)
+  // Exclusive: the club's leaders by our IIG impact index (tracked players).
+  const iigLeaders = [...team.squad].filter(p => p.iig > 0).sort((a, b) => b.iig - a.iig).slice(0, 5)
 
   // Group roster by position, in football order; unknown positions last.
   const groups: { key: string; players: RosterRow[] }[] = []
@@ -211,6 +214,41 @@ export default async function TeamPage({
 
         {/* Season standing, statistics, fixtures, transfers, injuries (SSR) */}
         {team.teamId ? <TeamEnrichment teamId={team.teamId} leagueId={team.leagueId} teamName={team.name} lang={lang} /> : null}
+
+        {/* Exclusive: club leaders by our IIG impact index (something TM doesn't have) */}
+        {iigLeaders.length ? (
+          <section style={{ ...card, borderTop: `3px solid var(--ts-primary)` }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 12 }}>
+              <span style={eyebrow}>{en ? 'Exclusive · Impact index' : 'Exclusivo · Índice de impacto'}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ts-teal)' }}>{IIG_NAME[lang]}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {iigLeaders.map((p, i) => (
+                <Link key={p.slug + i} href={`/${lang}/jugadores/${p.slug}`}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', minHeight: 44,
+                    borderBottom: i < iigLeaders.length - 1 ? '1px solid var(--ts-hairline)' : 'none', textDecoration: 'none', color: 'inherit' }}>
+                  <span style={{ width: 18, flexShrink: 0, textAlign: 'center', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 16, color: i === 0 ? 'var(--ts-primary)' : 'var(--ts-faint)' }}>{i + 1}</span>
+                  <div style={{ width: 34, height: 34, flexShrink: 0, borderRadius: '50%', overflow: 'hidden', background: 'var(--ts-card2)' }}>
+                    {p.photo
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={p.photo} alt="" width={34} height={34} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      : null}
+                  </div>
+                  <span style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, color: 'var(--ts-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {p.flag ? `${p.flag} ` : ''}{p.name}
+                    <span style={{ fontWeight: 500, color: 'var(--ts-faint)' }}> · {p.goles}G {p.asist}A</span>
+                  </span>
+                  <span style={{ flexShrink: 0, width: 52, textAlign: 'right', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: 'var(--ts-primary)', fontVariantNumeric: 'tabular-nums' }}>
+                    {p.iig}
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <p style={{ margin: '10px 0 0', fontSize: 11.5, color: 'var(--ts-faint)' }}>
+              {en ? 'IIG = goals × league weight + rating impact + assists. A TopScorers metric.' : 'IIG = goles × peso de liga + impacto de rating + asistencias. Métrica propia de TopScorers.'}
+            </p>
+          </section>
+        ) : null}
 
         {/* Full squad, grouped by position */}
         <section style={card}>
