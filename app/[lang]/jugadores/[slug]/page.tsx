@@ -34,6 +34,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     title: `${player.name} — Estadísticas`,
     description,
     keywords: [player.name, player.club ?? '', 'estadísticas fútbol', 'goleadores', 'temporada 2025 2026'],
+    // Identity-only fallback profiles (no season stats) are thin → crawlable but
+    // out of the index.
+    robots: resolved && resolved.seasons.length === 0 ? { index: false, follow: true } : undefined,
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {

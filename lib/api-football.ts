@@ -553,6 +553,36 @@ export async function getPlayerDetails(
   )()
 }
 
+// Base player profile (identity only, no season stats) via /players/profiles.
+// Used as a fallback so a real player id whose current season has no stats
+// (youth, deep reserves, just-signed) still opens a profile instead of 404ing.
+export interface ApiPlayerProfile {
+  id: number
+  name: string
+  firstname: string | null
+  lastname: string | null
+  age: number | null
+  birth: { date: string | null; place: string | null; country: string | null }
+  nationality: string | null
+  height: string | null
+  weight: string | null
+  number: number | null
+  position: string | null
+  photo: string | null
+}
+export const getPlayerProfile = unstable_cache(
+  async (playerId: number): Promise<ApiPlayerProfile | null> => {
+    try {
+      const data = await apiFetch<Array<{ player: ApiPlayerProfile }>>(`/players/profiles?player=${playerId}`)
+      return data.response?.[0]?.player ?? null
+    } catch {
+      return null
+    }
+  },
+  ['api-football-player-profile'],
+  { revalidate: 604800, tags: ['api-football'] } // 7 d — identity is static
+)
+
 // ─── Injuries (current season) + sidelined (injury/suspension history) ───────
 // `/injuries?player=&season=` → current-season injury records (type, reason,
 // the fixture/league/date it was reported). `/sidelined?player=` → the player's

@@ -1,6 +1,6 @@
 import type { PlayerData } from '@/types'
 import { playersForSlug, playersForId } from '@/lib/player-slug'
-import { getPlayerDetails, type ApiPlayerDetail } from '@/lib/api-football'
+import { getPlayerDetails, getPlayerProfile, type ApiPlayerDetail, type ApiPlayerProfile } from '@/lib/api-football'
 import { flagFor } from '@/lib/flags'
 import { slugify } from '@/lib/slugify'
 import { SEARCH_INDEX } from '@/data/search-index'
@@ -130,8 +130,39 @@ export async function resolvePlayerProfile(slug: string): Promise<ResolvedProfil
     return { base, seasons: staticById, live: false }
   }
   const detail = await getPlayerDetails(id, 2025)
-  if (!detail) return null
-  const base = apiDetailToPlayer(detail)
-  if (!base) return null
-  return { base, seasons: [base], live: true }
+  const base = detail ? apiDetailToPlayer(detail) : null
+  if (base) return { base, seasons: [base], live: true }
+  // No current-season stats (youth / deep reserve / just-signed): fall back to
+  // the identity-only profile so the fiche still opens instead of 404ing.
+  const profile = await getPlayerProfile(id)
+  if (!profile) return null
+  return { base: apiProfileToPlayer(profile), seasons: [], live: true }
+}
+
+// Minimal PlayerData from an identity-only profile (no season stats).
+function apiProfileToPlayer(p: ApiPlayerProfile): PlayerData {
+  const full = [p.firstname, p.lastname].filter(Boolean).join(' ').trim()
+  const fullName = full && full.toLowerCase() !== (p.name ?? '').toLowerCase() ? full : undefined
+  return {
+    name: p.name,
+    fullName,
+    apiId: p.id,
+    club: '',
+    league: '',
+    age: num(p.age) ?? 0,
+    pj: 0,
+    goles: 0,
+    asist: 0,
+    season: '2526',
+    src: 'live',
+    tab: 's',
+    nationality: p.nationality ?? undefined,
+    flag: p.nationality ? flagFor(p.nationality) : undefined,
+    photo: p.photo ?? undefined,
+    position: POS_MAP[p.position ?? ''] ?? undefined,
+    height: p.height || undefined,
+    weight: p.weight || undefined,
+    birthDate: p.birth?.date || undefined,
+    birthPlace: [p.birth?.place, p.birth?.country].filter(Boolean).join(', ') || undefined,
+  }
 }
