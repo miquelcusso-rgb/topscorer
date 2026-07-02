@@ -20,22 +20,69 @@ if (!KEY) { console.error('No API_FOOTBALL_KEY in .env.local'); process.exit(1) 
 
 const SEASON = 2025
 
-// Domestic leagues we cover (1st + the 2nd divisions already in the catalog).
-// [id, name, country]. 2nd-division expansion: add ids here and re-run.
+// Domestic leagues we cover: 1st AND 2nd division per country (ids verified via
+// scripts/discover-2nd-divisions.mjs). [id, name, country]. 1st-division names
+// match the site catalog so the team→league chip links resolve; 2nd-division
+// names are the api-football names. To add more tiers: append ids and re-run.
 const LEAGUES = [
-  [140, "La Liga", "Spain"], [39, "Premier League", "England"], [78, "Bundesliga", "Germany"],
-  [135, "Serie A", "Italy"], [61, "Ligue 1", "France"], [94, "Primeira Liga", "Portugal"],
-  [203, "Süper Lig", "Turkey"], [197, "Super League", "Greece"], [88, "Eredivisie", "Netherlands"],
-  [144, "Pro League", "Belgium"], [179, "Premiership", "Scotland"], [207, "Super League", "Switzerland"],
-  [218, "Bundesliga", "Austria"], [106, "Ekstraklasa", "Poland"], [119, "Superligaen", "Denmark"],
-  [113, "Allsvenskan", "Sweden"], [103, "Eliteserien", "Norway"], [40, "Championship", "England"],
-  [79, "2. Bundesliga", "Germany"], [136, "Serie B", "Italy"], [62, "Ligue 2", "France"],
-  [141, "Segunda División", "Spain"], [95, "Liga Portugal 2", "Portugal"], [204, "1. Lig", "Turkey"],
-  [199, "Super League 2", "Greece"], [89, "Eerste Divisie", "Netherlands"], [180, "Championship", "Scotland"],
-  [253, "MLS", "USA"], [262, "Liga MX", "Mexico"], [71, "Brasileirão Serie A", "Brazil"],
-  [128, "Liga Profesional", "Argentina"], [265, "Primera División", "Chile"], [239, "Categoría Primera A", "Colombia"],
-  [268, "Primera División", "Uruguay"], [98, "J1 League", "Japan"], [292, "K League 1", "South Korea"],
-  [169, "Super League", "China"], [188, "A-League", "Australia"], [307, "Pro League", "Saudi Arabia"],
+  // Spain
+  [140, "La Liga", "Spain"], [141, "Segunda División", "Spain"],
+  // England
+  [39, "Premier League", "England"], [40, "Championship", "England"],
+  // Germany
+  [78, "Bundesliga", "Germany"], [79, "2. Bundesliga", "Germany"],
+  // Italy
+  [135, "Serie A", "Italy"], [136, "Serie B", "Italy"],
+  // France
+  [61, "Ligue 1", "France"], [62, "Ligue 2", "France"],
+  // Portugal
+  [94, "Primeira Liga", "Portugal"], [95, "Liga Portugal 2", "Portugal"],
+  // Turkey
+  [203, "Süper Lig", "Turkey"], [204, "1. Lig", "Turkey"],
+  // Greece
+  [197, "Super League", "Greece"], [494, "Super League 2", "Greece"],
+  // Netherlands
+  [88, "Eredivisie", "Netherlands"], [89, "Eerste Divisie", "Netherlands"],
+  // Belgium
+  [144, "Pro League", "Belgium"], [145, "Challenger Pro League", "Belgium"],
+  // Scotland
+  [179, "Premiership", "Scotland"], [180, "Championship", "Scotland"],
+  // Switzerland
+  [207, "Super League", "Switzerland"], [208, "Challenge League", "Switzerland"],
+  // Austria
+  [218, "Bundesliga", "Austria"], [219, "2. Liga", "Austria"],
+  // Poland
+  [106, "Ekstraklasa", "Poland"], [107, "I Liga", "Poland"],
+  // Denmark
+  [119, "Superligaen", "Denmark"], [120, "1. Division", "Denmark"],
+  // Sweden
+  [113, "Allsvenskan", "Sweden"], [114, "Superettan", "Sweden"],
+  // Norway
+  [103, "Eliteserien", "Norway"], [104, "1. Division", "Norway"],
+  // USA
+  [253, "MLS", "USA"], [255, "USL Championship", "USA"],
+  // Mexico
+  [262, "Liga MX", "Mexico"], [263, "Liga de Expansión MX", "Mexico"],
+  // Brazil
+  [71, "Brasileirão Serie A", "Brazil"], [72, "Brasileirão Serie B", "Brazil"],
+  // Argentina
+  [128, "Liga Profesional", "Argentina"], [129, "Primera Nacional", "Argentina"],
+  // Chile
+  [265, "Primera División", "Chile"], [266, "Primera B", "Chile"],
+  // Colombia
+  [239, "Categoría Primera A", "Colombia"], [240, "Primera B", "Colombia"],
+  // Uruguay
+  [268, "Primera División", "Uruguay"], [269, "Segunda División", "Uruguay"],
+  // Japan
+  [98, "J1 League", "Japan"], [99, "J2 League", "Japan"],
+  // South Korea
+  [292, "K League 1", "South Korea"], [293, "K League 2", "South Korea"],
+  // China
+  [169, "Super League", "China"], [170, "League One", "China"],
+  // Australia
+  [188, "A-League", "Australia"],
+  // Saudi Arabia
+  [307, "Pro League", "Saudi Arabia"],
 ]
 
 // slugify — must match lib/slugify.ts exactly.
@@ -46,13 +93,22 @@ function slugify(name) {
     .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-')
 }
 
-async function fetchTeams(leagueId) {
-  const res = await fetch(`https://v3.football.api-sports.io/teams?league=${leagueId}&season=${SEASON}`, {
+async function fetchTeamsSeason(leagueId, season) {
+  const res = await fetch(`https://v3.football.api-sports.io/teams?league=${leagueId}&season=${season}`, {
     headers: { 'x-apisports-key': KEY },
   })
   if (!res.ok) throw new Error(`league ${leagueId}: ${res.status}`)
   const j = await res.json()
   return j.response ?? []
+}
+
+// Try the current season; if the league hasn't populated its squad list yet
+// (some calendars / just-ended seasons return 0), fall back to the prior season
+// so the club roster is never empty.
+async function fetchTeams(leagueId) {
+  let teams = await fetchTeamsSeason(leagueId, SEASON)
+  if (!teams.length) teams = await fetchTeamsSeason(leagueId, SEASON - 1)
+  return teams
 }
 
 const bySlug = new Map()   // slug -> entry (first league claiming it wins)
