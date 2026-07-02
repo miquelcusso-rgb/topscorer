@@ -125,7 +125,7 @@ export const IIG_NAME: Record<'es' | 'en', string> = {
 }
 
 export const IIG_EXPLAINER: Record<'es' | 'en', string> = {
-  es: 'IIG = goles × coef. de liga + (nota − 6) × 3 + asistencias × 0,5. Índice derivado de estadísticas reales de la temporada.',
+  es: 'IIG = goles × coef. de liga + (valoración − 6) × 3 + asistencias × 0,5, donde la valoración es la nota media por partido (0-10). Índice derivado de estadísticas reales de la temporada.',
   en: 'IIG = goals × league coef + (rating − 6) × 3 + assists × 0.5. A derived index built from real season stats.',
 }
 

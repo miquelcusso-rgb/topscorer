@@ -24,7 +24,7 @@ export const SCOUTER_ABBREVS: Abbrev[] = [
     abbr: 'IIG',
     term: { es: IIG_NAME.es, en: IIG_NAME.en },
     def: {
-      es: 'Índice de Impacto del Goleador (Furiosa Studio): goles × fuerza de la liga + nota + asistencias. Solo stats reales.',
+      es: 'Índice de Impacto del Goleador (Furiosa Studio): goles × fuerza de la liga + valoración (nota media por partido) + asistencias. Solo stats reales.',
       en: 'Goal Impact Index (Furiosa Studio): goals × league strength + rating + assists. Real stats only.',
     },
   },
@@ -72,19 +72,19 @@ export function iigFaqs(lang: Lang, leagueName?: string): ScouterFaq[] {
       q: en ? 'What is the IIG?' : '¿Qué es el IIG?',
       a: en
         ? `IIG stands for Goal Impact Index (Índice de Impacto del Goleador), a metric built by Furiosa Studio for TopScorers. It ranks the best players${inLeague} by combining their goals — weighted by how hard their league is — with their average rating and assists. It is built only from real season stats, nothing invented.`
-        : `IIG son las siglas de Índice de Impacto del Goleador, una métrica creada por Furiosa Studio para TopScorers. Ordena a los mejores jugadores${inLeague} combinando sus goles —ponderados por la dificultad de su liga— con su nota media y sus asistencias. Se calcula solo con estadísticas reales de la temporada, nada inventado.`,
+        : `IIG son las siglas de Índice de Impacto del Goleador, una métrica creada por Furiosa Studio para TopScorers. Ordena a los mejores jugadores${inLeague} combinando sus goles —ponderados por la dificultad de su liga— con su valoración media por partido y sus asistencias. Se calcula solo con estadísticas reales de la temporada, nada inventado.`,
     },
     {
       q: en ? 'How is the IIG calculated?' : '¿Cómo se calcula el IIG?',
       a: en
         ? 'At a high level: goals weighted by league difficulty + average performance rating + assists. ' + IIG_EXPLAINER.en + ' Every input is a real, public season stat — no per-match guesswork.'
-        : 'A grandes rasgos: goles ponderados por la dificultad de la liga + nota media de rendimiento + asistencias. ' + IIG_EXPLAINER.es + ' Cada dato de entrada es una estadística real y pública de la temporada, sin invenciones.',
+        : 'A grandes rasgos: goles ponderados por la dificultad de la liga + valoración media por partido + asistencias. ' + IIG_EXPLAINER.es + ' Cada dato de entrada es una estadística real y pública de la temporada, sin invenciones.',
     },
     {
       q: en ? 'Why is the IIG better than counting raw goals?' : '¿Por qué el IIG es mejor que contar solo los goles?',
       a: en
         ? 'A goal in a Top-5 league is harder than one in a weaker competition, so the IIG weights goals by league strength and then adds overall match quality (rating) and creativity (assists). That surfaces the most impactful players across leagues, not just whoever scored the most in the easiest division.'
-        : 'Un gol en una liga Top-5 vale más que uno en una competición más débil, por eso el IIG pondera los goles por la fuerza de la liga y suma además la calidad global (nota) y la creación de juego (asistencias). Así destaca a los jugadores con más impacto entre distintas ligas, no solo a quien más marcó en la división más fácil.',
+        : 'Un gol en una liga Top-5 vale más que uno en una competición más débil, por eso el IIG pondera los goles por la fuerza de la liga y suma además la calidad global (valoración media por partido) y la creación de juego (asistencias). Así destaca a los jugadores con más impacto entre distintas ligas, no solo a quien más marcó en la división más fácil.',
     },
     {
       q: en ? 'Is the Scouter ranking free?' : '¿El ranking Scouter es gratis?',

@@ -62,8 +62,8 @@ export default function ScoutComparator({ lang, board, leagues }: { lang: 'es' |
       </div>
       <p style={{ margin: '0 0 14px', fontSize: 12, color: 'var(--ts-muted)', lineHeight: 1.5 }}>
         {en
-          ? 'IIG = finishing (goals × league coef) + quality ((rating − 6) × 3) + creation (assists × 0.5). The coefficient is what makes the cross-league comparison fair.'
-          : 'IIG = finalización (goles × coef. liga) + calidad ((nota − 6) × 3) + creación (asistencias × 0,5). El coeficiente es lo que hace justa la comparación entre ligas.'}
+          ? 'IIG = finishing (goals × league coef) + quality ((match rating − 6) × 3) + creation (assists × 0.5). “Rating” is the average per-match rating (0-10, API-Football scale); the coefficient is what makes the cross-league comparison fair.'
+          : 'IIG = finalización (goles × coef. liga) + calidad ((valoración − 6) × 3) + creación (asistencias × 0,5). La «valoración» es la nota media por partido (0-10, escala de API-Football); el coeficiente es lo que hace justa la comparación entre ligas.'}
       </p>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
