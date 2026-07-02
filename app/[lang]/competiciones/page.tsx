@@ -3,7 +3,6 @@ import Link from 'next/link'
 import {
   LEAGUES,
   LEAGUES_EUROPE_OTHER,
-  LEAGUES_2,
   LEAGUES_AMERICAS,
   LEAGUES_ASIA_OCEANIA,
   LEAGUES_MIDDLE_EAST,
@@ -76,7 +75,8 @@ export default async function CompeticionesPage({
   const sections = [
     { title: 'Grandes Ligas Europeas',  leagues: LEAGUES },
     { title: 'Otras Ligas Europeas',    leagues: LEAGUES_EUROPE_OTHER },
-    { title: 'Segundas Divisiones',     leagues: LEAGUES_2 },
+    // Segundas divisiones: fuera del índice a propósito — se llega a la 2ª de
+    // cada país desde la página de su 1ª división.
     { title: 'Américas',                leagues: LEAGUES_AMERICAS },
     { title: 'Asia y Oceanía',          leagues: LEAGUES_ASIA_OCEANIA },
     { title: 'Oriente Medio',           leagues: LEAGUES_MIDDLE_EAST },
