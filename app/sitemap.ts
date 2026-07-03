@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { allPlayerSlugs } from '@/lib/player-slug'
 import { allLeagueSlugs, leaguesWithData } from '@/lib/league-data'
+import { majorTeamSlugs } from '@/lib/team-data'
 import { WC_NATIONS, nationSlug } from '@/lib/wc-nations'
 import { COMPETITIONS } from '@/lib/golden-boot-data'
 import { LOCALES } from '@/lib/i18n'
@@ -81,6 +82,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     localized(`/competiciones/${slug}`, 'weekly', 0.8),
   )
 
+  // Team pages (/equipo/[slug]). Only the MAJOR clubs (majorTeamSlugs = the ~24
+  // prerendered, deepest-squad, highest-search-value teams) — NOT all 1001. On a
+  // young low-authority domain, listing the full long tail (incl. thin 2nd-div
+  // clubs) risks index bloat; the rest are discovered via internal links from
+  // league/competition pages and get indexed as authority grows. Expand to
+  // top-flight-league teams once domain authority supports it.
+  const teamUrls = majorTeamSlugs().flatMap(slug =>
+    localized(`/equipo/${slug}`, 'weekly', 0.7),
+  )
+
   // Scouter Top-20 programmatic pages: an index + one page per league that has
   // tracked players (same set generateStaticParams produces, so no listed URL
   // 404s). Both locales + hreflang via localized().
@@ -117,5 +128,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     localized(`/golden-boot/${c.slug}`, 'weekly', 0.85),
   )
 
-  return [...staticUrls, ...competicionUrls, ...scouterUrls, ...goldenBootUrls, ...playerUrls, ...nationUrls]
+  return [...staticUrls, ...competicionUrls, ...teamUrls, ...scouterUrls, ...goldenBootUrls, ...playerUrls, ...nationUrls]
 }
