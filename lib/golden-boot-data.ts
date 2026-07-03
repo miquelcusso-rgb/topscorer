@@ -243,6 +243,116 @@ COMPETITIONS.push({
   ],
 })
 
+// ── Liga MX (Mexico) ──────────────────────────────────────────────────────────
+COMPETITIONS.push({
+  slug: 'liga-mx',
+  competition: 'Liga MX (Mexico)',
+  award: 'Liga MX top scorer (campeón de goleo)',
+  verified: '2026-07-03',
+  metaTitle: 'Liga MX Top Scorers — Campeón de Goleo Winners & Records',
+  metaDescription:
+    'Liga MX top scorers (campeón de goleo): recent Apertura and Clausura winners, the all-time leading scorer Cabinho, and the single-tournament goal record.',
+  keywords: [
+    'liga mx top scorers',
+    'campeon de goleo liga mx',
+    'liga mx golden boot',
+    'goleador historico liga mx',
+    'liga mx top scorers all time',
+    'liga mx leading scorer',
+  ],
+  h1: 'Liga MX Top Scorers — Campeón de Goleo',
+  intro:
+    'Liga MX crowns a “campeón de goleo” (top scorer) in each of its two annual tournaments, the Apertura and the Clausura. Here are the recent winners, the all-time leaders and the records.',
+  body: [
+    'Because Liga MX plays two short tournaments per calendar year — Apertura (autumn) and Clausura (spring) — there are two top-scorer champions each year, so winning totals are typically lower than in a single long league season.',
+    'The all-time leading scorer of the Mexican first division is the Brazilian Evanivaldo Castro, “Cabinho”, with 312 goals; he also won a record eight scoring titles between the 1970s and 1980s. In the modern era, France’s André-Pierre Gignac (Tigres) has been the standout foreign goalscorer.',
+    'The single-tournament record dates back to the amateur/early era: 40 goals, set by Roberto Aballay in 1944–45 and matched by Isidro Lángara in 1945–46 — a mark untouched in the professional era.',
+  ],
+  recentWinners: [
+    { season: 'Clausura 2025', winner: 'João Pedro', club: 'Atlético San Luis', goals: 14 },
+    { season: 'Apertura 2024', winner: 'Paulinho', club: 'Toluca', goals: 13 },
+    { season: 'Clausura 2023', winner: 'Henry Martín', club: 'América', goals: 14 },
+    { season: 'Apertura 2023', winner: 'Harold Preciado', club: 'Santos Laguna', goals: 11 },
+  ],
+  records: [
+    'All-time top scorer: Cabinho (Evanivaldo Castro), 312 goals, with a record 8 scoring titles.',
+    'Single-tournament record: 40 goals — Roberto Aballay (1944–45) and Isidro Lángara (1945–46).',
+    'Two “campeón de goleo” are crowned each year (Apertura + Clausura).',
+  ],
+  faqs: [
+    {
+      q: 'Who is the all-time top scorer in Liga MX?',
+      a: 'Cabinho (Evanivaldo Castro), a Brazilian striker, is the all-time top scorer of the Mexican first division with 312 goals, and he also won a record eight scoring titles.',
+    },
+    {
+      q: 'What is a “campeón de goleo”?',
+      a: 'The campeón de goleo is the top scorer of a Liga MX tournament. Because Liga MX plays two tournaments a year — the Apertura and the Clausura — two campeones de goleo are crowned every year.',
+    },
+    {
+      q: 'What is the single-tournament goal record in the Mexican league?',
+      a: 'The record is 40 goals, set by Roberto Aballay in 1944–45 and matched by Isidro Lángara in 1945–46 — a mark that still stands.',
+    },
+    {
+      q: 'Where can I follow Liga MX top scorers live?',
+      a: 'TopScorers.com tracks goalscorer rankings across Liga MX and the major leagues and competitions, with standings, results and statistics in one place.',
+    },
+  ],
+})
+
+// ── Saudi Pro League ──────────────────────────────────────────────────────────
+COMPETITIONS.push({
+  slug: 'saudi-pro-league',
+  competition: 'Saudi Pro League',
+  award: 'Saudi Pro League Golden Boot',
+  verified: '2026-07-03',
+  metaTitle: 'Saudi Pro League Top Scorers — Golden Boot Winners & Records',
+  metaDescription:
+    'Saudi Pro League Golden Boot: recent winners including Cristiano Ronaldo’s record 35-goal season, the latest champion Julián Quiñones (33), and the records.',
+  keywords: [
+    'saudi pro league top scorers',
+    'saudi pro league golden boot',
+    'ronaldo saudi pro league goals',
+    'saudi pro league top scorer 2025',
+    'saudi league golden boot winners',
+  ],
+  h1: 'Saudi Pro League Top Scorers — Golden Boot',
+  intro:
+    'The Saudi Pro League Golden Boot goes to the top scorer of the Saudi top flight each season. Since 2023 the league has attracted global stars — here are the recent winners and the records.',
+  body: [
+    'The most recent Golden Boot was won by Mexico’s Julián Quiñones of Al-Qadsiah, who scored 33 goals in 2024/25 — beating high-profile rivals including Cristiano Ronaldo and Ivan Toney.',
+    'The single-season record belongs to Cristiano Ronaldo, who scored 35 goals for Al-Nassr in 2023/24, finishing seven ahead of Al-Hilal’s Aleksandar Mitrović (28). The 2022/23 award went to Abderrazak Hamdallah with 21.',
+    'Since 2023 the Saudi Pro League has signed some of the world’s best forwards — Ronaldo, Benzema, Mané, Mitrović and others — which has pushed scoring totals and the Golden Boot race to record levels.',
+  ],
+  recentWinners: [
+    { season: '2024/25', winner: 'Julián Quiñones', club: 'Al-Qadsiah', goals: 33 },
+    { season: '2023/24', winner: 'Cristiano Ronaldo', club: 'Al-Nassr', goals: 35 },
+    { season: '2022/23', winner: 'Abderrazak Hamdallah', club: 'Al-Ittihad', goals: 21 },
+  ],
+  records: [
+    'Single-season record: Cristiano Ronaldo, 35 goals (Al-Nassr, 2023/24).',
+    'Most recent Golden Boot: Julián Quiñones, 33 goals (Al-Qadsiah, 2024/25).',
+    'Runner-up in 2023/24: Aleksandar Mitrović, 28 goals.',
+  ],
+  faqs: [
+    {
+      q: 'Who won the Saudi Pro League Golden Boot in 2024/25?',
+      a: 'Julián Quiñones of Al-Qadsiah won the 2024/25 Saudi Pro League Golden Boot with 33 goals, beating Cristiano Ronaldo and Ivan Toney.',
+    },
+    {
+      q: 'What is the Saudi Pro League single-season goal record?',
+      a: 'Cristiano Ronaldo holds the record with 35 goals for Al-Nassr in 2023/24, seven clear of Aleksandar Mitrović (28).',
+    },
+    {
+      q: 'How many goals did Cristiano Ronaldo score in the Saudi Pro League?',
+      a: 'Ronaldo set the Saudi Pro League single-season record with 35 goals in 2023/24, winning that season’s Golden Boot.',
+    },
+    {
+      q: 'Where can I follow Saudi Pro League scorers live?',
+      a: 'TopScorers.com tracks goalscorer rankings across the Saudi Pro League and the major leagues and competitions, with standings, results and statistics.',
+    },
+  ],
+})
+
 export function getComp(slug: string): GoldenBootComp | undefined {
   return COMPETITIONS.find((c) => c.slug === slug)
 }
