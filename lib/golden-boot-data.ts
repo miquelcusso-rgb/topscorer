@@ -353,6 +353,117 @@ COMPETITIONS.push({
   ],
 })
 
+// ── Primeira Liga (Portugal) ──────────────────────────────────────────────────
+COMPETITIONS.push({
+  slug: 'primeira-liga',
+  competition: 'Primeira Liga (Portugal)',
+  award: 'Bola de Prata (Primeira Liga top scorer)',
+  verified: '2026-07-03',
+  metaTitle: 'Primeira Liga Top Scorers — Bola de Prata Winners & Records',
+  metaDescription:
+    'Primeira Liga top scorers (Bola de Prata): recent winners led by Viktor Gyökeres, the all-time record holder Fernando Peyroteo (332), and the competition records.',
+  keywords: [
+    'primeira liga top scorers',
+    'bola de prata portugal',
+    'primeira liga golden boot',
+    'gyokeres primeira liga goals',
+    'portugal liga top scorer',
+    'primeira liga all time top scorers',
+  ],
+  h1: 'Primeira Liga Top Scorers — Bola de Prata',
+  intro:
+    'The Bola de Prata (“Silver Ball”) has gone to the top scorer of Portugal’s Primeira Liga since 1952–53. Here are the recent winners, the all-time leaders and the records.',
+  body: [
+    'Sweden’s Viktor Gyökeres turned the Bola de Prata into his own award at Sporting CP, winning back-to-back with 29 goals in 2023/24 and a huge 39 in 2024/25 before moving to the Premier League.',
+    'The all-time leading scorer of the Primeira Liga is the legendary Fernando Peyroteo, who scored 332 goals for Sporting between 1937 and 1950 at a remarkable 1.69 goals per game.',
+    'The single-season record belongs to Héctor Yazalde, who scored 46 goals for Sporting in 1973–74. Eusébio holds the record for most Bola de Prata wins, with seven.',
+  ],
+  recentWinners: [
+    { season: '2024/25', winner: 'Viktor Gyökeres', club: 'Sporting CP', goals: 39 },
+    { season: '2023/24', winner: 'Viktor Gyökeres', club: 'Sporting CP', goals: 29 },
+  ],
+  records: [
+    'All-time top scorer: Fernando Peyroteo, 332 goals (Sporting, 1937–1950).',
+    'Single-season record: Héctor Yazalde, 46 goals (Sporting, 1973–74).',
+    'Most Bola de Prata wins: Eusébio, 7.',
+  ],
+  faqs: [
+    {
+      q: 'What is the Bola de Prata?',
+      a: 'The Bola de Prata (“Silver Ball”) is the award given to the top scorer of Portugal’s Primeira Liga each season, first presented in 1952–53 by the newspaper A Bola.',
+    },
+    {
+      q: 'Who is the all-time top scorer in the Primeira Liga?',
+      a: 'Fernando Peyroteo is the all-time top scorer of the Primeira Liga with 332 goals for Sporting CP between 1937 and 1950, at 1.69 goals per game.',
+    },
+    {
+      q: 'How many goals did Viktor Gyökeres score in the Primeira Liga?',
+      a: 'Viktor Gyökeres won back-to-back Bola de Prata awards at Sporting CP: 29 goals in 2023/24 and 39 in 2024/25.',
+    },
+    {
+      q: 'Where can I follow Primeira Liga top scorers live?',
+      a: 'TopScorers.com tracks goalscorer rankings across the Primeira Liga and the major leagues and competitions, with standings, results and statistics.',
+    },
+  ],
+})
+
+// ── Campeonato Brasileiro Série A (Brasileirão) ───────────────────────────────
+COMPETITIONS.push({
+  slug: 'brasileirao',
+  competition: 'Campeonato Brasileiro Série A (Brasileirão)',
+  award: 'Brasileirão top scorer (artilheiro)',
+  verified: '2026-07-03',
+  metaTitle: 'Brasileirão Top Scorers — Artilheiro Winners & Records',
+  metaDescription:
+    'Brasileirão Série A top scorers (artilheiros): recent winners including Kaio Jorge (2025), the all-time leader Roberto Dinamite (190) and the single-season record.',
+  keywords: [
+    'brasileirao top scorers',
+    'artilheiro brasileirao',
+    'campeonato brasileiro top scorer',
+    'brasileirao golden boot',
+    'brasileirao all time top scorers',
+    'brazil serie a top scorers',
+  ],
+  h1: 'Brasileirão Top Scorers — Artilheiro',
+  intro:
+    'The Brasileirão (Campeonato Brasileiro Série A) crowns an “artilheiro” — its top scorer — each season. Here are the recent winners, the all-time leaders and the records.',
+  body: [
+    'The most recent artilheiro is Kaio Jorge, who scored 21 goals for Cruzeiro to top the 2025 charts. In previous seasons Germán Cano (26 in 2022) and Paulinho (20 in 2023) led the way.',
+    'The all-time leading scorer in Brasileirão history is Roberto Dinamite, with 190 goals for Vasco da Gama between 1971 and 1992. The competition’s top-scorer trophy is named the Roberto Dinamite Trophy in his honour.',
+    'The single-season record is 34 goals, set by Washington for Athletico Paranaense in 2004.',
+  ],
+  recentWinners: [
+    { season: '2025', winner: 'Kaio Jorge', club: 'Cruzeiro', goals: 21 },
+    { season: '2024', winner: 'Alerrandro / Yuri Alberto', club: 'Vitória / Corinthians', goals: 15 },
+    { season: '2023', winner: 'Paulinho', club: 'Atlético Mineiro', goals: 20 },
+    { season: '2022', winner: 'Germán Cano', club: 'Fluminense', goals: 26 },
+    { season: '2021', winner: 'Hulk', club: 'Atlético Mineiro', goals: 19 },
+  ],
+  records: [
+    'All-time top scorer: Roberto Dinamite, 190 goals (Vasco da Gama, 1971–1992).',
+    'Single-season record: Washington, 34 goals (Athletico Paranaense, 2004).',
+    'The top-scorer trophy is named the Roberto Dinamite Trophy.',
+  ],
+  faqs: [
+    {
+      q: 'Who is the all-time top scorer in the Brasileirão?',
+      a: 'Roberto Dinamite is the all-time top scorer of the Campeonato Brasileiro Série A with 190 goals for Vasco da Gama between 1971 and 1992. The top-scorer trophy is named after him.',
+    },
+    {
+      q: 'Who was the Brasileirão top scorer in 2025?',
+      a: 'Kaio Jorge was the 2025 Brasileirão artilheiro with 21 goals for Cruzeiro.',
+    },
+    {
+      q: 'What is the single-season goal record in the Brasileirão?',
+      a: 'Washington holds the single-season record with 34 goals for Athletico Paranaense in 2004.',
+    },
+    {
+      q: 'Where can I follow Brasileirão top scorers live?',
+      a: 'TopScorers.com tracks goalscorer rankings across the Brasileirão and the major leagues and competitions, with standings, results and statistics.',
+    },
+  ],
+})
+
 export function getComp(slug: string): GoldenBootComp | undefined {
   return COMPETITIONS.find((c) => c.slug === slug)
 }
