@@ -139,14 +139,16 @@ export function allTeamSlugs(): string[] {
   return [...buildIndex().keys()]
 }
 
-/** The teams we prerender at build: the top ~80 by tracked-squad depth (a good
- *  proxy for prominence — big clubs have the most tracked players). The long
- *  tail (550+ clubs) renders on-demand via dynamicParams and caches, so a build
- *  fires at most ~160 live squad/coach fetches instead of ~1,200. */
+/** The teams we prerender at build: the top ~24 by tracked-squad depth (a good
+ *  proxy for prominence — big clubs have the most tracked players). Kept small
+ *  on purpose: each team page fires ~5 live api-football calls (squad, coach,
+ *  standings, stats, fixtures, transfers, injuries), and a bigger burst trips
+ *  api-football's per-minute rate limit at build. The long tail (900+ clubs)
+ *  renders on-demand via dynamicParams and caches — one at a time, no burst. */
 export function majorTeamSlugs(): string[] {
   return [...buildIndex().values()]
     .sort((a, b) => b.squad.length - a.squad.length)
-    .slice(0, 80)
+    .slice(0, 24)
     .map(t => t.slug)
 }
 

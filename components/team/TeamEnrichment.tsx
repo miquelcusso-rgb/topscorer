@@ -66,12 +66,14 @@ export default async function TeamEnrichment({
   teamId, leagueId, teamName, lang,
 }: { teamId: number; leagueId?: number; teamName: string; lang: Lang }) {
   const en = lang === 'en'
+  // Every source is individually defensive: a rate-limit (429) or any error on
+  // one just drops its card — it must never crash the page (build or ISR).
   const [standings, stats, fixtures, transfers, injuriesGroups] = await Promise.all([
-    leagueId ? getStandings(leagueId) : Promise.resolve([]),
-    leagueId ? getTeamSeasonStats(teamId, leagueId) : Promise.resolve(null),
-    getTeamFixtures(teamId),
-    getTransfersByTeam(teamId),
-    leagueId ? getLeagueInjuries(leagueId) : Promise.resolve([]),
+    leagueId ? getStandings(leagueId).catch(() => []) : Promise.resolve([]),
+    leagueId ? getTeamSeasonStats(teamId, leagueId).catch(() => null) : Promise.resolve(null),
+    getTeamFixtures(teamId).catch(() => []),
+    getTransfersByTeam(teamId).catch(() => []),
+    leagueId ? getLeagueInjuries(leagueId).catch(() => []) : Promise.resolve([]),
   ])
 
   const row = standings.find(s => s.team.id === teamId)

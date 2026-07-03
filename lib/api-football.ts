@@ -217,10 +217,14 @@ export const getTopAssists = unstable_cache(
 
 export const getStandings = unstable_cache(
   async (leagueId: number, season: number = 2025): Promise<ApiStandingEntry[]> => {
-    const data = await apiFetch<Array<{ league: { standings: ApiStandingEntry[][] } }>>(
-      `/standings?league=${leagueId}&season=${season}`
-    )
-    return data.response?.[0]?.league?.standings?.[0] ?? []
+    try {
+      const data = await apiFetch<Array<{ league: { standings: ApiStandingEntry[][] } }>>(
+        `/standings?league=${leagueId}&season=${season}`
+      )
+      return data.response?.[0]?.league?.standings?.[0] ?? []
+    } catch {
+      return [] // defensive: a 429/5xx must never crash the caller (page/build)
+    }
   },
   ['api-football-standings'],
   { revalidate: 21600, tags: ['api-football'] } // 6 h — standings update ~weekly
@@ -732,8 +736,12 @@ export interface ApiTransfer {
 export async function getTransfersByTeam(teamId: number): Promise<ApiTransfer[]> {
   return unstable_cache(
     async () => {
-      const data = await apiFetch<ApiTransfer[]>(`/transfers?team=${teamId}`)
-      return data.response ?? []
+      try {
+        const data = await apiFetch<ApiTransfer[]>(`/transfers?team=${teamId}`)
+        return data.response ?? []
+      } catch {
+        return [] // defensive: a 429/5xx must never crash the caller (page/build)
+      }
     },
     [`api-football-transfers-team-${teamId}`],
     { revalidate: 3600, tags: ['api-football'] }
