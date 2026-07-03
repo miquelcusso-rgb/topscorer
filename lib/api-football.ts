@@ -195,10 +195,14 @@ async function apiFetch<T = unknown>(path: string): Promise<{ response: T; error
 
 export const getTopScorers = unstable_cache(
   async (leagueId: number, season: number = 2025): Promise<ApiPlayerResponse[]> => {
-    const data = await apiFetch<ApiPlayerResponse[]>(
-      `/players/topscorers?league=${leagueId}&season=${season}`
-    )
-    return data.response ?? []
+    try {
+      const data = await apiFetch<ApiPlayerResponse[]>(
+        `/players/topscorers?league=${leagueId}&season=${season}`
+      )
+      return data.response ?? []
+    } catch {
+      return [] // defensive: a 429/5xx must never crash the caller (page/build)
+    }
   },
   ['api-football-topscorers'],
   { revalidate: 10800, tags: ['api-football'] } // 3 h — scorers change slowly
@@ -206,10 +210,14 @@ export const getTopScorers = unstable_cache(
 
 export const getTopAssists = unstable_cache(
   async (leagueId: number, season: number = 2025): Promise<ApiPlayerResponse[]> => {
-    const data = await apiFetch<ApiPlayerResponse[]>(
-      `/players/topassists?league=${leagueId}&season=${season}`
-    )
-    return data.response ?? []
+    try {
+      const data = await apiFetch<ApiPlayerResponse[]>(
+        `/players/topassists?league=${leagueId}&season=${season}`
+      )
+      return data.response ?? []
+    } catch {
+      return [] // defensive: a 429/5xx must never crash the caller (page/build)
+    }
   },
   ['api-football-topassists-v2'], // v2: bust a stale pre-tournament empty cache
   { revalidate: 1800, tags: ['api-football'] } // 30 min during the tournament
