@@ -55,6 +55,11 @@ export type GoldenBootComp = {
   faqs: { q: string; a: string }[]
 }
 
+// Última revisión editorial del dataset (bump manual al editar datos de
+// cualquier competición) — alimenta datePublished/dateModified del JSON-LD.
+export const GOLDEN_BOOT_PUBLISHED = '2026-07-01'
+export const GOLDEN_BOOT_UPDATED = '2026-07-05'
+
 export const COMPETITIONS: GoldenBootComp[] = [
   {
     slug: 'mls',

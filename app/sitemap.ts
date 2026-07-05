@@ -124,9 +124,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Golden Boot evergreen cluster (data-driven from COMPETITIONS → no manual
   // list to drift). Same set generateStaticParams produces, so no listed URL 404s.
-  const goldenBootUrls = COMPETITIONS.flatMap(c =>
-    localized(`/golden-boot/${c.slug}`, 'weekly', 0.85),
-  )
+  const goldenBootUrls = [
+    ...localized('/golden-boot', 'weekly', 0.85), // hub del cluster
+    ...COMPETITIONS.flatMap(c => localized(`/golden-boot/${c.slug}`, 'weekly', 0.85)),
+  ]
 
   return [...staticUrls, ...competicionUrls, ...teamUrls, ...scouterUrls, ...goldenBootUrls, ...playerUrls, ...nationUrls]
 }

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
-import { COMPETITIONS, getComp } from '@/lib/golden-boot-data'
+import { COMPETITIONS, getComp, GOLDEN_BOOT_PUBLISHED, GOLDEN_BOOT_UPDATED } from '@/lib/golden-boot-data'
 
 // Static programmatic cluster: every competition is prerendered at build time
 // (no per-request data fetch) → free-tier-safe. Unknown slugs 404.
@@ -101,12 +101,24 @@ export default async function GoldenBootCompPage({
       acceptedAnswer: { '@type': 'Answer', text: a },
     })),
   }
+  // Señal de freshness para AI-search (GEO): fechas reales de revisión del dataset
+  const webPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: data.metaTitle,
+    description: data.metaDescription,
+    url,
+    datePublished: GOLDEN_BOOT_PUBLISHED,
+    dateModified: GOLDEN_BOOT_UPDATED,
+    publisher: { '@type': 'Organization', name: 'Furiosa Studio', url: 'https://furiosadata.com' },
+  }
 
   return (
     <SaasShell activeKey="leagues" breadcrumb={['Golden Boot', data.competition]}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd).replace(/</g, '\\u003c') }} />
 
       <div className="max-w-[900px] mx-auto px-5 py-10">
 
@@ -123,7 +135,7 @@ export default async function GoldenBootCompPage({
         {data.allTime && (
           <section style={{ marginBottom: 40 }}>
             <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 16 }}>
-              All-time top scorers
+              Who are the all-time top scorers?
             </h2>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
@@ -191,7 +203,7 @@ export default async function GoldenBootCompPage({
 
         {/* Records */}
         <section style={{ marginBottom: 40 }}>
-          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 16 }}>Records</h2>
+          <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-text)', marginBottom: 16 }}>What are the scoring records?</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {data.records.map((r) => (
               <div key={r} style={{ padding: '12px 16px', background: 'var(--ts-card2)', borderRadius: 10, border: '1px solid var(--ts-border)', color: 'var(--ts-text)', fontSize: 14 }}>{r}</div>

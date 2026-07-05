@@ -20,6 +20,18 @@ const BODY = `# TopScorers
 - [Resultados](https://www.top-scorers.com/es/resultados): resultados en directo.
 - [Mundial 2026](https://www.top-scorers.com/es/mundial-2026): seguimiento del Mundial 2026.
 
+## Golden Boot — evergreen (EN)
+
+- [Golden Boot hub](https://www.top-scorers.com/en/golden-boot): all Golden Boot / top scorer award pages by competition.
+- [MLS Golden Boot](https://www.top-scorers.com/en/golden-boot/mls): MLS Golden Boot winners year by year and records.
+- [Champions League top scorers](https://www.top-scorers.com/en/golden-boot/champions-league): UCL top scorer by season and all-time records.
+- [AFCON top scorers](https://www.top-scorers.com/en/golden-boot/afcon): Africa Cup of Nations top scorers by edition.
+- [Liga MX scoring champions](https://www.top-scorers.com/en/golden-boot/liga-mx): campeón de goleo Apertura/Clausura and records.
+- [Saudi Pro League top scorers](https://www.top-scorers.com/en/golden-boot/saudi-pro-league): top scorers by season and league records.
+- [Primeira Liga Bola de Prata](https://www.top-scorers.com/en/golden-boot/primeira-liga): Portuguese top scorer award, winners and records.
+- [Brasileirão artilheiros](https://www.top-scorers.com/en/golden-boot/brasileirao): Brazilian league top scorers by season.
+- [European Golden Boot](https://www.top-scorers.com/en/bota-de-oro): European Golden Shoe standings with league-weighted points.
+
 ## Notas
 
 - Datos de fútbol actualizados desde API-Football; pueden variar en tiempo real.
