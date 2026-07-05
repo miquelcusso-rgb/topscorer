@@ -210,7 +210,11 @@ export default function PositionTable({ players, tab, lang = 'es', sort, onSort,
         {players.map((p, i) => {
           const rank = i + 1
           const slug = playerSlug(p)
-          const primaryCol = cols.find(c => c.accent && c.kind !== 'last5') ?? cols.find(c => c.kind !== 'last5') ?? cols[0]
+          // Big highlighted stat = the actively sorted column when there is one
+          // (so the mobile sort pills visibly change what the list shows), else
+          // the tab's accent stat.
+          const sortedCol = sort ? cols.find(c => c.key === sort.key && c.kind !== 'last5') : undefined
+          const primaryCol = sortedCol ?? cols.find(c => c.accent && c.kind !== 'last5') ?? cols.find(c => c.kind !== 'last5') ?? cols[0]
           // Secondary chips on mobile: always IIG + Nota (so it's not just goals),
           // plus any columns the user appended via "+ Añadir stat".
           const chipCols = cols.filter(c =>

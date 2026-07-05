@@ -8,7 +8,7 @@ import HotStrips from './HotStrips'
 import MyTeamHome from './MyTeamHome'
 import LangBadge from './LangBadge'
 import Link from 'next/link'
-import { type PositionTabId, TAB_LABELS, TAB_ACCENT, extraStatList, last5Ratings } from '@/lib/position-stats'
+import { type PositionTabId, TAB_LABELS, TAB_ACCENT, COLUMNS_FOR, extraStatList, last5Ratings, sortValue } from '@/lib/position-stats'
 import type { HomeInsights } from '@/lib/home-insights'
 import type { HomeRumor } from '@/lib/home-rumor'
 import { iig, leagueCoef, rankScore } from '@/lib/iig'
@@ -170,6 +170,9 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
   const [ageBand, setAgeBand] = useState<'all' | 'u23' | 'u21'>('all')
   const [minPj, setMinPj] = useState<number>(3)
   const [sort, setSort] = useState<{ key: string; dir: 1 | -1 } | null>(null)
+  // Sort keys are per-tab (e.g. 'goles' isn't a column on Asistentes) — reset to
+  // the tab's default order whenever the position tab changes.
+  useEffect(() => { setSort(null) }, [pos])
   const [insightDismissed, setInsightDismissed] = useState(false)
   const [curio, setCurio] = useState(0)
   const curioCount = insights?.lines.length ?? 0
@@ -227,13 +230,17 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
     last5: p => last5Ratings(p).avg,
   }
   const sorted = useMemo(() => {
-    // DEFAULT ordering (no explicit column sort) = rankScore: IIG when it is
-    // meaningful, else compressed rating·coef. This is the "scouter" order, so a
-    // high-rated non-scorer (defender, GK, playmaker) ranks in the cross-league
-    // Top-20 instead of being buried by pure goal volume.
-    if (!sort) return [...filtered].sort((a, b) => rankScore(b) - rankScore(a))
+    // DEFAULT ordering (no explicit column sort) = the tab's OWN primary stat
+    // (goals on Goleadores, assists on Asistentes, playmaking on Centrocampistas,
+    // defensive actions on Defensas), with rankScore as the tiebreaker. The tab
+    // headline must match its ranking — an "Asistentes" list not led by the top
+    // assister reads as broken. rankScore alone remains the cross-league scouter
+    // order, still one tap away via the IIG column / sort pills.
+    const byTab = (a: PlayerData, b: PlayerData) =>
+      sortValue(pos, b) - sortValue(pos, a) || rankScore(b) - rankScore(a)
+    if (!sort) return [...filtered].sort(byTab)
     const acc = SORT_ACCESSOR[sort.key]
-    if (!acc) return [...filtered].sort((a, b) => rankScore(b) - rankScore(a))
+    if (!acc) return [...filtered].sort(byTab)
     // ALWAYS descending — best stat on top. No ascending toggle (ascending would
     // surface players with 0 of the stat, which is noise on a leaderboard).
     return [...filtered].sort((a, b) => acc(b) - acc(a))
@@ -489,6 +496,34 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
           />
         </div>
       </div>
+      </div>
+
+      {/* Mobile-only sort pills (desktop sorts by tapping table headers, which
+          don't exist in the mobile card layout). Same keys/state as the table.
+          The tab's primary (accent) column reads as active when no explicit
+          sort is set, since the default order is that stat. */}
+      <div className="saas-mobile-cards" style={{ alignItems: 'center', gap: 6, overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: '2px 2px 8px', marginBottom: -2 }}>
+        <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ts-muted)' }}>
+          {lang === 'en' ? 'Sort' : 'Ordenar'}
+        </span>
+        {(() => {
+          const cols = COLUMNS_FOR[pos].filter(c => c.kind !== 'last5' && c.key !== 'age' && c.key !== 'pj')
+          const primaryKey = (cols.find(c => c.accent) ?? cols[0])?.key
+          return cols.map(c => {
+            const active = sort ? sort.key === c.key : c.key === primaryKey
+            return (
+              <button key={c.key} type="button"
+                onClick={() => setSort(c.key === primaryKey ? null : { key: c.key, dir: -1 })}
+                style={{ flexShrink: 0, minHeight: 34, padding: '5px 12px', borderRadius: 999, cursor: 'pointer',
+                  fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
+                  border: '1px solid var(--ts-border)',
+                  background: active ? 'var(--ts-primary)' : 'var(--ts-card)',
+                  color: active ? '#1a1a1a' : 'var(--ts-text)' }}>
+                {c.label}{active ? ' ↓' : ''}
+              </button>
+            )
+          })
+        })()}
       </div>
 
       <PositionTable
