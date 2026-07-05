@@ -220,7 +220,7 @@ export const getTopAssists = unstable_cache(
     }
   },
   ['api-football-topassists-v2'], // v2: bust a stale pre-tournament empty cache
-  { revalidate: 1800, tags: ['api-football'] } // 30 min during the tournament
+  { revalidate: 10800, tags: ['api-football'] } // 3 h — matches are daily; 30-min refresh just burned quota
 )
 
 export const getStandings = unstable_cache(
@@ -273,7 +273,7 @@ export const getFriendlies = unstable_cache(
     }
   },
   ['api-football-friendlies'],
-  { revalidate: 3600, tags: ['api-football'] } // 1 h — picks up new results
+  { revalidate: 10800, tags: ['api-football'] } // 3 h — friendlies window is over; results land daily
 )
 
 // Full per-season career for one player (on-demand). Loops the seasons the API
@@ -490,7 +490,7 @@ export const getNextFixtures = unstable_cache(
     return data.response ?? []
   },
   ['api-football-next-fixtures'],
-  { revalidate: 3600, tags: ['api-football'] } // 1 h — upcoming fixtures may shift
+  { revalidate: 10800, tags: ['api-football'] } // 3 h — kickoff times rarely shift same-day
 )
 
 // Whole-season fixtures (every round/matchday). One API call; grouped by
@@ -561,7 +561,7 @@ export async function getPlayerDetails(
       }
     },
     [`api-football-player-detail-${playerId}-${season}`],
-    { revalidate: 7200, tags: ['api-football'] } // 2 h — bio never changes, stats update per match
+    { revalidate: 21600, tags: ['api-football'] } // 6 h — bio never changes; stats update at most once a day (per match)
   )()
 }
 
@@ -722,7 +722,7 @@ export async function searchPlayer(name: string, season: number = 2025): Promise
       return data.response ?? []
     },
     [`api-football-player-search-${name.toLowerCase().replace(/\s+/g, '-')}-${season}`],
-    { revalidate: 3600, tags: ['api-football'] }
+    { revalidate: 21600, tags: ['api-football'] } // 6 h — search results are near-static
   )()
 }
 
@@ -752,7 +752,7 @@ export async function getTransfersByTeam(teamId: number): Promise<ApiTransfer[]>
       }
     },
     [`api-football-transfers-team-${teamId}`],
-    { revalidate: 3600, tags: ['api-football'] }
+    { revalidate: 21600, tags: ['api-football'] } // 6 h — signings don't need hourly refresh
   )()
 }
 

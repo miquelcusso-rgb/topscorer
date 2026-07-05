@@ -6,6 +6,7 @@ import SaasShell from '@/components/saas/SaasShell'
 import Footer from '@/components/Footer'
 import TeamFacts from '@/components/team/TeamFacts'
 import TeamEnrichment from '@/components/team/TeamEnrichment'
+import SetMyTeamButton from '@/components/team/SetMyTeamButton'
 import { majorTeamSlugs, findTeamBySlug, datasetStatsByName, type TeamData } from '@/lib/team-data'
 import { getSquad, getCoach, type SquadPlayer } from '@/lib/api-football'
 import { slugify } from '@/lib/slugify'
@@ -199,7 +200,10 @@ export default async function TeamPage({
           </div>
           <div style={{ minWidth: 0, flex: 1 }}>
             <h1 style={{ margin: 0, fontFamily: "'Barlow Condensed', sans-serif", fontSize: 38, fontWeight: 800, lineHeight: 1, color: 'var(--ts-text)' }}>{team.name}</h1>
-            <Link href={leagueHref} style={{ display: 'inline-block', marginTop: 6, fontSize: 13.5, fontWeight: 600, color: accent ?? 'var(--ts-teal)', textDecoration: 'none' }}>{team.league} →</Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6, flexWrap: 'wrap' }}>
+              <Link href={leagueHref} style={{ fontSize: 13.5, fontWeight: 600, color: accent ?? 'var(--ts-teal)', textDecoration: 'none' }}>{team.league} →</Link>
+              <SetMyTeamButton club={team.name} lang={lang} />
+            </div>
             {coach ? <div style={{ marginTop: 4, fontSize: 12.5, color: 'var(--ts-muted)' }}>{en ? 'Head coach' : 'Entrenador'}: <strong style={{ color: 'var(--ts-text)' }}>{coach.name}</strong></div> : null}
           </div>
           <div style={{ display: 'flex', gap: 20, flexShrink: 0 }}>
