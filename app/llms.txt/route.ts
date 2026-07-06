@@ -15,6 +15,8 @@ const BODY = `# TopScorers
 - [Máximos goleadores de Europa](https://www.top-scorers.com/es/maximos-goleadores-europa): ranking combinado de las cinco grandes ligas.
 - [Bota de Oro](https://www.top-scorers.com/es/bota-de-oro): clasificación de la Bota de Oro europea con puntuación ponderada por liga.
 - [Centrocampistas](https://www.top-scorers.com/es/centrocampistas): mejores centrocampistas por goles y asistencias.
+- [Máximos asistentes](https://www.top-scorers.com/es/asistentes): líderes de asistencias del fútbol europeo, ranking en directo.
+- [Mejores defensas](https://www.top-scorers.com/es/defensas): ranking de defensas por entradas, intercepciones y duelos ganados.
 - [Competiciones](https://www.top-scorers.com/es/competiciones): estadísticas por competición.
 - [Jugadores](https://www.top-scorers.com/es/jugadores): fichas y estadísticas de jugadores.
 - [Resultados](https://www.top-scorers.com/es/resultados): resultados en directo.

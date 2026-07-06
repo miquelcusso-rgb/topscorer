@@ -80,14 +80,29 @@ function buildPositionPools(season: PlayerData[]): Record<PositionTabId, PlayerD
   return out
 }
 
+// Texto citable por tab para el ItemList (la stat "de verdad" de cada ranking).
+function itemStatLabel(tab: PositionTabId, p: PlayerData, lang: Lang): string {
+  const en = lang === 'en'
+  switch (tab) {
+    case 'ast': return `${p.asist ?? 0} ${en ? 'assists' : 'asistencias'}`
+    case 'mf': return `${p.keyPasses ?? 0} ${en ? 'key passes' : 'pases clave'}, ${p.asist ?? 0} ${en ? 'assists' : 'asistencias'}`
+    case 'df': return `${p.tacklesTotal ?? 0} ${en ? 'tackles' : 'entradas'}, ${p.interceptions ?? 0} ${en ? 'interceptions' : 'intercepciones'}`
+    case 'gk': return `${en ? 'rating' : 'nota'} ${p.rating ?? '—'}`
+    default: return `${p.goles ?? 0} ${en ? 'goals' : 'goles'}`
+  }
+}
+
 export default async function SaasHomeBody({
   lang,
   defaultPos,
   heading,
+  itemList,
 }: {
   lang: Lang
   defaultPos?: PositionTabId
   heading?: HeadingOverride
+  /** Emite ItemList JSON-LD del top-20 del tab por su stat propia (GEO: pillars citables) */
+  itemList?: { name: string; url: string }
 }) {
   // One entry per real player (identity-unified, current-season, carries photo).
   const season = (Array.isArray(PRIMARY_PLAYERS) ? PRIMARY_PLAYERS : []).filter(
@@ -113,11 +128,35 @@ export default async function SaasHomeBody({
 
   const breadcrumb = heading?.breadcrumb ?? (lang === 'en' ? ['Statistics', 'Players'] : ['Estadísticas', 'Jugadores'])
 
+  // ItemList JSON-LD del pillar: top-20 del tab REORDENADO por su stat propia
+  // (los pools están mezclados por liga; el orden citable es el del ranking real).
+  const tab: PositionTabId = defaultPos ?? 'fw'
+  const itemListJsonLd = itemList
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: itemList.name,
+        url: itemList.url,
+        numberOfItems: 20,
+        itemListElement: [...positionPools[tab]]
+          .sort((a, b) => sortValue(tab, b) - sortValue(tab, a))
+          .slice(0, 20)
+          .map((p, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: `${p.name} (${p.club}) — ${itemStatLabel(tab, p, lang)}`,
+          })),
+      }
+    : null
+
   return (
     <SaasShell
       activeKey="players"
       breadcrumb={breadcrumb}
     >
+      {itemListJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
+      )}
       <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} breaking={breaking} />
       <div style={{ marginTop: 32, marginLeft: -24, marginRight: -24, marginBottom: -24 }}>
         <Footer />

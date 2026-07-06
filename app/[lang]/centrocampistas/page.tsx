@@ -47,5 +47,15 @@ export default async function CentrocampistasPage({
   const heading = lang === 'en'
     ? { breadcrumb: ['Statistics', 'Midfielders'], h1: 'Best midfielders · Europe', sub: `Season ${CURRENT_SEASON_SHORT} · ranked by G+A · last-5 ratings` }
     : { breadcrumb: ['Estadísticas', 'Centrocampistas'], h1: 'Mejores centrocampistas · Europa', sub: `Temporada ${CURRENT_SEASON_SHORT} · por G+A · valoración últimos 5` }
-  return <SaasHomeBody lang={lang} defaultPos="mf" heading={heading} />
+  return (
+    <SaasHomeBody
+      lang={lang}
+      defaultPos="mf"
+      heading={heading}
+      itemList={{
+        name: lang === 'en' ? `Best midfielders in Europe ${CURRENT_SEASON_SHORT}` : `Mejores centrocampistas de Europa ${CURRENT_SEASON_SHORT}`,
+        url: `https://www.top-scorers.com/${lang}/centrocampistas`,
+      }}
+    />
+  )
 }

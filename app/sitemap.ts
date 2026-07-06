@@ -69,6 +69,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ['/transferencias',          'daily',   0.7],
     ['/estadisticas/comparador', 'weekly',  0.65],
     ['/centrocampistas',         'weekly',  0.7],
+    ['/asistentes',              'weekly',  0.8],
+    ['/defensas',                'weekly',  0.7],
     ['/wiki',                    'monthly', 0.6],
     ['/rumores',                 'daily',   0.85],
     ['/clasificacion',           'daily',   0.55],
