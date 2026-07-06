@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { PlayerData } from '@/types'
 import { avatarTintFor, initialsOf } from '@/lib/palette'
 import { shortName, fullNameIfDifferent } from '@/lib/player-name'
@@ -12,6 +13,8 @@ interface IdentityCardProps {
   liveText?: string
   /** Gold IIG pill shown next to the badge row (e.g. "IIG 38.4"). */
   iigBadge?: { value: number; title?: string }
+  /** When set, the club name links to its /equipo/[slug] team page. */
+  clubHref?: string
 }
 
 export default function IdentityCard({
@@ -21,6 +24,7 @@ export default function IdentityCard({
   goalsLabel = `Goles ${CURRENT_SEASON_SHORT}`,
   liveText,
   iigBadge,
+  clubHref,
 }: IdentityCardProps) {
   const tint = avatarTintFor(player.name, mode)
   const initials = initialsOf(player.name)
@@ -152,7 +156,10 @@ export default function IdentityCard({
             {player.flag ?? ''} {player.nationality ?? ''} · {player.age} · {player.height ?? '—'}
           </span>
           <span>
-            {player.club} {player.position ? `· ${player.position}` : ''}
+            {clubHref
+              ? <Link href={clubHref} style={{ color: 'inherit', textDecoration: 'underline', textDecorationColor: 'var(--ts-border)', textUnderlineOffset: 3 }}>{player.club}</Link>
+              : player.club}
+            {player.position ? ` · ${player.position}` : ''}
           </span>
           <MarketValuePill name={player.fullName || player.name} fallback={player.marketValue} />
         </div>

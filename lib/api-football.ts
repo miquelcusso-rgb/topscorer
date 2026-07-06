@@ -440,7 +440,7 @@ export const getMatchSummary = unstable_cache(
     }
   },
   ['api-football-match-summary'],
-  { revalidate: 3600, tags: ['api-football'] }
+  { revalidate: 21600, tags: ['api-football'] } // 6 h — a played match's summary never changes
 )
 
 // All standings groups (e.g. World Cup groups A–L), not just the first one.
@@ -1218,7 +1218,7 @@ export const getFixturePrediction = unstable_cache(
     }
   },
   ['api-football-prediction'],
-  { revalidate: 3600, tags: ['api-football'] } // 1 h
+  { revalidate: 21600, tags: ['api-football'] } // 6 h — bookmaker odds are set pre-match, no need for hourly
 )
 
 // ─── Head-to-head (/fixtures/headtohead) ──────────────────────────────────────

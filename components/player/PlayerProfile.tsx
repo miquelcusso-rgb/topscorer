@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { PlayerData } from '@/types'
 import { PRIMARY_PLAYERS } from '@/lib/player-identity'
+import { findTeamBySlug, teamSlug } from '@/lib/team-data'
 import { wcNationSlugFor } from '@/lib/wc-nations'
 import SaasShell from '@/components/saas/SaasShell'
 import IdentityCard from '@/components/player/IdentityCard'
@@ -153,6 +154,14 @@ export default function PlayerProfile({ player, lang, slug, userPlan, seasons = 
       <IdentityCard
         player={player}
         iigBadge={{ value: iig(player), title: `${IIG_NAME[lang]} · ${IIG_EXPLAINER[lang]}` }}
+        clubHref={(() => {
+          // Link the club to its team page — the fiche→equipo interlink is how
+          // the long-tail team pages get discovered. Only when the slug exists
+          // (national teams / odd live club names would 404).
+          if (!player.club) return undefined
+          const s = teamSlug(player.club)
+          return findTeamBySlug(s) ? `/${lang}/equipo/${s}` : undefined
+        })()}
       />
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: -4 }}>
         <AvailabilityBadge apiId={apiId} en={en} />
