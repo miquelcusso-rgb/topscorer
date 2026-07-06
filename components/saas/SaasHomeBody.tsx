@@ -128,8 +128,10 @@ export default async function SaasHomeBody({
 
   const breadcrumb = heading?.breadcrumb ?? (lang === 'en' ? ['Statistics', 'Players'] : ['Estadísticas', 'Jugadores'])
 
-  // ItemList JSON-LD del pillar: top-20 del tab REORDENADO por su stat propia
-  // (los pools están mezclados por liga; el orden citable es el del ranking real).
+  // ItemList JSON-LD del pillar: top-20 del tab REORDENADO por su stat propia.
+  // Filtrado a Big-5 para reflejar EXACTAMENTE la vista visible por defecto
+  // (scopeMode inicial = 'big5' en SaasHomeInteractive; el H1 dice "Europa" —
+  // sin el filtro, la lista la lideraba Messi/Inter Miami: schema ≠ visible).
   const tab: PositionTabId = defaultPos ?? 'fw'
   const itemListJsonLd = itemList
     ? {
@@ -138,7 +140,8 @@ export default async function SaasHomeBody({
         name: itemList.name,
         url: itemList.url,
         numberOfItems: 20,
-        itemListElement: [...positionPools[tab]]
+        itemListElement: positionPools[tab]
+          .filter(p => BIG5_LEAGUES.includes(p.league))
           .sort((a, b) => sortValue(tab, b) - sortValue(tab, a))
           .slice(0, 20)
           .map((p, i) => ({
