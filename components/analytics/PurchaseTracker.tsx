@@ -24,7 +24,7 @@ export default function PurchaseTracker() {
     const sessionId = p.get('session_id') || undefined
     // De-dupe across reloads/back-button within the session.
     const key = `ts_purchase_${sessionId ?? 'nosession'}`
-    if (sessionStorage.getItem(key)) return
+    try { if (sessionStorage.getItem(key)) return } catch {}
 
     const plan = p.get('plan') || undefined
     const billing = p.get('billing') || undefined
@@ -38,7 +38,7 @@ export default function PurchaseTracker() {
       ...(billing ? { billing } : {}),
     })
 
-    sessionStorage.setItem(key, '1')
+    try { sessionStorage.setItem(key, '1') } catch {}
   }, [])
 
   return null

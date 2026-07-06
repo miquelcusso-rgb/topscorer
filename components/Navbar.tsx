@@ -55,7 +55,8 @@ export default function Navbar() {
   const navActiveBg = isLight ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.06)'
 
   useEffect(() => {
-    const seen = localStorage.getItem('ts-theme-hint')
+    let seen: string | null = null
+    try { seen = localStorage.getItem('ts-theme-hint') } catch {}
     if (!seen) {
       setShowHint(true)
       const t = setTimeout(() => setShowHint(false), 8000)
@@ -66,7 +67,7 @@ export default function Navbar() {
   function handleToggle() {
     toggle()
     setShowHint(false)
-    localStorage.setItem('ts-theme-hint', '1')
+    try { localStorage.setItem('ts-theme-hint', '1') } catch {}
   }
 
   // Primary links (always visible on desktop)

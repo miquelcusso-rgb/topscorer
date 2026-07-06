@@ -9,7 +9,8 @@ export default function AddToHomeScreen() {
 
   useEffect(() => {
     // Don't show if already dismissed or installed as PWA
-    const dismissed = localStorage.getItem('ts-a2hs-dismissed')
+    let dismissed: string | null = null
+    try { dismissed = localStorage.getItem('ts-a2hs-dismissed') } catch {}
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       ('standalone' in window.navigator && (window.navigator as { standalone?: boolean }).standalone === true)
@@ -30,7 +31,7 @@ export default function AddToHomeScreen() {
 
   function dismiss() {
     setShow(false)
-    localStorage.setItem('ts-a2hs-dismissed', '1')
+    try { localStorage.setItem('ts-a2hs-dismissed', '1') } catch {}
   }
 
   if (!show) return null

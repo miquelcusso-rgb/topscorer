@@ -8,7 +8,8 @@ export default function AppDownloadBanner() {
   useEffect(() => {
     // Show only on mobile, only if not dismissed
     const isMobile = window.innerWidth < 768
-    const wasDismissed = localStorage.getItem('app-banner-dismissed')
+    let wasDismissed: string | null = null
+    try { wasDismissed = localStorage.getItem('app-banner-dismissed') } catch {}
     if (isMobile && !wasDismissed) {
       setTimeout(() => setShow(true), 3000) // show after 3s
     }
@@ -17,7 +18,7 @@ export default function AppDownloadBanner() {
   function dismiss() {
     setDismissed(true)
     setShow(false)
-    localStorage.setItem('app-banner-dismissed', '1')
+    try { localStorage.setItem('app-banner-dismissed', '1') } catch {}
   }
 
   if (!show || dismissed) return null
