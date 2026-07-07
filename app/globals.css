@@ -34,6 +34,21 @@ body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
 html { -webkit-font-smoothing: antialiased; overflow-x: clip; font-size: 17px; }
 body { overflow-x: clip; overscroll-behavior-y: none; }
 
+/* ── Sensación nativa en móvil (2026-07-08) ──
+   · tap-highlight transparente: mata el flash gris/azul de WebKit al tocar
+   · touch-action manipulation: elimina el delay de doble-tap-zoom en taps
+   · text-size-adjust: iOS no infla el texto al rotar
+   Los targets interactivos dan feedback vía :active, como una app. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+a, button, [role="button"], summary, label { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+@media (hover: none) {
+  /* feedback táctil instantáneo en vez de estados hover (imposibles en touch) */
+  a:active, button:active, [role="button"]:active { opacity: .7; transition: opacity .06s; }
+  /* scroll horizontal con inercia sin scrollbar visible en carruseles de chips/píldoras */
+  .ts-hscroll { -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .ts-hscroll::-webkit-scrollbar { display: none; }
+}
+
 body {
   background-color: #0a0908;
   color: #f8f7f3;

@@ -47,7 +47,10 @@ export default function MobileTopbar({ activeKey, lang, primaryCta }: Props) {
           display: 'none', // toggled to flex by media query
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '8px 10px',
+          // safe-area: con viewport-fit=cover el topbar entra bajo el notch en
+          // standalone/landscape sin este padding (sensación nativa, no bug visual)
+          padding: '8px calc(10px + env(safe-area-inset-right)) 8px calc(10px + env(safe-area-inset-left))',
+          paddingTop: 'calc(8px + env(safe-area-inset-top))',
           background: 'var(--ts-surface)',
           borderBottom: '1px solid var(--ts-border)',
           position: 'sticky',

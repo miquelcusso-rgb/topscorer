@@ -77,6 +77,9 @@ export const viewport: Viewport = {
   themeColor: '#f0c040',
   width: 'device-width',
   initialScale: 1,
+  // Sensación nativa: el contenido llega a los bordes físicos (notch/home
+  // indicator); los sticky compensan con env(safe-area-inset-*) (MobileTopbar).
+  viewportFit: 'cover',
 }
 
 // Single site-wide @graph: Organization + WebSite linked by @id. The WebSite
