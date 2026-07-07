@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import NewsPlaceholder from './NewsPlaceholder'
 import LangBadge from './LangBadge'
 import NewsCard, { type NewsCardImage } from '@/components/news/NewsCard'
@@ -47,11 +48,16 @@ function HeroImg({ visual, source, h }: { visual?: NewsVisual; source?: string; 
   }
   // Crests must never be cropped → contain + padding on a neutral bg. Player
   // headshots ('agency') fill the box with cover.
+  // Logos (league/crest) = PNGs 150-220KB de api-sports pintados pequeños → van
+  // por next/image (set acotado, quota-safe); headshots 'agency' en <img> plano.
   const isCrest = visual.license !== 'agency'
+  if (isCrest) {
+    return <Image src={visual.url} alt="" width={320} height={h} sizes="320px" loading="lazy" onError={() => setBroken(true)}
+      style={{ width: '100%', height: h, objectFit: 'contain', padding: 14, boxSizing: 'border-box', background: 'var(--ts-card2)' }} />
+  }
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={visual.url} alt="" loading="lazy" onError={() => setBroken(true)}
-    style={{ width: '100%', height: h, objectFit: isCrest ? 'contain' : 'cover',
-      padding: isCrest ? 14 : 0, boxSizing: 'border-box', background: 'var(--ts-card2)' }} />
+    style={{ width: '100%', height: h, objectFit: 'cover', boxSizing: 'border-box', background: 'var(--ts-card2)' }} />
 }
 
 // Full-width breaking-news banner: rotates the top headlines with a LIVE badge.
@@ -134,9 +140,12 @@ function MobileNewsCarousel({ items, lang, en }: { items: NewsItem[]; lang: Lang
         {/* Fixed-size image box — identical for every slide. */}
         <div style={{ width: 108, height: 80, flexShrink: 0, borderRadius: 8, overflow: 'hidden', background: 'var(--ts-card2)' }}>
           {it.visual?.url
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={it.visual.url} alt="" loading="lazy"
-                style={{ width: '100%', height: '100%', objectFit: isCrest ? 'contain' : 'cover', padding: isCrest ? '12%' : 0, boxSizing: 'border-box', display: 'block' }} />
+            ? (isCrest
+              ? <Image src={it.visual.url} alt="" width={108} height={80} sizes="108px" loading="lazy"
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '12%', boxSizing: 'border-box', display: 'block' }} />
+              // eslint-disable-next-line @next/next/no-img-element
+              : <img src={it.visual.url} alt="" loading="lazy"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', boxSizing: 'border-box', display: 'block' }} />)
             : <NewsPlaceholder source={it.source} rounded={8} compact />}
         </div>
         <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 4 }}>

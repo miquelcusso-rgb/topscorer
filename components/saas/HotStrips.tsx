@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import Avatar from './Avatar'
 import CrestImg from './CrestImg'
 import { clubLogo } from '@/lib/club-logos'
@@ -70,8 +71,15 @@ function NewsCarousel({ news, en, lang }: { news: NewsLite[]; en: boolean; lang:
             <div style={{ width: 104, height: 78, flexShrink: 0, borderRadius: 8, overflow: 'hidden', background: 'var(--ts-card2)' }}>
               {it.visual?.url
                 // License-aware visual only (headshot/CC0) — never the raw RSS photo.
-                // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={it.visual.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: it.visual.license === 'agency' ? 'cover' : 'contain', padding: it.visual.license === 'agency' ? 0 : '12%', boxSizing: 'border-box', display: 'block' }} />
+                // Los visuals tipo LOGO (league/crest/flag) son PNGs de 150-220KB de
+                // api-sports pintados a 104×78 — van por next/image (set acotado
+                // ~30-50 fuentes, quota-safe incluso en Hobby; audit PSI 8-jul: eran
+                // el mayor peso de la home tras los logos propios). Los headshots
+                // 'agency' siguen en <img> plano (miles de fuentes = quota real).
+                ? (it.visual.license === 'agency'
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={it.visual.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  : <Image src={it.visual.url} alt="" width={104} height={78} sizes="104px" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '12%', boxSizing: 'border-box', display: 'block' }} />)
                 : <NewsPlaceholder source={it.source} rounded={8} compact />}
             </div>
             <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0, gap: 4 }}>
