@@ -137,7 +137,7 @@ export default async function GoldenBootCompPage({
             <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 16 }}>
               Who are the all-time top scorers?
             </h2>
-            <div style={{ overflowX: 'auto' }}>
+            <div className="ts-hscroll" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
@@ -167,7 +167,7 @@ export default async function GoldenBootCompPage({
             <h2 style={{ ...headingStyle, fontSize: 22, color: 'var(--ts-primary)', marginBottom: 16 }}>
               {data.award} — recent {data.allTime ? 'top scorers' : 'winners'}
             </h2>
-            <div style={{ overflowX: 'auto' }}>
+            <div className="ts-hscroll" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>

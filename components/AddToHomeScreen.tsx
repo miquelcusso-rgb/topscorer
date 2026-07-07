@@ -24,8 +24,9 @@ export default function AddToHomeScreen() {
     const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent)
     setIsIos(ios)
 
-    // Show after 4 seconds
-    const t = setTimeout(() => setShow(true), 4000)
+    // Audit móvil 8-jul: 4s tapaba la primera pantalla antes de que el usuario
+    // llegara a interactuar (cubre ~180px sobre las filas). 9s deja explorar.
+    const t = setTimeout(() => setShow(true), 9000)
     return () => clearTimeout(t)
   }, [])
 
@@ -40,7 +41,7 @@ export default function AddToHomeScreen() {
     <div
       className="fixed bottom-0 left-0 right-0 z-[200] md:hidden"
       style={{
-        background: 'rgba(6,10,22,.97)',
+        background: 'rgba(10,9,8,.97)', // negro de marca (antes azulado #060a16 — paleta prohibida)
         borderTop: '1px solid rgba(240,192,64,.25)',
         backdropFilter: 'blur(20px)',
         boxShadow: '0 -8px 32px rgba(0,0,0,.5)',

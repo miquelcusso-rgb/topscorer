@@ -29,12 +29,12 @@ export default function LangTogglePill() {
       aria-label="Language"
       style={{
         display: 'inline-flex',
-        height: 24,
+        height: 32, // 24→32 audit móvil 8-jul: target táctil de control secundario
         border: '1px solid var(--ts-border)',
-        borderRadius: 5,
+        borderRadius: 6,
         padding: 2,
         fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-        fontSize: 9,
+        fontSize: 10,
         letterSpacing: '0.06em',
         background: 'var(--ts-card2)',
       }}
@@ -47,8 +47,8 @@ export default function LangTogglePill() {
             type="button"
             onClick={() => handle(code)}
             style={{
-              padding: '0 7px',
-              borderRadius: 3,
+              padding: '0 10px',
+              borderRadius: 4,
               border: 'none',
               cursor: 'pointer',
               background: active ? 'var(--ts-surface)' : 'transparent',

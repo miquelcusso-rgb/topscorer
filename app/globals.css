@@ -48,6 +48,11 @@ a, button, [role="button"], summary, label { -webkit-tap-highlight-color: transp
   .ts-hscroll { -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; scrollbar-width: none; }
   .ts-hscroll::-webkit-scrollbar { display: none; }
 }
+@media (hover: none) and (pointer: coarse) {
+  /* iOS hace auto-zoom al enfocar campos con fuente <16px (audit 8-jul: selects
+     de filtro a 13px, búsquedas a 12-13px). 16px en touch lo elimina de raíz. */
+  input, select, textarea { font-size: 16px !important; }
+}
 
 body {
   background-color: #0a0908;

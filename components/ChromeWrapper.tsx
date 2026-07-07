@@ -43,6 +43,11 @@ const PATTERNS = [
   /^\/(es|en)\/centrocampistas(\/.*)?$/,
   /^\/(es|en)\/maximos-goleadores-europa(\/.*)?$/,
   /^\/(es|en)\/goleadores-[a-z0-9-]+(\/.*)?$/,
+  // Audit móvil 8-jul: pillars SaasShell que faltaban → doble header (Navbar
+  // legacy encima del MobileTopbar, pill Sign in/Pro desbordando a x:414/390).
+  /^\/(es|en)\/golden-boot(\/.*)?$/,
+  /^\/(es|en)\/asistentes(\/.*)?$/,
+  /^\/(es|en)\/defensas(\/.*)?$/,
   // Audit pass 4: SaaS-wrapped content pages
   /^\/(es|en)\/fantasy(\/.*)?$/,
   /^\/(es|en)\/embed-docs(\/.*)?$/,

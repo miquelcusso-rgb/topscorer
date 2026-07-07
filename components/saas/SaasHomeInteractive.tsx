@@ -502,7 +502,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
           don't exist in the mobile card layout). Same keys/state as the table.
           The tab's primary (accent) column reads as active when no explicit
           sort is set, since the default order is that stat. */}
-      <div className="saas-mobile-cards" style={{ alignItems: 'center', gap: 6, overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: '2px 2px 8px', marginBottom: -2 }}>
+      <div className="saas-mobile-cards ts-hscroll" style={{ alignItems: 'center', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch', padding: '2px 2px 8px', marginBottom: -2 }}>
         <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ts-muted)' }}>
           {lang === 'en' ? 'Sort' : 'Ordenar'}
         </span>
@@ -514,7 +514,7 @@ export default function SaasHomeInteractive({ lang, positionPools, defaultPos, i
             return (
               <button key={c.key} type="button"
                 onClick={() => setSort(c.key === primaryKey ? null : { key: c.key, dir: -1 })}
-                style={{ flexShrink: 0, minHeight: 34, padding: '5px 12px', borderRadius: 999, cursor: 'pointer',
+                style={{ flexShrink: 0, minHeight: 44, padding: '5px 14px', borderRadius: 999, cursor: 'pointer', /* 44px = mínimo táctil (audit 8-jul) */
                   fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
                   border: '1px solid var(--ts-border)',
                   background: active ? 'var(--ts-primary)' : 'var(--ts-card)',

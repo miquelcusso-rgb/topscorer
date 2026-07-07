@@ -87,11 +87,16 @@ function NewsCarousel({ news, en, lang }: { news: NewsLite[]; en: boolean; lang:
       })()}
 
       {n > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '0 0 10px' }} aria-hidden>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 2, padding: '0 0 4px' }} aria-hidden>
           {items.map((_, i) => (
+            // Hitbox 30×30 (audit móvil 8-jul: los dots de 6px eran intocables);
+            // el dot visual vive en el span interior.
             <button key={i} type="button" onClick={() => setIdx(i)} aria-label={`${i + 1}`}
-              style={{ width: i === idx ? 18 : 6, height: 6, borderRadius: 999, border: 'none', padding: 0, cursor: 'pointer',
+              style={{ width: i === idx ? 42 : 30, height: 30, border: 'none', padding: 0, cursor: 'pointer',
+                background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ width: i === idx ? 18 : 6, height: 6, borderRadius: 999, display: 'block',
                 background: i === idx ? 'var(--ts-teal)' : 'var(--ts-border)', transition: 'width 150ms ease' }} />
+            </button>
           ))}
         </div>
       )}

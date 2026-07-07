@@ -9,19 +9,33 @@ export default function ThemeTogglePill() {
       type="button"
       onClick={toggle}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      // Hitbox 44px (mínimo táctil, audit 8-jul) — el visual sigue siendo la
+      // píldora de 44×24 (el div interior); el botón exterior es transparente.
       style={{
-        position: 'relative',
-        width: 44,
-        height: 24,
-        borderRadius: 12,
-        border: '1px solid var(--ts-border)',
-        background: 'var(--ts-card2)',
-        padding: 2,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 44,
+        minWidth: 44,
+        padding: 0,
+        border: 'none',
+        background: 'transparent',
         cursor: 'pointer',
         fontFamily: 'inherit',
         flexShrink: 0,
       }}
     >
+      <span
+        style={{
+          position: 'relative',
+          display: 'block',
+          width: 44,
+          height: 24,
+          borderRadius: 12,
+          border: '1px solid var(--ts-border)',
+          background: 'var(--ts-card2)',
+        }}
+      >
       <span
         style={{
           position: 'absolute',
@@ -51,6 +65,7 @@ export default function ThemeTogglePill() {
             </g>
           </svg>
         )}
+      </span>
       </span>
     </button>
   )

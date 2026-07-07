@@ -70,6 +70,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       icon: [{ url: '/logo.png', type: 'image/png' }],
       apple: '/logo.png',
     },
+    // Audit móvil 8-jul: appleWebApp.capable no emitía el meta en el DOM
+    // auditado — se fuerzan a mano (iOS standalone + heurísticas PWA).
+    other: {
+      'apple-mobile-web-app-capable': 'yes',
+      'mobile-web-app-capable': 'yes',
+    },
   }
 }
 
