@@ -6,6 +6,8 @@ import Footer from '@/components/Footer'
 import SaasHomeInteractive from './SaasHomeInteractive'
 import { getNewsWithVisuals } from '@/lib/news'
 import { POSITION_FILTER, sortValue, type PositionTabId } from '@/lib/position-stats'
+import { COMPETITIONS } from '@/lib/golden-boot-data'
+import Link from 'next/link'
 import { rankScore } from '@/lib/iig'
 import { computeHomeInsights } from '@/lib/home-insights'
 import { getTopRumors } from '@/lib/home-rumor'
@@ -161,6 +163,28 @@ export default async function SaasHomeBody({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, '\\u003c') }} />
       )}
       <SaasHomeInteractive lang={lang} positionPools={positionPools} defaultPos={defaultPos} insights={insights} rumors={rumors} news={news} breaking={breaking} />
+
+      {/* Cluster golden-boot evergreen — enlaces server-rendered desde la home
+          (GEO audit 5-jul: el cluster solo era descubrible vía sitemap/llms.txt).
+          Solo en la home (!heading) para no duplicar el bloque de los pillars. */}
+      {!heading && (
+        <section style={{ maxWidth: 900, margin: '32px auto 0', padding: '20px 24px', background: 'var(--ts-primary-soft)', borderRadius: 12, border: '1px solid var(--ts-border-hot)' }}>
+          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, fontSize: 16, color: 'var(--ts-primary)', marginBottom: 12 }}>
+            {lang === 'en' ? 'Golden Boot winners by competition' : 'Ganadores de la Bota de Oro por competición'}
+          </h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            <Link href="/golden-boot" style={{ color: 'var(--ts-primary)', textDecoration: 'none', fontSize: 13, padding: '6px 14px', background: 'var(--ts-primary-soft)', borderRadius: 20, border: '1px solid var(--ts-border-hot)', fontWeight: 700 }} className="hover:bg-yellow-400/20">
+              {lang === 'en' ? 'All competitions' : 'Todas las competiciones'}
+            </Link>
+            {COMPETITIONS.map((c) => (
+              <Link key={c.slug} href={`/golden-boot/${c.slug}`} style={{ color: 'var(--ts-primary)', textDecoration: 'none', fontSize: 13, padding: '6px 14px', background: 'var(--ts-primary-soft)', borderRadius: 20, border: '1px solid var(--ts-border-hot)' }} className="hover:bg-yellow-400/20">
+                {c.competition}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div style={{ marginTop: 32, marginLeft: -24, marginRight: -24, marginBottom: -24 }}>
         <Footer />
       </div>
