@@ -33,6 +33,43 @@ interface Metric {
   // false → single number (shown head-to-head, NO bar — a bar there would be
   // misleading since there's no meaningful max).
   isPct: boolean
+  // section header this row belongs to (Volumen/Ataque/Pase/Defensa/Disciplina)
+  group: string
+  // true → LOWER is better (cards, fouls) — winner highlight flips
+  invert?: boolean
+}
+
+// Fila informativa de perfil (edad, altura, valor de mercado, contrato) —
+// estilo Transfermarkt: se comparan pero solo el valor de mercado "gana".
+interface ProfileRow {
+  label: string
+  da: string
+  db: string
+  // winner index for coloring: 0 = none, 1 = a, 2 = b
+  win: 0 | 1 | 2
+}
+
+// '€200M' | '€850K' → millones (número comparable). 0 si no hay dato.
+function mvNum(p: EnrichedPlayer): number {
+  const s = p.marketValue ?? ''
+  const m = s.replace(',', '.').match(/([\d.]+)\s*([MK])/i)
+  if (!m) return 0
+  return m[2].toUpperCase() === 'K' ? parseFloat(m[1]) / 1000 : parseFloat(m[1])
+}
+
+function buildProfile(a: EnrichedPlayer, b: EnrichedPlayer, es: boolean): ProfileRow[] {
+  const mvA = mvNum(a), mvB = mvNum(b)
+  const rows: ProfileRow[] = [
+    { label: es ? 'Edad' : 'Age', da: a.age ? String(a.age) : '—', db: b.age ? String(b.age) : '—', win: 0 },
+    { label: es ? 'Altura' : 'Height', da: a.height ?? '—', db: b.height ?? '—', win: 0 },
+    {
+      label: es ? 'Valor mercado' : 'Market value',
+      da: a.marketValue ?? '—', db: b.marketValue ?? '—',
+      win: mvA > mvB ? 1 : mvB > mvA ? 2 : 0,
+    },
+    { label: es ? 'Contrato hasta' : 'Contract until', da: a.contractUntil ?? '—', db: b.contractUntil ?? '—', win: 0 },
+  ]
+  return rows.filter(r => r.da !== '—' || r.db !== '—')
 }
 
 // On-target shooting accuracy from real shotsOn / shotsTotal.
@@ -58,6 +95,18 @@ function keyPassesOf(p: EnrichedPlayer): number {
   return p.keyPasses ?? p.passesKey ?? 0
 }
 
+// Métrica por 90 minutos (estándar FBref/Sofascore) — 0 si faltan minutos.
+function per90(val: number | undefined, minutes: number | undefined): number {
+  if (!val || !minutes || minutes <= 0) return 0
+  return Math.round((val / minutes) * 90 * 100) / 100
+}
+// % regates completados
+function dribblePct(p: EnrichedPlayer): number {
+  const att = p.dribblesAttempts ?? 0
+  if (att <= 0) return 0
+  return Math.round(((p.dribblesSuccess ?? 0) / att) * 1000) / 10
+}
+
 function buildMetrics(a: EnrichedPlayer, b: EnrichedPlayer, es: boolean): Metric[] {
   const kpA = keyPassesOf(a)
   const kpB = keyPassesOf(b)
@@ -65,22 +114,66 @@ function buildMetrics(a: EnrichedPlayer, b: EnrichedPlayer, es: boolean): Metric
   const ratingB = typeof b.rating === 'number' ? b.rating : 0
   const iigA = iig(a)
   const iigB = iig(b)
-  const accA = a.passAccuracy ?? 0
-  const accB = b.passAccuracy ?? 0
+  const accA = a.passAccuracy ?? a.passesAccuracy ?? 0
+  const accB = b.passAccuracy ?? b.passesAccuracy ?? 0
+  const g90A = per90(a.goles, a.minutes), g90B = per90(b.goles, b.minutes)
+  const a90A = per90(a.asist, a.minutes), a90B = per90(b.asist, b.minutes)
+
+  const G = {
+    vol: es ? 'Volumen' : 'Volume',
+    atk: es ? 'Ataque' : 'Attacking',
+    pass: es ? 'Pase y creación' : 'Passing & creation',
+    def: es ? 'Defensa' : 'Defending',
+    disc: es ? 'Disciplina' : 'Discipline',
+    glob: es ? 'Global' : 'Overall',
+  }
+  const num = (label: string, group: string, va: number | undefined, vb: number | undefined, opts?: { invert?: boolean; fmt?: (n: number) => string }): Metric => {
+    const f = opts?.fmt ?? ((n: number) => String(n))
+    return {
+      label, group, isPct: false, invert: opts?.invert,
+      va: va ?? 0, vb: vb ?? 0,
+      da: va !== undefined && va !== 0 ? f(va) : (va === 0 && vb !== undefined ? '0' : '—'),
+      db: vb !== undefined && vb !== 0 ? f(vb) : (vb === 0 && va !== undefined ? '0' : '—'),
+    }
+  }
+  const pct = (label: string, group: string, va: number, vb: number): Metric => ({
+    label, group, isPct: true, va, vb,
+    da: va ? `${va}%` : '—', db: vb ? `${vb}%` : '—',
+  })
 
   const all: Metric[] = [
-    // Single numbers — no bars.
-    { label: es ? 'Goles' : 'Goals',          va: a.goles, vb: b.goles, da: String(a.goles), db: String(b.goles), isPct: false },
-    { label: es ? 'Asist.' : 'Assists',        va: a.asist, vb: b.asist, da: String(a.asist), db: String(b.asist), isPct: false },
-    { label: es ? 'Tiros' : 'Shots',           va: a.shotsTotal ?? 0, vb: b.shotsTotal ?? 0, da: String(a.shotsTotal ?? '—'), db: String(b.shotsTotal ?? '—'), isPct: false },
-    { label: es ? 'Pases clave' : 'Key passes', va: kpA, vb: kpB, da: kpA ? String(kpA) : '—', db: kpB ? String(kpB) : '—', isPct: false },
-    { label: es ? 'Nota' : 'Rating',           va: ratingA, vb: ratingB, da: ratingA ? ratingA.toFixed(2) : '—', db: ratingB ? ratingB.toFixed(2) : '—', isPct: false },
-    { label: 'IIG',                            va: iigA, vb: iigB, da: iigA.toFixed(1), db: iigB.toFixed(1), isPct: false },
-    // Percentages (0–100) — bars on an absolute 100% scale.
-    { label: es ? '% Puerta' : 'Shot acc.',    va: shotPct(a), vb: shotPct(b), da: shotPct(a) ? `${shotPct(a)}%` : '—', db: shotPct(b) ? `${shotPct(b)}%` : '—', isPct: true },
-    { label: es ? 'Conversión' : 'Conversion', va: convPct(a), vb: convPct(b), da: convPct(a) ? `${convPct(a)}%` : '—', db: convPct(b) ? `${convPct(b)}%` : '—', isPct: true },
-    { label: es ? '% Acierto pase' : 'Pass acc.', va: accA, vb: accB, da: accA ? `${accA}%` : '—', db: accB ? `${accB}%` : '—', isPct: true },
-    { label: es ? '% Duelos' : 'Duels won',    va: duelPct(a), vb: duelPct(b), da: duelPct(a) ? `${duelPct(a)}%` : '—', db: duelPct(b) ? `${duelPct(b)}%` : '—', isPct: true },
+    // Volumen (partidos jugados, titularidades, minutos)
+    num(es ? 'Partidos' : 'Matches', G.vol, a.pj, b.pj),
+    num(es ? 'Titular' : 'Starts', G.vol, a.lineups, b.lineups),
+    num(es ? 'Minutos' : 'Minutes', G.vol, a.minutes, b.minutes, { fmt: n => n.toLocaleString() }),
+    // Ataque
+    num(es ? 'Goles' : 'Goals', G.atk, a.goles, b.goles),
+    num(es ? 'Goles / 90′' : 'Goals / 90′', G.atk, g90A, g90B, { fmt: n => n.toFixed(2) }),
+    num(es ? 'Asistencias' : 'Assists', G.atk, a.asist, b.asist),
+    num(es ? 'Asist. / 90′' : 'Assists / 90′', G.atk, a90A, a90B, { fmt: n => n.toFixed(2) }),
+    num(es ? 'Tiros' : 'Shots', G.atk, a.shotsTotal, b.shotsTotal),
+    num(es ? 'Penaltis marcados' : 'Penalties scored', G.atk, a.penaltiesScored, b.penaltiesScored),
+    num(es ? 'Regates buenos' : 'Dribbles won', G.atk, a.dribblesSuccess, b.dribblesSuccess),
+    pct(es ? '% Puerta' : 'Shot acc.', G.atk, shotPct(a), shotPct(b)),
+    pct(es ? 'Conversión' : 'Conversion', G.atk, convPct(a), convPct(b)),
+    pct(es ? '% Regate' : 'Dribble %', G.atk, dribblePct(a), dribblePct(b)),
+    // Pase y creación
+    num(es ? 'Pases clave' : 'Key passes', G.pass, kpA, kpB),
+    num(es ? 'Pases' : 'Passes', G.pass, a.passes, b.passes, { fmt: n => n.toLocaleString() }),
+    pct(es ? '% Acierto pase' : 'Pass acc.', G.pass, accA, accB),
+    // Defensa
+    num(es ? 'Entradas' : 'Tackles', G.def, a.tacklesTotal, b.tacklesTotal),
+    num(es ? 'Intercepciones' : 'Interceptions', G.def, a.interceptions, b.interceptions),
+    num(es ? 'Bloqueos' : 'Blocks', G.def, a.blocks, b.blocks),
+    pct(es ? '% Duelos' : 'Duels won', G.def, duelPct(a), duelPct(b)),
+    // Disciplina — MENOS es mejor (invert)
+    num(es ? 'Amarillas' : 'Yellow cards', G.disc, a.yellowCards, b.yellowCards, { invert: true }),
+    num(es ? 'Rojas' : 'Red cards', G.disc, a.redCards, b.redCards, { invert: true }),
+    num(es ? 'Faltas cometidas' : 'Fouls committed', G.disc, a.foulsCommitted, b.foulsCommitted, { invert: true }),
+    num(es ? 'Faltas recibidas' : 'Fouls drawn', G.disc, a.foulsDrawn, b.foulsDrawn),
+    // Global
+    num(es ? 'Nota media' : 'Avg. rating', G.glob, ratingA, ratingB, { fmt: n => n.toFixed(2) }),
+    num('IIG', G.glob, iigA, iigB, { fmt: n => n.toFixed(1) }),
   ]
   // Drop rows we can't show (no data for either player).
   return all.filter(m => m.da !== '—' || m.db !== '—')
@@ -124,8 +217,10 @@ function PlayerHead({ p, color }: { p: EnrichedPlayer; color: string }) {
 
 export default function VersusCard({ a, b, es }: VersusCardProps) {
   const metrics = buildMetrics(a, b, es)
-  const numberMetrics = metrics.filter(m => !m.isPct)
-  const pctMetrics = metrics.filter(m => m.isPct)
+  const profile = buildProfile(a, b, es)
+  // Secciones en orden de inserción (Volumen → Ataque → Pase → Defensa → Disciplina → Global)
+  const groups = Array.from(new Set(metrics.map(m => m.group)))
+  const hasPct = metrics.some(m => m.isPct)
   const [copied, setCopied] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -220,28 +315,40 @@ export default function VersusCard({ a, b, es }: VersusCardProps) {
           · Percentages → two-sided bars on an ABSOLUTE 0–100% scale, so the bar
             length is genuinely representative (full bar = 100%). */}
       <div style={{ padding: '4px 16px 16px' }}>
-        {numberMetrics.length > 0 && (
+        {/* Perfil (edad, altura, valor de mercado, contrato) — estilo TM */}
+        {profile.length > 0 && (
           <>
-            <SectionTitle>{es ? 'Números' : 'Numbers'}</SectionTitle>
-            {numberMetrics.map(m => {
-              const aWins = m.va > m.vb
-              const bWins = m.vb > m.va
-              return (
-                <div key={m.label} style={{ display: 'flex', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--ts-divider)' }}>
-                  <span style={{ flex: 1, textAlign: 'right', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 18, color: aWins ? COLOR_A : 'var(--ts-text)' }}>{m.da}</span>
-                  <span style={{ width: 150, textAlign: 'center', fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-faint)', fontFamily: "'Barlow Condensed', sans-serif" }}>{m.label}</span>
-                  <span style={{ flex: 1, textAlign: 'left', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 18, color: bWins ? COLOR_B : 'var(--ts-text)' }}>{m.db}</span>
-                </div>
-              )
-            })}
+            <SectionTitle>{es ? 'Perfil' : 'Profile'}</SectionTitle>
+            {profile.map(r => (
+              <div key={r.label} style={{ display: 'flex', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--ts-divider)' }}>
+                <span style={{ flex: 1, textAlign: 'right', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 18, color: r.win === 1 ? COLOR_A : 'var(--ts-text)' }}>{r.da}</span>
+                <span style={{ width: 150, textAlign: 'center', fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-faint)', fontFamily: "'Barlow Condensed', sans-serif" }}>{r.label}</span>
+                <span style={{ flex: 1, textAlign: 'left', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 18, color: r.win === 2 ? COLOR_B : 'var(--ts-text)' }}>{r.db}</span>
+              </div>
+            ))}
           </>
         )}
-        {pctMetrics.length > 0 && (
-          <>
-            <SectionTitle>{es ? 'Porcentajes' : 'Percentages'}</SectionTitle>
-            {pctMetrics.map(m => {
-              const aWins = m.va > m.vb
-              const bWins = m.vb > m.va
+
+        {/* Métricas por sección — números en duelo directo, porcentajes con barra
+            0–100 absoluta. En Disciplina el ganador se invierte (menos = mejor). */}
+        {groups.map(g => (
+          <div key={g}>
+            <SectionTitle>{g}</SectionTitle>
+            {metrics.filter(m => m.group === g).map(m => {
+              // Sin dato en un lado ('—') no hay duelo — nadie gana (clave con
+              // invert: un dato ausente parecería "0 faltas" y ganaría).
+              const bothHave = m.da !== '—' && m.db !== '—'
+              const aWins = bothHave && (m.invert ? m.va < m.vb : m.va > m.vb)
+              const bWins = bothHave && (m.invert ? m.vb < m.va : m.vb > m.va)
+              if (!m.isPct) {
+                return (
+                  <div key={m.label} style={{ display: 'flex', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid var(--ts-divider)' }}>
+                    <span style={{ flex: 1, textAlign: 'right', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 18, color: aWins ? COLOR_A : 'var(--ts-text)' }}>{m.da}</span>
+                    <span style={{ width: 150, textAlign: 'center', fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-faint)', fontFamily: "'Barlow Condensed', sans-serif" }}>{m.label}</span>
+                    <span style={{ flex: 1, textAlign: 'left', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 18, color: bWins ? COLOR_B : 'var(--ts-text)' }}>{m.db}</span>
+                  </div>
+                )
+              }
               const wa = Math.max(0, Math.min(100, m.va))   // absolute 0–100 scale
               const wb = Math.max(0, Math.min(100, m.vb))
               return (
@@ -260,10 +367,12 @@ export default function VersusCard({ a, b, es }: VersusCardProps) {
                 </div>
               )
             })}
-            <p style={{ textAlign: 'center', fontSize: 10, color: 'var(--ts-faint)', marginTop: 8 }}>
-              {es ? 'Barras a escala 0–100% (barra llena = 100%)' : 'Bars on a 0–100% scale (full bar = 100%)'}
-            </p>
-          </>
+          </div>
+        ))}
+        {hasPct && (
+          <p style={{ textAlign: 'center', fontSize: 10, color: 'var(--ts-faint)', marginTop: 8 }}>
+            {es ? 'Barras a escala 0–100% (barra llena = 100%) · En Disciplina, menos es mejor' : 'Bars on a 0–100% scale (full bar = 100%) · In Discipline, lower is better'}
+          </p>
         )}
       </div>
 
