@@ -21,7 +21,12 @@ export type SeasonCode = string
  * Force a specific 4-digit code if ever needed (e.g. to freeze copy mid-roll).
  * Default `null` → derive from the date. Set to e.g. '2526' to override.
  */
-export const SEASON_OVERRIDE: SeasonCode | null = null
+// 2026-07-09 (Miqui): la derivación por fecha saltó a '2627' el 1-jul pero el
+// DATASET sigue en 25/26 (FREE_SEASONS[0]='2526', filtros season==='2526') →
+// la home mostraba "Temporada 26/27" sobre datos 25/26. Congelado a '2526'
+// hasta que la 26/27 ruede de verdad (dataset + api-football, ~agosto).
+// TODO: quitar el override cuando arranque la temporada nueva.
+export const SEASON_OVERRIDE: SeasonCode | null = '2526'
 
 /**
  * Derive the current 4-digit season code from a date. European football seasons
