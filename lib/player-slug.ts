@@ -40,6 +40,28 @@ export function allPlayerSlugs(): string[] {
   return Array.from(BY_SLUG.keys())
 }
 
+/**
+ * Subconjunto del sitemap (audit 9-jul): listar los 48.200 slugs (24k × 2 langs)
+ * era index bloat — con autoridad baja Google los deja en "Discovered" y las
+ * fichas que la gente SÍ busca ("mbappé top-scorers") nunca entran al índice.
+ * Regla 10 de CLAUDE.md (calidad de sitemap): solo URLs que queremos indexadas.
+ * Criterio: producción real (G+A), nota alta con minutos, o dato curado
+ * (marketValue) — cap a MAX. Todas las demás fichas siguen resolviendo y son
+ * crawleables por enlaces internos; solo salen del sitemap.
+ */
+export function notablePlayerSlugs(max = 1200): string[] {
+  const score = (p: PlayerData): number =>
+    (p.goles ?? 0) * 2 + (p.asist ?? 0) +
+    ((p.rating ?? 0) >= 7 && (p.minutes ?? 0) >= 900 ? 5 : 0) +
+    (p.marketValue ? 10 : 0)
+  return Array.from(BY_SLUG.entries())
+    .map(([slug, p]) => ({ slug, s: score(p) }))
+    .filter(x => x.s >= 6) // umbral: al menos 3 goles / 6 asist / nota+minutos / curado
+    .sort((a, b) => b.s - a.s)
+    .slice(0, max)
+    .map(x => x.slug)
+}
+
 /** Resolve a slug to the canonical (current-season) player. */
 export function findPlayerBySlug(slug: string): PlayerData | undefined {
   const exact = BY_SLUG.get(slug)

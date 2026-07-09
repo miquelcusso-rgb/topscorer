@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { allPlayerSlugs } from '@/lib/player-slug'
+import { notablePlayerSlugs } from '@/lib/player-slug'
 import { allLeagueSlugs, leaguesWithData } from '@/lib/league-data'
 import { majorTeamSlugs } from '@/lib/team-data'
 import { WC_NATIONS, nationSlug } from '@/lib/wc-nations'
@@ -104,10 +104,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ),
   ]
 
-  // Only the slugs the player page actually resolves (same canonical set +
-  // slug fn as resolvePlayerProfile), so the sitemap never lists a /jugadores
-  // URL that 404s. See lib/player-slug.ts → allPlayerSlugs().
-  const playerUrls = allPlayerSlugs()
+  // Audit 9-jul: de allPlayerSlugs() (48.200 URLs = index bloat, todo se
+  // quedaba en "Discovered") a los ~1.200 jugadores notables. El resto de
+  // fichas sigue resolviendo (mismo set canónico), solo sale del sitemap.
+  const playerUrls = notablePlayerSlugs()
     .flatMap(slug => localized(`/jugadores/${slug}`, 'weekly', 0.7))
 
   // World Cup 2026 national-team profiles (hosts + favourites/likely qualifiers
