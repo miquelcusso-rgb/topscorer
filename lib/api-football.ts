@@ -175,6 +175,8 @@ export interface ApiFixture {
   score: {
     halftime: { home: number | null; away: number | null }
     fulltime: { home: number | null; away: number | null }
+    /** Present on knockout fixtures decided from the spot. */
+    penalty?: { home: number | null; away: number | null }
   }
 }
 
@@ -491,6 +493,22 @@ export const getNextFixtures = unstable_cache(
   },
   ['api-football-next-fixtures'],
   { revalidate: 10800, tags: ['api-football'] } // 3 h — kickoff times rarely shift same-day
+)
+
+// World Cup 2026 fixtures (league 1) — dedicated cache entry with a short TTL so
+// the WC portada's knockout bracket shows tonight's scores promptly during the
+// tournament. ONE call per 30 min max (≤48/day). Defensive → [].
+export const getWorldCupFixtures = unstable_cache(
+  async (): Promise<ApiFixture[]> => {
+    try {
+      const data = await apiFetch<ApiFixture[]>(`/fixtures?league=1&season=2026`)
+      return data.response ?? []
+    } catch {
+      return []
+    }
+  },
+  ['api-football-wc-fixtures'],
+  { revalidate: 1800, tags: ['api-football'] } // 30 min during the tournament window
 )
 
 // Whole-season fixtures (every round/matchday). One API call; grouped by

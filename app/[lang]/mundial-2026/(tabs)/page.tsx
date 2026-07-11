@@ -3,6 +3,7 @@ import { isLocale } from '@/lib/i18n'
 import { wcFaqs } from '../wc-faqs'
 import WorldCupFriendlies from '@/components/saas/WorldCupFriendlies'
 import OverviewPanel from '../_panels/OverviewPanel'
+import KnockoutPanel from '../_panels/KnockoutPanel'
 import { getFriendlies, getTopScorers, getTopAssists, type ApiPlayerResponse } from '@/lib/api-football'
 
 // Auto-refresh hourly so the Golden Boot teaser, groups and results stay live and
@@ -150,6 +151,8 @@ export default async function Mundial2026Page({ params }: { params: Promise<{ la
       {ld(breadcrumbJsonLd)}
       {ld(faqJsonLd)}
       {scorersItemListJsonLd && ld(scorersItemListJsonLd)}
+      {/* Knockout bracket first — during the final phase it IS the portada. */}
+      <KnockoutPanel lang={lang} />
       <OverviewPanel scorers={scorers} assists={assists} />
       {!started && <WorldCupFriendlies fixtures={friendlies} lang={lang} />}
     </>
