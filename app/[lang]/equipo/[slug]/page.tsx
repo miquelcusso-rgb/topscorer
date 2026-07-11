@@ -7,6 +7,8 @@ import Footer from '@/components/Footer'
 import TeamFacts from '@/components/team/TeamFacts'
 import TeamEnrichment from '@/components/team/TeamEnrichment'
 import SetMyTeamButton from '@/components/team/SetMyTeamButton'
+import LeagueTeamsGrid from '@/components/saas/LeagueTeamsGrid'
+import { teamsForLeagueId } from '@/lib/second-divisions'
 import { majorTeamSlugs, findTeamBySlug, datasetStatsByName, type TeamData } from '@/lib/team-data'
 import { getSquad, getCoach, type SquadPlayer } from '@/lib/api-football'
 import { slugify } from '@/lib/slugify'
@@ -304,6 +306,16 @@ export default async function TeamPage({
             </p>
           ) : null}
         </section>
+
+        {/* Related: the league's other clubs — keeps sessions going and is the
+            internal-link mesh the long-tail team pages rely on for discovery. */}
+        {(() => {
+          if (!team.leagueId) return null
+          const rivals = teamsForLeagueId(team.leagueId).filter(t => t.teamId !== team.teamId)
+          if (!rivals.length) return null
+          return <LeagueTeamsGrid teams={rivals} lang={lang}
+            title={en ? `More ${team.league} clubs` : `Más equipos de ${team.league}`} />
+        })()}
       </div>
 
       <div style={{ marginTop: 32, marginLeft: -24, marginRight: -24, marginBottom: -24 }}>

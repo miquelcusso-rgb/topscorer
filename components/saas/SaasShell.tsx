@@ -7,6 +7,7 @@ import Sidebar, { type SidebarActiveKey } from './Sidebar'
 import { useClubAccent } from '@/lib/use-club-accent'
 import { type PrimaryCta } from './Topbar'
 import MobileTopbar from './MobileTopbar'
+import Breadcrumbs from './Breadcrumbs'
 import LangTogglePill from './LangTogglePill'
 import ThemeTogglePill from './ThemeTogglePill'
 import WorldCupWidget from './WorldCupWidget'
@@ -82,7 +83,7 @@ export default function SaasShell({
           <TopSearch />
           <div style={{ flex: 1 }} />
           {/* World Cup countdown lives in the top bar (normal flow) so it never
-              overlaps the page content below it. */}
+              overlaps the page content below it (unchanged). */}
           <div className="saas-wc-float" style={{ flexShrink: 0 }}>
             <WorldCupWidget lang={lang === 'en' ? 'en' : 'es'} scale={1.05} />
           </div>
@@ -102,6 +103,7 @@ export default function SaasShell({
             minWidth: 0,
           }}
         >
+          <Breadcrumbs parts={breadcrumb} />
           {children}
         </div>
       </main>

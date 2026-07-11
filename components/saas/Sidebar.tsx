@@ -199,7 +199,8 @@ export default function Sidebar({ activeKey, plan: planProp = 'free', primaryCta
       items: [
         { id: 'leagues', icon: '🏆', label: L.leagues,   count: '30+', href: `/${lang}/competiciones` },
         { id: 'results', icon: '⚽', label: L.results,                 href: `/${lang}/resultados` },
-        { id: 'leagues', icon: '🌍', label: L.wc,                      href: `/${lang}/mundial-2026` },
+        // "en juego" chip while the tournament runs (11 jun – 19 jul 2026) — drop the count after the final.
+        { id: 'leagues', icon: '🌍', label: L.wc, count: en ? 'live' : 'en juego', href: `/${lang}/mundial-2026` },
         { id: 'news',    icon: '📰', label: L.news,                    href: `/${lang}/noticias` },
         { id: 'news',    icon: '🔄', label: en ? 'Rumours' : 'Rumores', href: `/${lang}/rumores` },
       ],

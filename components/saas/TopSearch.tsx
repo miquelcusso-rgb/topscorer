@@ -12,10 +12,10 @@ interface Props {
 
 // Curated "hot topics of the day". Items with `href` navigate; the rest prefill
 // the search box (so the normal player/team search resolves them).
-interface HotTopic { label: string; href?: (lang: string) => string }
+interface HotTopic { label: string; href?: (lang: string) => string; terms?: string[] }
 const HOT_TOPICS: HotTopic[] = [
-  { label: 'World Cup 2026', href: l => `/${l}/mundial-2026` },
-  { label: 'Champions League', href: l => `/${l}/competiciones/champions-league` },
+  { label: 'World Cup 2026', href: l => `/${l}/mundial-2026`, terms: ['mundial', 'world cup', 'copa del mundo', 'wc 2026', 'fifa'] },
+  { label: 'Champions League', href: l => `/${l}/competiciones/champions-league`, terms: ['champions', 'ucl'] },
   { label: 'Haaland' },
   { label: 'Lamine Yamal' },
   { label: 'Mbappé' },
@@ -26,9 +26,18 @@ const HOT_TOPICS: HotTopic[] = [
   { label: 'Liverpool' },
   { label: 'Arsenal' },
   { label: 'Bayern' },
-  { label: 'Bota de Oro', href: l => `/${l}/bota-de-oro` },
-  { label: 'Transferencias', href: l => `/${l}/transferencias` },
+  { label: 'Bota de Oro', href: l => `/${l}/bota-de-oro`, terms: ['bota de oro', 'golden boot', 'pichichi', 'goleadores'] },
+  { label: 'Transferencias', href: l => `/${l}/transferencias`, terms: ['transferencias', 'transfers', 'fichajes', 'mercado'] },
 ]
+
+// Accent-insensitive match of the typed query against a topic's label/terms, so
+// "mundial", "pichichi" or "fichajes" surface their destination while typing.
+const normTopic = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+function matchTopics(q: string): HotTopic[] {
+  const nq = normTopic(q.trim())
+  if (nq.length < 3) return []
+  return HOT_TOPICS.filter(t => t.href && [t.label, ...(t.terms ?? [])].some(s => normTopic(s).includes(nq))).slice(0, 3)
+}
 
 export default function TopSearch({ placeholder }: Props) {
   const { lang } = useLang()
@@ -110,7 +119,8 @@ export default function TopSearch({ placeholder }: Props) {
     else if (e.key === 'Enter') { e.preventDefault(); const it = items[active]; if (it) go(it.href) }
   }
 
-  const hasResults = items.length > 0
+  const topicHits = matchTopics(q)
+  const hasResults = items.length > 0 || topicHits.length > 0
   const emptyFocus = open && q.trim().length === 0
   const showDropdown = (open && q.trim().length >= 2) || emptyFocus
 
@@ -182,6 +192,22 @@ export default function TopSearch({ placeholder }: Props) {
           {!emptyFocus && !hasResults && (
             <div style={{ padding: '14px 16px', fontSize: 13, color: 'var(--ts-muted)' }}>
               {lang === 'en' ? 'No matches.' : 'Sin resultados.'}
+            </div>
+          )}
+
+          {!emptyFocus && topicHits.length > 0 && (
+            <div>
+              <div style={SECTION_STYLE}>{lang === 'en' ? 'Sections' : 'Secciones'}</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '4px 12px 10px' }}>
+                {topicHits.map(t => (
+                  <button key={t.label} type="button" onClick={() => go(t.href!(lang))}
+                    style={{ fontSize: 12, fontWeight: 600, padding: '6px 11px', borderRadius: 999,
+                      background: 'var(--ts-card2)', border: '1px solid var(--ts-border)',
+                      color: 'var(--ts-text)', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    {t.label} →
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
