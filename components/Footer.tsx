@@ -192,6 +192,20 @@ export default function Footer() {
             </span>
           </a>
         </div>
+
+        {/* tinylaunch · Launching Soon (launch 3-ago-2026) */}
+        <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+          <a href="https://tinylaunch.com/" target="_blank" rel="noopener">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://tinylaunch.com/tinylaunch_badge_launching_soon.svg"
+              alt="TinyLaunch Badge"
+              width={202}
+              height={52}
+              style={{ width: 202, height: 'auto' }}
+            />
+          </a>
+        </div>
       </div>
     </footer>
   )
