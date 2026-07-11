@@ -193,6 +193,14 @@ export default function Footer() {
           </a>
         </div>
 
+        {/* launchbuff · Featured on LaunchBuff */}
+        <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+          <a href="https://launchbuff.com/" target="_blank" rel="noopener noreferrer" title="Featured on LaunchBuff">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="https://launchbuff.com/badge-featured-dark.svg" alt="Featured on LaunchBuff" width={256} height={80} />
+          </a>
+        </div>
+
         {/* tinylaunch · Launching Soon (launch 3-ago-2026) */}
         <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
           <a href="https://tinylaunch.com/" target="_blank" rel="noopener">
