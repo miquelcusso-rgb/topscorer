@@ -201,6 +201,14 @@ export default function Footer() {
           </a>
         </div>
 
+        {/* launchstag · Featured on Launchstag */}
+        <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+          <a href="https://launchstag.com/" target="_blank" rel="noopener">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="https://launchstag.com/badge-light.png" alt="Featured on Launchstag" width={150} />
+          </a>
+        </div>
+
         {/* tinylaunch · Launching Soon (launch 3-ago-2026) */}
         <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
           <a href="https://tinylaunch.com/" target="_blank" rel="noopener">
