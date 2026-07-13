@@ -13,7 +13,12 @@ name: Refresh player dataset
 
 on:
   schedule:
-    - cron: '17 5 * * 1' # Mondays 05:17 UTC
+    # 00:12 UTC lunes — justo tras el reset de cuota diaria de API-Football
+    # (00:00 UTC). Antes corría 05:17 y el sitio en vivo (ISR + Mundial) ya se
+    # había comido los 7.500 req/día → "retries exhausted" 5 semanas seguidas
+    # (13-jul: la cuota estaba a 7.354/7.500 cuando arrancó). Con cuota fresca
+    # el refresh tiene margen de sobra y deja el resto del día para el sitio.
+    - cron: '12 0 * * 1' # Mondays 00:12 UTC
   workflow_dispatch: {}   # allow manual run from the Actions tab
 
 permissions:
