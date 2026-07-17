@@ -9,6 +9,10 @@ Sentry.init({
     // Ruido de terceros (AdSense/gtag/extensiones del navegador): una promesa
     // rechazada con `undefined`, sin stack accionable. No es un bug de la app.
     "Non-Error promise rejection captured with value: undefined",
+    // Escáner de links de Microsoft Outlook (SafeLinks) ejecutando la página:
+    // firma conocidísima "Object Not Found Matching Id:N, MethodName:update".
+    // No es código nuestro — no existe en el bundle. Ruido de bot puro.
+    /Object Not Found Matching Id/,
   ],
 });
 
