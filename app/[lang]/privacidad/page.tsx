@@ -6,10 +6,13 @@ import SaasShell from '@/components/saas/SaasShell'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/privacidad'
   return {
-    title: 'Política de Privacidad',
-    description: 'Política de privacidad de TopScorers: cómo tratamos y protegemos tus datos personales en nuestra plataforma de estadísticas de fútbol.',
+    title: en ? 'Privacy Policy' : 'Política de Privacidad',
+    description: en
+      ? 'TopScorers privacy policy: how we handle and protect your personal data on our football stats platform.'
+      : 'Política de privacidad de TopScorers: cómo tratamos y protegemos tus datos personales en nuestra plataforma de estadísticas de fútbol.',
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -20,8 +23,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     robots: { index: true, follow: true },
     openGraph: {
-      title: 'Política de Privacidad — TopScorers',
-      description: 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
+      title: en ? 'Privacy Policy — TopScorers' : 'Política de Privacidad — TopScorers',
+      description: en
+        ? 'How we handle and protect your personal data on TopScorers.'
+        : 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -30,8 +35,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     twitter: {
       card: 'summary',
-      title: 'Política de Privacidad — TopScorers',
-      description: 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
+      title: en ? 'Privacy Policy — TopScorers' : 'Política de Privacidad — TopScorers',
+      description: en
+        ? 'How we handle and protect your personal data on TopScorers.'
+        : 'Cómo tratamos y protegemos tus datos personales en TopScorers.',
     },
   }
 }

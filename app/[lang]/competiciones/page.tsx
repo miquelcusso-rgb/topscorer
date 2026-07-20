@@ -17,11 +17,18 @@ import RelatedLinks from '@/components/RelatedLinks'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/competiciones'
   return {
-    title: 'Competiciones de Fútbol — 30+ ligas globales',
-    description: 'Estadísticas de 30+ ligas: Big-5, segundas divisiones, MLS, Saudi Pro League, Brasileirão, Liga MX, J1, K1 y más. Clasificaciones y goleadores en tiempo real.',
-    keywords: ['la liga', 'premier league', 'bundesliga', 'serie a', 'mls', 'saudi pro league', 'brasileirão', 'liga mx', 'j1 league', 'champions league', 'segunda división', 'championship'],
+    title: en
+      ? 'Football Competitions — 30+ global leagues'
+      : 'Competiciones de Fútbol — 30+ ligas globales',
+    description: en
+      ? 'Stats for 30+ leagues: the Big-5, second divisions, MLS, Saudi Pro League, Brasileirão, Liga MX, J1, K1 and more. Real-time standings and top scorers.'
+      : 'Estadísticas de 30+ ligas: Big-5, segundas divisiones, MLS, Saudi Pro League, Brasileirão, Liga MX, J1, K1 y más. Clasificaciones y goleadores en tiempo real.',
+    keywords: en
+      ? ['la liga', 'premier league', 'bundesliga', 'serie a', 'mls', 'saudi pro league', 'brasileirão', 'liga mx', 'j1 league', 'champions league', 'second division', 'championship']
+      : ['la liga', 'premier league', 'bundesliga', 'serie a', 'mls', 'saudi pro league', 'brasileirão', 'liga mx', 'j1 league', 'champions league', 'segunda división', 'championship'],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -31,8 +38,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Competiciones de Fútbol — La Liga, Premier, Bundesliga | TopScorers',
-      description: 'Todas las ligas europeas: clasificaciones, goleadores y resultados.',
+      title: en
+        ? 'Football Competitions — La Liga, Premier, Bundesliga | TopScorers'
+        : 'Competiciones de Fútbol — La Liga, Premier, Bundesliga | TopScorers',
+      description: en
+        ? 'All the European leagues: standings, top scorers and results.'
+        : 'Todas las ligas europeas: clasificaciones, goleadores y resultados.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',

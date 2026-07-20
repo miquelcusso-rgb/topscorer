@@ -24,16 +24,24 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang } = await params
   const en = lang === 'en'
   const ogImage = en ? '/og-default-en.jpg' : '/og-default-es.jpg'
-  const title = 'TopScorers — Estadísticas Fútbol Europeo'
-  const ogDesc = 'Top goleadores y asistentes de las principales ligas europeas en tiempo real.'
+  const title = en
+    ? 'TopScorers — European Football Stats'
+    : 'TopScorers — Estadísticas Fútbol Europeo'
+  const ogDesc = en
+    ? 'Top scorers and assist leaders of the main European leagues, in real time.'
+    : 'Top goleadores y asistentes de las principales ligas europeas en tiempo real.'
   return {
     metadataBase: new URL('https://www.top-scorers.com'),
     title: {
       default: title,
       template: '%s | TopScorers',
     },
-    description: 'Top goleadores, asistentes y centrocampistas de La Liga, Premier League, Bundesliga, Serie A y más. Estadísticas en tiempo real. Mundial 2026.',
-    keywords: ['goleadores', 'asistentes', 'estadísticas fútbol', 'La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1', 'mundial 2026', 'top scorers', 'clasificación fútbol', 'resultados fútbol', 'fichajes', 'transferencias', 'champions league', 'europa league'],
+    description: en
+      ? 'Top scorers, assist leaders and midfielders of La Liga, the Premier League, Bundesliga, Serie A and more. Real-time stats. 2026 World Cup.'
+      : 'Top goleadores, asistentes y centrocampistas de La Liga, Premier League, Bundesliga, Serie A y más. Estadísticas en tiempo real. Mundial 2026.',
+    keywords: en
+      ? ['top scorers', 'assist leaders', 'football stats', 'La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1', '2026 world cup', 'football standings', 'football results', 'transfers', 'champions league', 'europa league']
+      : ['goleadores', 'asistentes', 'estadísticas fútbol', 'La Liga', 'Premier League', 'Bundesliga', 'Serie A', 'Ligue 1', 'mundial 2026', 'top scorers', 'clasificación fútbol', 'resultados fútbol', 'fichajes', 'transferencias', 'champions league', 'europa league'],
     authors: [{ name: 'TopScorers', url: 'https://www.top-scorers.com' }],
     creator: 'TopScorers',
     publisher: 'TopScorers',

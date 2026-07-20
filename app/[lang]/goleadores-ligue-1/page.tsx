@@ -7,16 +7,28 @@ import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/goleadores-ligue-1'
   return {
-    title: `Goleadores Ligue 1 ${S} — Máximos Anotadores Liga Francesa`,
-    description: `Ranking completo de goleadores de la Ligue 1 ${S}. Lepaul, Panichelli, Greenwood… histórico de máximos goleadores del fútbol francés y carrera por el trofeo.`,
-    keywords: [
-      'goleadores ligue 1', 'máximos goleadores ligue 1', 'top goleadores ligue 1',
-      'goles ligue 1 2025 2026', 'clasificación goleadores ligue 1', 'goleadores liga francesa',
-      'pichichi ligue 1', 'máximo goleador ligue 1 2026', 'top scorer ligue 1',
-      'quien mete más goles en la ligue 1',
-    ],
+    title: en
+      ? `Ligue 1 Top Scorers ${S} — French League Ranking`
+      : `Goleadores Ligue 1 ${S} — Máximos Anotadores Liga Francesa`,
+    description: en
+      ? `Full Ligue 1 top-scorer ranking ${S}. Lepaul, Panichelli, Greenwood… plus the history of French football's top scorers and the race for the trophy.`
+      : `Ranking completo de goleadores de la Ligue 1 ${S}. Lepaul, Panichelli, Greenwood… histórico de máximos goleadores del fútbol francés y carrera por el trofeo.`,
+    keywords: en
+      ? [
+          'ligue 1 top scorers', 'ligue 1 goalscorers', 'top scorers ligue 1',
+          'ligue 1 goals 2025 2026', 'ligue 1 top scorer table', 'french league top scorers',
+          'ligue 1 golden boot', 'ligue 1 top scorer 2026', 'top scorer ligue 1',
+          'who scores the most goals in ligue 1',
+        ]
+      : [
+          'goleadores ligue 1', 'máximos goleadores ligue 1', 'top goleadores ligue 1',
+          'goles ligue 1 2025 2026', 'clasificación goleadores ligue 1', 'goleadores liga francesa',
+          'pichichi ligue 1', 'máximo goleador ligue 1 2026', 'top scorer ligue 1',
+          'quien mete más goles en la ligue 1',
+        ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -26,8 +38,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: `Goleadores Ligue 1 ${S} | TopScorers`,
-      description: `Ranking completo de goleadores de la Ligue 1 ${S} con histórico de máximos anotadores de las últimas temporadas.`,
+      title: en
+        ? `Ligue 1 Top Scorers ${S} | TopScorers`
+        : `Goleadores Ligue 1 ${S} | TopScorers`,
+      description: en
+        ? `Full Ligue 1 ${S} top-scorer ranking with recent-season history.`
+        : `Ranking completo de goleadores de la Ligue 1 ${S} con histórico de máximos anotadores de las últimas temporadas.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',

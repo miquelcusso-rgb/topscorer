@@ -6,16 +6,28 @@ import SaasShell from '@/components/saas/SaasShell'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/maximos-goleadores-europa'
   return {
-    title: 'Máximos Goleadores de Europa 2025/26 — Ranking Top Scorers',
-    description: 'Ranking de los máximos goleadores de Europa 2025/26 en las 5 grandes ligas. Kane, Mbappé, Haaland, Muriqi… goles, partidos y media por encuentro actualizados.',
-    keywords: [
-      'máximos goleadores europa', 'máximos goleadores europa 2025', 'goleadores europa 2025 2026',
-      'top scorers europe', 'mejores goleadores del mundo', 'ranking goleadores europa',
-      'pichichi europa', 'goleadores cinco grandes ligas', 'quién es el máximo goleador de europa',
-      'goleadores la liga premier bundesliga serie a ligue 1',
-    ],
+    title: en
+      ? "Europe's Top Goalscorers 2025/26 — Top Scorers Ranking"
+      : 'Máximos Goleadores de Europa 2025/26 — Ranking Top Scorers',
+    description: en
+      ? "Ranking of Europe's top goalscorers 2025/26 across the big five leagues. Kane, Mbappé, Haaland, Muriqi… goals, games and goals per match, updated."
+      : 'Ranking de los máximos goleadores de Europa 2025/26 en las 5 grandes ligas. Kane, Mbappé, Haaland, Muriqi… goles, partidos y media por encuentro actualizados.',
+    keywords: en
+      ? [
+          'top goalscorers europe', 'top scorers europe 2025', 'europe top scorers 2025 2026',
+          'top scorers europe', 'best goalscorers in the world', 'europe goalscorer ranking',
+          'top scorers big five leagues', 'who is the top scorer in europe',
+          'la liga premier bundesliga serie a ligue 1 top scorers',
+        ]
+      : [
+          'máximos goleadores europa', 'máximos goleadores europa 2025', 'goleadores europa 2025 2026',
+          'top scorers europe', 'mejores goleadores del mundo', 'ranking goleadores europa',
+          'pichichi europa', 'goleadores cinco grandes ligas', 'quién es el máximo goleador de europa',
+          'goleadores la liga premier bundesliga serie a ligue 1',
+        ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -25,8 +37,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Máximos Goleadores de Europa 2025/26 | TopScorers',
-      description: 'El ranking de máximos anotadores de las 5 grandes ligas europeas, actualizado con goles, partidos y media por partido.',
+      title: en
+        ? "Europe's Top Goalscorers 2025/26 | TopScorers"
+        : 'Máximos Goleadores de Europa 2025/26 | TopScorers',
+      description: en
+        ? "The top-scorer ranking of Europe's big five leagues, updated with goals, games and goals per match."
+        : 'El ranking de máximos anotadores de las 5 grandes ligas europeas, actualizado con goles, partidos y media por partido.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',

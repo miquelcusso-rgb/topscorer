@@ -8,10 +8,13 @@ import SaasShell from '@/components/saas/SaasShell'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/jugadores'
   return {
-    title: 'Jugadores',
-    description: 'Estadísticas por jugador de las principales ligas europeas. Temporada 2025/26.',
+    title: en ? 'Players' : 'Jugadores',
+    description: en
+      ? 'Per-player stats from the main European leagues. 2025/26 season.'
+      : 'Estadísticas por jugador de las principales ligas europeas. Temporada 2025/26.',
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {

@@ -7,16 +7,28 @@ import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/goleadores-bundesliga'
   return {
-    title: `Goleadores Bundesliga ${S} — Torjägerkanone y Máximos Anotadores`,
-    description: `Ranking completo de goleadores de la Bundesliga ${S}. Harry Kane, Undav, Schick… histórico de la Torjägerkanone y máximos goleadores del fútbol alemán.`,
-    keywords: [
-      'goleadores bundesliga', 'máximos goleadores bundesliga', 'torjägerkanone 2025',
-      'torjägerkanone 2026', 'top goleadores bundesliga', 'goles bundesliga 2025 2026',
-      'clasificación goleadores bundesliga', 'pichichi bundesliga', 'goleadores liga alemana',
-      'quien mete más goles en la bundesliga',
-    ],
+    title: en
+      ? `Bundesliga Top Scorers ${S} — Torjägerkanone Ranking`
+      : `Goleadores Bundesliga ${S} — Torjägerkanone y Máximos Anotadores`,
+    description: en
+      ? `Full Bundesliga top-scorer ranking ${S}. Harry Kane, Undav, Schick… plus the history of the Torjägerkanone and German football's top scorers.`
+      : `Ranking completo de goleadores de la Bundesliga ${S}. Harry Kane, Undav, Schick… histórico de la Torjägerkanone y máximos goleadores del fútbol alemán.`,
+    keywords: en
+      ? [
+          'bundesliga top scorers', 'bundesliga goalscorers', 'torjägerkanone 2025',
+          'torjägerkanone 2026', 'top scorers bundesliga', 'bundesliga goals 2025 2026',
+          'bundesliga top scorer table', 'german league top scorers', 'kane bundesliga goals',
+          'who scores the most goals in the bundesliga',
+        ]
+      : [
+          'goleadores bundesliga', 'máximos goleadores bundesliga', 'torjägerkanone 2025',
+          'torjägerkanone 2026', 'top goleadores bundesliga', 'goles bundesliga 2025 2026',
+          'clasificación goleadores bundesliga', 'pichichi bundesliga', 'goleadores liga alemana',
+          'quien mete más goles en la bundesliga',
+        ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -26,8 +38,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: `Goleadores Bundesliga ${S} | TopScorers`,
-      description: `Ranking completo de goleadores de la Bundesliga ${S} con histórico de la Torjägerkanone de las últimas temporadas.`,
+      title: en
+        ? `Bundesliga Top Scorers ${S} | TopScorers`
+        : `Goleadores Bundesliga ${S} | TopScorers`,
+      description: en
+        ? `Full Bundesliga ${S} top-scorer ranking with recent Torjägerkanone history.`
+        : `Ranking completo de goleadores de la Bundesliga ${S} con histórico de la Torjägerkanone de las últimas temporadas.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',

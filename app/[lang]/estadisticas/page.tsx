@@ -5,11 +5,18 @@ import { isLocale } from '@/lib/i18n'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/estadisticas'
   return {
-    title: 'Estadísticas de Fútbol — Goleadores y Asistentes',
-    description: 'Estadísticas completas de fútbol europeo: goles, asistencias, valoraciones y comparador de jugadores de La Liga, Premier League, Bundesliga, Serie A y más.',
-    keywords: ['estadísticas fútbol', 'comparador jugadores', 'datos fútbol europeo', 'goleadores', 'asistentes', 'valoración jugadores'],
+    title: en
+      ? 'Football Stats — Top Scorers & Assist Leaders'
+      : 'Estadísticas de Fútbol — Goleadores y Asistentes',
+    description: en
+      ? 'Complete European football stats: goals, assists, ratings and a player comparator for La Liga, the Premier League, Bundesliga, Serie A and more.'
+      : 'Estadísticas completas de fútbol europeo: goles, asistencias, valoraciones y comparador de jugadores de La Liga, Premier League, Bundesliga, Serie A y más.',
+    keywords: en
+      ? ['football stats', 'player comparator', 'european football data', 'top scorers', 'assist leaders', 'player ratings']
+      : ['estadísticas fútbol', 'comparador jugadores', 'datos fútbol europeo', 'goleadores', 'asistentes', 'valoración jugadores'],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -19,8 +26,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Estadísticas de Fútbol — Goleadores y Asistentes | TopScorers',
-      description: 'Estadísticas completas de fútbol europeo: goles, asistencias y comparador de jugadores.',
+      title: en
+        ? 'Football Stats — Top Scorers & Assist Leaders | TopScorers'
+        : 'Estadísticas de Fútbol — Goleadores y Asistentes | TopScorers',
+      description: en
+        ? 'Complete European football stats: goals, assists and a player comparator.'
+        : 'Estadísticas completas de fútbol europeo: goles, asistencias y comparador de jugadores.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -29,8 +40,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Estadísticas de Fútbol — Goleadores y Asistentes | TopScorers',
-      description: 'Estadísticas completas de fútbol europeo: goles, asistencias y comparador de jugadores.',
+      title: en
+        ? 'Football Stats — Top Scorers & Assist Leaders | TopScorers'
+        : 'Estadísticas de Fútbol — Goleadores y Asistentes | TopScorers',
+      description: en
+        ? 'Complete European football stats: goals, assists and a player comparator.'
+        : 'Estadísticas completas de fútbol europeo: goles, asistencias y comparador de jugadores.',
       images: [`https://www.top-scorers.com/og-default-${lang}.jpg`],
     },
   }

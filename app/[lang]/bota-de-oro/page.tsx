@@ -42,16 +42,28 @@ function buildBotaRanking(): BotaRow[] {
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/bota-de-oro'
   return {
-    title: 'Bota de Oro 2025/26 — European Golden Shoe & Ranking',
-    description: 'Carrera por la Bota de Oro 2025/26 (European Golden Shoe). Cómo se calcula con coeficientes por liga, candidatos actuales (Kane, Mbappé, Haaland) e histórico de ganadores.',
-    keywords: [
-      'bota de oro', 'bota de oro 2025', 'european golden shoe', 'golden boot europa',
-      'bota de oro 2025 2026', 'cómo se calcula la bota de oro', 'ganadores bota de oro',
-      'máximo goleador europa coeficiente', 'quién va a ganar la bota de oro',
-      'bota de oro messi cristiano ronaldo',
-    ],
+    title: en
+      ? 'European Golden Shoe 2025/26 — Race & Ranking'
+      : 'Bota de Oro 2025/26 — European Golden Shoe & Ranking',
+    description: en
+      ? 'The European Golden Shoe 2025/26 race: how it is calculated with per-league coefficients, current contenders (Kane, Mbappé, Haaland) and past winners.'
+      : 'Carrera por la Bota de Oro 2025/26 (European Golden Shoe). Cómo se calcula con coeficientes por liga, candidatos actuales (Kane, Mbappé, Haaland) e histórico de ganadores.',
+    keywords: en
+      ? [
+          'european golden shoe', 'golden shoe 2025', 'golden boot europe',
+          'european golden shoe 2025 2026', 'how is the golden shoe calculated', 'golden shoe winners',
+          'europe top scorer coefficient', 'who will win the golden shoe',
+          'golden shoe messi cristiano ronaldo',
+        ]
+      : [
+          'bota de oro', 'bota de oro 2025', 'european golden shoe', 'golden boot europa',
+          'bota de oro 2025 2026', 'cómo se calcula la bota de oro', 'ganadores bota de oro',
+          'máximo goleador europa coeficiente', 'quién va a ganar la bota de oro',
+          'bota de oro messi cristiano ronaldo',
+        ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -61,8 +73,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Bota de Oro 2025/26 — European Golden Shoe | TopScorers',
-      description: 'Quién lidera la Bota de Oro 2025/26, cómo se calcula con coeficientes por liga e histórico de ganadores.',
+      title: en
+        ? 'European Golden Shoe 2025/26 | TopScorers'
+        : 'Bota de Oro 2025/26 — European Golden Shoe | TopScorers',
+      description: en
+        ? 'Who leads the 2025/26 European Golden Shoe, how it is calculated with per-league coefficients, and past winners.'
+        : 'Quién lidera la Bota de Oro 2025/26, cómo se calcula con coeficientes por liga e histórico de ganadores.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',

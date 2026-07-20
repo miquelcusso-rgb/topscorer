@@ -12,11 +12,13 @@ export const revalidate = 3600
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/descubrir'
   return {
-    title: 'Radar de Talentos — Jugadores Infravalorados',
-    description:
-      'Descubre jugadores infravalorados con alto rendimiento por 90 minutos en ligas de menor exposición. Algoritmo propio que puntúa más de 500 jugadores cada semana.',
+    title: en ? 'Talent Radar — Undervalued Players' : 'Radar de Talentos — Jugadores Infravalorados',
+    description: en
+      ? 'Discover undervalued players with high per-90 output in lower-exposure leagues. Our own algorithm scores 500+ players every week.'
+      : 'Descubre jugadores infravalorados con alto rendimiento por 90 minutos en ligas de menor exposición. Algoritmo propio que puntúa más de 500 jugadores cada semana.',
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {

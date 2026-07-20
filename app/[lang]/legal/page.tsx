@@ -6,10 +6,13 @@ import SaasShell from '@/components/saas/SaasShell'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/legal'
   return {
-    title: 'Aviso Legal',
-    description: 'Aviso legal y condiciones de uso de TopScorers, plataforma de estadísticas de fútbol europeo.',
+    title: en ? 'Legal Notice' : 'Aviso Legal',
+    description: en
+      ? 'Legal notice and terms of use of TopScorers, the European football stats platform.'
+      : 'Aviso legal y condiciones de uso de TopScorers, plataforma de estadísticas de fútbol europeo.',
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -20,8 +23,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     robots: { index: true, follow: true },
     openGraph: {
-      title: 'Aviso Legal — TopScorers',
-      description: 'Aviso legal y condiciones de uso de TopScorers.',
+      title: en ? 'Legal Notice — TopScorers' : 'Aviso Legal — TopScorers',
+      description: en
+        ? 'Legal notice and terms of use of TopScorers.'
+        : 'Aviso legal y condiciones de uso de TopScorers.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -30,8 +35,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     twitter: {
       card: 'summary',
-      title: 'Aviso Legal — TopScorers',
-      description: 'Aviso legal y condiciones de uso de TopScorers.',
+      title: en ? 'Legal Notice — TopScorers' : 'Aviso Legal — TopScorers',
+      description: en
+        ? 'Legal notice and terms of use of TopScorers.'
+        : 'Aviso legal y condiciones de uso de TopScorers.',
     },
   }
 }

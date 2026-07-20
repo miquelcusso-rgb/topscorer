@@ -6,10 +6,13 @@ import SaasShell from '@/components/saas/SaasShell'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/transferencias'
   return {
-    title: 'Transferencias',
-    description: 'Últimas transferencias del fútbol europeo. Fichajes, cesiones y movimientos de los principales clubes.',
+    title: en ? 'Transfers' : 'Transferencias',
+    description: en
+      ? 'Latest transfers in European football. Signings, loans and moves from the top clubs.'
+      : 'Últimas transferencias del fútbol europeo. Fichajes, cesiones y movimientos de los principales clubes.',
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {

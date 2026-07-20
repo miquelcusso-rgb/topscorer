@@ -7,13 +7,18 @@ import SaasShell from '@/components/saas/SaasShell'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/resultados'
   return {
-    title: 'Resultados de partidos',
-    description: 'Últimos resultados y jornada a jornada de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más ligas europeas. Actualizado cada hora.',
+    title: en ? 'Match results' : 'Resultados de partidos',
+    description: en
+      ? 'Latest results and matchday-by-matchday scores from La Liga, the Premier League, Bundesliga, Serie A, Ligue 1 and more European leagues. Updated hourly.'
+      : 'Últimos resultados y jornada a jornada de La Liga, Premier League, Bundesliga, Serie A, Ligue 1 y más ligas europeas. Actualizado cada hora.',
     openGraph: {
-      title: 'Resultados de partidos — TopScorers',
-      description: 'Clasificaciones y últimos resultados de las principales ligas europeas.',
+      title: en ? 'Match results — TopScorers' : 'Resultados de partidos — TopScorers',
+      description: en
+        ? 'Standings and latest results from the main European leagues.'
+        : 'Clasificaciones y últimos resultados de las principales ligas europeas.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',

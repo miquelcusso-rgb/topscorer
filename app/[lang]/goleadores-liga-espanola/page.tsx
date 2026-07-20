@@ -7,16 +7,28 @@ import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/goleadores-liga-espanola'
   return {
-    title: `Goleadores Liga Española ${S} — Top Máximos Anotadores`,
-    description: `Ranking completo de goleadores de La Liga Española ${S}. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.`,
-    keywords: [
-      'goleadores liga española', 'goleadores la liga', 'máximos goleadores la liga',
-      'pichichi 2025', 'pichichi 2026', 'top goleadores liga española',
-      'estadísticas goles la liga', 'goles laliga 2025 2026',
-      'goleadores primera división española', 'quien mete más goles en la liga',
-    ],
+    title: en
+      ? `La Liga Top Scorers ${S} — Pichichi Ranking`
+      : `Goleadores Liga Española ${S} — Top Máximos Anotadores`,
+    description: en
+      ? `Full La Liga top-scorer ranking ${S}. Mbappé, Muriqi, Yamal, Vinicius… plus the history of the Spanish league's top scorers since 2022.`
+      : `Ranking completo de goleadores de La Liga Española ${S}. Mbappé, Muriqi, Yamal, Vinicius… histórico de máximos goleadores de la liga desde 2022.`,
+    keywords: en
+      ? [
+          'la liga top scorers', 'spanish league top scorers', 'la liga goalscorers',
+          'pichichi 2025', 'pichichi 2026', 'top scorers la liga 2025 2026',
+          'la liga goals stats', 'laliga goals 2025 2026',
+          'spanish first division top scorers', 'who scores the most goals in la liga',
+        ]
+      : [
+          'goleadores liga española', 'goleadores la liga', 'máximos goleadores la liga',
+          'pichichi 2025', 'pichichi 2026', 'top goleadores liga española',
+          'estadísticas goles la liga', 'goles laliga 2025 2026',
+          'goleadores primera división española', 'quien mete más goles en la liga',
+        ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -26,8 +38,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: `Goleadores Liga Española ${S} | TopScorers`,
-      description: `Ranking completo de goleadores de La Liga EA Sports ${S} con histórico de las últimas temporadas.`,
+      title: en
+        ? `La Liga Top Scorers ${S} | TopScorers`
+        : `Goleadores Liga Española ${S} | TopScorers`,
+      description: en
+        ? `Full La Liga EA Sports ${S} top-scorer ranking with recent-season history.`
+        : `Ranking completo de goleadores de La Liga EA Sports ${S} con histórico de las últimas temporadas.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',

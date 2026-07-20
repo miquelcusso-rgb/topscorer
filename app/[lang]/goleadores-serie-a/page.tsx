@@ -7,16 +7,28 @@ import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/goleadores-serie-a'
   return {
-    title: `Goleadores Serie A ${S} — Capocannoniere y Máximos Anotadores`,
-    description: `Ranking completo de goleadores de la Serie A ${S}. Lautaro Martínez, Thuram, Vlahović… histórico del Capocannoniere y máximos goleadores del calcio italiano.`,
-    keywords: [
-      'goleadores serie a', 'máximos goleadores serie a', 'capocannoniere 2025',
-      'capocannoniere 2026', 'top goleadores serie a', 'goles serie a 2025 2026',
-      'clasificación goleadores serie a', 'goleadores calcio', 'pichichi serie a',
-      'quien mete más goles en la serie a',
-    ],
+    title: en
+      ? `Serie A Top Scorers ${S} — Capocannoniere Ranking`
+      : `Goleadores Serie A ${S} — Capocannoniere y Máximos Anotadores`,
+    description: en
+      ? `Full Serie A top-scorer ranking ${S}. Lautaro Martínez, Thuram, Vlahović… plus the history of the Capocannoniere and Italian football's top scorers.`
+      : `Ranking completo de goleadores de la Serie A ${S}. Lautaro Martínez, Thuram, Vlahović… histórico del Capocannoniere y máximos goleadores del calcio italiano.`,
+    keywords: en
+      ? [
+          'serie a top scorers', 'serie a goalscorers', 'capocannoniere 2025',
+          'capocannoniere 2026', 'top scorers serie a', 'serie a goals 2025 2026',
+          'serie a top scorer table', 'calcio top scorers', 'italian league top scorers',
+          'who scores the most goals in serie a',
+        ]
+      : [
+          'goleadores serie a', 'máximos goleadores serie a', 'capocannoniere 2025',
+          'capocannoniere 2026', 'top goleadores serie a', 'goles serie a 2025 2026',
+          'clasificación goleadores serie a', 'goleadores calcio', 'pichichi serie a',
+          'quien mete más goles en la serie a',
+        ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -26,8 +38,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: `Goleadores Serie A ${S} | TopScorers`,
-      description: `Ranking completo de goleadores de la Serie A ${S} con histórico del Capocannoniere de las últimas temporadas.`,
+      title: en
+        ? `Serie A Top Scorers ${S} | TopScorers`
+        : `Goleadores Serie A ${S} | TopScorers`,
+      description: en
+        ? `Full Serie A ${S} top-scorer ranking with recent Capocannoniere history.`
+        : `Ranking completo de goleadores de la Serie A ${S} con histórico del Capocannoniere de las últimas temporadas.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',

@@ -7,16 +7,28 @@ import { CURRENT_SEASON_LONG as S } from '@/lib/season'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/goleadores-premier-league'
   return {
-    title: `Goleadores Premier League ${S} — Golden Boot & Top Scorers`,
-    description: `Ranking de máximos goleadores de la Premier League ${S}. Haaland, Thiago, Gyökeres… tabla de la Golden Boot con goles, partidos e histórico de ganadores.`,
-    keywords: [
-      'goleadores premier league', 'top scorers premier league', 'golden boot premier league',
-      'máximos goleadores premier league', 'premier league top scorers 2025 2026',
-      'bota de oro premier league', 'goleadores premier 2025', 'haaland goles premier',
-      'quién es el máximo goleador de la premier league', 'estadísticas goles premier league',
-    ],
+    title: en
+      ? `Premier League Top Scorers ${S} — Golden Boot Ranking`
+      : `Goleadores Premier League ${S} — Golden Boot & Top Scorers`,
+    description: en
+      ? `Premier League top-scorer ranking ${S}. Haaland, Thiago, Gyökeres… the Golden Boot table with goals, games and past winners.`
+      : `Ranking de máximos goleadores de la Premier League ${S}. Haaland, Thiago, Gyökeres… tabla de la Golden Boot con goles, partidos e histórico de ganadores.`,
+    keywords: en
+      ? [
+          'premier league top scorers', 'top scorers premier league', 'golden boot premier league',
+          'premier league goalscorers', 'premier league top scorers 2025 2026',
+          'premier league golden boot race', 'premier top scorers 2025', 'haaland premier league goals',
+          'who is the premier league top scorer', 'premier league goals stats',
+        ]
+      : [
+          'goleadores premier league', 'top scorers premier league', 'golden boot premier league',
+          'máximos goleadores premier league', 'premier league top scorers 2025 2026',
+          'bota de oro premier league', 'goleadores premier 2025', 'haaland goles premier',
+          'quién es el máximo goleador de la premier league', 'estadísticas goles premier league',
+        ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -26,8 +38,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: `Goleadores Premier League ${S} | TopScorers`,
-      description: `Ranking de máximos anotadores de la Premier League ${S} con histórico de ganadores de la Golden Boot.`,
+      title: en
+        ? `Premier League Top Scorers ${S} | TopScorers`
+        : `Goleadores Premier League ${S} | TopScorers`,
+      description: en
+        ? `Premier League ${S} top-scorer ranking with the history of Golden Boot winners.`
+        : `Ranking de máximos anotadores de la Premier League ${S} con histórico de ganadores de la Golden Boot.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',

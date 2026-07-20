@@ -6,11 +6,18 @@ import { CURRENT_SEASON_SHORT } from '@/lib/season'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/centrocampistas'
   return {
-    title: 'Mejores Centrocampistas — Estadísticas y Asistencias',
-    description: 'Ranking de los mejores centrocampistas del fútbol europeo: asistencias, pases clave y valoración por 90 minutos en La Liga, Premier League, Bundesliga, Serie A y más.',
-    keywords: ['centrocampistas', 'mejores centrocampistas', 'asistencias fútbol', 'mediocampistas la liga', 'creadores de juego'],
+    title: en
+      ? 'Best Midfielders — Stats & Assists'
+      : 'Mejores Centrocampistas — Estadísticas y Asistencias',
+    description: en
+      ? 'Ranking of the best midfielders in European football: assists, key passes and per-90 ratings in La Liga, the Premier League, Bundesliga, Serie A and more.'
+      : 'Ranking de los mejores centrocampistas del fútbol europeo: asistencias, pases clave y valoración por 90 minutos en La Liga, Premier League, Bundesliga, Serie A y más.',
+    keywords: en
+      ? ['midfielders', 'best midfielders', 'football assists', 'la liga midfielders', 'playmakers']
+      : ['centrocampistas', 'mejores centrocampistas', 'asistencias fútbol', 'mediocampistas la liga', 'creadores de juego'],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -20,8 +27,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Mejores Centrocampistas — Estadísticas y Asistencias | TopScorers',
-      description: 'Ranking de los mejores centrocampistas del fútbol europeo: asistencias y valoración por 90 minutos.',
+      title: en
+        ? 'Best Midfielders — Stats & Assists | TopScorers'
+        : 'Mejores Centrocampistas — Estadísticas y Asistencias | TopScorers',
+      description: en
+        ? 'Ranking of the best midfielders in European football: assists and per-90 ratings.'
+        : 'Ranking de los mejores centrocampistas del fútbol europeo: asistencias y valoración por 90 minutos.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -30,8 +41,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Mejores Centrocampistas — Estadísticas y Asistencias | TopScorers',
-      description: 'Ranking de los mejores centrocampistas del fútbol europeo.',
+      title: en
+        ? 'Best Midfielders — Stats & Assists | TopScorers'
+        : 'Mejores Centrocampistas — Estadísticas y Asistencias | TopScorers',
+      description: en
+        ? 'Ranking of the best midfielders in European football.'
+        : 'Ranking de los mejores centrocampistas del fútbol europeo.',
       images: [`https://www.top-scorers.com/og-default-${lang}.jpg`],
     },
   }

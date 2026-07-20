@@ -4,11 +4,16 @@ import { isLocale } from '@/lib/i18n'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/pricing'
   return {
-    title: 'Precios — Pro y Scout',
-    description: 'Planes y precios de TopScorers: empieza gratis o desbloquea Pro y Scout para acceder a estadísticas avanzadas, comparador de jugadores, radar de talentos y datos sin límites del fútbol europeo.',
-    keywords: ['precios topscorers', 'plan pro fútbol', 'plan scout', 'suscripción estadísticas fútbol', 'comparador jugadores premium'],
+    title: en ? 'Pricing — Pro & Scout' : 'Precios — Pro y Scout',
+    description: en
+      ? 'TopScorers plans and pricing: start free or unlock Pro and Scout for advanced stats, the player comparator, the talent radar and unlimited European football data.'
+      : 'Planes y precios de TopScorers: empieza gratis o desbloquea Pro y Scout para acceder a estadísticas avanzadas, comparador de jugadores, radar de talentos y datos sin límites del fútbol europeo.',
+    keywords: en
+      ? ['topscorers pricing', 'pro football plan', 'scout plan', 'football stats subscription', 'premium player comparator']
+      : ['precios topscorers', 'plan pro fútbol', 'plan scout', 'suscripción estadísticas fútbol', 'comparador jugadores premium'],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -18,8 +23,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: 'Precios — Pro y Scout | TopScorers',
-      description: 'Empieza gratis o desbloquea Pro y Scout: estadísticas avanzadas, comparador y radar de talentos del fútbol europeo.',
+      title: en ? 'Pricing — Pro & Scout | TopScorers' : 'Precios — Pro y Scout | TopScorers',
+      description: en
+        ? 'Start free or unlock Pro and Scout: advanced stats, comparator and talent radar for European football.'
+        : 'Empieza gratis o desbloquea Pro y Scout: estadísticas avanzadas, comparador y radar de talentos del fútbol europeo.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -28,8 +35,10 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Precios — Pro y Scout | TopScorers',
-      description: 'Empieza gratis o desbloquea Pro y Scout: estadísticas avanzadas y comparador del fútbol europeo.',
+      title: en ? 'Pricing — Pro & Scout | TopScorers' : 'Precios — Pro y Scout | TopScorers',
+      description: en
+        ? 'Start free or unlock Pro and Scout: advanced stats and the European football comparator.'
+        : 'Empieza gratis o desbloquea Pro y Scout: estadísticas avanzadas y comparador del fútbol europeo.',
       images: [`https://www.top-scorers.com/og-default-${lang}.jpg`],
     },
   }
