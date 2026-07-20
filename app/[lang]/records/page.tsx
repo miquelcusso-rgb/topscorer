@@ -14,15 +14,26 @@ import type { PlayerData } from '@/types'
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
   const lang = isLocale(raw) ? raw : 'es'
+  const en = lang === 'en'
   const path = '/records'
   return {
-    title: `Records y Líderes ${CURRENT_SEASON_LONG} — Goleadores, Asistencias y Nota`,
-    description: `Líderes y récords de la temporada ${CURRENT_SEASON_LONG}: máximo goleador (IIG), más goles, más asistencias, mejor conversión, más pases clave y mejor nota media. Datos reales de las ligas europeas.`,
-    keywords: [
-      'records goleadores', 'líderes liga 2025 2026', 'máximo goleador europa',
-      'más asistencias', 'mejor nota media futbolista', 'mejor conversión tiros',
-      'estadísticas líderes temporada', 'records futbol 2025 2026',
-    ],
+    title: en
+      ? `Top Scorer Records & Leaders ${CURRENT_SEASON_LONG} — Goals, Assists & Ratings`
+      : `Records y Líderes ${CURRENT_SEASON_LONG} — Goleadores, Asistencias y Nota`,
+    description: en
+      ? `Season ${CURRENT_SEASON_LONG} leaders and records: top scorer (IIG), most goals, most assists, best shot conversion, most key passes and best average rating. Real stats from Europe's top leagues.`
+      : `Líderes y récords de la temporada ${CURRENT_SEASON_LONG}: máximo goleador (IIG), más goles, más asistencias, mejor conversión, más pases clave y mejor nota media. Datos reales de las ligas europeas.`,
+    keywords: en
+      ? [
+          'top scorer records', 'league leaders 2025 2026', 'top goalscorer europe',
+          'most assists', 'best average rating footballer', 'best shot conversion',
+          'season leaders stats', 'football records 2025 2026',
+        ]
+      : [
+          'records goleadores', 'líderes liga 2025 2026', 'máximo goleador europa',
+          'más asistencias', 'mejor nota media futbolista', 'mejor conversión tiros',
+          'estadísticas líderes temporada', 'records futbol 2025 2026',
+        ],
     alternates: {
       canonical: `https://www.top-scorers.com/${lang}${path}`,
       languages: {
@@ -32,8 +43,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       },
     },
     openGraph: {
-      title: `Records y Líderes ${CURRENT_SEASON_LONG} | TopScorers`,
-      description: `Los líderes de la temporada ${CURRENT_SEASON_LONG} en goles, asistencias, conversión, pases clave y nota media. Datos reales.`,
+      title: en
+        ? `Top Scorer Records & Leaders ${CURRENT_SEASON_LONG} | TopScorers`
+        : `Records y Líderes ${CURRENT_SEASON_LONG} | TopScorers`,
+      description: en
+        ? `Season ${CURRENT_SEASON_LONG} leaders in goals, assists, conversion, key passes and average rating. Real stats.`
+        : `Los líderes de la temporada ${CURRENT_SEASON_LONG} en goles, asistencias, conversión, pases clave y nota media. Datos reales.`,
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
