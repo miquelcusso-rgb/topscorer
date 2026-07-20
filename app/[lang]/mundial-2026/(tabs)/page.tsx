@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
 import { wcFaqs } from '../wc-faqs'
-import WorldCupFriendlies from '@/components/saas/WorldCupFriendlies'
 import OverviewPanel from '../_panels/OverviewPanel'
 import KnockoutPanel from '../_panels/KnockoutPanel'
-import { getFriendlies, getTopScorers, getTopAssists, type ApiPlayerResponse } from '@/lib/api-football'
+import ChampionPanel from '../_panels/ChampionPanel'
+import { getTopScorers, getTopAssists, type ApiPlayerResponse } from '@/lib/api-football'
 
-// Auto-refresh hourly so the Golden Boot teaser, groups and results stay live and
-// the friendlies→group-stage transition flips on its own around kickoff.
-export const revalidate = 3600
+// Tournament OVER (final 19-jul-2026): the page is an archive now. Daily ISR is
+// plenty — hourly refresh just burned api-football quota + Vercel ISR writes.
+export const revalidate = 86400
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
@@ -17,17 +17,17 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   // The root layout applies a `%s | TopScorers` title template, so the <title>
   // here must NOT repeat the brand (the OG title, which isn't templated, keeps it).
   const title = lang === 'en'
-    ? '2026 World Cup: Golden Boot, Groups & Live Results'
-    : 'Mundial 2026: Bota de Oro, Grupos y Resultados en directo'
+    ? '2026 World Cup: Spain Champions — Final, Golden Boot & Results'
+    : 'Mundial 2026: España Campeona — Final, Bota de Oro y Resultados'
   const description = lang === 'en'
-    ? 'Follow the 2026 World Cup live: Golden Boot top scorers, groups, standings and results of all 48 teams across the USA, Canada and Mexico.'
-    : 'Sigue el Mundial 2026 en directo: Bota de Oro (máximos goleadores), grupos, clasificación y resultados de las 48 selecciones en USA, Canadá y México.'
+    ? 'Spain won the 2026 World Cup, beating Argentina 1-0 in the final (Ferran Torres, 106\'). Full bracket, Golden Boot standings and results of all 48 teams.'
+    : 'España ganó el Mundial 2026 al vencer 1-0 a Argentina en la final (Ferran Torres, 106\'). Cuadro completo, Bota de Oro y resultados de las 48 selecciones.'
   return {
     title,
     description,
     openGraph: {
       title: `${title} | TopScorers`,
-      description: lang === 'en' ? '48 teams · 16 venues · 1 trophy. Live Golden Boot, groups and results.' : '48 selecciones · 16 sedes · 1 trofeo. Bota de Oro, grupos y resultados en directo.',
+      description: lang === 'en' ? '🏆 Spain 1-0 Argentina. Final bracket, Golden Boot and results of the 2026 World Cup.' : '🏆 España 1-0 Argentina. Cuadro final, Bota de Oro y resultados del Mundial 2026.',
       url: `https://www.top-scorers.com/${lang}${path}`,
       siteName: 'TopScorers',
       locale: lang === 'en' ? 'en_US' : 'es_ES',
@@ -92,17 +92,8 @@ export default async function Mundial2026Page({ params }: { params: Promise<{ la
   let assists: ApiPlayerResponse[] = []
   try { assists = await getTopAssists(1, 2026) } catch { assists = [] }
 
-  // Data-driven transition: the tournament is "started" once the API reports
-  // World Cup scorers (i.e. the first goals are in). More robust than a hardcoded
-  // kickoff date — no clock drift, reflects the real tournament. Until then the
-  // build-up friendlies carry the page (never empty).
-  const started = scorers.length > 0
-
-  // Build-up friendlies: only fetched/shown before the tournament starts. After
-  // kickoff the page's own content (Golden Boot, groups, results) takes over —
-  // clean transition, never an empty page.
-  const friendlies = started ? [] : await getFriendlies('2026-05-15', '2026-06-11')
-
+  // Tournament over: no friendlies, no "started" transition — the ChampionPanel
+  // (static, curated) is the portada's opening screen regardless of API state.
   const leader = scorers[0]?.player?.name
 
   const goals = lang === 'en' ? 'goals' : 'goles'
@@ -151,10 +142,10 @@ export default async function Mundial2026Page({ params }: { params: Promise<{ la
       {ld(breadcrumbJsonLd)}
       {ld(faqJsonLd)}
       {scorersItemListJsonLd && ld(scorersItemListJsonLd)}
-      {/* Knockout bracket first — during the final phase it IS the portada. */}
+      {/* Champion hero first — the tournament is over, this IS the portada. */}
+      <ChampionPanel lang={lang} />
       <KnockoutPanel lang={lang} />
       <OverviewPanel scorers={scorers} assists={assists} />
-      {!started && <WorldCupFriendlies fixtures={friendlies} lang={lang} />}
     </>
   )
 }

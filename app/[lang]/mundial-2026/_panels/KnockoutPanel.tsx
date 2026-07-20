@@ -88,7 +88,11 @@ function TbdCard({ spec, lang }: { spec: RoundSpec; lang: Lang }) {
 }
 
 export default async function KnockoutPanel({ lang }: { lang: Lang }) {
-  const fixtures = await getWorldCupFixtures()
+  // getWorldCupFixtures throws on quota/API failure (so [] is never cached);
+  // here that just means "no bracket this render" — the ChampionPanel above
+  // keeps the portada complete either way.
+  let fixtures: ApiFixture[] = []
+  try { fixtures = await getWorldCupFixtures() } catch { fixtures = [] }
   if (!fixtures.length) return null
 
   const byRound = (api: string) =>

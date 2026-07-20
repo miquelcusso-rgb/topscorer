@@ -4,10 +4,14 @@ import Link from 'next/link'
 
 // Opening match: 11 Jun 2026, 19:00 local (Estadio Azteca, CDMX = UTC-6).
 const KICKOFF = new Date('2026-06-12T01:00:00Z').getTime()
+// Final played 19 Jul 2026 (MetLife) — after this the widget shows the champion.
+const ENDED = new Date('2026-07-20T04:00:00Z').getTime()
 
-function diff(): { d: number; h: number; m: number } | 'live' {
-  const ms = KICKOFF - Date.now()
-  if (ms <= 0) return 'live' // tournament underway — show a LIVE pill, not nothing
+function diff(): { d: number; h: number; m: number } | 'live' | 'done' {
+  const now = Date.now()
+  if (now >= ENDED) return 'done' // tournament over — champion pill
+  if (now >= KICKOFF) return 'live' // tournament underway — show a LIVE pill, not nothing
+  const ms = KICKOFF - now
   const d = Math.floor(ms / 86_400_000)
   const h = Math.floor((ms % 86_400_000) / 3_600_000)
   const m = Math.floor((ms % 3_600_000) / 60_000)
@@ -15,7 +19,7 @@ function diff(): { d: number; h: number; m: number } | 'live' {
 }
 
 export default function WorldCupWidget({ lang, scale = 1 }: { lang: 'es' | 'en'; scale?: number }) {
-  const [tl, setTl] = useState<{ d: number; h: number; m: number } | 'live' | undefined>(undefined)
+  const [tl, setTl] = useState<{ d: number; h: number; m: number } | 'live' | 'done' | undefined>(undefined)
   useEffect(() => {
     setTl(diff())
     const id = setInterval(() => setTl(diff()), 30_000)
@@ -51,7 +55,11 @@ export default function WorldCupWidget({ lang, scale = 1 }: { lang: 'es' | 'en';
           {lang === 'en' ? 'World Cup 2026' : 'Mundial 2026'}
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: s(6), marginTop: s(3) }}>
-          {tl === 'live' ? (
+          {tl === 'done' ? (
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: s(15), letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-primary)' }}>
+              🇪🇸 {lang === 'en' ? 'Spain champions' : 'España campeona'}
+            </span>
+          ) : tl === 'live' ? (
             <>
               <span style={{ display: 'inline-block', width: s(8), height: s(8), borderRadius: '50%', background: 'var(--ts-teal)', boxShadow: '0 0 6px var(--ts-teal)' }} />
               <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: s(15), letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-teal)' }}>

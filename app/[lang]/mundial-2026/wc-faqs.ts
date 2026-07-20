@@ -4,44 +4,47 @@
 
 export interface WcFaq { q: string; a: string }
 
-/** WC-specific FAQs, localised. `leader` (current top scorer) makes the answers
- *  concrete/citable for GEO when the tournament is underway. */
-export function wcFaqs(lang: 'es' | 'en', leader?: string): WcFaq[] {
+/** WC-specific FAQs, localised. The tournament is OVER (final 19-jul-2026):
+ *  answers state the final outcome — concrete, citable facts for GEO. The old
+ *  `leader` param is kept for call-site compatibility but no longer needed. */
+export function wcFaqs(lang: 'es' | 'en', _leader?: string): WcFaq[] {
   const en = lang === 'en'
   return [
     {
-      q: en ? 'Who is the top scorer of the 2026 World Cup?' : '¿Quién es el máximo goleador del Mundial 2026?',
+      q: en ? 'Who won the 2026 World Cup?' : '¿Quién ganó el Mundial 2026?',
       a: en
-        ? (leader
-            ? `${leader} is the current top scorer of the 2026 World Cup. The table on this page updates live as goals go in.`
-            : 'It will be decided once the tournament kicks off on June 11, 2026. This page updates the scorers table live throughout the World Cup.')
-        : (leader
-            ? `${leader} es ahora mismo el máximo goleador del Mundial 2026. La tabla de esta página se actualiza en directo según se marcan los goles.`
-            : 'Se sabrá cuando arranque el torneo el 11 de junio de 2026. Esta página actualiza la tabla de goleadores en directo durante todo el Mundial.'),
+        ? 'Spain won the 2026 FIFA World Cup, beating Argentina 1-0 after extra time in the final on July 19, 2026 at MetLife Stadium (New York/New Jersey). Ferran Torres scored the winning goal in the 106th minute. It is Spain\'s second world title after 2010.'
+        : 'España ganó el Mundial 2026 al vencer 1-0 a Argentina en la prórroga de la final, el 19 de julio de 2026 en el MetLife Stadium (Nueva York/Nueva Jersey). Ferran Torres marcó el gol del título en el minuto 106. Es el segundo Mundial de España tras el de 2010.',
     },
     {
-      q: en ? 'Who is winning the World Cup Golden Boot?' : '¿Quién va ganando la Bota de Oro del Mundial?',
+      q: en ? 'Who was the top scorer of the 2026 World Cup?' : '¿Quién fue el máximo goleador del Mundial 2026?',
       a: en
-        ? `The Golden Boot goes to the tournament's top scorer. ${leader ? leader + ' currently tops the chart. ' : 'The race opens on June 11, 2026. '}If two players are level on goals, it is decided by most assists and then fewest minutes played.`
-        : `La Bota de Oro premia al máximo goleador del torneo. ${leader ? leader + ' encabeza ahora la clasificación. ' : 'La carrera arranca el 11 de junio de 2026. '}En caso de empate a goles, decide el mayor número de asistencias y, después, los menos minutos jugados.`,
+        ? 'Kylian Mbappé (France) won the 2026 World Cup Golden Boot with 10 goals — the first player to reach double figures in a single World Cup since Gerd Müller in 1970. The full scorers table is on this page.'
+        : 'Kylian Mbappé (Francia) ganó la Bota de Oro del Mundial 2026 con 10 goles — el primer jugador en llegar a cifras dobles en un solo Mundial desde Gerd Müller en 1970. La tabla completa de goleadores está en esta página.',
     },
     {
-      q: en ? 'When does the 2026 World Cup start and end?' : '¿Cuándo empieza y termina el Mundial 2026?',
+      q: en ? 'Who won the individual awards at the 2026 World Cup?' : '¿Quién ganó los premios individuales del Mundial 2026?',
       a: en
-        ? 'The 2026 FIFA World Cup runs from June 11 to July 19, 2026. The opening match is on June 11 at Estadio Azteca (Mexico City) and the final is on July 19 at MetLife Stadium (New York/New Jersey).'
-        : 'El Mundial 2026 se disputa del 11 de junio al 19 de julio de 2026. El partido inaugural es el 11 de junio en el Estadio Azteca (Ciudad de México) y la final, el 19 de julio en el MetLife Stadium (Nueva York/Nueva Jersey).',
+        ? 'Golden Ball: Rodri (Spain). Golden Boot: Kylian Mbappé (France, 10 goals). Golden Glove: Unai Simón (Spain, 7 clean sheets). Best Young Player: Pau Cubarsí (Spain).'
+        : 'Balón de Oro: Rodri (España). Bota de Oro: Kylian Mbappé (Francia, 10 goles). Guante de Oro: Unai Simón (España, 7 porterías a cero). Mejor Jugador Joven: Pau Cubarsí (España).',
     },
     {
-      q: en ? 'How many teams play the 2026 World Cup?' : '¿Cuántas selecciones juegan el Mundial 2026?',
+      q: en ? 'When was the 2026 World Cup played?' : '¿Cuándo se jugó el Mundial 2026?',
       a: en
-        ? '48 teams for the first time, drawn into 12 groups of 4. The top two of each group plus the eight best third-placed teams advance to a new round of 32.'
-        : '48 selecciones por primera vez, repartidas en 12 grupos de 4. Los dos primeros de cada grupo más los ocho mejores terceros avanzan a unos nuevos dieciseisavos de final.',
+        ? 'The 2026 FIFA World Cup ran from June 11 to July 19, 2026. The opening match was on June 11 at Estadio Azteca (Mexico City) and the final on July 19 at MetLife Stadium (New York/New Jersey), where Spain beat Argentina 1-0.'
+        : 'El Mundial 2026 se disputó del 11 de junio al 19 de julio de 2026. El partido inaugural fue el 11 de junio en el Estadio Azteca (Ciudad de México) y la final, el 19 de julio en el MetLife Stadium (Nueva York/Nueva Jersey), donde España venció 1-0 a Argentina.',
     },
     {
-      q: en ? 'Where is the 2026 World Cup played?' : '¿Dónde se juega el Mundial 2026?',
+      q: en ? 'How many teams played the 2026 World Cup?' : '¿Cuántas selecciones jugaron el Mundial 2026?',
       a: en
-        ? 'Across 16 venues in three countries: the United States (11 cities), Mexico (3) and Canada (2). It is the first World Cup co-hosted by three nations.'
-        : 'En 16 sedes de tres países: Estados Unidos (11 ciudades), México (3) y Canadá (2). Es el primer Mundial organizado por tres naciones.',
+        ? '48 teams for the first time, drawn into 12 groups of 4. The top two of each group plus the eight best third-placed teams advanced to a new round of 32.'
+        : '48 selecciones por primera vez, repartidas en 12 grupos de 4. Los dos primeros de cada grupo más los ocho mejores terceros avanzaron a unos nuevos dieciseisavos de final.',
+    },
+    {
+      q: en ? 'Where was the 2026 World Cup played?' : '¿Dónde se jugó el Mundial 2026?',
+      a: en
+        ? 'Across 16 venues in three countries: the United States (11 cities), Mexico (3) and Canada (2). It was the first World Cup co-hosted by three nations.'
+        : 'En 16 sedes de tres países: Estados Unidos (11 ciudades), México (3) y Canadá (2). Fue el primer Mundial organizado por tres naciones.',
     },
   ]
 }

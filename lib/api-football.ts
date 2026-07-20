@@ -495,20 +495,21 @@ export const getNextFixtures = unstable_cache(
   { revalidate: 10800, tags: ['api-football'] } // 3 h — kickoff times rarely shift same-day
 )
 
-// World Cup 2026 fixtures (league 1) — dedicated cache entry with a short TTL so
-// the WC portada's knockout bracket shows tonight's scores promptly during the
-// tournament. ONE call per 30 min max (≤48/day). Defensive → [].
+// World Cup 2026 fixtures (league 1). The tournament is OVER (final 19-jul-2026)
+// → results never change; a weekly TTL is pure safety margin (≤1 call/week vs
+// the 48/day the 30-min tournament TTL allowed). Failures THROW instead of
+// returning [] so an empty result is never cached for a week when the daily
+// quota happens to be exhausted at fetch time (that cached-[] bug is what blanked
+// the bracket in prod on 20-jul). Callers catch → [].
 export const getWorldCupFixtures = unstable_cache(
   async (): Promise<ApiFixture[]> => {
-    try {
-      const data = await apiFetch<ApiFixture[]>(`/fixtures?league=1&season=2026`)
-      return data.response ?? []
-    } catch {
-      return []
-    }
+    const data = await apiFetch<ApiFixture[]>(`/fixtures?league=1&season=2026`)
+    const fixtures = data.response ?? []
+    if (!fixtures.length) throw new Error('api-football returned 0 WC fixtures (quota?) — not caching')
+    return fixtures
   },
   ['api-football-wc-fixtures'],
-  { revalidate: 1800, tags: ['api-football'] } // 30 min during the tournament window
+  { revalidate: 604800, tags: ['api-football'] } // 7 d — tournament over, results frozen
 )
 
 // Whole-season fixtures (every round/matchday). One API call; grouped by

@@ -5,7 +5,7 @@ import { goldenBootFaqs } from '../../wc-faqs'
 import { getTopScorers, type ApiPlayerResponse } from '@/lib/api-football'
 
 // Live ranking → revalidate hourly (the panel keeps the seed if present).
-export const revalidate = 3600
+export const revalidate = 86400 // torneo acabado (19-jul-2026): archivo, 24h de sobra
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params

@@ -35,8 +35,8 @@ export default function Countdown({ lang }: { lang: Lang }) {
   if (tl === 'done') {
     return (
       <div style={{ textAlign: 'center', padding: '16px 0' }}>
-        <span style={{ fontSize: 14, color: 'var(--ts-primary)' }}>
-          {t(lang, 'El Mundial 2026 ha concluido', 'World Cup 2026 has concluded')}
+        <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--ts-primary)', fontFamily: "'Barlow Condensed', sans-serif" }}>
+          🏆 {t(lang, 'España, campeona del mundo', 'Spain, world champions')} 🇪🇸
         </span>
       </div>
     )

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { isLocale } from '@/lib/i18n'
 import InjuriesPanel from '../../_panels/InjuriesPanel'
 
-export const revalidate = 3600
+export const revalidate = 86400 // torneo acabado (19-jul-2026): archivo, 24h de sobra
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params

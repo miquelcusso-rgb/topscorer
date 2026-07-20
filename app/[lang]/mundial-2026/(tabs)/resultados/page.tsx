@@ -3,7 +3,7 @@ import { isLocale } from '@/lib/i18n'
 import LiveDataPanel from '../../_panels/LiveDataPanel'
 
 // Live scores → revalidate hourly (the panel itself client-fetches every load).
-export const revalidate = 3600
+export const revalidate = 86400 // torneo acabado (19-jul-2026): archivo, 24h de sobra
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params

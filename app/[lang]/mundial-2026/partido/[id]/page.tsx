@@ -20,7 +20,7 @@ import { slugify } from '@/lib/slugify'
 // lineups/stats/timeline fresh for live matches while cutting writes ~6×.
 // Fully defensive: missing data hides the section; a missing fixture renders a
 // graceful not-found state.
-export const revalidate = 1800 // 30m ISR (was 300) — free-tier ISR writes
+export const revalidate = 86400 // torneo acabado: los partidos jugados no cambian (was 1800)
 
 const t = (lang: 'es' | 'en', es: string, en: string) => (lang === 'en' ? en : es)
 

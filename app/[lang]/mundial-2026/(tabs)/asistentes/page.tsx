@@ -5,7 +5,7 @@ import { assistsFaqs } from '../../wc-faqs'
 import { getTopAssists, type ApiPlayerResponse } from '@/lib/api-football'
 
 // Live ranking → revalidate hourly (the panel also refetches on the client).
-export const revalidate = 3600
+export const revalidate = 86400 // torneo acabado (19-jul-2026): archivo, 24h de sobra
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params

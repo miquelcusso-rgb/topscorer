@@ -5,7 +5,7 @@ import { getAllStandings, type ApiStandingEntry } from '@/lib/api-football'
 
 // Groups update live during the tournament → revalidate hourly. The data is
 // server-rendered + ISR (NOT per-request); the panel keeps the seed.
-export const revalidate = 3600
+export const revalidate = 86400 // torneo acabado (19-jul-2026): archivo, 24h de sobra
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang: raw } = await params
