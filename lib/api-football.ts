@@ -499,6 +499,61 @@ export const getNextFixtures = unstable_cache(
 // → results never change; a weekly TTL is pure safety margin (≤1 call/week vs
 // the 48/day the 30-min tournament TTL allowed). Failures THROW instead of
 // returning [] so an empty result is never cached for a week when the daily
+// Every fixture worldwide on one calendar date (UTC), in ONE request — the
+// endpoint is not league-scoped, so callers filter to the leagues they track.
+// Powers the "who scored today" page. TTL is short enough for same-day results
+// to surface, and past dates are re-fetched at most once a day anyway.
+export const getFixturesByDate = unstable_cache(
+  async (date: string): Promise<ApiFixture[]> => {
+    try {
+      const data = await apiFetch<ApiFixture[]>(`/fixtures?date=${date}`)
+      return data.response ?? []
+    } catch {
+      return []
+    }
+  },
+  ['api-football-fixtures-by-date'],
+  { revalidate: 1800, tags: ['api-football'] } // 30 min
+)
+
+export interface GoalEvent {
+  minute: number
+  extra: number | null
+  teamId: number
+  player: string
+  playerId: number | null
+  assist?: string
+  /** api-football `detail`: "Normal Goal" | "Penalty" | "Own Goal". */
+  detail: string
+}
+
+// Goal events of one fixture. Cached for a day: once a match is finished its
+// events are immutable, so each fixture costs exactly one request per day no
+// matter how often the daily page regenerates.
+export const getFixtureGoals = unstable_cache(
+  async (fixtureId: number): Promise<GoalEvent[]> => {
+    try {
+      const data = await apiFetch<Array<Record<string, any>>>(`/fixtures/events?fixture=${fixtureId}`)
+      return (data.response ?? [])
+        .filter(e => e.type === 'Goal' && e.detail !== 'Missed Penalty')
+        .map(e => ({
+          minute: e.time?.elapsed ?? 0,
+          extra: e.time?.extra ?? null,
+          teamId: e.team?.id ?? 0,
+          player: e.player?.name ?? '',
+          playerId: e.player?.id ?? null,
+          assist: e.assist?.name ?? undefined,
+          detail: e.detail ?? 'Normal Goal',
+        }))
+        .filter(g => g.player)
+    } catch {
+      return []
+    }
+  },
+  ['api-football-fixture-goals'],
+  { revalidate: 86400, tags: ['api-football'] } // 24 h — a finished match never changes
+)
+
 // quota happens to be exhausted at fetch time (that cached-[] bug is what blanked
 // the bracket in prod on 20-jul). Callers catch → [].
 export const getWorldCupFixtures = unstable_cache(

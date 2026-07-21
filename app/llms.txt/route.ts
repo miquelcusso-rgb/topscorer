@@ -19,6 +19,8 @@ const BODY = `# TopScorers
 - [Mejores defensas](https://www.top-scorers.com/es/defensas): ranking de defensas por entradas, intercepciones y duelos ganados.
 - [Competiciones](https://www.top-scorers.com/es/competiciones): estadísticas por competición.
 - [Jugadores](https://www.top-scorers.com/es/jugadores): fichas y estadísticas de jugadores.
+- [Goleadores del día](https://www.top-scorers.com/es/daily): quién ha marcado hoy — todos los goles del día con goleador, minuto, partido y competición. Se actualiza cada 30 minutos.
+- [Top Scorer Daily (EN)](https://www.top-scorers.com/en/daily): who scored today — every goal of the day with scorer, minute, match and competition. Updated every 30 minutes.
 - [Resultados](https://www.top-scorers.com/es/resultados): resultados en directo.
 - [Mundial 2026](https://www.top-scorers.com/es/mundial-2026): seguimiento del Mundial 2026.
 

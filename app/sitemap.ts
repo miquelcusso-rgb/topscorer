@@ -66,6 +66,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ['/europe-top-scorers',      'weekly',  0.9],
     ['/bota-de-oro',             'weekly',  0.85],
     ['/records',                 'weekly',  0.8],
+    // Rebuilt every 30 min and only useful while fresh — hence 'hourly'.
+    ['/daily',                   'hourly',  0.9],
     ['/transferencias',          'daily',   0.7],
     ['/estadisticas/comparador', 'weekly',  0.65],
     ['/centrocampistas',         'weekly',  0.7],
