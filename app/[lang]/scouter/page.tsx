@@ -122,6 +122,15 @@ export default async function ScouterIndexPage({
             ? 'The 20 best players of each league, ranked by the IIG striker impact index — built only from real season stats. Pick a league:'
             : 'Los 20 mejores jugadores de cada liga, ordenados por el índice de impacto IIG con estadísticas reales. Elige una liga:'}
         </p>
+        {/* Scouter ranks a whole SEASON. Searches for "top scorer daily" land
+            here and bounce, because this page answers a different question —
+            send that intent to the page that does answer it. */}
+        <p style={{ fontSize: 13, color: 'var(--ts-muted)', margin: '10px 0 0' }}>
+          {lang === 'en' ? 'Looking for who scored today? ' : '¿Buscas quién ha marcado hoy? '}
+          <Link href={`/${lang}/daily`} style={{ color: 'var(--ts-primary)', fontWeight: 700, textDecoration: 'none' }}>
+            {lang === 'en' ? 'Top Scorer Daily →' : 'Goleadores del día →'}
+          </Link>
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
