@@ -2,10 +2,13 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { isLocale } from '@/lib/i18n'
 import SaasShell from '@/components/saas/SaasShell'
-import { getNationalTeamId, getSquad, getCoach, getNationalTeamRecentLineups, getNationalTeamAggregateStats, getNationalTeamSeasonStats, getTopScorers, type SquadPlayer, type ApiPlayerResponse } from '@/lib/api-football'
+import { getNationalTeamId, getSquad, getCoach, getNationalTeamRecentLineups, getNationalTeamAggregateStats, getNationalTeamSeasonStats, type SquadPlayer } from '@/lib/api-football'
 import { resolveNation, nationName, nationFact, nationSlug, WC_NATIONS } from '@/lib/wc-nations'
 import { nationScorersFaqs } from '../wc-faqs'
-import { WcScorerList } from '../_panels/GoldenBootPanel'
+import {
+  nationWcScorers, nationWcCampaign, goldenBootRank, stageReached, outcomeClause, roundLabel,
+  WC_CAPTURED_AT, type WcNationScorer, type WcCampaign,
+} from '@/lib/wc2026'
 import WcFaqList from '../_panels/WcFaqList'
 import WcAd from '../_panels/WcAd'
 import WcSignupCta from '../_panels/WcSignupCta'
@@ -52,12 +55,34 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const nation = resolveNation(seleccion)
   const name = nationName(nation, lang)
   const path = `/mundial-2026/${seleccion}`
-  const title = lang === 'en'
-    ? `${name} Top Scorers · World Cup 2026: Squad, Goals & Lineup`
-    : `Goleadores de ${name} · Mundial 2026: Plantilla, Goles y Once`
-  const description = lang === 'en'
-    ? `${name} top scorers at the 2026 World Cup, updated live: who's scoring, plus the full squad, coach, potential lineup and key players.`
-    : `Goleadores de ${name} en el Mundial 2026, actualizados en directo: quién marca, además de la plantilla completa, seleccionador, once probable y figuras.`
+
+  // The whole point of this page's title is to ANSWER the query in the SERP.
+  // These nations rank top-10 for "<nation> top scorer 2026" but took ~0 clicks
+  // with a generic title: the searcher wants a name and a number, and a rival
+  // snippet that shows them wins the click. So the name and the goal count go
+  // in the title itself. Read from the frozen snapshot → no API call.
+  const teamId = await getNationalTeamId(nation.api)
+  const scorers = nationWcScorers(teamId)
+  const top = scorers[0]
+  const totalGoals = scorers.reduce((s, p) => s + p.goals, 0)
+  const goalWord = (n: number) => (lang === 'en' ? (n === 1 ? 'goal' : 'goals') : (n === 1 ? 'gol' : 'goles'))
+
+  const title = top
+    ? (lang === 'en'
+        ? `${name} Top Scorer 2026 — ${top.name}, ${top.goals} ${goalWord(top.goals)}`
+        : `Goleador de ${name} 2026 — ${top.name}, ${top.goals} ${goalWord(top.goals)}`)
+    : (lang === 'en'
+        ? `${name} Top Scorers · World Cup 2026: Squad, Goals & Lineup`
+        : `Goleadores de ${name} · Mundial 2026: Plantilla, Goles y Once`)
+
+  const description = top
+    ? (lang === 'en'
+        ? `${top.name} was ${name}'s top scorer at the 2026 World Cup with ${top.goals} ${goalWord(top.goals)}. Full ${name} scorers table, every goal, match-by-match run and the squad.`
+        : `${top.name} fue el máximo goleador de ${name} en el Mundial 2026 con ${top.goals} ${goalWord(top.goals)}. Tabla completa de goleadores de ${name}, sus ${totalGoals} goles, recorrido partido a partido y plantilla.`)
+    : (lang === 'en'
+        ? `Every ${name} goal at the 2026 World Cup, the full scorers table, the match-by-match run and the squad that played it.`
+        : `Todos los goles de ${name} en el Mundial 2026, la tabla completa de goleadores, el recorrido partido a partido y la plantilla.`)
+
   return {
     title,
     description,
@@ -79,7 +104,15 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
         'x-default': `https://www.top-scorers.com/es${path}`,
       },
     },
-    keywords: [`goleadores ${name} mundial 2026`, `${name} top scorers world cup 2026`, `${name} mundial 2026`, `${name} world cup 2026`, `plantilla ${name}`, `${name} squad`, 'mundial 2026', 'world cup 2026'],
+    // Mirrors the query family these pages actually rank for in GSC — the
+    // singular "top scorer" variants pull the most impressions, not the plural.
+    keywords: [
+      `${nation.en} top scorer 2026`, `${nation.en} top scorer world cup 2026`,
+      `${nation.en} top goal scorers 2026`, `${nation.en} goal scorers world cup 2026`,
+      `goleador de ${name} 2026`, `goleadores ${name} mundial 2026`,
+      `${name} mundial 2026`, `${name} world cup 2026`, `plantilla ${name}`, `${name} squad`,
+      'mundial 2026', 'world cup 2026',
+    ],
   }
 }
 
@@ -171,44 +204,77 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
 
   // ── Data (all defensive) ──
   const teamId = await getNationalTeamId(nation.api)
-  const [squad, coach, recent, teamStats, seasonStats, wcScorersAll] = teamId
+  const [squad, coach, recent, teamStats, seasonStats] = teamId
     ? await Promise.all([
         getSquad(teamId),
         getCoach(teamId),
         getNationalTeamRecentLineups(teamId),
         getNationalTeamAggregateStats(teamId),
         getNationalTeamSeasonStats(teamId),
-        // Tournament-wide WC top scorers (league 1, season 2026), filtered to this
-        // nation below. Reuses the same cached call the Golden Boot tab uses → no
-        // extra API quota. Defensive: any error → empty list (section just hides).
-        getTopScorers(1, 2026).catch(() => [] as ApiPlayerResponse[]),
       ])
-    : [[] as SquadPlayer[], null, null, null, null, [] as ApiPlayerResponse[]]
+    : [[] as SquadPlayer[], null, null, null, null]
 
-  // This nation's World Cup scorers: rows whose stat team id matches our team id,
-  // ordered by goals (desc), then assists. Server-rendered into the HTML so the
-  // "goleadores [país] mundial 2026" query has real, citable content (not a
-  // client "Loading…" placeholder). Empty before the tournament → graceful copy.
-  const wcScorers: ApiPlayerResponse[] = (wcScorersAll ?? [])
-    .filter(p => p.statistics?.[0]?.team?.id === teamId && (p.statistics[0]?.goals?.total ?? 0) > 0)
-    .sort((a, b) =>
-      (b.statistics[0]?.goals?.total ?? 0) - (a.statistics[0]?.goals?.total ?? 0) ||
-      (b.statistics[0]?.goals?.assists ?? 0) - (a.statistics[0]?.goals?.assists ?? 0),
-    )
-  const wcGoalsTotal = wcScorers.reduce((s, p) => s + (p.statistics[0]?.goals?.total ?? 0), 0)
+  // This nation's World Cup scorers, from the frozen tournament snapshot. The
+  // old code filtered the tournament-wide top-20 endpoint by team, which only
+  // ever surfaced a nation's single best player (Mexico → Quiñones and nobody
+  // else) — a one-row "table" that read as thin, duplicated boilerplate. The
+  // snapshot carries EVERY scorer of every nation, costs no API quota, and can
+  // never be blanked by the daily quota running out.
+  const wcScorers: WcNationScorer[] = nationWcScorers(teamId)
+  const campaign: WcCampaign | null = nationWcCampaign(teamId)
+  const wcGoalsTotal = wcScorers.reduce((s, p) => s + p.goals, 0)
   const topScorerWc = wcScorers[0]
-  const topScorerWcName = topScorerWc?.player?.name
-  const topScorerWcGoals = topScorerWc?.statistics[0]?.goals?.total ?? 0
-  // Citable lead sentence answering "goleadores de <nación> en el Mundial 2026".
+  const topScorerWcName = topScorerWc?.name
+  const topScorerWcGoals = topScorerWc?.goals ?? 0
+  const bootRank = topScorerWc ? goldenBootRank(topScorerWc.id) : null
+  const stage = campaign ? stageReached(campaign, lang) : undefined
+  // The nation's true goal tally is the one from the fixtures. It can exceed the
+  // sum of its players' goals, because an opponent's own goal counts for the
+  // team but has no scorer — Spain's 14 vs their scorers' 13. Report the team
+  // total, and account for the gap instead of letting the page contradict itself.
+  const teamGoals = campaign?.goalsFor ?? wcGoalsTotal
+  const ownGoalsFor = Math.max(0, teamGoals - wcGoalsTotal)
+
+  // Opponent names come from api-football in English. On the ES page they run
+  // inside Spanish prose, so route them through our nation table ("Spain" →
+  // "España"). Unlisted nations resolve to themselves, so this never breaks.
+  const opponentName = (apiName: string) => nationName(resolveNation(slugify(apiName)), lang)
+
+  // Citable lead — the direct answer, in the first sentence, in the first 40
+  // words. This is what a snippet and an AI answer both lift verbatim.
+  const goalW = (n: number) => t(lang, n === 1 ? 'gol' : 'goles', n === 1 ? 'goal' : 'goals')
+  // A nation with no fixtures never qualified — saying "nobody scored" would be
+  // technically true but read as a false claim about a team that played.
+  const played = campaign != null
   const scorerLead = topScorerWcName
     ? t(lang,
-        `${topScorerWcName} es el máximo goleador de ${name} en el Mundial 2026 con ${topScorerWcGoals} ${topScorerWcGoals === 1 ? 'gol' : 'goles'}. ${name} suma ${wcGoalsTotal} ${wcGoalsTotal === 1 ? 'gol' : 'goles'} en el torneo.`,
-        `${topScorerWcName} is ${name}'s top scorer at the 2026 World Cup with ${topScorerWcGoals} ${topScorerWcGoals === 1 ? 'goal' : 'goals'}. ${name} has scored ${wcGoalsTotal} ${wcGoalsTotal === 1 ? 'goal' : 'goals'} in the tournament so far.`)
-    : t(lang,
-        `Aquí verás en directo a los goleadores de ${name} en el Mundial 2026: cada gol y quién lo marca, actualizado durante todo el torneo (arranca el 11 de junio de 2026).`,
-        `This is where ${name}'s top scorers at the 2026 World Cup appear live: every goal and who scored it, updated throughout the tournament (kick-off June 11, 2026).`)
-  // Updated-date freshness signal (locale-formatted month + year).
-  const updatedLabel = new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+        `${topScorerWcName} fue el máximo goleador de ${name} en el Mundial 2026 con ${topScorerWcGoals} ${goalW(topScorerWcGoals)}.`,
+        `${topScorerWcName} was ${name}'s top scorer at the 2026 World Cup with ${topScorerWcGoals} ${goalW(topScorerWcGoals)}.`)
+    : played
+      ? t(lang,
+          `Ningún jugador de ${name} marcó en el Mundial 2026.`,
+          `No ${name} player scored at the 2026 World Cup.`)
+      : t(lang,
+          `${name} no se clasificó para el Mundial 2026, así que no tiene goleadores en el torneo. Abajo están su plantilla actual y sus figuras.`,
+          `${name} did not qualify for the 2026 World Cup, so they have no scorers at the tournament. Their current squad and standout players are below.`)
+  // Second sentence: the nation-level totals that make the answer self-contained.
+  const outcome = campaign && stage ? ` ${outcomeClause(stage, lang)}` : ''
+  const ogNote = ownGoalsFor > 0
+    ? t(lang,
+        ` (más ${ownGoalsFor} en propia puerta del rival)`,
+        ` (plus ${ownGoalsFor} opposition own ${ownGoalsFor === 1 ? 'goal' : 'goals'})`)
+    : ''
+  const scorerLead2 = campaign
+    ? t(lang,
+        `${name} marcó ${teamGoals} ${goalW(teamGoals)} en ${campaign.played} ${campaign.played === 1 ? 'partido' : 'partidos'}${outcome}. Marcaron ${wcScorers.length} ${wcScorers.length === 1 ? 'jugador' : 'jugadores'} distintos${ogNote}.`,
+        `${name} scored ${teamGoals} ${goalW(teamGoals)} in ${campaign.played} ${campaign.played === 1 ? 'match' : 'matches'}${outcome}. ${wcScorers.length} different ${wcScorers.length === 1 ? 'player' : 'players'} got on the scoresheet${ogNote}.`)
+    : null
+  // The tournament is over: "updated" is the capture date of the final data, not
+  // today's date. Claiming daily freshness on frozen results would be a lie.
+  const updatedLabel = new Date(`${WC_CAPTURED_AT}T00:00:00Z`).toLocaleDateString(
+    lang === 'en' ? 'en-US' : 'es-ES',
+    { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
+  )
 
   // Do we have real recent-match usage? If so, the XI is "based on recent XI";
   // otherwise we fall back to the squad heuristic ("based on squad").
@@ -364,17 +430,55 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
       ? `${name}'s top scorers at the 2026 FIFA World Cup, ranked by goals.`
       : `Goleadores de ${name} en el Mundial 2026, ordenados por goles.`,
     url: canonicalUrl,
-    numberOfItems: Math.min(wcScorers.length, 10),
-    itemListElement: wcScorers.slice(0, 10).map((p, i) => ({
+    numberOfItems: wcScorers.length,
+    itemListElement: wcScorers.map((p, i) => ({
       '@type': 'ListItem',
       position: i + 1,
-      name: `${p.player.name} — ${p.statistics[0]?.goals?.total ?? 0} ${goalsWord}`,
+      name: `${p.name} — ${p.goals} ${goalsWord}`,
     })),
   } : null
 
+  // Person JSON-LD for the nation's top scorer — the entity the query is
+  // actually about ("who is Mexico's top scorer?"). Only real, sourced fields.
+  const topScorerJsonLd = topScorerWc ? {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: topScorerWc.name,
+    ...(topScorerWc.photo ? { image: topScorerWc.photo } : {}),
+    ...(topScorerWc.position ? { jobTitle: topScorerWc.position } : {}),
+    nationality: { '@type': 'Country', name: nation.en },
+    memberOf: { '@type': 'SportsTeam', name: nation.en, sport: 'Soccer' },
+    url: canonicalUrl,
+    description: lang === 'en'
+      ? `${name}'s top scorer at the 2026 FIFA World Cup with ${topScorerWcGoals} ${topScorerWcGoals === 1 ? 'goal' : 'goals'}.`
+      : `Máximo goleador de ${name} en el Mundial 2026 con ${topScorerWcGoals} ${topScorerWcGoals === 1 ? 'gol' : 'goles'}.`,
+  } : null
+
+  // WebPage node carrying a real dateModified (the date the final tournament
+  // data was frozen) + the Furiosa Studio publisher, per the brand rule.
+  const webPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': canonicalUrl,
+    url: canonicalUrl,
+    name: lang === 'en' ? `${name} top scorers 2026` : `Goleadores de ${name} 2026`,
+    inLanguage: lang === 'en' ? 'en' : 'es',
+    dateModified: WC_CAPTURED_AT,
+    isPartOf: { '@type': 'WebSite', name: 'TopScorers', url: 'https://www.top-scorers.com' },
+    publisher: { '@type': 'Organization', name: 'Furiosa Studio', url: 'https://furiosadata.com' },
+  }
+
   // FAQPage JSON-LD built from the SAME source the visible FAQ renders (concrete
   // when a scorer exists → citable for GEO). Mirrors the <details> accordion.
-  const nationFaqs = nationScorersFaqs(lang, name, topScorerWcName, topScorerWcName ? topScorerWcGoals : undefined)
+  const nationFaqs = nationScorersFaqs(lang, name, {
+    topName: topScorerWcName,
+    topGoals: topScorerWcName ? topScorerWcGoals : undefined,
+    scorerCount: wcScorers.length,
+    totalGoals: teamGoals,
+    outcome: campaign && stage ? outcomeClause(stage, lang) : undefined,
+    played: campaign?.played ?? 0,
+    rank: bootRank,
+  })
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -391,8 +495,10 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
 
   return (
     <SaasShell activeKey="leagues" breadcrumb={breadcrumb}>
+      {ld(webPageJsonLd)}
       {ld(sportsTeamJsonLd)}
       {ld(breadcrumbJsonLd)}
+      {topScorerJsonLd && ld(topScorerJsonLd)}
       {scorersItemListJsonLd && ld(scorersItemListJsonLd)}
       {ld(faqJsonLd)}
       <main style={{ position: 'relative', zIndex: 10, minHeight: '100vh', background: 'var(--ts-bg)' }}>
@@ -408,9 +514,16 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '2px 8px', borderRadius: 5, fontSize: 9, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', background: 'var(--ts-primary-soft)', color: 'var(--ts-primary)', border: '1px solid var(--ts-border-hot)', marginBottom: 6 }}>
                   FIFA World Cup 2026
                 </div>
-                <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(34px, 6vw, 52px)', fontWeight: 800, color: 'var(--ts-primary)', letterSpacing: 1, lineHeight: 0.95, margin: 0 }}>
-                  {name}
+                {/* H1 carries the keyword. It used to be the bare nation name
+                    ("Mexico"), which matched no query the page ranks for. */}
+                <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 'clamp(30px, 5.4vw, 48px)', fontWeight: 800, color: 'var(--ts-primary)', letterSpacing: 1, lineHeight: 0.95, margin: 0 }}>
+                  {t(lang, `Goleadores de ${name} 2026`, `${name} top scorers 2026`)}
                 </h1>
+                {stage && (
+                  <div style={{ fontSize: 12, color: 'var(--ts-teal)', fontWeight: 700, marginTop: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+                    {t(lang, `Mundial 2026 · ${stage.label}`, `World Cup 2026 · ${stage.label}`)}
+                  </div>
+                )}
                 {coach && (
                   <div style={{ fontSize: 13, color: 'var(--ts-muted)', marginTop: 6 }}>
                     {t(lang, 'Seleccionador', 'Head coach')}: <span style={{ color: 'var(--ts-text)', fontWeight: 600 }}>{coach.name}</span>
@@ -424,25 +537,129 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
 
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px 80px', display: 'flex', flexDirection: 'column', gap: 28 }}>
 
-          {/* WC top scorers — citable lead + freshness + server-rendered list.
-              The lead answers "goleadores de <nación> en el Mundial 2026"; the
-              list mirrors the ItemList JSON-LD. Pre-tournament: graceful copy. */}
+          {/* WC top scorers — the answer, then the evidence. The lead answers
+              "<nation> top scorer 2026" in the first sentence; the table is the
+              per-nation content that no other page repeats. */}
           <section>
             <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
               ⚽ {t(lang, `Goleadores de ${name} · Mundial 2026`, `${name} Top Scorers · World Cup 2026`)}
             </h2>
-            <p style={{ fontSize: 14, color: 'var(--ts-text)', fontWeight: 600, margin: '0 0 6px', lineHeight: 1.55 }}>
+            <p style={{ fontSize: 15, color: 'var(--ts-text)', fontWeight: 700, margin: '0 0 6px', lineHeight: 1.55 }}>
               {scorerLead}
             </p>
+            {scorerLead2 && (
+              <p style={{ fontSize: 14, color: 'var(--ts-text)', margin: '0 0 6px', lineHeight: 1.6 }}>
+                {scorerLead2}
+              </p>
+            )}
             <p style={{ fontSize: 11, color: 'var(--ts-faint)', margin: '0 0 12px' }}>
-              {t(lang, `Actualizado ${updatedLabel}`, `Updated ${updatedLabel}`)}
+              {t(lang, `Datos finales del torneo · actualizado ${updatedLabel}`, `Final tournament data · updated ${updatedLabel}`)}
             </p>
+
             {wcScorers.length > 0 && (
               <div style={{ background: 'var(--ts-card)', border: '1px solid var(--ts-border)', borderRadius: 12, overflow: 'hidden' }}>
-                <WcScorerList scorers={wcScorers} lang={lang} limit={15} />
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 460 }}>
+                    <caption style={{ captionSide: 'top', textAlign: 'left', padding: '12px 14px 8px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>
+                      {t(lang, `Todos los goleadores de ${name} en el Mundial 2026`, `Every ${name} scorer at the 2026 World Cup`)}
+                    </caption>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--ts-border)' }}>
+                        <th scope="col" style={{ textAlign: 'left', padding: '8px 14px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>#</th>
+                        <th scope="col" style={{ textAlign: 'left', padding: '8px 14px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{t(lang, 'Jugador', 'Player')}</th>
+                        <th scope="col" style={{ textAlign: 'right', padding: '8px 10px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{t(lang, 'Goles', 'Goals')}</th>
+                        <th scope="col" style={{ textAlign: 'right', padding: '8px 10px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{t(lang, 'Asist.', 'Assists')}</th>
+                        <th scope="col" style={{ textAlign: 'right', padding: '8px 10px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{t(lang, 'PJ', 'Apps')}</th>
+                        <th scope="col" style={{ textAlign: 'right', padding: '8px 14px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-muted)' }}>{t(lang, 'Min', 'Min')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {wcScorers.map((p, i) => (
+                        <tr key={p.id} style={{ borderBottom: i === wcScorers.length - 1 ? 'none' : '1px solid var(--ts-border)' }}>
+                          <td style={{ padding: '10px 14px', color: 'var(--ts-faint)', fontWeight: 700 }}>{i + 1}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={p.photo} alt={p.name} width={26} height={26} loading="lazy"
+                                style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1px solid var(--ts-border)' }} />
+                              <Link href={`/${lang}/jugadores/${slugify(p.name)}`} style={{ color: 'var(--ts-text)', fontWeight: 700, textDecoration: 'none' }}>
+                                {p.name}
+                              </Link>
+                            </span>
+                          </td>
+                          <td style={{ padding: '10px', textAlign: 'right', color: 'var(--ts-primary)', fontWeight: 800 }}>{p.goals}</td>
+                          <td style={{ padding: '10px', textAlign: 'right', color: 'var(--ts-muted)' }}>{p.assists}</td>
+                          <td style={{ padding: '10px', textAlign: 'right', color: 'var(--ts-muted)' }}>{p.apps}</td>
+                          <td style={{ padding: '10px 14px', textAlign: 'right', color: 'var(--ts-muted)' }}>{p.minutes}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
+
+            {/* Golden Boot context — turns a bare number into a ranking the
+                reader can place, and feeds the /golden-boot hub a real link. */}
+            {topScorerWc && (
+              <p style={{ fontSize: 13, color: 'var(--ts-text)', lineHeight: 1.7, margin: '14px 0 0' }}>
+                {bootRank
+                  ? t(lang,
+                      `Con sus ${topScorerWcGoals} ${goalW(topScorerWcGoals)}, ${topScorerWcName} terminó en el puesto ${bootRank}.º de la carrera por la Bota de Oro del Mundial 2026, que ganó Kylian Mbappé con 10 goles.`,
+                      `Those ${topScorerWcGoals} ${goalW(topScorerWcGoals)} left ${topScorerWcName} ${bootRank}${bootRank === 1 ? 'st' : bootRank === 2 ? 'nd' : bootRank === 3 ? 'rd' : 'th'} in the 2026 World Cup Golden Boot race, won by Kylian Mbappé with 10 goals.`)
+                  : t(lang,
+                      `${topScorerWcName} quedó fuera del top-20 de la Bota de Oro del Mundial 2026, que ganó Kylian Mbappé con 10 goles.`,
+                      `${topScorerWcName} finished outside the top 20 of the 2026 World Cup Golden Boot race, won by Kylian Mbappé with 10 goals.`)}
+                {' '}
+                <Link href={`/${lang}/golden-boot`} style={{ color: 'var(--ts-primary)', fontWeight: 700, textDecoration: 'none' }}>
+                  {t(lang, 'Ver la tabla completa de la Bota de Oro →', 'See the full Golden Boot table →')}
+                </Link>
+              </p>
+            )}
           </section>
+
+          {/* Match-by-match run — the section that makes this page genuinely
+              unique per nation instead of a shared template with a name swapped
+              in. Derived from the frozen fixture list, so no API cost. */}
+          {campaign && (
+            <section>
+              <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--ts-primary)', margin: '0 0 4px' }}>
+                🗓 {t(lang, `El Mundial 2026 de ${name}, partido a partido`, `${name}'s 2026 World Cup, match by match`)}
+              </h2>
+              <p style={{ fontSize: 13, color: 'var(--ts-text)', lineHeight: 1.7, margin: '0 0 12px' }}>
+                {t(lang,
+                  `${name} disputó ${campaign.played} ${campaign.played === 1 ? 'partido' : 'partidos'} en el Mundial 2026: ${campaign.won} ${campaign.won === 1 ? 'victoria' : 'victorias'}, ${campaign.drawn} ${campaign.drawn === 1 ? 'empate' : 'empates'} y ${campaign.lost} ${campaign.lost === 1 ? 'derrota' : 'derrotas'}, con ${campaign.goalsFor} ${goalW(campaign.goalsFor)} a favor y ${campaign.goalsAgainst} en contra.`,
+                  `${name} played ${campaign.played} ${campaign.played === 1 ? 'match' : 'matches'} at the 2026 World Cup: ${campaign.won} ${campaign.won === 1 ? 'win' : 'wins'}, ${campaign.drawn} ${campaign.drawn === 1 ? 'draw' : 'draws'} and ${campaign.lost} ${campaign.lost === 1 ? 'defeat' : 'defeats'}, scoring ${campaign.goalsFor} and conceding ${campaign.goalsAgainst}.`)}
+              </p>
+              <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {campaign.matches.map((m, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', borderRadius: 10, padding: '10px 14px', background: 'var(--ts-card)', border: '1px solid var(--ts-border)' }}>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      width: 24, height: 24, borderRadius: 6, fontSize: 11, fontWeight: 800, flexShrink: 0,
+                      color: 'var(--ts-bg)', fontFamily: "'Barlow Condensed', sans-serif",
+                      background: m.result === 'W' ? 'var(--ts-primary)' : m.result === 'L' ? 'var(--ts-red)' : 'var(--ts-muted)',
+                    }}>
+                      {t(lang, m.result === 'W' ? 'V' : m.result === 'L' ? 'D' : 'E', m.result)}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'var(--ts-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, minWidth: 130 }}>
+                      {roundLabel(m.round, lang)}
+                    </span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ts-text)' }}>
+                      {m.scored}–{m.conceded}
+                      {m.penalties ? <span style={{ fontSize: 11, color: 'var(--ts-muted)', fontWeight: 600 }}> ({m.penalties.for}–{m.penalties.against} {t(lang, 'pen.', 'pens')})</span> : null}
+                    </span>
+                    <span style={{ fontSize: 13, color: 'var(--ts-muted)' }}>
+                      {t(lang, m.home ? 'vs' : 'a domicilio ante', m.home ? 'vs' : 'away to')} <span style={{ color: 'var(--ts-text)', fontWeight: 600 }}>{opponentName(m.opponent)}</span>
+                    </span>
+                    <time dateTime={m.date.slice(0, 10)} style={{ fontSize: 11, color: 'var(--ts-faint)', marginLeft: 'auto' }}>
+                      {new Date(m.date).toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}
+                    </time>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
 
           {/* In-content ad after the citable scorers lead (self-gates for Pro) */}
           <WcAd />
@@ -450,12 +667,12 @@ export default async function NationalTeamPage({ params }: { params: Promise<{ l
           {!dataAvailable && (
             <div style={{ borderRadius: 12, padding: '40px 24px', textAlign: 'center', background: 'var(--ts-primary-soft)', border: '1px solid var(--ts-border-hot)' }}>
               <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, color: 'var(--ts-primary)' }}>
-                {t(lang, 'Plantilla en camino', 'Squad coming soon')}
+                {t(lang, 'Plantilla no disponible', 'Squad unavailable')}
               </div>
               <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--ts-muted)', maxWidth: 460, margin: '0 auto' }}>
                 {t(lang,
-                  `La convocatoria de ${name} para el Mundial 2026 se publicará aquí en cuanto esté disponible. Mientras tanto, explora el resto del Mundial.`,
-                  `${name}'s 2026 World Cup squad will appear here as soon as it's available. In the meantime, explore the rest of the World Cup.`)}
+                  `No tenemos la lista de jugadores de ${name} para el Mundial 2026. Los goles y el recorrido del torneo sí están arriba, con datos finales.`,
+                  `We don't have ${name}'s player list for the 2026 World Cup. The goals and the tournament run above are complete and final.`)}
               </p>
               <Link href={`/${lang}/mundial-2026`} style={{ display: 'inline-block', marginTop: 14, fontSize: 12, fontWeight: 700, color: 'var(--ts-primary)', textDecoration: 'none' }}>
                 {t(lang, 'Ir al Mundial 2026 →', 'Go to World Cup 2026 →')}
