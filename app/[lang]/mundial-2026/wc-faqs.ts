@@ -49,47 +49,83 @@ export function wcFaqs(lang: 'es' | 'en', _leader?: string): WcFaq[] {
   ]
 }
 
+/** Facts a nation FAQ needs, all taken from the frozen tournament snapshot. */
+export interface NationFaqFacts {
+  topName?: string
+  topGoals?: number
+  /** How many different players of this nation scored. */
+  scorerCount: number
+  /** Goals the nation scored across the whole tournament. */
+  totalGoals: number
+  /** Localised end-of-run clause ("and won the tournament" / "y cayó en octavos"). */
+  outcome?: string
+  /** Matches played at the tournament. */
+  played: number
+  /** The top scorer's finishing rank in the Golden Boot race, when top-20. */
+  rank?: number | null
+}
+
 /** Nation top-scorer FAQs (per WC nation) — head terms "goleadores [país] mundial
- *  2026" / "[country] top scorers world cup 2026". `topName`/`topGoals` make the
- *  answer concrete + citable for GEO when the tournament is underway. */
+ *  2026" / "[country] top scorers world cup 2026". The tournament is OVER, so
+ *  every answer states a final, citable number instead of promising live updates
+ *  (which is what made these snippets worthless for CTR). */
 export function nationScorersFaqs(
   lang: 'es' | 'en',
   nation: string,
-  topName?: string,
-  topGoals?: number,
+  facts: NationFaqFacts,
 ): WcFaq[] {
   const en = lang === 'en'
-  const hasN = typeof topGoals === 'number'
-  return [
-    {
-      q: en
-        ? `Who are ${nation}'s top scorers at the 2026 World Cup?`
-        : `¿Quiénes son los goleadores de ${nation} en el Mundial 2026?`,
-      a: en
-        ? (topName
-            ? `${topName} is ${nation}'s top scorer at the 2026 World Cup${hasN ? ` with ${topGoals} ${topGoals === 1 ? 'goal' : 'goals'}` : ''}. The full list of ${nation}'s scorers on this page updates live as goals go in throughout the tournament.`
-            : `${nation}'s scorers will appear here from their first match. This page lists every ${nation} goal at the 2026 World Cup and updates live as the tournament is played.`)
-        : (topName
-            ? `${topName} es el máximo goleador de ${nation} en el Mundial 2026${hasN ? ` con ${topGoals} ${topGoals === 1 ? 'gol' : 'goles'}` : ''}. La lista completa de goleadores de ${nation} de esta página se actualiza en directo según se marcan los goles durante el torneo.`
-            : `Los goleadores de ${nation} aparecerán aquí desde su primer partido. Esta página recoge cada gol de ${nation} en el Mundial 2026 y se actualiza en directo a medida que se juega el torneo.`),
-    },
-    {
-      q: en
-        ? `How many goals has ${nation} scored at the 2026 World Cup?`
-        : `¿Cuántos goles ha marcado ${nation} en el Mundial 2026?`,
-      a: en
-        ? `This page adds up every goal scored by ${nation} players at the 2026 World Cup and updates live. The tally starts at zero before the tournament kicks off on June 11, 2026.`
-        : `Esta página suma todos los goles de los jugadores de ${nation} en el Mundial 2026 y se actualiza en directo. El recuento parte de cero antes de que arranque el torneo el 11 de junio de 2026.`,
-    },
-    {
-      q: en
-        ? `Could a ${nation} player win the 2026 World Cup Golden Boot?`
-        : `¿Puede un jugador de ${nation} ganar la Bota de Oro del Mundial 2026?`,
-      a: en
-        ? `Any ${nation} player can win the Golden Boot — it goes to the tournament's overall top scorer, regardless of nation. If level on goals, the tie is broken by most assists, then fewest minutes played.`
-        : `Cualquier jugador de ${nation} puede ganar la Bota de Oro: premia al máximo goleador de todo el torneo, sea de la selección que sea. En caso de empate a goles, decide el mayor número de asistencias y, después, los menos minutos jugados.`,
-    },
-  ]
+  const { topName, topGoals, scorerCount, totalGoals, outcome, played, rank } = facts
+  const g = (n: number) => (en ? `${n} ${n === 1 ? 'goal' : 'goals'}` : `${n} ${n === 1 ? 'gol' : 'goles'}`)
+
+  const faqs: WcFaq[] = []
+
+  faqs.push({
+    q: en
+      ? `Who was ${nation}'s top scorer at the 2026 World Cup?`
+      : `¿Quién fue el máximo goleador de ${nation} en el Mundial 2026?`,
+    a: topName && typeof topGoals === 'number'
+      ? (en
+          ? `${topName} was ${nation}'s top scorer at the 2026 World Cup with ${g(topGoals)}${rank ? `, which placed him ${ordinal(rank, 'en')} in the tournament's Golden Boot race` : ''}. ${scorerCount > 1 ? `${scorerCount} ${nation} players scored in total.` : `He was the only ${nation} player to score.`}`
+          : `${topName} fue el máximo goleador de ${nation} en el Mundial 2026 con ${g(topGoals)}${rank ? `, lo que le situó ${ordinal(rank, 'es')} en la carrera por la Bota de Oro del torneo` : ''}. ${scorerCount > 1 ? `En total marcaron ${scorerCount} jugadores de ${nation}.` : `Fue el único jugador de ${nation} que marcó.`}`)
+      : played === 0
+        ? (en
+            ? `${nation} did not qualify for the 2026 World Cup, so they had no scorers at the tournament. Spain won it, beating Argentina 1-0 after extra time in the final.`
+            : `${nation} no se clasificó para el Mundial 2026, así que no tuvo goleadores en el torneo. Lo ganó España, que venció 1-0 a Argentina en la prórroga de la final.`)
+        : (en
+            ? `No ${nation} player scored at the 2026 World Cup.`
+            : `Ningún jugador de ${nation} marcó en el Mundial 2026.`),
+  })
+
+  if (played === 0) return faqs
+
+  faqs.push({
+    q: en
+      ? `How many goals did ${nation} score at the 2026 World Cup?`
+      : `¿Cuántos goles marcó ${nation} en el Mundial 2026?`,
+    a: en
+      ? `${nation} scored ${g(totalGoals)} at the 2026 World Cup across ${played} ${played === 1 ? 'match' : 'matches'}${outcome ? ` ${outcome}` : ''}. That works out at ${(totalGoals / Math.max(played, 1)).toFixed(2)} goals per match.`
+      : `${nation} marcó ${g(totalGoals)} en el Mundial 2026 en ${played} ${played === 1 ? 'partido' : 'partidos'}${outcome ? ` ${outcome}` : ''}. Son ${(totalGoals / Math.max(played, 1)).toFixed(2)} goles por partido.`,
+  })
+
+  faqs.push({
+    q: en
+      ? `Who won the 2026 World Cup Golden Boot?`
+      : `¿Quién ganó la Bota de Oro del Mundial 2026?`,
+    a: en
+      ? `Kylian Mbappé (France) won the 2026 World Cup Golden Boot with 10 goals.${topName && typeof topGoals === 'number' ? ` ${nation}'s best was ${topName} on ${g(topGoals)}.` : ''} When players finish level on goals the award is decided by assists, then by fewest minutes played.`
+      : `Kylian Mbappé (Francia) ganó la Bota de Oro del Mundial 2026 con 10 goles.${topName && typeof topGoals === 'number' ? ` El mejor de ${nation} fue ${topName}, con ${g(topGoals)}.` : ''} Cuando dos jugadores empatan a goles, decide el número de asistencias y, después, los menos minutos jugados.`,
+  })
+
+  return faqs
+}
+
+/** "3rd" / "3.º" — used to phrase a Golden Boot finishing position. */
+function ordinal(n: number, lang: 'es' | 'en'): string {
+  if (lang === 'es') return `${n}.º`
+  const s = ['th', 'st', 'nd', 'rd']
+  const v = n % 100
+  return n + (s[(v - 20) % 10] ?? s[v] ?? s[0])
 }
 
 /** Golden Boot page FAQs — head terms ("quién va líder", "cómo se decide",
